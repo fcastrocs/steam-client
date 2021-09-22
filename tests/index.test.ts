@@ -12,12 +12,12 @@ describe("Steam", () => {
     const socksOptions: SocksClientOptions = {
       proxy: {
         host: "",
-        port: 1085,
-        type: 4,
+        port: 0,
+        type: 4, //4 or 5
       },
       destination: {
         host: "",
-        port: 27025,
+        port: 0,
       },
       command: "connect",
     };
