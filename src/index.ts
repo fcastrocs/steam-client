@@ -30,18 +30,16 @@ export default class Steam extends Connection {
   /**
    * Login to Steam
    */
-  public login(
-    options: LoginOptions
-  ): Promise<{ auth: AccountAuth; data: AccountData }> {
+  public login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
     if (!this.isConnectionReady()) throw new Error("Not connected to steam.");
-
+    // set up default login options
     options.clientOsType = Language.EOSType.Windows10;
     options.shouldRememberPassword = true;
     options.protocolVersion = PROTOCOL_VERSION;
     options.supportsRateLimitResponse = true;
     options.machineId = this.createMachineID(options.accountName);
     options.machineName = options.machineName || this.createMachineName();
-    // don't include password when using loginkey
+    // don't include password when using loginkey because it's not needed
     const password = options.password;
     if (options.loginKey) {
       delete options.password;
@@ -52,12 +50,6 @@ export default class Steam extends Connection {
 
     // wait for all account data
     return new Promise((resolve, reject) => {
-      // expect login and responses to happen before this timeout
-      const loginTimeoutId = setTimeout(() => {
-        this.destroyConnection(true);
-        reject(responses);
-      }, this.getTimeout());
-
       let responses = [
         "CMsgClientLogonResponse",
         "CMsgClientChangeStatus",
@@ -68,6 +60,13 @@ export default class Steam extends Connection {
         "CMsgClientLicenseList",
       ];
 
+      // expect responses to occur before timeout
+      const loginTimeoutId = setTimeout(() => {
+        this.destroyConnection(true);
+        reject(responses);
+      }, this.getTimeout());
+
+      // extra responses needed of only provided password
       if (!options.shaSentryfile || !options.loginKey) {
         responses.push("CMsgClientNewLoginKey");
         responses.push("CMsgClientUpdateMachineAuth");
@@ -85,6 +84,7 @@ export default class Steam extends Connection {
       let games: Game[] = [];
       let sentry: Buffer;
 
+      // catch responses
       this.once("CMsgClientLogonResponse", async (body) => {
         if (body.eresult === Language.EResult.OK) {
           this.startHeartBeat(body.outOfGameHeartbeatSeconds);
@@ -106,7 +106,6 @@ export default class Steam extends Connection {
 
       this.on("CMsgClientNewLoginKey", (body) => {
         this.send(body, Language.EMsg.ClientNewLoginKeyAccepted);
-        // first login
         loginKey = body.loginKey;
         if (responses.includes("CMsgClientNewLoginKey")) {
           checkCanResolve("CMsgClientNewLoginKey");
@@ -266,8 +265,7 @@ export default class Steam extends Connection {
    * Get avatar from CMsgClientPersonaState response
    */
   private getAvatar(body: { friends: Array<{ avatarHash: Buffer }> }) {
-    const url =
-      "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars";
+    const url = "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars";
     let avatarHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb"; //default avatar
 
     const hash = body.friends[0].avatarHash.toString("hex");
@@ -410,10 +408,7 @@ export default class Steam extends Connection {
   private clientUpdateMachineAuthResponse(sentry: Buffer): sentry {
     const stringHex = SteamCrypto.sha1(sentry);
     const buffer = Buffer.from(stringHex, "hex");
-    this.send(
-      { shaFile: buffer },
-      Language.EMsg.ClientUpdateMachineAuthResponse
-    );
+    this.send({ shaFile: buffer }, Language.EMsg.ClientUpdateMachineAuthResponse);
     return buffer;
   }
 
