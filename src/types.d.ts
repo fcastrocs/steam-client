@@ -43,12 +43,10 @@ interface Game {
 }
 
 interface AccountAuth {
-  accountName: string;
   sentry: Buffer;
   loginKey: string;
   machineName: string;
   webNonce: string;
-  password: string;
 }
 
 interface AccountData {

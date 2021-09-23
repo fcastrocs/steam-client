@@ -18,6 +18,7 @@ const PROTOCOL_VERSION = 65580;
 
 export default class Steam extends Connection {
   private loggedIn = false;
+  
   constructor() {
     super();
 
@@ -179,35 +180,35 @@ export default class Steam extends Connection {
 
       // check if this promise can be resolved
       const checkCanResolve = (response: string) => {
+        // remove this response from array
         responses = responses.filter((item) => item !== response);
 
-        if (responses.length === 0) {
-          clearTimeout(loginTimeoutId);
+        if (responses.length !== 0) return;
 
-          const loginRes: { auth: AccountAuth; data: AccountData } = {
-            auth: {
-              accountName: options.accountName,
-              sentry: sentry || options.shaSentryfile,
-              loginKey: loginKey || options.loginKey || "",
-              machineName: options.machineName || "",
-              password: password || "",
-              webNonce,
-            },
-            data: {
-              steamId,
-              limited,
-              vac,
-              avatar,
-              nickname,
-              communityBanned,
-              locked,
-              games,
-            },
-          };
+        // no more responses left, finally return from login()
+        clearTimeout(loginTimeoutId);
 
-          this.loggedIn = true;
-          resolve(loginRes);
-        }
+        const loginRes: { auth: AccountAuth; data: AccountData } = {
+          auth: {
+            sentry: sentry || options.shaSentryfile,
+            loginKey: loginKey || options.loginKey || "",
+            machineName: options.machineName || "",
+            webNonce,
+          },
+          data: {
+            steamId,
+            limited,
+            vac,
+            avatar,
+            nickname,
+            communityBanned,
+            locked,
+            games,
+          },
+        };
+
+        this.loggedIn = true;
+        resolve(loginRes);
       };
     });
   }
