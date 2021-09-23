@@ -6,12 +6,12 @@
 import { EventEmitter } from "events";
 import { SocksClient, SocksClientOptions } from "socks";
 import { Socket } from "net";
-import * as Zip from "zlib";
-import * as crc32 from "buffer-crc32";
+import Zip from "zlib";
+import crc32 from "buffer-crc32";
 import SteamCrypto from "steam-crypto-ts";
 import resources from "./resources/";
 import * as Protos from "./protos";
-import * as Long from "long";
+import Long from "long";
 
 const Language = resources.language;
 const MAGIC = "VT01";

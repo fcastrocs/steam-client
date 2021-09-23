@@ -1,4 +1,4 @@
-import * as Long from "long";
+import Long from "long";
 
 /**
  * @returns 64-bit Steam ID

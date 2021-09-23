@@ -2,7 +2,7 @@
  * Load steam protos and language
  */
 
-import * as ProtoBuf from "protobufjs";
+import ProtoBuf from "protobufjs";
 
 import EMsg from "./language/EMsg";
 import EOSType from "./language/EOSType";
