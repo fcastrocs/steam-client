@@ -10,7 +10,7 @@
     "allowUnreachableCode": false,
     "noImplicitAny": true,
     "noImplicitReturns": true,
-    "outDir": "dist/",
+    "outDir": "lib/",
     "baseUrl": "src/",
     "esModuleInterop": true
   },
