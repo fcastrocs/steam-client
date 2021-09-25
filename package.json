@@ -1,7 +1,7 @@
 {
   "name": "ts-steam",
   "version": "1.0.0",
-  "main": "lib/src/index.js",
+  "main": "./lib/src/index.js",
   "scripts": {
     "start": "ts-node-dev ./index.ts",
     "test": "jest --maxWorkers 1"
