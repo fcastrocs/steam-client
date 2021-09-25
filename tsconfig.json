@@ -5,7 +5,7 @@
     "module": "commonjs",
     "declaration": true,
     "noLib": false,
-    "sourceMap": true,
+    "sourceMap": false,
     "pretty": true,
     "allowUnreachableCode": false,
     "noImplicitAny": true,
@@ -16,5 +16,5 @@
   },
   "include": ["src/**/*", "tests"],
   "exclude": ["node_modules"],
-  "compileOnSave": false
+  "compileOnSave": false,
 }

@@ -12,6 +12,7 @@ import SteamCrypto from "steam-crypto-ts";
 import resources from "./resources/";
 import * as Protos from "./protos";
 import Long from "long";
+import { LooseObject } from "./types";
 
 const Language = resources.language;
 const MAGIC = "VT01";
@@ -46,10 +47,7 @@ export default class Connection extends EventEmitter {
    * Connect to Steam CM server.
    * Connection is successful until it is encrypted.
    */
-  public async connect(
-    options: SocksClientOptions,
-    timeout?: number
-  ): Promise<void> {
+  public async connect(options: SocksClientOptions, timeout?: number): Promise<void> {
     if (this._connected) return Promise.reject(Error("already connected"));
 
     if (timeout) {
@@ -161,10 +159,7 @@ export default class Connection extends EventEmitter {
 
     // encrypt buffer
     if (this.encrypted && this.sessionKey) {
-      buffMessage = SteamCrypto.symmetricEncryptWithHmacIv(
-        message,
-        this.sessionKey.plain
-      );
+      buffMessage = SteamCrypto.symmetricEncryptWithHmacIv(message, this.sessionKey.plain);
     }
 
     const buf: Buffer = Buffer.alloc(4 + 4 + buffMessage.length);
@@ -322,11 +317,7 @@ export default class Connection extends EventEmitter {
       }
 
       // got a jobId from steam, store it in the map for later use in a response to steam
-      if (
-        body.jobidSource &&
-        !body.jobidSource.equals(MAX_I64) &&
-        !body.jobidSource.equals(MAX_UI64)
-      ) {
+      if (body.jobidSource && !body.jobidSource.equals(MAX_I64) && !body.jobidSource.equals(MAX_UI64)) {
         this.jobIdSources.set(Language.EMsg[EMsg], body.jobidSource);
       }
 
@@ -360,8 +351,7 @@ export default class Connection extends EventEmitter {
       // don't handle these proto because there's no Proto definition (for now)
       if (Language.EMsg[EMsg] === "ServiceMethod") return;
       if (Language.EMsg[EMsg] === "ClientFriendMsgEchoToSender") return;
-      if (Language.EMsg[EMsg] === "ClientChatOfflineMessageNotification")
-        return;
+      if (Language.EMsg[EMsg] === "ClientChatOfflineMessageNotification") return;
       if (Language.EMsg[EMsg] === "ClientFromGC") return;
 
       // decode payload and emit for index.ts to catch

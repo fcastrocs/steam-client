@@ -7,6 +7,7 @@
  *
  */
 import Connection from "./connection";
+import { AccountAuth, AccountData, ChangeStatusOption, Game, LoginOptions } from "./types";
 export default class Steam extends Connection {
     private loggedIn;
     constructor();

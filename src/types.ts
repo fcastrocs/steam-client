@@ -1,8 +1,8 @@
-interface LooseObject {
+export interface LooseObject {
   [key: string]: any;
 }
 
-interface LoginOptions {
+export interface LoginOptions {
   accountName: string;
   password?: string;
   machineName?: string;
@@ -17,14 +17,16 @@ interface LoginOptions {
   machineId?: Buffer;
 }
 
-interface PackageInfo {
+export type Sentry = Buffer;
+
+export interface PackageInfo {
   packageid: number;
   billingtype: number;
   licensetype: number;
   appids: number[];
 }
 
-interface AppInfo {
+export interface AppInfo {
   appid: string;
   common: {
     clienticon: string;
@@ -36,20 +38,20 @@ interface AppInfo {
   };
 }
 
-interface Game {
+export interface Game {
   name: string;
   appid: string;
   logo: string;
 }
 
-interface AccountAuth {
+export interface AccountAuth {
   sentry: Buffer;
   loginKey: string;
   machineName: string;
   webNonce: string;
 }
 
-interface AccountData {
+export interface AccountData {
   steamId: string;
   limited: boolean;
   vac: boolean;
@@ -60,22 +62,20 @@ interface AccountData {
   games: Game[];
 }
 
-interface ChangeStatusOption {
+export interface ChangeStatusOption {
   personaState?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
   playerName?: string;
 }
 
-interface GamesPlayedOption extends LooseObject {
+export interface GamesPlayedOption extends LooseObject {
   gamesPlayed: { gameId: number }[];
 }
 
-interface RequestFreeLicenseOption extends LooseObject {
+export interface RequestFreeLicenseOption extends LooseObject {
   appids: number[];
 }
 
-type sentry = Buffer;
-
-interface CMsgProtoBufHeader {
+export interface CMsgProtoBufHeader {
   steamid: Long;
   clientSessionid: number;
   jobidSource: Long;

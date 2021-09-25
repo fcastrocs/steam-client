@@ -10,6 +10,18 @@
 import Connection from "./connection";
 import resources from "./resources/";
 import SteamCrypto from "steam-crypto-ts";
+import {
+  AccountAuth,
+  AccountData,
+  AppInfo,
+  ChangeStatusOption,
+  Game,
+  GamesPlayedOption,
+  LoginOptions,
+  PackageInfo,
+  RequestFreeLicenseOption,
+  Sentry,
+} from "./types";
 const VDF = require("vdf");
 const BinaryKVParser = require("binarykvparser");
 
@@ -18,7 +30,7 @@ const PROTOCOL_VERSION = 65580;
 
 export default class Steam extends Connection {
   private loggedIn = false;
-  
+
   constructor() {
     super();
 
@@ -406,7 +418,7 @@ export default class Steam extends Connection {
   /**
    * Accept sentry
    */
-  private clientUpdateMachineAuthResponse(sentry: Buffer): sentry {
+  private clientUpdateMachineAuthResponse(sentry: Buffer): Sentry {
     const stringHex = SteamCrypto.sha1(sentry);
     const buffer = Buffer.from(stringHex, "hex");
     this.send({ shaFile: buffer }, Language.EMsg.ClientUpdateMachineAuthResponse);

@@ -5,6 +5,7 @@
 /// <reference types="node" />
 import { EventEmitter } from "events";
 import { SocksClientOptions } from "socks";
+import { LooseObject } from "./types";
 export default class Connection extends EventEmitter {
     private socket;
     private sessionKey;
