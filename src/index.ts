@@ -3,25 +3,14 @@
  *
  * Emits the following:
  * 'disconnected' when connection is lost.
- * 'loginkey' emits loginkey when it is accepted.
+ * 'loginkey' loginkey when it is accepted.
  *
  */
 
 import Connection from "./connection";
 import resources from "./resources/";
 import SteamCrypto from "steam-crypto-ts";
-import {
-  AccountAuth,
-  AccountData,
-  AppInfo,
-  ChangeStatusOption,
-  Game,
-  GamesPlayedOption,
-  LoginOptions,
-  PackageInfo,
-  RequestFreeLicenseOption,
-  Sentry,
-} from "./types";
+
 const VDF = require("vdf");
 const BinaryKVParser = require("binarykvparser");
 
@@ -77,7 +66,7 @@ export default class Steam extends Connection {
       const loginTimeoutId = setTimeout(() => {
         this.destroyConnection(true);
         reject(responses);
-      }, this.getTimeout());
+      }, this.timeout);
 
       // extra responses needed of only provided password
       if (!options.shaSentryfile || !options.loginKey) {
@@ -277,7 +266,7 @@ export default class Steam extends Connection {
   /**
    * Get avatar from CMsgClientPersonaState response
    */
-  private getAvatar(body: { friends: Array<{ avatarHash: Buffer }> }) {
+  private getAvatar(body: { friends: Array<{ avatarHash: Buffer }> }): string {
     const url = "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars";
     let avatarHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb"; //default avatar
 

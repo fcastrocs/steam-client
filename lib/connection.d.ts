@@ -5,7 +5,6 @@
 /// <reference types="node" />
 import { EventEmitter } from "events";
 import { SocksClientOptions } from "socks";
-import { LooseObject } from "./types";
 export default class Connection extends EventEmitter {
     private socket;
     private sessionKey;
@@ -17,14 +16,18 @@ export default class Connection extends EventEmitter {
     private _steamId;
     private heartBeatId;
     private jobIdSources;
-    private timeout;
+    private _timeout;
     constructor();
     /**
      * Connect to Steam CM server.
      * Connection is successful until it is encrypted.
      */
     connect(options: SocksClientOptions, timeout?: number): Promise<void>;
-    getTimeout(): number;
+    /**
+     * Connection timeout
+     * @returns
+     */
+    get timeout(): number;
     /**
      * Whether connection is ready: socket exits and connected and encrypted
      */

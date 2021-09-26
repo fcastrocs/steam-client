@@ -12,7 +12,6 @@ import SteamCrypto from "steam-crypto-ts";
 import resources from "./resources/";
 import * as Protos from "./protos";
 import Long from "long";
-import { LooseObject } from "./types";
 
 const Language = resources.language;
 const MAGIC = "VT01";
@@ -37,7 +36,7 @@ export default class Connection extends EventEmitter {
   private heartBeatId: NodeJS.Timeout | null = null;
   // Map<Language.EMsg[EMsg], jobidSource>
   private jobIdSources: Map<string, Long> = new Map();
-  private timeout = 5000;
+  private _timeout = 5000;
 
   constructor() {
     super();
@@ -51,7 +50,7 @@ export default class Connection extends EventEmitter {
     if (this._connected) return Promise.reject(Error("already connected"));
 
     if (timeout) {
-      this.timeout = timeout;
+      this._timeout = timeout;
     }
 
     // attempt connection
@@ -59,7 +58,7 @@ export default class Connection extends EventEmitter {
       const info = await SocksClient.createConnection(options);
       this.socket = info.socket;
       // consider proxy dead if there's no activity after timeout
-      this.socket.setTimeout(this.timeout);
+      this.socket.setTimeout(this._timeout);
       this._connected = true;
     } catch (error) {
       // dead proxy or steam cm
@@ -79,8 +78,12 @@ export default class Connection extends EventEmitter {
     });
   }
 
-  public getTimeout() {
-    return this.timeout;
+  /**
+   * Connection timeout
+   * @returns
+   */
+  public get timeout() {
+    return this._timeout;
   }
 
   /**

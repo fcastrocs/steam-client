@@ -1,23 +1,24 @@
-import "jest";
 import { SocksClientOptions } from "socks";
-import Steam from "../src/index";
-
-jest.setTimeout(6000);
+import Steam from "../src";
 
 describe("Steam", () => {
   const steam = new Steam();
   const timeout = 5000;
 
+  beforeAll(() => {
+    jest.setTimeout(6000);
+  });
+
   it("should connect to steam", async () => {
     const socksOptions: SocksClientOptions = {
       proxy: {
-        host: "",
-        port: 0,
+        host: "85.208.87.152",
+        port: 1085,
         type: 4, //4 or 5
       },
       destination: {
-        host: "",
-        port: 0,
+        host: "162.254.192.71",
+        port: 27017,
       },
       command: "connect",
     };

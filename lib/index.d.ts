@@ -3,11 +3,10 @@
  *
  * Emits the following:
  * 'disconnected' when connection is lost.
- * 'loginkey' emits loginkey when it is accepted.
+ * 'loginkey' loginkey when it is accepted.
  *
  */
 import Connection from "./connection";
-import { AccountAuth, AccountData, ChangeStatusOption, Game, LoginOptions } from "./types";
 export default class Steam extends Connection {
     private loggedIn;
     constructor();
