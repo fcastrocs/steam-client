@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest --maxWorkers 1",
     "build": "tsc",
-    "postbuild": "copyfiles --error --up 3 src/resources/protobufs/*.* lib/resources/protobufs"
+    "postbuild": "copyfiles --up 3 src/resources/protobufs/*.* lib/resources/protobufs && copyfiles --up 1 src/index.d.ts lib"
   },
   "author": "",
   "license": "ISC",
