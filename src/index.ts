@@ -10,6 +10,18 @@
 import Connection from "./connection";
 import resources from "./resources/";
 import SteamCrypto from "steam-crypto-ts";
+import {
+  LoginOptions,
+  AccountAuth,
+  AccountData,
+  Game,
+  ChangeStatusOption,
+  GamesPlayedOption,
+  RequestFreeLicenseOption,
+  PackageInfo,
+  AppInfo,
+  Sentry,
+} from "@types";
 
 const VDF = require("vdf");
 const BinaryKVParser = require("binarykvparser");

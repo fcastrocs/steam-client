@@ -12,6 +12,7 @@ import SteamCrypto from "steam-crypto-ts";
 import resources from "./resources/";
 import * as Protos from "./protos";
 import Long from "long";
+import { LooseObject } from "@types";
 
 const Language = resources.language;
 const MAGIC = "VT01";
