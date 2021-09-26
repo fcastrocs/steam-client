@@ -6,7 +6,7 @@
  * 'loginkey' loginkey when it is accepted.
  *
  */
-import Connection from "../connection";
+import Connection from "./connection";
 export default class Steam extends Connection {
   private loggedIn;
   constructor();
