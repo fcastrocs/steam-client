@@ -304,8 +304,6 @@ export default class Connection extends EventEmitter {
 
     let payload: Buffer;
 
-    //console.log(Language.EMsg[EMsg])
-
     // decode MsgHdrProtoBuf
     if (isMsgHdrProtoBuf) {
       const headerLength = packet.readUInt32LE(4);
