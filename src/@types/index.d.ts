@@ -99,8 +99,9 @@ export interface Game {
 
 export type Sentry = Buffer;
 
+export type PersonaState = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
 export interface ChangeStatusOption {
-  personaState?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  personaState?: PersonaState;
   playerName?: string;
 }
 
