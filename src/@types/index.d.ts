@@ -99,7 +99,8 @@ export interface Game {
 
 export type Sentry = Buffer;
 
-export type PersonaState = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+// 0 - Offline, 1 - Online, 2 - Busy, 3 - Away, 4 - Snooze, 5 - looking to trade, 6 - looking to play.
+export type PersonaState = 0 | 1 | 2 | 3 | 4 | 5 | 6; 
 export interface ChangeStatusOption {
   personaState?: PersonaState;
   playerName?: string;
