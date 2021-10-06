@@ -80,8 +80,8 @@ export default class Steam extends Connection {
         reject(responses);
       }, this.timeout);
 
-      // extra responses needed of only provided password
-      if (!options.shaSentryfile || !options.loginKey) {
+      // extra responses needed if only provided password
+      if (!options.shaSentryfile && !options.loginKey) {
         responses.push("CMsgClientNewLoginKey");
         responses.push("CMsgClientUpdateMachineAuth");
       }
