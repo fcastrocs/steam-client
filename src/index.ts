@@ -382,7 +382,15 @@ export default class Steam extends Connection {
         logo: app.common.logo,
       });
     }
-    return games;
+
+    // for some reason Steam can return duplicates.
+    const seen = new Set();
+    // remove duplicates
+    return games.filter((game) => {
+      const res = seen.has(game.appid);
+      seen.add(game.appid);
+      return !res;
+    });
   }
 
   /**
