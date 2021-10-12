@@ -1,23 +1,21 @@
 import { SocksClientOptions } from "socks";
-import Steam from "../src";
+import Steam from "../index";
 
 describe("Steam", () => {
   const steam = new Steam();
-  const timeout = 5000;
-
-  beforeAll(() => {
-    jest.setTimeout(6000);
-  });
+  const timeout = 10000;
 
   it("should connect to steam", async () => {
     const socksOptions: SocksClientOptions = {
       proxy: {
-        host: "85.208.87.152",
-        port: 1085,
-        type: 4, //4 or 5
+        host: "",
+        port: 12345,
+        type: 5, //4 or 5
+        userId: "",
+        password: "",
       },
       destination: {
-        host: "162.254.192.71",
+        host: "162.254.192.108",
         port: 27017,
       },
       command: "connect",
@@ -27,10 +25,13 @@ describe("Steam", () => {
   });
 
   it("should login to steam", async () => {
-    await steam.login({
+    const res = await steam.login({
       accountName: "",
-      password: "",
+      loginKey: "",
+      shaSentryfile: Buffer.from("sentry string", "hex"),
     });
+    console.log(res.auth.loginKey);
+    console.log(res.auth.sentry.toString("hex"));
   });
 
   afterAll(() => {

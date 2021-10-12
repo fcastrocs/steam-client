@@ -66,7 +66,6 @@ export default class Steam extends Connection {
     return new Promise((resolve, reject) => {
       let responses = [
         "CMsgClientLogonResponse",
-        "CMsgClientChangeStatus",
         "CMsgClientIsLimitedAccount",
         "CMsgClientVACBanStatus",
         "CMsgClientPersonaState",
@@ -74,17 +73,21 @@ export default class Steam extends Connection {
         "CMsgClientLicenseList",
       ];
 
+      // expect a sentry if options did not provide one.
+      if (!options.shaSentryfile) {
+        responses.push("CMsgClientUpdateMachineAuth");
+      }
+
+      // expect a loginKey if options did not provide one
+      if (!options.loginKey) {
+        responses.push("CMsgClientNewLoginKey");
+      }
+
       // expect responses to occur before timeout
       const loginTimeoutId = setTimeout(() => {
         this.destroyConnection(true);
         reject(responses);
       }, this.timeout);
-
-      // extra responses needed if only provided password
-      if (!options.shaSentryfile && !options.loginKey) {
-        responses.push("CMsgClientNewLoginKey");
-        responses.push("CMsgClientUpdateMachineAuth");
-      }
 
       let webNonce: string;
       let steamId: string;
@@ -111,18 +114,30 @@ export default class Steam extends Connection {
         }
 
         // set online status
-        checkCanResolve("CMsgClientLogonResponse");
         this.clientChangeStatus({
           personaState: Language.EPersonaState.Online,
         });
-        checkCanResolve("CMsgClientChangeStatus");
+        checkCanResolve("CMsgClientLogonResponse");
       });
 
       this.on("CMsgClientNewLoginKey", (body) => {
         this.send(body, Language.EMsg.ClientNewLoginKeyAccepted);
         loginKey = body.loginKey;
+
+        // maybe steam sends a loginKey randomly, when not expecting one, likely.
         if (responses.includes("CMsgClientNewLoginKey")) {
           checkCanResolve("CMsgClientNewLoginKey");
+        } else {
+          // emit it so it can be handled approperly.
+          this.emit("loginKey", loginKey);
+        }
+      });
+
+      this.once("CMsgClientUpdateMachineAuth", (body) => {
+        sentry = this.clientUpdateMachineAuthResponse(body.bytes);
+        // maybe steam sends a sentry randomly, when not expecting one, not likely.
+        if (responses.includes("CMsgClientUpdateMachineAuth")) {
+          checkCanResolve("CMsgClientUpdateMachineAuth");
         }
       });
 
@@ -146,7 +161,8 @@ export default class Steam extends Connection {
       this.once("CMsgClientAccountInfo", (body) => {
         nickname = body.personaName;
         checkCanResolve("CMsgClientAccountInfo");
-        // no steam guard, don't wait for sentry
+        // no steam guard
+        // steam will not send sentry, but will still send loginKey
         if (body.twoFactorState === 0) {
           checkCanResolve("CMsgClientUpdateMachineAuth");
         }
@@ -183,20 +199,12 @@ export default class Steam extends Connection {
         checkCanResolve("CMsgClientLicenseList");
       });
 
-      if (!options.shaSentryfile) {
-        this.once("CMsgClientUpdateMachineAuth", (body) => {
-          // not emmited if using a sentry file
-          sentry = this.clientUpdateMachineAuthResponse(body.bytes);
-          checkCanResolve("CMsgClientUpdateMachineAuth");
-        });
-      }
-
       // check if this promise can be resolved
       const checkCanResolve = (response: string) => {
         // remove this response from array
         responses = responses.filter((item) => item !== response);
-
-        if (responses.length !== 0) return;
+        //  there are still responses left
+        if (responses.length) return;
 
         // no more responses left, finally return from login()
         clearTimeout(loginTimeoutId);
