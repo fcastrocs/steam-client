@@ -17,7 +17,6 @@ export default class Steam extends Connection {
     auth: AccountAuth;
     data: AccountData;
   }>;
-
   /**
    * Forces connection drop
    */

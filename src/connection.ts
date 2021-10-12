@@ -35,9 +35,11 @@ export default class Connection extends EventEmitter {
   private sessionId = 0;
   private _steamId: Long = Long.fromString("76561197960265728", true);
   private heartBeatId: NodeJS.Timeout | null = null;
+  private error: Error;
   // Map<Language.EMsg[EMsg], jobidSource>
   private jobIdSources: Map<string, Long> = new Map();
-  private _timeout = 5000;
+  private _timeout = 10000; // 10 seconds
+  private _connectionReady = false;
 
   constructor() {
     super();
@@ -48,8 +50,7 @@ export default class Connection extends EventEmitter {
    * Connection is successful until it is encrypted.
    */
   public async connect(options: SocksClientOptions, timeout?: number): Promise<void> {
-    if (this._connected) return Promise.reject(Error("already connected"));
-
+    // set default timout if it was not passed.
     if (timeout) {
       this._timeout = timeout;
     }
@@ -63,18 +64,23 @@ export default class Connection extends EventEmitter {
       this._connected = true;
     } catch (error) {
       // dead proxy or steam cm
-      return Promise.reject("dead proxy or steamcm");
+      throw "Dead proxy or SteamCM.";
     }
 
-    // register socket even listeners
-    this.registerListeners();
+    // start reading data
+    this.socket.on("readable", () => {
+      this.readData();
+    });
 
     // wait for connection encryption
     return new Promise((resolve, reject) => {
-      this.once("encryption-success", () => resolve());
+      this.once("encryption-success", () => {
+        this._connectionReady = true;
+        this.registerListeners;
+        resolve();
+      });
       this.once("encryption-fail", () => {
-        this.destroyConnection();
-        reject("encryption failed");
+        reject("Steam connection encryption failed.");
       });
     });
   }
@@ -88,10 +94,10 @@ export default class Connection extends EventEmitter {
   }
 
   /**
-   * Whether connection is ready: socket exits and connected and encrypted
+   * Whether connection is ready
    */
-  public isConnectionReady(): boolean {
-    return !(!this.socket || (!this._connected && !this.encrypted));
+  public get connectionReady(): boolean {
+    return this._connectionReady;
   }
 
   /**
@@ -99,8 +105,8 @@ export default class Connection extends EventEmitter {
    */
   public destroyConnection(forceDisconnect = false): void {
     // dont emit 'disconnected' event when user forced disconnect
-    if (!forceDisconnect) {
-      this.emit("socket disconnected");
+    if (!forceDisconnect && this._connectionReady) {
+      this.emit("socket disconnected", this.error);
     }
 
     if (this.heartBeatId) {
@@ -119,8 +125,8 @@ export default class Connection extends EventEmitter {
    * Heartbeat connection after login
    */
   public startHeartBeat(beatTimeSecs: number): void {
-    if (!this.socket || !this._connected || !this.encrypted) {
-      return;
+    if (!this._connectionReady) {
+      throw Error("Not connected to Steam.");
     }
 
     // increase timeout so connection is not dropped in between heartbeats
@@ -142,9 +148,9 @@ export default class Connection extends EventEmitter {
     }
 
     if (!EMsg && !(message instanceof Buffer)) {
-      throw new Error("message must be a buffer if EMsg is not passed.");
+      throw Error("message must be a buffer if EMsg is not passed.");
     } else if (EMsg && message instanceof Buffer) {
-      throw new Error("message must be a plain object if EMsg is passed.");
+      throw Error("message must be a plain object if EMsg is passed.");
     }
 
     // build MsgHdrProtoBuf, encode message and concat
@@ -156,7 +162,7 @@ export default class Connection extends EventEmitter {
 
     // get rid of annoying ts type warning
     if (!(message instanceof Buffer)) {
-      throw new Error("message must be a buffer.");
+      throw Error("message must be a buffer.");
     }
 
     let buffMessage: Buffer = message;
@@ -172,6 +178,29 @@ export default class Connection extends EventEmitter {
     buffMessage.copy(buf, 8);
 
     this.socket.write(buf);
+  }
+
+  /**
+   * Important socks events
+   */
+  private registerListeners(): void {
+    if (!this._connectionReady) {
+      throw Error("Not connected to Steam.");
+    }
+
+    this.socket.on("close", () => {
+      this.destroyConnection();
+    });
+
+    // transmission error, 'close' event is called after this
+    this.socket.on("error", (err) => {
+      this.error = err;
+    });
+
+    // this is just a notification, it doesn't cause disconnect.
+    this.socket.on("timeout", () => {
+      // do nothing
+    });
   }
 
   /**
@@ -214,31 +243,6 @@ export default class Connection extends EventEmitter {
   }
 
   /**
-   * Important socks events
-   */
-  private registerListeners(): void {
-    if (!this.socket) return;
-
-    this.socket.on("close", () => {
-      this.destroyConnection();
-    });
-
-    // transmission error, 'close' event is called after this
-    this.socket.on("error", (err) => {
-      console.error("SOCKS ERROR EVENT: " + err);
-    });
-
-    // this is just a notification, it doesn't cause disconnect.
-    this.socket.on("timeout", () => {
-      false;
-    });
-
-    this.socket.on("readable", () => {
-      this.readData();
-    });
-  }
-
-  /**
    * Read data sent by steam
    * header: Buffer of 8 bytes (uint packetsize 4 bytes, string MAGIC 4 bytes)
    * Packet: Buffer of packetsize bytes
@@ -256,7 +260,8 @@ export default class Connection extends EventEmitter {
       this.packetSize = header.readUInt32LE(0);
 
       if (header.slice(4).toString("ascii") != MAGIC) {
-        this.emit("error", "***connection out of sync***");
+        this.error = Error("Steam connection is out of sync.");
+        this.destroyConnection();
         return;
       }
     }
@@ -278,7 +283,8 @@ export default class Connection extends EventEmitter {
       try {
         packet = SteamCrypto.symmetricDecrypt(packet, this.sessionKey.plain);
       } catch (error) {
-        this.emit("error", "***decryption failed***");
+        this.error = Error("Steam data decryption failed.");
+        this.destroyConnection();
         return;
       }
     }
@@ -296,8 +302,6 @@ export default class Connection extends EventEmitter {
    * Packet has two parts: (MsgHdrProtoBuf or ExtendedClientMsgHdr) and payload message (proto)
    */
   private async decodePacket(packet: Buffer) {
-    if (!this.socket || !this._connected) return;
-
     const rawEMsg = packet.readUInt32LE(0);
     const EMsg = rawEMsg & ~PROTO_MASK;
     const isMsgHdrProtoBuf = rawEMsg & PROTO_MASK;

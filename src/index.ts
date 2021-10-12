@@ -36,8 +36,8 @@ export default class Steam extends Connection {
     super();
 
     // catch 'socket disconnected' event and emit 'disconected' only if user logged in
-    this.on("socket disconnected", () => {
-      if (this.loggedIn) this.emit("disconnected");
+    this.on("socket disconnected", (err: Error) => {
+      if (this.loggedIn) this.emit("disconnected", err);
     });
   }
 
@@ -45,7 +45,9 @@ export default class Steam extends Connection {
    * Login to Steam
    */
   public login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
-    if (!this.isConnectionReady()) throw new Error("Not connected to steam.");
+    if (!this.connectionReady) throw Error("Not connected to Steam.");
+    if (this.loggedIn) throw Error("Already logged in.");
+
     // set up default login options
     options.clientOsType = Language.EOSType.Windows10;
     options.shouldRememberPassword = true;
@@ -245,6 +247,7 @@ export default class Steam extends Connection {
    * Change persona name or status
    */
   public clientChangeStatus(body: ChangeStatusOption): void {
+    if (!this.loggedIn) throw Error("Not logged in.");
     this.send(body, Language.EMsg.ClientChangeStatus);
   }
 
@@ -253,6 +256,7 @@ export default class Steam extends Connection {
    * empty array stops idling
    */
   public clientGamesPlayed(appIds: number[]): void {
+    if (!this.loggedIn) throw Error("Not logged in.");
     const body: GamesPlayedOption = {
       gamesPlayed: [],
     };
@@ -268,6 +272,7 @@ export default class Steam extends Connection {
    * Activate free games
    */
   public clientRequestFreeLicense(appIds: number[]): Promise<Game[]> {
+    if (!this.loggedIn) throw Error("Not logged in.");
     if (appIds.length === 0) return Promise.resolve([]);
 
     const body: RequestFreeLicenseOption = {

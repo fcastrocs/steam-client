@@ -16,8 +16,10 @@ export default class Connection extends EventEmitter {
   private sessionId;
   private _steamId;
   private heartBeatId;
+  private error;
   private jobIdSources;
   private _timeout;
+  private _connectionReady;
   constructor();
   /**
    * Connect to Steam CM server.
@@ -30,9 +32,9 @@ export default class Connection extends EventEmitter {
    */
   get timeout(): number;
   /**
-   * Whether connection is ready: socket exits and connected and encrypted
+   * Whether connection is ready
    */
-  isConnectionReady(): boolean;
+  get connectionReady(): boolean;
   /**
    * Destroy connection to Steam and do some cleanup
    */
@@ -48,13 +50,13 @@ export default class Connection extends EventEmitter {
    */
   send(message: Buffer | LooseObject, EMsg?: number): void;
   /**
-   * Build a MsgHdrProtoBuf buffer
-   */
-  private buildMsgHdrProtoBuf;
-  /**
    * Important socks events
    */
   private registerListeners;
+  /**
+   * Build a MsgHdrProtoBuf buffer
+   */
+  private buildMsgHdrProtoBuf;
   /**
    * Read data sent by steam
    * header: Buffer of 8 bytes (uint packetsize 4 bytes, string MAGIC 4 bytes)
