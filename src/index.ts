@@ -247,7 +247,6 @@ export default class Steam extends Connection {
    * Change persona name or status
    */
   public clientChangeStatus(body: ChangeStatusOption): void {
-    if (!this.loggedIn) throw Error("Not logged in.");
     this.send(body, Language.EMsg.ClientChangeStatus);
   }
 
@@ -256,7 +255,6 @@ export default class Steam extends Connection {
    * empty array stops idling
    */
   public clientGamesPlayed(appIds: number[]): void {
-    if (!this.loggedIn) throw Error("Not logged in.");
     const body: GamesPlayedOption = {
       gamesPlayed: [],
     };
@@ -272,7 +270,6 @@ export default class Steam extends Connection {
    * Activate free games
    */
   public clientRequestFreeLicense(appIds: number[]): Promise<Game[]> {
-    if (!this.loggedIn) throw Error("Not logged in.");
     if (appIds.length === 0) return Promise.resolve([]);
 
     const body: RequestFreeLicenseOption = {
