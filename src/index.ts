@@ -235,6 +235,13 @@ export default class Steam extends Connection {
   }
 
   /**
+   * Forces connection drop
+   */
+  public disconnect() {
+    this.destroyConnection(true);
+  }
+
+  /**
    * Change persona name or status
    */
   public clientChangeStatus(body: ChangeStatusOption): void {

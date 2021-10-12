@@ -17,6 +17,11 @@ export default class Steam extends Connection {
     auth: AccountAuth;
     data: AccountData;
   }>;
+
+  /**
+   * Forces connection drop
+   */
+  disconnect(): void;
   /**
    * Change persona name or status
    */
