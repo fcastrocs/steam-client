@@ -76,7 +76,7 @@ export default class Connection extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.once("encryption-success", () => {
         this._connectionReady = true;
-        this.registerListeners;
+        this.registerListeners();
         resolve();
       });
       this.once("encryption-fail", () => {
