@@ -16,11 +16,9 @@
     "buffer-crc32": "^0.2.13",
     "long": "^4.0.0",
     "protobufjs": "^6.11.2",
-    "remove": "^0.1.5",
     "socks": "^2.6.1",
     "steam-crypto-ts": "^3.0.1",
-    "vdf": "^0.0.2",
-    "zlib": "^1.0.5"
+    "vdf": "^0.0.2"
   },
   "devDependencies": {
     "@types/buffer-crc32": "^0.2.0",
