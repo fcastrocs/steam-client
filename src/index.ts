@@ -9,7 +9,7 @@
 
 import Connection from "./connection";
 import resources from "./resources/";
-import SteamCrypto from "steam-crypto-ts";
+import * as SteamCrypto from "steam-crypto-ts";
 import {
   LoginOptions,
   AccountAuth,
