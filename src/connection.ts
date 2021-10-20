@@ -63,6 +63,8 @@ export default class Connection extends EventEmitter {
       this.socket.setTimeout(this._timeout);
       this._connected = true;
     } catch (error) {
+      console.log(error);
+      
       // dead proxy or steam cm
       throw "Dead proxy or SteamCM.";
     }
