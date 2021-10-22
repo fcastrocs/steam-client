@@ -35,6 +35,6 @@ describe("Steam", () => {
   });
 
   afterAll(() => {
-    steam.destroyConnection();
+    steam.disconnect();
   });
 });
