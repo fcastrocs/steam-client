@@ -28,7 +28,6 @@ interface SessionKey {
 export default class Connection extends EventEmitter {
   private socket: Socket | null = null;
   private sessionKey: SessionKey | null = null;
-  private _connected = false;
   private encrypted = false;
   private packetSize = 0;
   private incompletePacket = false;
@@ -47,7 +46,6 @@ export default class Connection extends EventEmitter {
 
   /**
    * Connect to Steam CM server.
-   * Connection is successful until it is encrypted.
    */
   public async connect(options: SocksClientOptions, timeout?: number): Promise<void> {
     // set default timout if it was not passed.
@@ -56,25 +54,18 @@ export default class Connection extends EventEmitter {
     }
 
     // attempt connection
-    try {
-      const info = await SocksClient.createConnection(options);
-      this.socket = info.socket;
-      // consider proxy dead if there's no activity after timeout
-      this.socket.setTimeout(this._timeout);
-      this._connected = true;
-    } catch (error) {
-      console.log(error);
-      
-      // dead proxy or steam cm
-      throw "Dead proxy or SteamCM.";
-    }
+    const info = await SocksClient.createConnection(options);
+    this.socket = info.socket;
+
+    // consider proxy dead if there's no activity after timeout
+    this.socket.setTimeout(this._timeout);
 
     // start reading data
     this.socket.on("readable", () => {
       this.readData();
     });
 
-    // wait for connection encryption
+    // wait for encryption handshake
     return new Promise((resolve, reject) => {
       this.once("encryption-success", () => {
         this._connectionReady = true;
@@ -88,27 +79,34 @@ export default class Connection extends EventEmitter {
   }
 
   /**
-   * Connection timeout
-   * @returns
+   * Disconnect from Steam CM server.
    */
-  public get timeout() {
-    return this._timeout;
+  public disconnect() {
+    this.destroyConnection(true);
   }
 
   /**
-   * Whether connection is ready
+   * Whether connection is ready for login
    */
-  public get connectionReady(): boolean {
+  protected get connectionReady(): boolean {
     return this._connectionReady;
   }
 
   /**
-   * Destroy connection to Steam and do some cleanup
+   * Connection timeout
    */
-  public destroyConnection(forceDisconnect = false): void {
+  protected get timeout() {
+    return this._timeout;
+  }
+
+  /**
+   * Destroy connection to Steam and do some cleanup
+   * ForceDisconnect is truthy when user destroys connection
+   */
+  protected destroyConnection(forceDisconnect = false): void {
     // dont emit 'disconnected' event when user forced disconnect
     if (!forceDisconnect && this._connectionReady) {
-      this.emit("socket disconnected", this.error);
+      this.emit("disconnected", this.error);
     }
 
     if (this.heartBeatId) {
@@ -126,11 +124,7 @@ export default class Connection extends EventEmitter {
   /**
    * Heartbeat connection after login
    */
-  public startHeartBeat(beatTimeSecs: number): void {
-    if (!this._connectionReady) {
-      throw Error("Not connected to Steam.");
-    }
-
+  protected startHeartBeat(beatTimeSecs: number): void {
     // increase timeout so connection is not dropped in between heartbeats
     this.socket.setTimeout((beatTimeSecs + 5) * 1000);
 
@@ -140,14 +134,12 @@ export default class Connection extends EventEmitter {
   }
 
   /**
-   * Send message to steam
+   * Send message to steam [msgHdrProtoBuf, data]
    * if EMsg is passed, MsgHdrProtoBuf will be built automatically, and message will be encoded
-   * if EMsg is not passed, assumes the mssage is already concat with MsgHdrProtoBuf
+   * if EMsg is not passed, assumes the message is already concated with MsgHdrProtoBuf
    */
-  public send(message: Buffer | LooseObject, EMsg?: number): void {
-    if (!this.socket || !this._connected) {
-      return;
-    }
+  protected send(message: Buffer | LooseObject, EMsg?: number): void {
+    if (!this.socket) return;
 
     if (!EMsg && !(message instanceof Buffer)) {
       throw Error("message must be a buffer if EMsg is not passed.");
@@ -186,22 +178,18 @@ export default class Connection extends EventEmitter {
    * Important socks events
    */
   private registerListeners(): void {
-    if (!this._connectionReady) {
-      throw Error("Not connected to Steam.");
-    }
-
     this.socket.on("close", () => {
       this.destroyConnection();
     });
 
     // transmission error, 'close' event is called after this
     this.socket.on("error", (err) => {
-      this.error = err;
+      this.error = Error(err.message);
     });
 
     // this is just a notification, it doesn't cause disconnect.
     this.socket.on("timeout", () => {
-      // do nothing
+      this.error = Error("timeout");
     });
   }
 
@@ -250,7 +238,7 @@ export default class Connection extends EventEmitter {
    * Packet: Buffer of packetsize bytes
    */
   private readData(): void {
-    if (!this.socket || !this._connected) return;
+    if (!this.socket) return;
 
     // not waiting for a packet, decode header
     if (!this.incompletePacket) {
@@ -271,7 +259,7 @@ export default class Connection extends EventEmitter {
     // read packet
     let packet = this.socket.read(this.packetSize);
     if (!packet) {
-      // sometimes steam only sends the header so we must keep checking until steam sends it
+      // sometimes steam only sends the header, must keep checking until steam sends packet
       this.incompletePacket = true;
       return;
     }
@@ -291,12 +279,13 @@ export default class Connection extends EventEmitter {
       }
     }
 
-    // decode packet
+    // connection is not yet encrypted
     if (!this.encrypted) {
       this.encryptConnection(packet);
-    } else {
-      this.decodePacket(packet);
+      return;
     }
+
+    this.decodePacket(packet);
   }
 
   /**
@@ -347,7 +336,7 @@ export default class Connection extends EventEmitter {
     if (EMsg === Language.EMsg.Multi) {
       await this.multi(payload);
     } else {
-      // manually handle this proto because there's definition for it
+      // manually handle this proto because there's no Proto for it
       if (Language.EMsg[EMsg] === "ClientVACBanStatus") {
         const bans = payload.readUInt32LE(0);
         this.emit("CMsgClientVACBanStatus", {
@@ -356,7 +345,7 @@ export default class Connection extends EventEmitter {
         return;
       }
 
-      // don't handle these proto because there's no Proto definition (for now)
+      // don't decode these messages because there's no Proto for them
       if (Language.EMsg[EMsg] === "ServiceMethod") return;
       if (Language.EMsg[EMsg] === "ClientFriendMsgEchoToSender") return;
       if (Language.EMsg[EMsg] === "ClientChatOfflineMessageNotification") return;
@@ -389,7 +378,7 @@ export default class Connection extends EventEmitter {
   }
 
   /**
-   * multi() helper function
+   * multi()
    */
   private unzipPayload(payload: Buffer): Promise<Buffer> {
     return new Promise((resolve) => {
@@ -420,7 +409,8 @@ export default class Connection extends EventEmitter {
   }
 
   /**
-   * Send connection encryption response
+   * Send connection encryption response.
+   * Starts encryption handshake
    */
   private channelEncryptResponse(body: Buffer): void {
     const protocol = body.readUInt32LE(0);
@@ -451,7 +441,7 @@ export default class Connection extends EventEmitter {
   }
 
   /**
-   * Connection encryption result
+   * Connection encryption handshake result
    */
   private ChannelEncryptResult(body: Buffer): void {
     const EResult: number = body.readUInt32LE(0);

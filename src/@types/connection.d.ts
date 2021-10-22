@@ -1,15 +1,14 @@
 /**
  * Handle low-level connection to steam.
- * Emits 'socket disconnected' if connection is lost
  */
-/// <reference types="node" />
-import { LooseObject } from "@types";
 import { EventEmitter } from "events";
 import { SocksClientOptions } from "socks";
+import { LooseObject } from "@types";
 export default class Connection extends EventEmitter {
+  on(event: "disconnected", listener: (error: Error) => void): this;
+
   private socket;
   private sessionKey;
-  private _connected;
   private encrypted;
   private packetSize;
   private incompletePacket;
@@ -21,34 +20,40 @@ export default class Connection extends EventEmitter {
   private _timeout;
   private _connectionReady;
   constructor();
+
   /**
    * Connect to Steam CM server.
-   * Connection is successful until it is encrypted.
    */
   connect(options: SocksClientOptions, timeout?: number): Promise<void>;
   /**
-   * Connection timeout
-   * @returns
+   * Disconnect from Steam CM server.
    */
-  get timeout(): number;
+  disconnect(): void;
+
   /**
-   * Whether connection is ready
+   * Whether connection is ready for login
    */
-  get connectionReady(): boolean;
+  protected get connectionReady(): boolean;
+
+  /**
+   * Connection timeout
+   */
+  protected get timeout(): number;
   /**
    * Destroy connection to Steam and do some cleanup
+   * ForceDisconnect is truthy when user destroys connection
    */
-  destroyConnection(forceDisconnect?: boolean): void;
+  protected destroyConnection(forceDisconnect?: boolean): void;
   /**
    * Heartbeat connection after login
    */
-  startHeartBeat(beatTimeSecs: number): void;
+  protected startHeartBeat(beatTimeSecs: number): void;
   /**
-   * Send message to steam
+   * Send message to steam [msgHdrProtoBuf, data]
    * if EMsg is passed, MsgHdrProtoBuf will be built automatically, and message will be encoded
-   * if EMsg is not passed, assumes the mssage is already concat with MsgHdrProtoBuf
+   * if EMsg is not passed, assumes the message is already concated with MsgHdrProtoBuf
    */
-  send(message: Buffer | LooseObject, EMsg?: number): void;
+  protected send(message: Buffer | LooseObject, EMsg?: number): void;
   /**
    * Important socks events
    */
@@ -73,7 +78,7 @@ export default class Connection extends EventEmitter {
    */
   private multi;
   /**
-   * multi() helper function
+   * multi()
    */
   private unzipPayload;
   /**
@@ -81,11 +86,12 @@ export default class Connection extends EventEmitter {
    */
   private encryptConnection;
   /**
-   * Send connection encryption response
+   * Send connection encryption response.
+   * Starts encryption handshake
    */
   private channelEncryptResponse;
   /**
-   * Connection encryption result
+   * Connection encryption handshake result
    */
   private ChannelEncryptResult;
 }

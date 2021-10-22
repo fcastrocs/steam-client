@@ -17,7 +17,7 @@
     "long": "^4.0.0",
     "protobufjs": "^6.11.2",
     "socks": "^2.6.1",
-    "steam-crypto-ts": "^3.0.4",
+    "steam-crypto-ts": "^3.0.7",
     "vdf": "^0.0.2"
   },
   "devDependencies": {

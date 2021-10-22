@@ -9,7 +9,7 @@
 
 import Connection from "./connection";
 import resources from "./resources/";
-import * as SteamCrypto from "steam-crypto-ts";
+import SteamCrypto from "steam-crypto-ts";
 import {
   LoginOptions,
   AccountAuth,
@@ -34,11 +34,6 @@ export default class Steam extends Connection {
 
   constructor() {
     super();
-
-    // catch 'socket disconnected' event and emit 'disconected' only if user logged in
-    this.on("socket disconnected", (err: Error) => {
-      if (this.loggedIn) this.emit("disconnected", err);
-    });
   }
 
   /**
@@ -87,7 +82,7 @@ export default class Steam extends Connection {
 
       // expect responses to occur before timeout
       const loginTimeoutId = setTimeout(() => {
-        this.destroyConnection(true);
+        this.disconnect();
         reject(responses);
       }, this.timeout);
 
@@ -111,7 +106,7 @@ export default class Steam extends Connection {
           steamId = body.clientSuppliedSteamid.toString();
         } else {
           clearTimeout(loginTimeoutId);
-          this.destroyConnection();
+          this.disconnect();
           return reject(Language.EResult[body.eresult]);
         }
 
@@ -234,13 +229,6 @@ export default class Steam extends Connection {
         resolve(loginRes);
       };
     });
-  }
-
-  /**
-   * Forces connection drop
-   */
-  public disconnect() {
-    this.destroyConnection(true);
   }
 
   /**

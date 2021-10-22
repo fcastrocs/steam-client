@@ -1,10 +1,5 @@
 /**
  * Manages high-level Steam operations
- *
- * Emits the following:
- * 'disconnected' when connection is lost.
- * 'loginkey' loginkey when it is accepted.
- *
  */
 import Connection from "./connection";
 export default class Steam extends Connection {
@@ -17,10 +12,6 @@ export default class Steam extends Connection {
     auth: AccountAuth;
     data: AccountData;
   }>;
-  /**
-   * Forces connection drop
-   */
-  disconnect(): void;
   /**
    * Change persona name or status
    */
