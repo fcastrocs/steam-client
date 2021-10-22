@@ -5,8 +5,6 @@ import { EventEmitter } from "events";
 import { SocksClientOptions } from "socks";
 import { LooseObject } from "@types";
 export default class Connection extends EventEmitter {
-  on(event: "disconnected", listener: (error: Error) => void): this;
-
   private socket;
   private sessionKey;
   private encrypted;
