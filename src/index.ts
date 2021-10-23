@@ -50,8 +50,8 @@ export default class Steam extends Connection {
     options.supportsRateLimitResponse = true;
     options.machineId = this.createMachineID(options.accountName);
     options.machineName = options.machineName || this.createMachineName();
+
     // don't include password when using loginkey because it's not needed
-    const password = options.password;
     if (options.loginKey) {
       delete options.password;
     }
@@ -209,8 +209,8 @@ export default class Steam extends Connection {
         const loginRes: { auth: AccountAuth; data: AccountData } = {
           auth: {
             sentry: sentry || options.shaSentryfile,
-            loginKey: loginKey || options.loginKey || "",
-            machineName: options.machineName || "",
+            loginKey: loginKey || options.loginKey,
+            machineName: options.machineName,
             webNonce,
           },
           data: {
