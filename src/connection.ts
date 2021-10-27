@@ -55,7 +55,13 @@ export default class Connection extends EventEmitter {
 
     // attempt connection
     const info = await SocksClient.createConnection(options);
-    this.socket = info.socket;
+
+    try {
+      const { socket } = await SocksClient.createConnection(options);
+      this.socket = socket;
+    } catch (error) {
+      throw `Connection failed, Proxy: ${options.proxy.host}:${options.proxy.port}, Steam CM: ${options.destination.host}:${options.destination.port}`;
+    }
 
     // consider proxy dead if there's no activity after timeout
     this.socket.setTimeout(this._timeout);
