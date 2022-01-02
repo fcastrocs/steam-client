@@ -9,8 +9,8 @@ import { Socket } from "net";
 import Zip from "zlib";
 import crc32 from "buffer-crc32";
 import * as SteamCrypto from "steam-crypto-ts";
-import resources from "./resources/";
-import * as Protos from "./protos";
+import resources from "./resources/index.js";
+import * as Protos from "./protos.js";
 import Long from "long";
 import { LooseObject } from "@types";
 

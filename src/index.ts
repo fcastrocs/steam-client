@@ -7,8 +7,8 @@
  *
  */
 
-import Connection from "./connection";
-import resources from "./resources/";
+import Connection from "./connection.js";
+import resources from "./resources/index.js";
 import SteamCrypto from "steam-crypto-ts";
 import {
   LoginOptions,
@@ -23,8 +23,10 @@ import {
   Sentry,
 } from "@types";
 
-const VDF = require("vdf");
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
+const VDF = require("vdf");
 
 const Language = resources.language;
 const PROTOCOL_VERSION = 65580;

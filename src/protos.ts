@@ -3,7 +3,7 @@
  */
 import { LooseObject } from "@types";
 import { Type } from "protobufjs";
-import Steam from "./resources";
+import Steam from "./resources/index.js";
 const Protos = Steam.protos;
 
 export function decode(type: string, body: Buffer): LooseObject {
