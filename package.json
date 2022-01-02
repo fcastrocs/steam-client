@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "./lib/index.js",
   "types": "./src/@types",
+  "type": "module",
   "scripts": {
     "test": "jest --maxWorkers 1",
     "build": "tsc",
