@@ -53,9 +53,6 @@ export default class Connection extends EventEmitter {
       this._timeout = timeout;
     }
 
-    // attempt connection
-    const info = await SocksClient.createConnection(options);
-
     try {
       const { socket } = await SocksClient.createConnection(options);
       this.socket = socket;
