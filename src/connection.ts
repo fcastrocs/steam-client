@@ -39,6 +39,7 @@ export default class Connection extends EventEmitter {
   private jobIdSources: Map<string, Long> = new Map();
   private _timeout = 10000; // 10 seconds
   private _connectionReady = false;
+  private connectionClosed = false;
 
   constructor() {
     super();
@@ -56,6 +57,7 @@ export default class Connection extends EventEmitter {
     try {
       const { socket } = await SocksClient.createConnection(options);
       this.socket = socket;
+      this.registerListeners();
     } catch (error) {
       throw `Connection failed, Proxy: ${options.proxy.host}:${options.proxy.port}, Steam CM: ${options.destination.host}:${options.destination.port}`;
     }
@@ -72,7 +74,6 @@ export default class Connection extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.once("encryption-success", () => {
         this._connectionReady = true;
-        this.registerListeners();
         resolve();
       });
       this.once("encryption-fail", () => {
@@ -182,7 +183,10 @@ export default class Connection extends EventEmitter {
    */
   private registerListeners(): void {
     this.socket.on("close", () => {
-      this.destroyConnection();
+      if (!this.connectionClosed) {
+        this.destroyConnection();
+      }
+      this.connectionClosed = true;
     });
 
     // transmission error, 'close' event is called after this
