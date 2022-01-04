@@ -40,6 +40,7 @@ export default class Connection extends EventEmitter {
   private _timeout = 10000; // 10 seconds
   private _connectionReady = false;
   private connectionClosed = false;
+  private _loggedIn = false;
 
   constructor() {
     super();
@@ -128,6 +129,17 @@ export default class Connection extends EventEmitter {
   }
 
   /**
+   * holds whether user is logged to Steam
+   */
+  protected get loggedIn() {
+    return this._loggedIn;
+  }
+
+  protected set loggedIn(v: boolean) {
+    this._loggedIn = v;
+  }
+
+  /**
    * Connection timeout
    */
   protected get timeout() {
@@ -145,8 +157,8 @@ export default class Connection extends EventEmitter {
       return;
     }
 
-    // dont emit 'disconnected' event when user forced disconnect
-    if (!forceDisconnect && this._connectionReady) {
+    // emmited when a user is loggedIn and user didn't expect disconnect
+    if (!forceDisconnect && this._connectionReady && this._loggedIn) {
       this.emit("disconnected", this.error);
     }
 

@@ -32,8 +32,6 @@ const Language = resources.language;
 const PROTOCOL_VERSION = 65580;
 
 export default class Steam extends Connection {
-  private loggedIn = false;
-
   constructor() {
     super();
   }
