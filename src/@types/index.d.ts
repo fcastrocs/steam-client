@@ -135,4 +135,6 @@ export interface AccountData {
   communityBanned: boolean;
   locked: boolean;
   games: Game[];
+  emailOrDomain: string;
+  emailVerified: boolean;
 }

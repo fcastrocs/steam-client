@@ -51,12 +51,18 @@ export default class Steam extends Connection {
     options.protocolVersion = PROTOCOL_VERSION;
     options.supportsRateLimitResponse = true;
     options.machineId = this.createMachineID(options.accountName);
-    options.machineName = options.machineName || this.createMachineName();
 
     // don't include password when using loginkey because it's not needed
     if (options.loginKey) {
       delete options.password;
     }
+
+    const accountData = {} as AccountData;
+    const accountAuth = {} as AccountAuth;
+    accountAuth.loginKey = options.loginKey;
+    accountAuth.sentry = options.shaSentryfile;
+    accountData.games = [];
+    accountAuth.machineName = options.machineName || this.createMachineName();
 
     // send login request to steam
     this.send(options, Language.EMsg.ClientLogon);
@@ -70,6 +76,7 @@ export default class Steam extends Connection {
         "CMsgClientPersonaState",
         "CMsgClientAccountInfo",
         "CMsgClientLicenseList",
+        "CMsgClientEmailAddrInfo",
       ];
 
       // expect a sentry if options did not provide one.
@@ -88,25 +95,14 @@ export default class Steam extends Connection {
         reject(responses);
       }, this.timeout);
 
-      let webNonce: string;
-      let steamId: string;
-      let loginKey = options.loginKey;
-      let limited: boolean;
-      let communityBanned: boolean;
-      let locked: boolean;
-      let vac: boolean;
-      let nickname: string;
-      let avatar: string;
-      let games: Game[] = [];
-      let sentry: Buffer;
-
       // catch responses
       this.once("CMsgClientLogonResponse", async (body) => {
         if (body.eresult === Language.EResult.OK) {
           this.startHeartBeat(body.outOfGameHeartbeatSeconds);
-          webNonce = body.webapiAuthenticateUserNonce;
-          steamId = body.clientSuppliedSteamid.toString();
+          accountAuth.webNonce = body.webapiAuthenticateUserNonce;
+          accountData.steamId = body.clientSuppliedSteamid.toString();
         } else {
+          accountData.emailOrDomain = body.emailDomain;
           clearTimeout(loginTimeoutId);
           this.disconnect();
           return reject(Language.EResult[body.eresult]);
@@ -121,19 +117,20 @@ export default class Steam extends Connection {
 
       this.on("CMsgClientNewLoginKey", (body) => {
         this.send(body, Language.EMsg.ClientNewLoginKeyAccepted);
-        loginKey = body.loginKey;
+        accountAuth.loginKey = body.loginKey;
 
         // maybe steam sends a loginKey randomly, when not expecting one, likely.
         if (responses.includes("CMsgClientNewLoginKey")) {
           checkCanResolve("CMsgClientNewLoginKey");
         } else {
           // emit it so it can be handled approperly.
-          this.emit("loginKey", loginKey);
+          this.emit("loginKey", accountAuth.loginKey);
         }
       });
 
+      // sentry
       this.once("CMsgClientUpdateMachineAuth", (body) => {
-        sentry = this.clientUpdateMachineAuthResponse(body.bytes);
+        accountAuth.sentry = this.clientUpdateMachineAuthResponse(body.bytes);
         // maybe steam sends a sentry randomly, when not expecting one, not likely.
         if (responses.includes("CMsgClientUpdateMachineAuth")) {
           checkCanResolve("CMsgClientUpdateMachineAuth");
@@ -141,30 +138,35 @@ export default class Steam extends Connection {
       });
 
       this.once("CMsgClientIsLimitedAccount", (body) => {
-        limited = body.bisLimitedAccount;
-        communityBanned = body.bisCommunityBanned;
-        locked = body.bisLockedAccount;
+        accountData.limited = body.bisLimitedAccount;
+        accountData.communityBanned = body.bisCommunityBanned;
+        accountData.locked = body.bisLockedAccount;
         checkCanResolve("CMsgClientIsLimitedAccount");
       });
 
       this.once("CMsgClientVACBanStatus", (body) => {
-        vac = body.vacbanned;
+        accountData.vac = body.vacbanned;
         checkCanResolve("CMsgClientVACBanStatus");
       });
 
       this.once("CMsgClientPersonaState", (body) => {
-        avatar = this.getAvatar(body);
+        accountData.avatar = this.getAvatar(body);
         checkCanResolve("CMsgClientPersonaState");
       });
 
       this.once("CMsgClientAccountInfo", (body) => {
-        nickname = body.personaName;
+        accountData.nickname = body.personaName;
         checkCanResolve("CMsgClientAccountInfo");
-        // no steam guard
-        // steam will not send sentry, but will still send loginKey
+        // if no steam guard steam will not send sentry, but will still send loginKey
         if (body.twoFactorState === 0) {
           checkCanResolve("CMsgClientUpdateMachineAuth");
         }
+      });
+
+      this.once("CMsgClientEmailAddrInfo", (body) => {
+        accountData.emailVerified = body.emailIsValidated;
+        accountData.emailOrDomain = body.emailAddress;
+        checkCanResolve("CMsgClientEmailAddrInfo");
       });
 
       this.once("CMsgClientLicenseList", async (body) => {
@@ -194,7 +196,7 @@ export default class Steam extends Connection {
           return;
         }
 
-        games = this.getGames(appsInfo);
+        accountData.games = this.getGames(appsInfo);
         checkCanResolve("CMsgClientLicenseList");
       });
 
@@ -208,27 +210,8 @@ export default class Steam extends Connection {
         // no more responses left, finally return from login()
         clearTimeout(loginTimeoutId);
 
-        const loginRes: { auth: AccountAuth; data: AccountData } = {
-          auth: {
-            sentry: sentry || options.shaSentryfile,
-            loginKey: loginKey || options.loginKey,
-            machineName: options.machineName,
-            webNonce,
-          },
-          data: {
-            steamId,
-            limited,
-            vac,
-            avatar,
-            nickname,
-            communityBanned,
-            locked,
-            games,
-          },
-        };
-
         this.loggedIn = true;
-        resolve(loginRes);
+        resolve({ auth: accountAuth, data: accountData });
       };
     });
   }
