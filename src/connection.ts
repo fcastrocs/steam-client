@@ -108,6 +108,12 @@ export default class Connection extends EventEmitter {
    * ForceDisconnect is truthy when user destroys connection
    */
   protected destroyConnection(forceDisconnect = false): void {
+    if (!this.connectionClosed) {
+      this.connectionClosed = true;
+    } else {
+      return;
+    }
+
     // dont emit 'disconnected' event when user forced disconnect
     if (!forceDisconnect && this._connectionReady) {
       this.emit("disconnected", this.error);
@@ -183,10 +189,7 @@ export default class Connection extends EventEmitter {
    */
   private registerListeners(): void {
     this.socket.on("close", () => {
-      if (!this.connectionClosed) {
-        this.destroyConnection();
-      }
-      this.connectionClosed = true;
+      this.destroyConnection();
     });
 
     // transmission error, 'close' event is called after this
