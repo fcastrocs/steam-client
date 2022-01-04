@@ -61,10 +61,8 @@ export default class Connection extends EventEmitter {
       throw `Connection failed, Proxy: ${options.proxy.host}:${options.proxy.port}, Steam CM: ${options.destination.host}:${options.destination.port}`;
     }
 
-    // start reading data
-    this.socket.on("readable", () => {
-      this.readData();
-    });
+    // register socket events
+    this.registerListeners();
 
     // wait for encryption handshake
     return new Promise((resolve, reject) => {
@@ -79,7 +77,6 @@ export default class Connection extends EventEmitter {
         this._connectionReady = true;
         // consider proxy dead if there's no activity after timeout
         this.socket.setTimeout(this._timeout);
-        this.registerListeners();
         resolve();
       });
 
@@ -94,6 +91,11 @@ export default class Connection extends EventEmitter {
    * Important socks events
    */
   private registerListeners(): void {
+    // start reading data
+    this.socket.on("readable", () => {
+      this.readData();
+    });
+
     this.socket.once("close", () => {
       this.destroyConnection();
     });
