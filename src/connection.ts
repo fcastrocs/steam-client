@@ -54,6 +54,7 @@ export default class Connection extends EventEmitter {
       this._timeout = timeout;
     }
 
+    // connect to STEAM CM
     try {
       const { socket } = await SocksClient.createConnection(options);
       this.socket = socket;
@@ -66,17 +67,17 @@ export default class Connection extends EventEmitter {
 
     // wait for encryption handshake
     return new Promise((resolve, reject) => {
-      // expect connection handshake before timeout just to be safe
+      // expect connection handshake before timeout
       const timeoutId = setTimeout(() => {
+        this.destroyConnection();
         reject("handshake timeout");
       }, this._timeout);
 
       // connection successfull
       this.once("encryption-success", () => {
         clearTimeout(timeoutId);
-        this._connectionReady = true;
-        // consider proxy dead if there's no activity after timeout
         this.socket.setTimeout(this._timeout);
+        this._connectionReady = true;
         resolve();
       });
 
@@ -96,17 +97,17 @@ export default class Connection extends EventEmitter {
       this.readData();
     });
 
-    this.socket.once("close", () => {
+    this.socket.on("close", () => {
       this.destroyConnection();
     });
 
     // transmission error, 'close' event is called after this
-    this.socket.once("error", (err) => {
+    this.socket.on("error", (err) => {
       this.error = Error(err.message);
     });
 
     // this is just a notification, it doesn't cause disconnect.
-    this.socket.once("timeout", () => {
+    this.socket.on("timeout", () => {
       this.error = Error("timeout");
       this.destroyConnection();
     });
@@ -470,6 +471,7 @@ export default class Connection extends EventEmitter {
       this.encrypted = true;
       this.emit("encryption-success");
     } else {
+      this.destroyConnection();
       this.emit("encryption-fail");
     }
   }
