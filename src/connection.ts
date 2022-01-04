@@ -57,13 +57,9 @@ export default class Connection extends EventEmitter {
     try {
       const { socket } = await SocksClient.createConnection(options);
       this.socket = socket;
-      this.registerListeners();
     } catch (error) {
       throw `Connection failed, Proxy: ${options.proxy.host}:${options.proxy.port}, Steam CM: ${options.destination.host}:${options.destination.port}`;
     }
-
-    // consider proxy dead if there's no activity after timeout
-    this.socket.setTimeout(this._timeout);
 
     // start reading data
     this.socket.on("readable", () => {
@@ -77,9 +73,13 @@ export default class Connection extends EventEmitter {
         reject("handshake timeout");
       }, this._timeout);
 
+      // connection successfull
       this.once("encryption-success", () => {
         clearTimeout(timeoutId);
         this._connectionReady = true;
+        // consider proxy dead if there's no activity after timeout
+        this.socket.setTimeout(this._timeout);
+        this.registerListeners();
         resolve();
       });
 
