@@ -164,6 +164,7 @@ export default class Steam extends Connection {
       this.once("CMsgClientEmailAddrInfo", (body) => {
         accountData.emailVerified = body.emailIsValidated;
         accountData.emailOrDomain = body.emailAddress;
+        accountData.secure = body.credentialChangeRequiresCode;
         checkCanResolve("CMsgClientEmailAddrInfo");
       });
 

@@ -17,22 +17,30 @@ export default class Connection extends EventEmitter {
   private jobIdSources;
   private _timeout;
   private _connectionReady;
+  private connectionClosed;
+  private _loggedIn;
   constructor();
-
   /**
    * Connect to Steam CM server.
    */
   connect(options: SocksClientOptions, timeout?: number): Promise<void>;
   /**
+   * Important socks events
+   */
+  private registerListeners;
+  /**
    * Disconnect from Steam CM server.
    */
   disconnect(): void;
-
   /**
    * Whether connection is ready for login
    */
   protected get connectionReady(): boolean;
-
+  /**
+   * holds whether user is logged to Steam
+   */
+  protected get loggedIn(): boolean;
+  protected set loggedIn(v: boolean);
   /**
    * Connection timeout
    */
@@ -52,10 +60,6 @@ export default class Connection extends EventEmitter {
    * if EMsg is not passed, assumes the message is already concated with MsgHdrProtoBuf
    */
   protected send(message: Buffer | LooseObject, EMsg?: number): void;
-  /**
-   * Important socks events
-   */
-  private registerListeners;
   /**
    * Build a MsgHdrProtoBuf buffer
    */
