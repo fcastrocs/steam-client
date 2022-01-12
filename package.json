@@ -1,5 +1,5 @@
 {
-  "name": "ts-steam",
+  "name": "steam-client-esm",
   "version": "1.0.0",
   "main": "./lib/index.js",
   "types": "./src/@types",
