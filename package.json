@@ -1,11 +1,11 @@
 {
   "name": "steam-client-esm",
   "version": "1.0.0",
-  "main": "./lib/index.js",
+  "main": "./lib/app.js",
   "types": "./src/@types",
   "type": "module",
   "scripts": {
-    "test": "node ./lib/tests/index.js",
+    "test": "node ./lib/tests/app.js",
     "build": "tsc",
     "postbuild": "copyfiles --up 3 src/resources/protobufs/*.* lib/resources/protobufs"
   },

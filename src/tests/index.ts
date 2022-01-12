@@ -1,5 +1,5 @@
 import { SocksClientOptions } from "socks";
-import Steam from "../index.js";
+import Steam from "../app.js";
 
 (async () => {
   const steam = new Steam();
