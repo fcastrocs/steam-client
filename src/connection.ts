@@ -8,7 +8,7 @@ import { SocksClient, SocksClientOptions } from "socks";
 import { Socket } from "net";
 import Zip from "zlib";
 import crc32 from "buffer-crc32";
-import * as SteamCrypto from "steam-crypto-ts";
+import * as SteamCrypto from "steam-crypto-esm";
 import resources from "./resources/index.js";
 import * as Protos from "./protos.js";
 import Long from "long";

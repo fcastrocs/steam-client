@@ -9,7 +9,7 @@
 
 import Connection from "./connection.js";
 import resources from "./resources/index.js";
-import SteamCrypto from "steam-crypto-ts";
+import SteamCrypto from "steam-crypto-esm";
 import {
   LoginOptions,
   AccountAuth,
