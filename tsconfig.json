@@ -15,6 +15,6 @@
     "outDir": "lib/",
     "baseUrl": "src/"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "@types"],
   "compileOnSave": false
 }

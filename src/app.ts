@@ -21,7 +21,7 @@ import {
   PackageInfo,
   AppInfo,
   Sentry,
-} from "@types";
+} from "../@types";
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);

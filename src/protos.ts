@@ -1,7 +1,7 @@
 /**
  * Proto encode and decoder
  */
-import { LooseObject } from "@types";
+import { LooseObject } from "../@types";
 import { Type } from "protobufjs";
 import Steam from "./resources/index.js";
 const Protos = Steam.protos;
