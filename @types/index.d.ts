@@ -23,6 +23,10 @@ export default class Steam extends Connection {
    */
   clientGamesPlayed(appIds: number[]): void;
   /**
+   * Activate cdkey
+   */
+  cdkeyRedeem(cdkey: string): Promise<Game[]>;
+  /**
    * Activate free games
    */
   clientRequestFreeLicense(appIds: number[]): Promise<Game[]>;

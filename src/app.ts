@@ -237,6 +237,20 @@ export default class Steam extends Connection {
 
     this.send(body, Language.EMsg.ClientGamesPlayed);
   }
+  
+  /**
+   * Activate cdkey
+   */
+  public cdkeyRedeem(cdkey: string) {
+    this.send({ key: cdkey }, Language.EMsg.ClientRegisterKey);
+
+    return new Promise((resolve) => {
+      this.once("CMsgClientPurchaseResponse", async (res) => {
+        console.log(res);
+      });
+      resolve(null);
+    });
+  }
 
   /**
    * Activate free games
