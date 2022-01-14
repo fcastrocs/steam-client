@@ -237,16 +237,22 @@ export default class Steam extends Connection {
 
     this.send(body, Language.EMsg.ClientGamesPlayed);
   }
-  
+
   /**
    * Activate cdkey
    */
   public cdkeyRedeem(cdkey: string) {
     this.send({ key: cdkey }, Language.EMsg.ClientRegisterKey);
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.once("CMsgClientPurchaseResponse", async (res) => {
-        console.log(res);
+        // something went wrong
+        if (res.eresult !== 1) {
+          return reject(Language.EPurchaseResult[res.purchaseResultDetails]);
+        } else {
+          const data = BinaryKVParser.parse(res.purchaseReceiptInfo);
+          console.log(data);
+        }
       });
       resolve(null);
     });

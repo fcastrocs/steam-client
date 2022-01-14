@@ -11,6 +11,7 @@ import EMsg from "./language/EMsg.js";
 import EOSType from "./language/EOSType.js";
 import EPersonaState from "./language/EPersonaState.js";
 import EPrivacyState from "./language/EPrivacyState.js";
+import EPurchaseResult from "./language/EPurchaseResult.js";
 import EResult from "./language/EResult.js";
 
 const protosDir = __dirname + "/protobufs/";
@@ -22,6 +23,7 @@ interface SteamResources {
     EOSType: any;
     EPersonaState: any;
     EPrivacyState: any;
+    EPurchaseResult: any;
     EResult: any;
   };
 }
@@ -43,6 +45,7 @@ const resources: SteamResources = {
     EOSType,
     EPersonaState,
     EPrivacyState,
+    EPurchaseResult,
     EResult,
   },
 };
