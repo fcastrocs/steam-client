@@ -241,7 +241,7 @@ export default class Steam extends Connection {
   /**
    * Activate cdkey
    */
-  public cdkeyRedeem(cdkey: string) {
+  public cdkeyRedeem(cdkey: string): Promise<Game[]> {
     this.send({ key: cdkey }, Language.EMsg.ClientRegisterKey);
 
     return new Promise((resolve, reject) => {
@@ -250,11 +250,22 @@ export default class Steam extends Connection {
         if (res.eresult !== 1) {
           return reject(Language.EPurchaseResult[res.purchaseResultDetails]);
         } else {
-          const data = BinaryKVParser.parse(res.purchaseReceiptInfo);
-          console.log(data);
+          const receipt = BinaryKVParser.parse(res.purchaseReceiptInfo);
+          // get packgeIds
+          const packageIds = [];
+          for (const item of receipt.lineitems) {
+            let packageId = item.PackageID || item.packageID || item.packageid;
+            if (!packageId) continue;
+            packageIds.push(packageId);
+          }
+
+          if (!packageIds.length) return reject("KeyNotActivated");
+
+          const appsInfo = await this.getAppsInfo(packageIds);
+          const games = this.getGames(appsInfo);
+          resolve(games);
         }
       });
-      resolve(null);
     });
   }
 
