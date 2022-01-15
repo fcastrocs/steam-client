@@ -250,7 +250,7 @@ export default class Steam extends Connection {
         if (res.eresult !== 1) {
           return reject(Language.EPurchaseResult[res.purchaseResultDetails]);
         } else {
-          const receipt = BinaryKVParser.parse(res.purchaseReceiptInfo);
+          const receipt = BinaryKVParser.parse(res.purchaseReceiptInfo).MessageObject;
           // get packgeIds
           const packageIds = [];
           for (const item of receipt.lineitems) {
@@ -259,11 +259,16 @@ export default class Steam extends Connection {
             packageIds.push(packageId);
           }
 
-          if (!packageIds.length) return reject("KeyNotActivated");
+          const packageInfo = await this.getPackagesInfo(packageIds);
 
-          const appsInfo = await this.getAppsInfo(packageIds);
-          const games = this.getGames(appsInfo);
-          resolve(games);
+          // get appIds
+          let appIds: number[] = [];
+          for (const pkg of packageInfo) {
+            appIds = appIds.concat(pkg.appids);
+          }
+
+          const appInfo = await this.getAppsInfo(appIds);
+          return resolve(this.getGames(appInfo));
         }
       });
     });
@@ -461,7 +466,7 @@ export default class Steam extends Connection {
     const name = Math.random()
       .toString(36)
       .replace(/[^a-z]+/g, "")
-      .substr(0, 5)
+      .substring(0, 5)
       .toUpperCase();
     return "DESKTOP-" + name;
   }
