@@ -1,6 +1,6 @@
 {
-  "name": "steam-client-esm",
-  "version": "1.0.0",
+  "name": "steam-client",
+  "version": "1.0.1",
   "main": "./lib/app.js",
   "types": "./@types/index.d.ts",
   "type": "module",
@@ -15,24 +15,19 @@
   "dependencies": {
     "binarykvparser": "^2.2.0",
     "buffer-crc32": "^0.2.13",
-    "long": "^4.0.0",
-    "protobufjs": "^6.11.2",
-    "socks": "^2.6.1",
-    "steam-crypto-esm": "^3.0.9",
+    "long": "^5.2.0",
+    "protobufjs": "^7.0.0",
+    "socks": "^2.7.0",
+    "steam-crypto-esm": "^3.0.10",
     "vdf": "^0.0.2"
   },
   "devDependencies": {
     "@types/buffer-crc32": "^0.2.0",
-    "@types/node": "^16.11.19",
+    "@types/node": "^18.6.1",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
     "copyfiles": "^2.4.1",
-    "typescript": "^4.4.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fcastrocs/ts-steam.git"
-  },
-  "bugs": {
-    "url": "https://github.com/fcastrocs/ts-steam/issues"
-  },
-  "homepage": "https://github.com/fcastrocs/ts-steam#readme"
+    "eslint": "^8.20.0",
+    "typescript": "^4.7.4"
+  }
 }
