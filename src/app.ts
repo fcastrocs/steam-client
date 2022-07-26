@@ -24,6 +24,7 @@ import {
 } from "../@types";
 
 import { createRequire } from "module";
+import { Options } from "../@types/connection.js";
 const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
 const VDF = require("vdf");
@@ -32,17 +33,14 @@ const Language = resources.language;
 const PROTOCOL_VERSION = 65580;
 
 export default class Steam extends Connection {
-  constructor() {
-    super();
+  constructor(options: Options) {
+    super(options);
   }
 
   /**
    * Login to Steam
    */
   public login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
-    if (!this.connectionReady) throw Error("Not connected to Steam.");
-    if (this.loggedIn) throw Error("Already logged in.");
-
     // set up default login options
     options.clientOsType = Language.EOSType.Windows10;
     options.shouldRememberPassword = true;
@@ -208,8 +206,6 @@ export default class Steam extends Connection {
 
         // no more responses left, finally return from login()
         clearTimeout(loginTimeoutId);
-
-        this.loggedIn = true;
         resolve({ auth: accountAuth, data: accountData });
       };
     });

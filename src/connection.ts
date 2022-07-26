@@ -4,7 +4,7 @@
  */
 
 import { EventEmitter } from "events";
-import { SocksClient, SocksClientOptions } from "socks";
+import { SocksClient } from "socks";
 import { Socket } from "net";
 import Zip from "zlib";
 import crc32 from "buffer-crc32";
@@ -13,6 +13,8 @@ import resources from "./resources/index.js";
 import * as Protos from "./protos.js";
 import Long from "long";
 import { LooseObject } from "../@types";
+import net from "net";
+import { Options, SessionKey } from "../@types/connection.js";
 
 const Language = resources.language;
 const MAGIC = "VT01";
@@ -20,47 +22,46 @@ const PROTO_MASK = 0x80000000;
 const MAX_UI64 = Long.MAX_UNSIGNED_VALUE;
 const MAX_I64 = Long.MAX_VALUE;
 
-interface SessionKey {
-  plain: Buffer;
-  encrypted: Buffer;
-}
-
 export default class Connection extends EventEmitter {
-  private socket: Socket | null = null;
-  private sessionKey: SessionKey | null = null;
-  private encrypted = false;
+  private socket: Socket;
+  private sessionKey: SessionKey;
+  private encrypted: boolean;
+  private incompletePacket: boolean;
   private packetSize = 0;
-  private incompletePacket = false;
   private sessionId = 0;
   private _steamId: Long = Long.fromString("76561197960265728", true);
-  private heartBeatId: NodeJS.Timeout | null = null;
+  private heartBeatId: NodeJS.Timeout;
   private error: Error;
   // Map<Language.EMsg[EMsg], jobidSource>
-  private jobIdSources: Map<string, Long> = new Map();
-  private _timeout = 10000; // 10 seconds
-  private _connectionReady = false;
-  private connectionClosed = false;
-  private _loggedIn = false;
+  private readonly jobIdSources: Map<string, Long> = new Map();
+  private readonly options;
+  protected readonly timeout: number;
 
-  constructor() {
+  constructor(options: Options) {
     super();
+    this.options = options;
+    if (this.options.timeout) this.timeout = this.options.timeout;
+    else this.timeout = 15000;
   }
 
   /**
    * Connect to Steam CM server.
    */
-  public async connect(options: SocksClientOptions, timeout?: number): Promise<void> {
-    // set default timout if it was not passed.
-    if (timeout) {
-      this._timeout = timeout;
-    }
-
-    // connect to STEAM CM
-    try {
-      const { socket } = await SocksClient.createConnection(options);
-      this.socket = socket;
-    } catch (error) {
-      throw `Connection failed, Proxy: ${options.proxy.host}:${options.proxy.port}, Steam CM: ${options.destination.host}:${options.destination.port}`;
+  public async connect(): Promise<void> {
+    // direct connection, no proxy
+    if (!this.options.proxy) {
+      this.socket = await this.directConnect();
+    } else {
+      try {
+        const { socket } = await SocksClient.createConnection({
+          destination: this.options.steamCM,
+          proxy: this.options.proxy,
+          command: "connect",
+        });
+        this.socket = socket;
+      } catch (error) {
+        throw `Connection failed, Proxy: ${JSON.stringify(this.options)}`;
+      }
     }
 
     // register socket events
@@ -72,13 +73,12 @@ export default class Connection extends EventEmitter {
       const timeoutId = setTimeout(() => {
         this.destroyConnection();
         reject("handshake timeout");
-      }, this._timeout);
+      }, this.timeout);
 
       // connection successfull
       this.once("encryption-success", () => {
         clearTimeout(timeoutId);
-        this.socket.setTimeout(this._timeout);
-        this._connectionReady = true;
+        this.socket.setTimeout(this.timeout);
         resolve();
       });
 
@@ -89,10 +89,24 @@ export default class Connection extends EventEmitter {
     });
   }
 
+  private async directConnect(): Promise<Socket> {
+    return new Promise((resolve) => {
+      const socket = net.createConnection(this.options.steamCM);
+      const errorListener = () => {
+        throw `Connection failed, ${JSON.stringify(this.options.steamCM)}`;
+      };
+      socket.once("error", errorListener);
+      socket.once("connect", () => {
+        socket.removeListener("error", errorListener);
+        resolve(socket);
+      });
+    });
+  }
+
   /**
    * Important socks events
    */
-  private registerListeners(): void {
+  private registerListeners() {
     // start reading data
     this.socket.on("readable", () => {
       this.readData();
@@ -122,43 +136,12 @@ export default class Connection extends EventEmitter {
   }
 
   /**
-   * Whether connection is ready for login
-   */
-  protected get connectionReady(): boolean {
-    return this._connectionReady;
-  }
-
-  /**
-   * holds whether user is logged to Steam
-   */
-  protected get loggedIn() {
-    return this._loggedIn;
-  }
-
-  protected set loggedIn(v: boolean) {
-    this._loggedIn = v;
-  }
-
-  /**
-   * Connection timeout
-   */
-  protected get timeout() {
-    return this._timeout;
-  }
-
-  /**
    * Destroy connection to Steam and do some cleanup
-   * ForceDisconnect is truthy when user destroys connection
+   * silent is truthy when user destroys connection
    */
-  protected destroyConnection(forceDisconnect = false): void {
-    if (!this.connectionClosed) {
-      this.connectionClosed = true;
-    } else {
-      return;
-    }
-
-    // emmited when a user is loggedIn and user didn't expect disconnect
-    if (!forceDisconnect && this._connectionReady && this._loggedIn) {
+  protected destroyConnection(silent = false) {
+    // only emit when connection drops unexpectedly
+    if (!silent) {
       this.emit("disconnected", this.error);
     }
 
@@ -176,7 +159,7 @@ export default class Connection extends EventEmitter {
   /**
    * Heartbeat connection after login
    */
-  protected startHeartBeat(beatTimeSecs: number): void {
+  protected startHeartBeat(beatTimeSecs: number) {
     // increase timeout so connection is not dropped in between heartbeats
     this.socket.setTimeout((beatTimeSecs + 5) * 1000);
 
@@ -190,7 +173,7 @@ export default class Connection extends EventEmitter {
    * if EMsg is passed, MsgHdrProtoBuf will be built automatically, and message will be encoded
    * if EMsg is not passed, assumes the message is already concated with MsgHdrProtoBuf
    */
-  protected send(message: Buffer | LooseObject, EMsg?: number): void {
+  protected send(message: Buffer | LooseObject, EMsg?: number) {
     if (!this.socket) return;
 
     if (!EMsg && !(message instanceof Buffer)) {
@@ -270,7 +253,7 @@ export default class Connection extends EventEmitter {
    * header: Buffer of 8 bytes (uint packetsize 4 bytes, string MAGIC 4 bytes)
    * Packet: Buffer of packetsize bytes
    */
-  private readData(): void {
+  private readData() {
     if (!this.socket) return;
 
     // not waiting for a packet, decode header
@@ -282,7 +265,7 @@ export default class Connection extends EventEmitter {
 
       this.packetSize = header.readUInt32LE(0);
 
-      if (header.slice(4).toString("ascii") != MAGIC) {
+      if (header.subarray(4).toString("ascii") != MAGIC) {
         this.error = Error("Steam connection is out of sync.");
         this.destroyConnection();
         return;
@@ -335,7 +318,7 @@ export default class Connection extends EventEmitter {
     // decode MsgHdrProtoBuf
     if (isMsgHdrProtoBuf) {
       const headerLength = packet.readUInt32LE(4);
-      const CMsgProtoBufHeader = packet.slice(8, 8 + headerLength);
+      const CMsgProtoBufHeader = packet.subarray(8, 8 + headerLength);
       const body = Protos.decode("CMsgProtoBufHeader", CMsgProtoBufHeader);
 
       if (body.steamid) {
@@ -351,7 +334,7 @@ export default class Connection extends EventEmitter {
         this.jobIdSources.set(Language.EMsg[EMsg], body.jobidSource);
       }
 
-      payload = packet.slice(8 + headerLength);
+      payload = packet.subarray(8 + headerLength);
     } else {
       // Decode ExtendedClientMsgHdr
       // skip headerSize(4 bytes) and HeaderVersion(2 bytes) index 0 and index 5
@@ -361,7 +344,7 @@ export default class Connection extends EventEmitter {
       //const steamid = packet.readBigUInt64BE(24);
       //this.sessionId = packet.readInt32LE(32);
 
-      payload = packet.slice(36);
+      payload = packet.subarray(36);
       if (Language.EMsg[EMsg] !== "ClientVACBanStatus") return;
     }
 
@@ -405,8 +388,8 @@ export default class Connection extends EventEmitter {
 
     while (payload.length) {
       const subSize = payload.readUInt32LE(0);
-      this.decodePacket(payload.slice(4, 4 + subSize));
-      payload = payload.slice(4 + subSize);
+      this.decodePacket(payload.subarray(4, 4 + subSize));
+      payload = payload.subarray(4 + subSize);
     }
   }
 
@@ -427,13 +410,13 @@ export default class Connection extends EventEmitter {
   /**
    * Decide if message is encryption request or result
    */
-  private encryptConnection(packet: Buffer): void {
+  private encryptConnection(packet: Buffer) {
     const rawEMsg = packet.readUInt32LE(0);
     const EMsg = rawEMsg & ~PROTO_MASK;
 
     // MsgHdr
     //skip targetJobID and sourceJobID
-    const body = packet.slice(20, packet.byteLength);
+    const body = packet.subarray(20, packet.byteLength);
     if (EMsg == Language.EMsg.ChannelEncryptRequest) {
       this.channelEncryptResponse(body);
     } else {
@@ -445,10 +428,10 @@ export default class Connection extends EventEmitter {
    * Send connection encryption response.
    * Starts encryption handshake
    */
-  private channelEncryptResponse(body: Buffer): void {
+  private channelEncryptResponse(body: Buffer) {
     const protocol = body.readUInt32LE(0);
     //const universe = body.readUInt32LE(4); //
-    const nonce: Buffer = body.slice(8, 24); // 16-bits
+    const nonce: Buffer = body.subarray(8, 24); // 16-bits
 
     // Generate a 32-byte symmetric session key and encrypt it with Steam's public "System" key.
     this.sessionKey = SteamCrypto.generateSessionKey(nonce);
@@ -476,7 +459,7 @@ export default class Connection extends EventEmitter {
   /**
    * Connection encryption handshake result
    */
-  private ChannelEncryptResult(body: Buffer): void {
+  private ChannelEncryptResult(body: Buffer) {
     const EResult: number = body.readUInt32LE(0);
     // connection channel successfully encrypted
     if (EResult === Language.EResult.OK) {

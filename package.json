@@ -5,7 +5,7 @@
   "types": "./@types/index.d.ts",
   "type": "module",
   "scripts": {
-    "test": "node ./lib/tests/index.js",
+    "test": "jest",
     "build": "tsc",
     "postbuild": "copyfiles --up 3 src/resources/protobufs/*.* lib/resources/protobufs"
   },

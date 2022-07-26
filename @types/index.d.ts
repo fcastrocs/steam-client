@@ -5,7 +5,7 @@ import Connection from "./connection";
 export default class Steam extends Connection {
   on(event: "disconnected", listener: (error: Error) => void): this;
   on(event: "loginKey", listener: (loginKey: string) => void): this;
-  constructor();
+  constructor(options: Options);
   /**
    * Login to Steam
    */

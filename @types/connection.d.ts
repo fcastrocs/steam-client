@@ -2,28 +2,39 @@
  * Handle low-level connection to steam.
  */
 import { EventEmitter } from "events";
-import { SocksClientOptions } from "socks";
 import { LooseObject } from "@types";
+import { SocksClientOptions } from "socks";
+
+export interface Options {
+  steamCM: SocksClientOptions["destination"];
+  proxy?: SocksClientOptions["proxy"];
+  timeout?: number;
+}
+
+interface SessionKey {
+  plain: Buffer;
+  encrypted: Buffer;
+}
+
 export default class Connection extends EventEmitter {
   private socket;
   private sessionKey;
   private encrypted;
-  private packetSize;
   private incompletePacket;
+  private packetSize;
   private sessionId;
   private _steamId;
   private heartBeatId;
   private error;
-  private jobIdSources;
-  private _timeout;
-  private _connectionReady;
-  private connectionClosed;
-  private _loggedIn;
-  constructor();
+  private readonly jobIdSources;
+  private readonly options;
+  protected readonly timeout: number;
+  constructor(options: Options);
   /**
    * Connect to Steam CM server.
    */
-  connect(options: SocksClientOptions, timeout?: number): Promise<void>;
+  connect(): Promise<void>;
+  private directConnect;
   /**
    * Important socks events
    */
@@ -33,23 +44,10 @@ export default class Connection extends EventEmitter {
    */
   disconnect(): void;
   /**
-   * Whether connection is ready for login
-   */
-  protected get connectionReady(): boolean;
-  /**
-   * holds whether user is logged to Steam
-   */
-  protected get loggedIn(): boolean;
-  protected set loggedIn(v: boolean);
-  /**
-   * Connection timeout
-   */
-  protected get timeout(): number;
-  /**
    * Destroy connection to Steam and do some cleanup
-   * ForceDisconnect is truthy when user destroys connection
+   * silent is truthy when user destroys connection
    */
-  protected destroyConnection(forceDisconnect?: boolean): void;
+  protected destroyConnection(silent?: boolean): void;
   /**
    * Heartbeat connection after login
    */
