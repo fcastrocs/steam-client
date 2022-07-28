@@ -2,6 +2,10 @@
  * Manages high-level Steam operations
  */
 import Connection from "./connection";
+
+export type Sentry = Buffer;
+export type PersonaState = 0 | 1 | 2 | 3 | 4;
+
 export default class Steam extends Connection {
   on(event: "disconnected", listener: (error: Error) => void): this;
   on(event: "loginKey", listener: (loginKey: string) => void): this;
@@ -96,10 +100,6 @@ export interface Game {
   appid: string;
   logo: string;
 }
-
-export type Sentry = Buffer;
-
-export type PersonaState = 0 | 1 | 2 | 3 | 4;
 
 export interface ChangeStatusOption {
   personaState?: PersonaState;
