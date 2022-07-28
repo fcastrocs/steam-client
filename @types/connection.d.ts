@@ -3,20 +3,14 @@
  */
 import { EventEmitter } from "events";
 import { LooseObject } from "@types";
-import { SocksClientOptions } from "socks";
-
-export interface Options {
-  steamCM: SocksClientOptions["destination"];
-  proxy?: SocksClientOptions["proxy"];
-  timeout?: number;
-}
+import { Options } from "./index";
 
 interface SessionKey {
   plain: Buffer;
   encrypted: Buffer;
 }
 
-export default class Connection extends EventEmitter {
+declare class Connection extends EventEmitter {
   private socket;
   private sessionKey;
   private encrypted;

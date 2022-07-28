@@ -11,6 +11,7 @@ import Connection from "./connection.js";
 import resources from "./resources/index.js";
 import SteamCrypto from "steam-crypto-esm";
 import {
+  Options,
   LoginOptions,
   AccountAuth,
   AccountData,
@@ -24,7 +25,6 @@ import {
 } from "../@types";
 
 import { createRequire } from "module";
-import { Options } from "../@types/connection.js";
 const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
 const VDF = require("vdf");

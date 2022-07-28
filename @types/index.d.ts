@@ -2,9 +2,28 @@
  * Manages high-level Steam operations
  */
 import Connection from "./connection";
+import { SocksClientOptions } from "socks";
 
-export type Sentry = Buffer;
-export type PersonaState = 0 | 1 | 2 | 3 | 4;
+export interface Options {
+  steamCM: SocksClientOptions["destination"];
+  proxy?: SocksClientOptions["proxy"];
+  timeout?: number;
+}
+
+export interface LoginOptions {
+  accountName: string;
+  password?: string;
+  machineName?: string;
+  clientOsType?: number;
+  shouldRememberPassword?: true;
+  twoFactorCode?: string;
+  loginKey?: string;
+  shaSentryfile?: Buffer;
+  authCode?: string;
+  protocolVersion?: 65580;
+  supportsRateLimitResponse?: true;
+  machineId?: Buffer;
+}
 
 export default class Steam extends Connection {
   on(event: "disconnected", listener: (error: Error) => void): this;
@@ -64,6 +83,9 @@ export default class Steam extends Connection {
   private createMachineName;
 }
 
+export type Sentry = Buffer;
+export type PersonaState = 0 | 1 | 2 | 3 | 4;
+
 export interface LooseObject {
   [key: string]: any;
 }
@@ -104,21 +126,6 @@ export interface Game {
 export interface ChangeStatusOption {
   personaState?: PersonaState;
   playerName?: string;
-}
-
-export interface LoginOptions {
-  accountName: string;
-  password?: string;
-  machineName?: string;
-  clientOsType?: number;
-  shouldRememberPassword?: true;
-  twoFactorCode?: string;
-  loginKey?: string;
-  shaSentryfile?: Buffer;
-  authCode?: string;
-  protocolVersion?: 65580;
-  supportsRateLimitResponse?: true;
-  machineId?: Buffer;
 }
 
 export interface AccountAuth {

@@ -1,4 +1,4 @@
-import { Options } from "../@types/connection.js";
+import { Options } from "../@types/index.js";
 import Steam from "./app.js";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0

@@ -12,9 +12,10 @@ import * as SteamCrypto from "steam-crypto-esm";
 import resources from "./resources/index.js";
 import * as Protos from "./protos.js";
 import Long from "long";
-import { LooseObject } from "../@types";
 import net from "net";
-import { Options, SessionKey } from "../@types/connection.js";
+
+import { SessionKey } from "../@types/connection.js";
+import { LooseObject, Options } from "../@types/index.js";
 
 const Language = resources.language;
 const MAGIC = "VT01";
