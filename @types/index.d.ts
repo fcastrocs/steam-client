@@ -36,6 +36,11 @@ export default class Steam extends Connection {
     auth: AccountAuth;
     data: AccountData;
   }>;
+
+  /**
+   * Get a web api nonce to login to steamcommunity
+   */
+  getWebNonce(): Promise<string>;
   /**
    * Change persona name or status
    */

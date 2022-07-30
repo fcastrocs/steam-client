@@ -212,6 +212,18 @@ export default class Steam extends Connection {
   }
 
   /**
+   * Get a web api nonce to login to steamcommunity
+   */
+  public getWebNonce(): Promise<string> {
+    this.send({}, Language.EMsg.ClientRequestWebAPIAuthenticateUserNonce);
+    return new Promise((resolve) => {
+      this.once("CMsgClientRequestWebAPIAuthenticateUserNonceResponse", async (res) =>
+        resolve(res.webapi_authenticate_user_nonce)
+      );
+    });
+  }
+
+  /**
    * Change persona name or status
    */
   public clientChangeStatus(body: ChangeStatusOption): void {
