@@ -37,6 +37,7 @@ export default class Connection extends EventEmitter {
   private readonly jobIdSources: Map<string, Long> = new Map();
   private readonly options;
   protected readonly timeout: number;
+  private connectionDestroyed = false;
 
   constructor(options: Options) {
     super();
@@ -53,17 +54,15 @@ export default class Connection extends EventEmitter {
     if (!this.options.proxy) {
       this.socket = await this.directConnect();
     } else {
-      try {
-        const { socket } = await SocksClient.createConnection({
-          destination: this.options.steamCM,
-          proxy: this.options.proxy,
-          command: "connect",
-        });
-        this.socket = socket;
-      } catch (error) {
-        throw `Connection failed, Proxy: ${JSON.stringify(this.options)}`;
-      }
+      const { socket } = await SocksClient.createConnection({
+        destination: this.options.steamCM,
+        proxy: this.options.proxy,
+        command: "connect",
+      });
+      this.socket = socket;
     }
+
+    this.socket.setTimeout(this.timeout);
 
     // register socket events
     this.registerListeners();
@@ -72,29 +71,29 @@ export default class Connection extends EventEmitter {
     return new Promise((resolve, reject) => {
       // expect connection handshake before timeout
       const timeoutId = setTimeout(() => {
-        this.destroyConnection();
-        reject("handshake timeout");
+        this.destroyConnection(true);
+        reject("HandShakeTimeout");
       }, this.timeout);
 
       // connection successfull
       this.once("encryption-success", () => {
         clearTimeout(timeoutId);
-        this.socket.setTimeout(this.timeout);
         resolve();
       });
 
       this.once("encryption-fail", () => {
         clearTimeout(timeoutId);
-        reject("Steam connection encryption failed.");
+        this.destroyConnection(true);
+        reject("SteamEncryptionFailed");
       });
     });
   }
 
   private async directConnect(): Promise<Socket> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const socket = net.createConnection(this.options.steamCM);
-      const errorListener = () => {
-        throw `Connection failed, ${JSON.stringify(this.options.steamCM)}`;
+      const errorListener = (error: Error) => {
+        reject(error);
       };
       socket.once("error", errorListener);
       socket.once("connect", () => {
@@ -109,22 +108,11 @@ export default class Connection extends EventEmitter {
    */
   private registerListeners() {
     // start reading data
-    this.socket.on("readable", () => {
-      this.readData();
-    });
+    this.socket.on("readable", () => this.readData());
 
-    this.socket.on("close", () => {
-      this.destroyConnection();
-    });
-
-    // transmission error, 'close' event is called after this
+    // transmission error,
     this.socket.on("error", (err) => {
       this.error = Error(err.message);
-    });
-
-    // this is just a notification, it doesn't cause disconnect.
-    this.socket.on("timeout", () => {
-      this.error = Error("timeout");
       this.destroyConnection();
     });
   }
@@ -141,6 +129,10 @@ export default class Connection extends EventEmitter {
    * silent is truthy when user destroys connection
    */
   protected destroyConnection(silent?: boolean) {
+    // make sure this is called only once
+    if (this.connectionDestroyed) return;
+    this.connectionDestroyed = true;
+
     // only emit when connection drops unexpectedly
     if (!silent) {
       this.emit("disconnected", this.error);
@@ -267,7 +259,7 @@ export default class Connection extends EventEmitter {
       this.packetSize = header.readUInt32LE(0);
 
       if (header.subarray(4).toString("ascii") != MAGIC) {
-        this.error = Error("Steam connection is out of sync.");
+        this.error = Error("SteamConnectionOutOfSync");
         this.destroyConnection();
         return;
       }
@@ -290,7 +282,7 @@ export default class Connection extends EventEmitter {
       try {
         packet = SteamCrypto.symmetricDecrypt(packet, this.sessionKey.plain);
       } catch (error) {
-        this.error = Error("Steam data decryption failed.");
+        this.error = Error("SteamDataEncryptionFailed");
         this.destroyConnection();
         return;
       }
@@ -467,7 +459,6 @@ export default class Connection extends EventEmitter {
       this.encrypted = true;
       this.emit("encryption-success");
     } else {
-      this.destroyConnection();
       this.emit("encryption-fail");
     }
   }
