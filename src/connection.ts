@@ -140,7 +140,7 @@ export default class Connection extends EventEmitter {
    * Destroy connection to Steam and do some cleanup
    * silent is truthy when user destroys connection
    */
-  protected destroyConnection(silent = false) {
+  protected destroyConnection(silent?: boolean) {
     // only emit when connection drops unexpectedly
     if (!silent) {
       this.emit("disconnected", this.error);
