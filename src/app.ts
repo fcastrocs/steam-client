@@ -217,8 +217,8 @@ export default class Steam extends Connection {
   public getWebNonce(): Promise<string> {
     this.send({}, Language.EMsg.ClientRequestWebAPIAuthenticateUserNonce);
     return new Promise((resolve) => {
-      this.once("CMsgClientRequestWebAPIAuthenticateUserNonceResponse", async (res) =>
-        resolve(res.webapi_authenticate_user_nonce)
+      this.once("CMsgClientRequestWebAPIAuthenticateUserNonceResponse", (res) =>
+        resolve(res.webapiAuthenticateUserNonce)
       );
     });
   }
