@@ -95,7 +95,7 @@ export interface LooseObject {
   [key: string]: any;
 }
 
-export type IdleGame = { gameId: number }[];
+export type IdleGame = { gameId: number };
 
 export interface RequestFreeLicenseOption extends LooseObject {
   appids: number[];
