@@ -17,11 +17,11 @@ import {
   AccountData,
   Game,
   ChangeStatusOption,
-  GamesPlayedOption,
   RequestFreeLicenseOption,
   PackageInfo,
   AppInfo,
   Sentry,
+  IdleGame,
 } from "../@types";
 
 import { createRequire } from "module";
@@ -234,15 +234,10 @@ export default class Steam extends Connection {
    * Idle an array of appIds
    * empty array stops idling
    */
-  public clientGamesPlayed(appIds: number[]): void {
-    const body: GamesPlayedOption = {
-      gamesPlayed: [],
+  public idleGames(games: IdleGame[]): void {
+    const body: { gamesPlayed: IdleGame[] } = {
+      gamesPlayed: games,
     };
-
-    for (const appId of appIds) {
-      body.gamesPlayed.push({ gameId: appId });
-    }
-
     this.send(body, Language.EMsg.ClientGamesPlayed);
   }
 

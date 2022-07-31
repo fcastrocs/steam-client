@@ -49,7 +49,7 @@ export default class Steam extends Connection {
    * Idle an array of appIds
    * empty array stops idling
    */
-  clientGamesPlayed(appIds: number[]): void;
+  idleGames(games: IdleGame[]): void;
   /**
    * Activate cdkey
    */
@@ -95,9 +95,7 @@ export interface LooseObject {
   [key: string]: any;
 }
 
-export interface GamesPlayedOption extends LooseObject {
-  gamesPlayed: { gameId: number }[];
-}
+type IdleGame = { gameId: number }[];
 
 export interface RequestFreeLicenseOption extends LooseObject {
   appids: number[];
