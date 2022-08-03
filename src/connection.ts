@@ -55,12 +55,7 @@ export default class Connection extends EventEmitter {
     if (!this.options.proxy) {
       this.socket = await this.directConnect();
     } else {
-      const { socket } = await SocksClient.createConnection({
-        destination: this.options.steamCM,
-        proxy: this.options.proxy,
-        command: "connect",
-      });
-      this.socket = socket;
+      this.socket = await this.proxyConnect();
     }
 
     this.socket.setTimeout(this.timeout);
@@ -94,7 +89,10 @@ export default class Connection extends EventEmitter {
     return new Promise((resolve, reject) => {
       const socket = net.createConnection(this.options.steamCM);
       const errorListener = (error: Error) => {
-        reject(error);
+        // convert Error to SteamClientError
+        const err = new SteamClientError(error.message);
+        err.stack = error.stack;
+        reject(err);
       };
       socket.once("error", errorListener);
       socket.once("connect", () => {
@@ -102,6 +100,22 @@ export default class Connection extends EventEmitter {
         resolve(socket);
       });
     });
+  }
+
+  private async proxyConnect(): Promise<Socket> {
+    try {
+      const { socket } = await SocksClient.createConnection({
+        destination: this.options.steamCM,
+        proxy: this.options.proxy,
+        command: "connect",
+      });
+      return socket;
+    } catch (error) {
+      // convert Error to SteamClientError
+      const err = new SteamClientError(error.message);
+      err.stack = error.stack;
+      throw err;
+    }
   }
 
   /**

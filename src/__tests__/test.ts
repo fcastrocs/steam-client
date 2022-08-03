@@ -11,6 +11,15 @@ const accountName = "";
 const password = "";
 
 describe("Test steam-client", () => {
+  step("connection should fail and throw SteamClientError", async () => {
+    const options: Options = { steamCM: { host: "0.0.0.0", port: 0 }, timeout };
+    steam = new Steam(options);
+    await assert.rejects(steam.connect(), (err: Error) => {
+      assert.equal(err.name, "steam-client");
+      return true;
+    });
+  });
+
   // connect to steam
   step("should connect to steam", async () => {
     const options: Options = { steamCM, timeout };

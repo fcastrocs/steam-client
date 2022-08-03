@@ -23,13 +23,14 @@ export default class Connection extends EventEmitter {
   private readonly jobIdSources;
   private readonly options;
   protected readonly timeout: number;
-  private connectionDestroyed: boolean;
+  private connectionDestroyed;
   constructor(options: Options);
   /**
    * Connect to Steam CM server.
    */
   connect(): Promise<void>;
   private directConnect;
+  private proxyConnect;
   /**
    * Important socks events
    */
