@@ -37,10 +37,7 @@ export default class Steam extends Connection {
   /**
    * Login to Steam
    */
-  login(options: LoginOptions): Promise<{
-    auth: AccountAuth;
-    data: AccountData;
-  }>;
+  login(options: LoginOptions): Promise<SteamAccount>;
   /**
    * Get a web api nonce to login to steamcommunity
    */
@@ -118,6 +115,11 @@ export interface AccountData {
   emailOrDomain: string;
   emailVerified: boolean;
   secure: boolean;
+}
+
+export interface SteamAccount {
+  auth: AccountAuth;
+  data: AccountData;
 }
 
 export interface PackageInfo {

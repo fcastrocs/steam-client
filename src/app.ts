@@ -25,6 +25,7 @@ import {
   AppBuffer,
   ClientPurchaseResponse,
   PurchaseReceiptInfo,
+  SteamAccount,
 } from "../@types";
 
 import { createRequire } from "module";
@@ -52,7 +53,7 @@ export default class Steam extends Connection {
   /**
    * Login to Steam
    */
-  public login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
+  public login(options: LoginOptions): Promise<SteamAccount> {
     // set up default login options
     options.clientOsType = Language.EOSType.Windows10;
     options.shouldRememberPassword = true;
