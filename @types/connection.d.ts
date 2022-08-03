@@ -23,7 +23,7 @@ export default class Connection extends EventEmitter {
   private readonly jobIdSources;
   private readonly options;
   protected readonly timeout: number;
-  private connectionDestroyed;
+  protected connectionDestroyed;
   constructor(options: Options);
   /**
    * Connect to Steam CM server.

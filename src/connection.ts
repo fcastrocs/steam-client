@@ -38,7 +38,7 @@ export default class Connection extends EventEmitter {
   private readonly jobIdSources: Map<string, Long> = new Map();
   private readonly options;
   protected readonly timeout: number;
-  private connectionDestroyed = false;
+  protected connectionDestroyed = false;
 
   constructor(options: Options) {
     super();

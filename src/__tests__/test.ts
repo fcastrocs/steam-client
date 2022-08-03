@@ -11,9 +11,15 @@ const accountName = "";
 const password = "";
 
 describe("Test steam-client", () => {
-  step("connection should fail and throw SteamClientError", async () => {
-    const options: Options = { steamCM: { host: "0.0.0.0", port: 0 }, timeout };
-    steam = new Steam(options);
+  step("connect() should throw SteamClientError", async () => {
+    steam = new Steam({ steamCM: { host: "0.0.0.0", port: 0 }, timeout });
+    await assert.rejects(steam.connect(), (err: Error) => {
+      assert.equal(err.name, "steam-client");
+      return true;
+    });
+
+    // test with proxy
+    steam = new Steam({ steamCM, timeout, proxy: { host: "0.0.0.0", port: 0, type: 4 } });
     await assert.rejects(steam.connect(), (err: Error) => {
       assert.equal(err.name, "steam-client");
       return true;
@@ -21,13 +27,23 @@ describe("Test steam-client", () => {
   });
 
   // connect to steam
-  step("should connect to steam", async () => {
+  step("connect()", async () => {
     const options: Options = { steamCM, timeout };
     steam = new Steam(options);
     await steam.connect();
   });
 
-  // test login
+  step("login() should throw SteamClientError", async () => {
+    const options: Options = { steamCM, timeout };
+    const steam = new Steam(options);
+    await steam.connect();
+    await assert.rejects(steam.login({ accountName: "random", password: "random" }), (err: Error) => {
+      assert.equal(err.name, "steam-client");
+      assert.equal(err.message, "InvalidPassword");
+      return true;
+    });
+  });
+
   step("login()", async () => {
     await steam.login({ accountName, password });
   });
@@ -40,7 +56,7 @@ describe("Test steam-client", () => {
     });
   });
 
-  it("getWebNonce() - should return a string of length 19", async () => {
+  it("getWebNonce()", async () => {
     const nonce = await steam.getWebNonce();
     assert.equal(nonce.length, 19);
   });

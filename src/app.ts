@@ -54,6 +54,7 @@ export default class Steam extends Connection {
    * Login to Steam
    */
   public login(options: LoginOptions): Promise<SteamAccount> {
+    if (this.connectionDestroyed) throw new SteamClientError("NotSteamConnection");
     // set up default login options
     options.clientOsType = Language.EOSType.Windows10;
     options.shouldRememberPassword = true;
@@ -111,7 +112,7 @@ export default class Steam extends Connection {
           accountData.emailOrDomain = body.emailDomain;
           clearTimeout(loginTimeoutId);
           this.disconnect();
-          return reject(Language.EResult[body.eresult]);
+          return reject(new SteamClientError(Language.EResult[body.eresult]));
         }
         // set online state this will trigger CMsgClientPersonaState
         this.changePersonaState("online");
