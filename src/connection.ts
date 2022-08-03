@@ -15,7 +15,8 @@ import Long from "long";
 import net from "net";
 
 import { SessionKey } from "../@types/connection.js";
-import { LooseObject, Options } from "../@types/index.js";
+import { LooseObject, Options } from "../@types";
+import { SteamClientError } from "./app.js";
 
 const Language = resources.language;
 const MAGIC = "VT01";
@@ -32,7 +33,7 @@ export default class Connection extends EventEmitter {
   private sessionId = 0;
   private _steamId: Long = Long.fromString("76561197960265728", true);
   private heartBeatId: NodeJS.Timeout;
-  private error: Error;
+  private error: SteamClientError;
   // Map<Language.EMsg[EMsg], jobidSource>
   private readonly jobIdSources: Map<string, Long> = new Map();
   private readonly options;
@@ -72,7 +73,7 @@ export default class Connection extends EventEmitter {
       // expect connection handshake before timeout
       const timeoutId = setTimeout(() => {
         this.destroyConnection(true);
-        reject("HandShakeTimeout");
+        reject(new SteamClientError("HandShakeTimeout"));
       }, this.timeout);
 
       // connection successfull
@@ -84,7 +85,7 @@ export default class Connection extends EventEmitter {
       this.once("encryption-fail", () => {
         clearTimeout(timeoutId);
         this.destroyConnection(true);
-        reject("SteamEncryptionFailed");
+        reject(new SteamClientError("SteamEncryptionFailed"));
       });
     });
   }
@@ -109,10 +110,9 @@ export default class Connection extends EventEmitter {
   private registerListeners() {
     // start reading data
     this.socket.on("readable", () => this.readData());
-
     // transmission error,
     this.socket.on("error", (err) => {
-      this.error = Error(err.message);
+      this.error = new SteamClientError(err.message);
       this.destroyConnection();
     });
   }
@@ -155,7 +155,6 @@ export default class Connection extends EventEmitter {
   protected startHeartBeat(beatTimeSecs: number) {
     // increase timeout so connection is not dropped in between heartbeats
     this.socket.setTimeout((beatTimeSecs + 5) * 1000);
-
     this.heartBeatId = setInterval(() => {
       this.send({}, Language.EMsg.ClientHeartBeat);
     }, beatTimeSecs * 1000);
@@ -170,9 +169,9 @@ export default class Connection extends EventEmitter {
     if (!this.socket) return;
 
     if (!EMsg && !(message instanceof Buffer)) {
-      throw Error("message must be a buffer if EMsg is not passed.");
+      throw new SteamClientError("message must be a buffer if EMsg is not passed");
     } else if (EMsg && message instanceof Buffer) {
-      throw Error("message must be a plain object if EMsg is passed.");
+      throw new SteamClientError("message must be a plain object if EMsg is passed");
     }
 
     // build MsgHdrProtoBuf, encode message and concat
@@ -182,9 +181,8 @@ export default class Connection extends EventEmitter {
       message = Buffer.concat([header, payloadBuff]);
     }
 
-    // get rid of annoying ts type warning
     if (!(message instanceof Buffer)) {
-      throw Error("message must be a buffer.");
+      throw new SteamClientError("message must be a buffer");
     }
 
     let buffMessage: Buffer = message;
@@ -259,7 +257,7 @@ export default class Connection extends EventEmitter {
       this.packetSize = header.readUInt32LE(0);
 
       if (header.subarray(4).toString("ascii") != MAGIC) {
-        this.error = Error("SteamConnectionOutOfSync");
+        this.error = new SteamClientError("SteamConnectionOutOfSync");
         this.destroyConnection();
         return;
       }
@@ -282,7 +280,7 @@ export default class Connection extends EventEmitter {
       try {
         packet = SteamCrypto.symmetricDecrypt(packet, this.sessionKey.plain);
       } catch (error) {
-        this.error = Error("SteamDataEncryptionFailed");
+        this.error = new SteamClientError("SteamDataEncryptionFailed");
         this.destroyConnection();
         return;
       }

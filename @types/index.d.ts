@@ -25,9 +25,14 @@ export interface LoginOptions {
   machineId?: Buffer;
 }
 
+export class SteamClientError extends Error {
+  constructor(message: string);
+}
+
 export default class Steam extends Connection {
   on(event: "disconnected", listener: (error: Error) => void): this;
   on(event: "loginKey", listener: (loginKey: string) => void): this;
+  private personaState: number;
   constructor(options: Options);
   /**
    * Login to Steam
@@ -36,28 +41,31 @@ export default class Steam extends Connection {
     auth: AccountAuth;
     data: AccountData;
   }>;
-
   /**
    * Get a web api nonce to login to steamcommunity
    */
   getWebNonce(): Promise<string>;
   /**
-   * Change persona name or status
+   * Change change player Name
    */
-  clientChangeStatus(body: ChangeStatusOption): void;
+  changePlayerName(name: string): void;
+  /**
+   * Change persona state
+   */
+  changePersonaState(state: State): void;
   /**
    * Idle an array of appIds
    * empty array stops idling
    */
-  idleGames(games: IdleGame[]): void;
+  idleGames(gameIds: number[]): void;
   /**
    * Activate cdkey
    */
-  cdkeyRedeem(cdkey: string): Promise<Game[]>;
+  cdkeyRedeem(cdkey: string): Promise<AppInfo[]>;
   /**
    * Activate free games
    */
-  clientRequestFreeLicense(appIds: number[]): Promise<Game[]>;
+  activateFreeToPlayGames(appids: number[]): Promise<AppInfo[]>;
   /**
    * Get avatar from CMsgClientPersonaState response
    */
@@ -65,11 +73,11 @@ export default class Steam extends Connection {
   /**
    * Get packagesInfo from a list of packageIds
    */
-  private getPackagesInfo;
+  getPackagesInfo(packageIds: number[]): Promise<PackageInfo[]>;
   /**
    * Get appsInfo from a list of appIds
    */
-  private getAppsInfo;
+  getAppsInfo(appIds: number[]): Promise<AppInfo[]>;
   /**
    * Parse appsInfo into a nice games array
    */
@@ -89,47 +97,7 @@ export default class Steam extends Connection {
 }
 
 export type Sentry = Buffer;
-export type PersonaState = 0 | 1 | 2 | 3 | 4;
-
-export interface LooseObject {
-  [key: string]: any;
-}
-
-export type IdleGame = { gameId: number };
-
-export interface RequestFreeLicenseOption extends LooseObject {
-  appids: number[];
-}
-
-export interface PackageInfo {
-  packageid: number;
-  billingtype: number;
-  licensetype: number;
-  appids: number[];
-}
-
-export interface AppInfo {
-  appid: string;
-  common: {
-    clienticon: string;
-    icon: string;
-    logo: string;
-    logo_small: string;
-    name: string;
-    type: string;
-  };
-}
-
-export interface Game {
-  name: string;
-  appid: string;
-  logo: string;
-}
-
-export interface ChangeStatusOption {
-  personaState?: PersonaState;
-  playerName?: string;
-}
+export type State = "offline" | "online" | "busy" | "away" | "snooze";
 
 export interface AccountAuth {
   sentry: Buffer;
@@ -146,8 +114,91 @@ export interface AccountData {
   nickname: string;
   communityBanned: boolean;
   locked: boolean;
-  games: Game[];
+  games: AppInfo[];
   emailOrDomain: string;
   emailVerified: boolean;
   secure: boolean;
+}
+
+export interface PackageInfo {
+  packageid: number;
+  billingtype: number;
+  licensetype: number;
+  status: number;
+  extended: [];
+  appids: number[];
+  depotids: number[];
+  appitems: [];
+}
+
+export interface AppInfo {
+  logo: string;
+  logo_small: string;
+  name: string;
+  type: string;
+  gameid: number;
+}
+
+/**
+ * Internal interfaces
+ */
+interface LooseObject {
+  [key: string]: any;
+}
+
+interface PersonaStateResponse {
+  personaState: number;
+  playerName: string;
+  avatarHash: Buffer;
+}
+
+interface ProductInfoResponse {
+  packages?: Package[];
+  apps?: App[];
+  metaDataOnly: boolean;
+  responsePending: boolean;
+}
+
+interface Package {
+  packageid: number;
+  changeNumber: number;
+  missingToken: boolean;
+  sha: Buffer;
+  buffer: Buffer;
+  size: number;
+}
+
+interface App {
+  appid: number;
+  changeNumber: number;
+  missingToken: boolean;
+  sha: Buffer;
+  buffer: Buffer;
+  onlyPublic;
+  size: number;
+}
+
+interface PackageBuffer {
+  [packageid: string]: PackageInfo;
+}
+
+interface AppBuffer {
+  appinfo: {
+    appid: number;
+    common: AppInfo;
+  };
+}
+
+interface ClientPurchaseResponse {
+  eresult: number;
+  purchaseResultDetails: number;
+  purchaseReceiptInfo: Buffer;
+}
+
+interface PurchaseReceiptInfo {
+  MessageObject: {
+    resultdetail: number; // same as purchaseResultDetails
+    packageid: number;
+    lineitems: { PackageID?: number; packageID?: number; packageid?: number }[];
+  };
 }
