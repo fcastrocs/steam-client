@@ -52,11 +52,6 @@ declare namespace Steam {
     secure: boolean;
   }
 
-  interface SteamAccount {
-    auth: AccountAuth;
-    data: AccountData;
-  }
-
   interface PackageInfo {
     packageid: number;
     billingtype: number;
@@ -149,7 +144,7 @@ class Steam extends Connection {
   /**
    * Login to Steam
    */
-  login(options: LoginOptions): Promise<SteamAccount>;
+  login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }>;
   /**
    * Get a web api nonce to login to steamcommunity
    */
