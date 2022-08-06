@@ -293,14 +293,15 @@ export default class Steam extends Connection {
   public activateFreeToPlayGames(appids: number[]): Promise<AppInfo[]> {
     if (!appids.length) return Promise.resolve([]);
 
-    const body = {
-      appids,
-    };
+    this.send({ appids }, Language.EMsg.ClientRequestFreeLicense);
 
-    this.send(body, Language.EMsg.ClientRequestFreeLicense);
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new SteamClientError("DidNotGetResponse"));
+      }, this.timeout);
 
-    return new Promise((resolve) => {
       this.once("CMsgClientRequestFreeLicenseResponse", async (res) => {
+        clearTimeout(timeout);
         if (!res.grantedAppids.length) resolve([]);
         const appsInfo = await this.getAppsInfo(res.grantedAppids);
         const games = this.getGames(appsInfo);
