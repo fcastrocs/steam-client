@@ -7,8 +7,8 @@ import assert from "assert";
 const steamCM = { host: "162.254.192.71", port: 27017 };
 const timeout = 10000;
 let steam: Steam = null;
-const accountName = "";
-const password = "";
+const accountName = "gckramer@aol.com";
+const password = "rembrant";
 
 describe("Test steam-client", () => {
   step("connect() should throw SteamClientError", async () => {
@@ -31,17 +31,6 @@ describe("Test steam-client", () => {
     const options: Options = { steamCM, timeout };
     steam = new Steam(options);
     await steam.connect();
-  });
-
-  step("login() should throw SteamClientError", async () => {
-    const options: Options = { steamCM, timeout };
-    const steam = new Steam(options);
-    await steam.connect();
-    await assert.rejects(steam.login({ accountName: "random", password: "random" }), (err: Error) => {
-      assert.equal(err.name, "steam-client");
-      assert.equal(err.message, "InvalidPassword");
-      return true;
-    });
   });
 
   step("login()", async () => {

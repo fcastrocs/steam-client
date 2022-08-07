@@ -18,7 +18,7 @@ export function decode(type: string, body: Buffer): LooseObject {
   return proto.toObject(payload);
 }
 
-export function encode(type: string, body: LooseObject): Uint8Array {
+export function encode(type: string, body: LooseObject) {
   let proto: Type;
   try {
     proto = Protos.lookupType(type);
@@ -33,5 +33,5 @@ export function encode(type: string, body: LooseObject): Uint8Array {
     throw new Error(err);
   }
 
-  return proto.encode(message).finish();
+  return Buffer.from(proto.encode(message).finish());
 }

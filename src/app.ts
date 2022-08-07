@@ -75,7 +75,7 @@ export default class Steam extends Connection {
     } as AccountAuth;
 
     // send login request to steam
-    this.send(options, Language.EMsg.ClientLogon);
+    this.send({ EMsg: Language.EMsg.ClientLogon, payload: options });
 
     // wait for all account data
     return new Promise((resolve, reject) => {
@@ -118,9 +118,10 @@ export default class Steam extends Connection {
         checkCanResolve("CMsgClientLogonResponse");
       });
 
-      this.on("CMsgClientNewLoginKey", (body) => {
-        this.send(body, Language.EMsg.ClientNewLoginKeyAccepted);
-        accountAuth.loginKey = body.loginKey;
+      this.on("CMsgClientNewLoginKey", (payload) => {
+        this.send({ EMsg: Language.EMsg.ClientNewLoginKeyAccepted, payload });
+
+        accountAuth.loginKey = payload.loginKey;
 
         // maybe steam sends a loginKey randomly, when not expecting one
         if (responses.includes("CMsgClientNewLoginKey")) {
@@ -211,7 +212,7 @@ export default class Steam extends Connection {
    * Get a web api nonce to login to steamcommunity
    */
   public getWebNonce(): Promise<string> {
-    this.send({}, Language.EMsg.ClientRequestWebAPIAuthenticateUserNonce);
+    this.send({ EMsg: Language.EMsg.ClientRequestWebAPIAuthenticateUserNonce, payload: {} });
     return new Promise((resolve, reject) => {
       // expect response by timeout, otherwise reject
       const timeout = setTimeout(() => reject(new SteamClientError("WebNonceNotReceived")), this.timeout);
@@ -227,14 +228,20 @@ export default class Steam extends Connection {
    * Change change player Name
    */
   public changePlayerName(name: string) {
-    this.send({ playerName: name, personaState: this.personaState }, Language.EMsg.ClientChangeStatus);
+    this.send({
+      EMsg: Language.EMsg.ClientChangeStatus,
+      payload: { playerName: name, personaState: this.personaState },
+    });
   }
 
   /**
    * Change persona state
    */
   public changePersonaState(state: State) {
-    this.send({ personaState: PersonaState[state] }, Language.EMsg.ClientChangeStatus);
+    this.send({
+      EMsg: Language.EMsg.ClientChangeStatus,
+      payload: { personaState: PersonaState[state] },
+    });
     this.personaState = PersonaState[state];
   }
 
@@ -243,19 +250,25 @@ export default class Steam extends Connection {
    * empty array stops idling
    */
   public idleGames(gameIds: number[]) {
-    const body = {
+    const payload = {
       gamesPlayed: gameIds.map((id) => {
         return { gameId: id };
       }),
     };
-    this.send(body, Language.EMsg.ClientGamesPlayed);
+    this.send({
+      EMsg: Language.EMsg.ClientGamesPlayed,
+      payload,
+    });
   }
 
   /**
    * Activate cdkey
    */
   public cdkeyRedeem(cdkey: string): Promise<AppInfo[]> {
-    this.send({ key: cdkey }, Language.EMsg.ClientRegisterKey);
+    this.send({
+      EMsg: Language.EMsg.ClientRegisterKey,
+      payload: { key: cdkey },
+    });
 
     return new Promise((resolve, reject) => {
       this.once("CMsgClientPurchaseResponse", async (res: ClientPurchaseResponse) => {
@@ -293,7 +306,10 @@ export default class Steam extends Connection {
   public activateFreeToPlayGames(appids: number[]): Promise<AppInfo[]> {
     if (!appids.length) return Promise.resolve([]);
 
-    this.send({ appids }, Language.EMsg.ClientRequestFreeLicense);
+    this.send({
+      EMsg: Language.EMsg.ClientRequestFreeLicense,
+      payload: { appids },
+    });
 
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
@@ -339,7 +355,10 @@ export default class Steam extends Connection {
     });
 
     // send packge info request to steam
-    this.send({ packages }, Language.EMsg.ClientPICSProductInfoRequest);
+    this.send({
+      EMsg: Language.EMsg.ClientPICSProductInfoRequest,
+      payload: { packages },
+    });
 
     // wait for all(Multi response) packages info
     return new Promise((resolve) => {
@@ -377,7 +396,10 @@ export default class Steam extends Connection {
     });
 
     // send apps info request to steam
-    this.send({ apps }, Language.EMsg.ClientPICSProductInfoRequest);
+    this.send({
+      EMsg: Language.EMsg.ClientPICSProductInfoRequest,
+      payload: { apps },
+    });
 
     // wait for all(may come in Multi response) apps info responses
     return new Promise((resolve) => {
@@ -464,7 +486,12 @@ export default class Steam extends Connection {
   private clientUpdateMachineAuthResponse(sentry: Buffer): Sentry {
     const stringHex = SteamCrypto.sha1(sentry);
     const buffer = Buffer.from(stringHex, "hex");
-    this.send({ shaFile: buffer }, Language.EMsg.ClientUpdateMachineAuthResponse);
+
+    this.send({
+      EMsg: Language.EMsg.ClientUpdateMachineAuthResponse,
+      payload: { shaFile: buffer },
+    });
+
     return buffer;
   }
 

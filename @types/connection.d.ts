@@ -20,10 +20,9 @@ export default abstract class Connection extends EventEmitter {
   private _steamId;
   private heartBeatId;
   private error;
-  private readonly jobIdSources;
   private readonly options;
   protected readonly timeout: number;
-  protected connectionDestroyed;
+  protected connectionDestroyed: boolean;
   constructor(options: Options);
   /**
    * Connect to Steam CM server.
@@ -49,19 +48,19 @@ export default abstract class Connection extends EventEmitter {
    */
   protected startHeartBeat(beatTimeSecs: number): void;
   /**
-   * Send message to steam [msgHdrProtoBuf, data]
-   * if EMsg is passed, MsgHdrProtoBuf will be built automatically, and message will be encoded
-   * if EMsg is not passed, assumes the message is already concated with MsgHdrProtoBuf
+   * Send packet to steam
+   * packet: [message.length, MAGIC, message]
+   * message: [MsgHdrProtoBuf, payload] | [channelEncryptResponse]
    */
-  protected send(message: Buffer | LooseObject, EMsg?: number): void;
+  protected send(options: SendOptions): void;
   /**
-   * Build a MsgHdrProtoBuf buffer
+   * Build a MsgHdrProtoBuf
    */
   private buildMsgHdrProtoBuf;
   /**
    * Read data sent by steam
-   * header: Buffer of 8 bytes (uint packetsize 4 bytes, string MAGIC 4 bytes)
-   * Packet: Buffer of packetsize bytes
+   * header: 8 bytes (uint packetsize 4 bytes, string MAGIC 4 bytes)
+   * Packet: packetsize bytes
    */
   private readData;
   /**
@@ -74,13 +73,9 @@ export default abstract class Connection extends EventEmitter {
    */
   private multi;
   /**
-   * multi()
+   * unzip payload in Multi
    */
   private unzipPayload;
-  /**
-   * Decide if message is encryption request or result
-   */
-  private encryptConnection;
   /**
    * Send connection encryption response.
    * Starts encryption handshake
@@ -90,4 +85,17 @@ export default abstract class Connection extends EventEmitter {
    * Connection encryption handshake result
    */
   private ChannelEncryptResult;
+}
+
+interface ProtoBufHeader {
+  steamid: Long;
+  clientSessionid: number;
+  jobidTarget?: Long;
+  targetJobName?: string;
+}
+
+interface SendOptions {
+  EMsg?: number;
+  payload?: LooseObject;
+  message?: Buffer;
 }
