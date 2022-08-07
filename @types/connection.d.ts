@@ -10,7 +10,7 @@ interface SessionKey {
   encrypted: Buffer;
 }
 
-export default class Connection extends EventEmitter {
+export default abstract class Connection extends EventEmitter {
   private socket;
   private sessionKey;
   private encrypted;

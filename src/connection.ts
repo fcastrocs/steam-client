@@ -24,7 +24,7 @@ const PROTO_MASK = 0x80000000;
 const MAX_UI64 = Long.MAX_UNSIGNED_VALUE;
 const MAX_I64 = Long.MAX_VALUE;
 
-export default class Connection extends EventEmitter {
+export default abstract class Connection extends EventEmitter {
   private socket: Socket;
   private sessionKey: SessionKey;
   private encrypted: boolean;
