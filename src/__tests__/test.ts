@@ -7,8 +7,8 @@ import assert from "assert";
 const steamCM = { host: "162.254.192.71", port: 27017 };
 const timeout = 10000;
 let steam: Steam = null;
-const accountName = "gckramer@aol.com";
-const password = "rembrant";
+const accountName = "";
+const password = "";
 
 describe("Test steam-client", () => {
   step("connect() should throw SteamClientError", async () => {
