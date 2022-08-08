@@ -6,7 +6,7 @@ import { SocksClientOptions } from "socks";
 
 export = Steam;
 
-export declare namespace Steam {
+export namespace Steam {
   interface Options {
     steamCM: SocksClientOptions["destination"];
     proxy?: SocksClientOptions["proxy"];
