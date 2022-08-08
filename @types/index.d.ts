@@ -136,7 +136,7 @@ declare namespace Steam {
   }
 }
 
-export default class Steam extends Connection {
+class Steam extends Connection {
   private personaState;
   constructor(options: Options);
   /**
