@@ -31,6 +31,8 @@ export default abstract class Connection extends EventEmitter {
   private packetSize = 0;
   private sessionId = 0;
   private _steamId: Long.Long = Long.fromString("76561197960265728", true);
+  // Map<Language.EMsg[EMsg], jobidSource>
+  private readonly jobidSources: Map<string, Long.Long> = new Map();
   private heartBeatId: NodeJS.Timeout;
   private error: SteamClientError;
   private readonly options;
@@ -221,6 +223,10 @@ export default abstract class Connection extends EventEmitter {
       clientSessionid: this.sessionId,
     };
 
+    // steam is expecting a response to htis jobid
+    message.jobidTarget = this.jobidSources.get(Language.EMsg[EMsg]);
+    this.jobidSources.delete(Language.EMsg[EMsg]);
+
     const header = Protos.encode("CMsgProtoBufHeader", message);
     sBuffer.writeInt32LE(header.length);
     sBuffer.writeBuffer(header);
@@ -315,6 +321,11 @@ export default abstract class Connection extends EventEmitter {
 
       this._steamId = body.steamid;
       this.sessionId = body.clientSessionid;
+
+      // got a jobId from steam, store it in the map for later use in a response to steam
+      if (body.jobidSource) {
+        this.jobidSources.set(Language.EMsg[EMsg] + "Response", body.jobidSource);
+      }
     } else {
       // Decode ExtendedClientMsgHdr
       packet.readBuffer(3); // skip 3 bytes. header size (1 byte) header version (2 bytes)

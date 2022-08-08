@@ -18,7 +18,7 @@ declare namespace Steam {
     password?: string;
     machineName?: string;
     clientOsType?: number;
-    shouldRememberPassword?: true;
+    shouldRememberPassword?: boolean;
     twoFactorCode?: string;
     loginKey?: string;
     shaSentryfile?: Buffer;
@@ -136,15 +136,16 @@ declare namespace Steam {
   }
 }
 
-class Steam extends Connection {
-  on(event: "disconnected", listener: (error: Error) => void): this;
-  on(event: "loginKey", listener: (loginKey: string) => void): this;
-  private personaState: number;
+export default class Steam extends Connection {
+  private personaState;
   constructor(options: Options);
   /**
    * Login to Steam
    */
-  login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }>;
+  login(options: LoginOptions): Promise<{
+      auth: AccountAuth;
+      data: AccountData;
+  }>;
   /**
    * Get a web api nonce to login to steamcommunity
    */
@@ -183,7 +184,7 @@ class Steam extends Connection {
    */
   getAppsInfo(appIds: number[]): Promise<AppInfo[]>;
   /**
-   * Parse appsInfo into a nice games array
+   * get games from AppInfo[]
    */
   private getGames;
   /**

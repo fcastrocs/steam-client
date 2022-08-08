@@ -18,6 +18,7 @@ export default abstract class Connection extends EventEmitter {
   private packetSize;
   private sessionId;
   private _steamId;
+  private readonly jobidSources;
   private heartBeatId;
   private error;
   private readonly options;
@@ -90,6 +91,7 @@ export default abstract class Connection extends EventEmitter {
 interface ProtoBufHeader {
   steamid: Long;
   clientSessionid: number;
+  jobidSource?: Long.Long;
   jobidTarget?: Long;
   targetJobName?: string;
 }
