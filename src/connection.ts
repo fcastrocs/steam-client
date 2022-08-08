@@ -245,6 +245,8 @@ export default abstract class Connection extends EventEmitter {
     // not waiting for a packet, decode header
     if (!this.incompletePacket) {
       const header: Buffer = this.socket.read(8);
+      if (!header) return;
+
       this.packetSize = header.readUInt32LE(0);
 
       if (header.subarray(4).toString("ascii") != MAGIC) {
