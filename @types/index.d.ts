@@ -6,7 +6,7 @@ import { SocksClientOptions } from "socks";
 
 export = Steam;
 
-declare namespace Steam {
+export declare namespace Steam {
   interface Options {
     steamCM: SocksClientOptions["destination"];
     proxy?: SocksClientOptions["proxy"];
@@ -134,73 +134,73 @@ declare namespace Steam {
       lineitems: { PackageID?: number; packageID?: number; packageid?: number }[];
     };
   }
-}
 
-class Steam extends Connection {
-  private personaState;
-  constructor(options: Options);
-  /**
-   * Login to Steam
-   */
-  login(options: LoginOptions): Promise<{
+  class Steam extends Connection {
+    private personaState;
+    constructor(options: Options);
+    /**
+     * Login to Steam
+     */
+    login(options: LoginOptions): Promise<{
       auth: AccountAuth;
       data: AccountData;
-  }>;
-  /**
-   * Get a web api nonce to login to steamcommunity
-   */
-  getWebNonce(): Promise<string>;
-  /**
-   * Change change player Name
-   */
-  changePlayerName(name: string): void;
-  /**
-   * Change persona state
-   */
-  changePersonaState(state: State): void;
-  /**
-   * Idle an array of appIds
-   * empty array stops idling
-   */
-  idleGames(gameIds: number[]): void;
-  /**
-   * Activate cdkey
-   */
-  cdkeyRedeem(cdkey: string): Promise<AppInfo[]>;
-  /**
-   * Activate free games
-   */
-  activateFreeToPlayGames(appids: number[]): Promise<AppInfo[]>;
-  /**
-   * Get avatar from CMsgClientPersonaState response
-   */
-  private getAvatar;
-  /**
-   * Get packagesInfo from a list of packageIds
-   */
-  getPackagesInfo(packageIds: number[]): Promise<PackageInfo[]>;
-  /**
-   * Get appsInfo from a list of appIds
-   */
-  getAppsInfo(appIds: number[]): Promise<AppInfo[]>;
-  /**
-   * get games from AppInfo[]
-   */
-  private getGames;
-  /**
-   * Create a machineID based of accountName
-   */
-  private createMachineID;
-  /**
-   * Accept sentry
-   */
-  private clientUpdateMachineAuthResponse;
-  /**
-   * Create a random machine name
-   */
-  private createMachineName;
-}
+    }>;
+    /**
+     * Get a web api nonce to login to steamcommunity
+     */
+    getWebNonce(): Promise<string>;
+    /**
+     * Change change player Name
+     */
+    changePlayerName(name: string): void;
+    /**
+     * Change persona state
+     */
+    changePersonaState(state: State): void;
+    /**
+     * Idle an array of appIds
+     * empty array stops idling
+     */
+    idleGames(gameIds: number[]): void;
+    /**
+     * Activate cdkey
+     */
+    cdkeyRedeem(cdkey: string): Promise<AppInfo[]>;
+    /**
+     * Activate free games
+     */
+    activateFreeToPlayGames(appids: number[]): Promise<AppInfo[]>;
+    /**
+     * Get avatar from CMsgClientPersonaState response
+     */
+    private getAvatar;
+    /**
+     * Get packagesInfo from a list of packageIds
+     */
+    getPackagesInfo(packageIds: number[]): Promise<PackageInfo[]>;
+    /**
+     * Get appsInfo from a list of appIds
+     */
+    getAppsInfo(appIds: number[]): Promise<AppInfo[]>;
+    /**
+     * get games from AppInfo[]
+     */
+    private getGames;
+    /**
+     * Create a machineID based of accountName
+     */
+    private createMachineID;
+    /**
+     * Accept sentry
+     */
+    private clientUpdateMachineAuthResponse;
+    /**
+     * Create a random machine name
+     */
+    private createMachineName;
+  }
 
-export class SteamClientError extends Error {
-  constructor(message: string);
+  class SteamClientError extends Error {
+    constructor(message: string);
+  }
 }

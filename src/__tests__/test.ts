@@ -34,7 +34,7 @@ describe("Test steam-client", () => {
   });
 
   step("login()", async () => {
-    await steam.login({ accountName, password});
+    await steam.login({ accountName, password });
   });
 
   it("cdkeyRedeem()", async () => {
