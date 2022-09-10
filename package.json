@@ -1,6 +1,6 @@
 {
   "name": "steam-client",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "./lib/steam.js",
   "types": "./@types/steam.d.ts",
   "type": "module",

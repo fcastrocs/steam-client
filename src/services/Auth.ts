@@ -9,6 +9,7 @@ import {
   SessionViaQrRes,
   UnifiedMsgRes,
   PollAuthSessionStatusRes,
+  Confirmation,
 } from "../../@types/auth.js";
 const EAuthSessionGuardType = Language.EAuthSessionGuardType;
 
@@ -35,7 +36,9 @@ export default class AuthService {
     this.checkResult(res);
 
     // emit challengeUrl and poll for user respond
-    this.steam.emit("waitingForConfirmation", res.challengeUrl);
+    this.steam.emit("waitingForConfirmation", {
+      challengeUrl: res.challengeUrl,
+    } as Confirmation);
 
     // poll auth status until user responds to QR or timeouts
     return this.pollAuthStatusInterval(res.clientId, res.requestId);
@@ -97,7 +100,9 @@ export default class AuthService {
       guardType = EAuthSessionGuardType.emailCode;
     }
 
-    this.steam.emit("waitingForConfirmation", Language.EAuthSessionGuardTypeMap.get(guardType));
+    this.steam.emit("waitingForConfirmation", {
+      guardType: Language.EAuthSessionGuardTypeMap.get(guardType),
+    } as Confirmation);
 
     this.waitingForConfirmation = true;
     this.partialSession = res;
@@ -154,7 +159,9 @@ export default class AuthService {
 
         // got new challenge
         if (pollStatus.newChallengeUrl) {
-          this.steam.emit("challengeUrl", pollStatus.newChallengeUrl);
+          this.steam.emit("waitingForConfirmation", {
+            challengeUrl: pollStatus.newChallengeUrl,
+          } as Confirmation);
           clientId = pollStatus.newClientId;
           return;
         }

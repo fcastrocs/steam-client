@@ -4,6 +4,7 @@
 import { EventEmitter } from "events";
 import Long from "long";
 import { Socket } from "net";
+import SteamClientError from "SteamClientError";
 
 type JobidTargets = Map<number, Long>;
 type JobidSources = Map<string, UnifiedMessage>;
@@ -38,6 +39,8 @@ interface ConnectionOptions {
 }
 
 export default abstract class Connection extends EventEmitter {
+  on(event: "disconnected", listener: (error: SteamClientError) => void): this;
+
   private socket: Socket;
   private encrypted: boolean;
   private incompletePacket: boolean;

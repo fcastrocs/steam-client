@@ -41,3 +41,8 @@ interface AuthTokens {
   accessToken: string;
   machineName: string;
 }
+
+interface Confirmation {
+  challengeUrl?: string;
+  guardType?: string;
+}

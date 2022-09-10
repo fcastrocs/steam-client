@@ -3,6 +3,7 @@
  */
 import Connection, { ConnectionOptions } from "./connection.js";
 import Long from "long";
+import { Confirmation } from "./auth.js";
 
 export = Steam;
 
@@ -57,6 +58,8 @@ declare namespace Steam {
   }
 
   class Steam extends Connection {
+    on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
+
     readonly service: {
       auth: Auth;
       credentials: Credentials;
