@@ -10,40 +10,48 @@ import { SmartBuffer } from "smart-buffer";
 import Zip from "zlib";
 import crc32 from "buffer-crc32";
 import * as SteamCrypto from "steam-crypto-esm";
-import resources from "./resources/index.js";
+import { Language } from "./resources.js";
 import * as Protos from "./protos.js";
 import Long from "long";
 import net from "net";
+import SteamClientError from "./SteamClientError.js";
 
-import { ProtoBufHeader, SendOptions, SessionKey } from "../@types/connection.js";
-import { Options } from "../@types";
-import { SteamClientError } from "./app.js";
+import { ConnectionOptions, JobidSources, JobidTargets, Proto, Session } from "../@types/connection.js";
 
-const Language = resources.language;
 const MAGIC = "VT01";
 const PROTO_MASK = 0x80000000;
+const JOB_NONE = Long.fromString("18446744073709551615", true);
 
 export default abstract class Connection extends EventEmitter {
   private socket: Socket;
-  private sessionKey: SessionKey;
   private encrypted: boolean;
   private incompletePacket: boolean;
   private packetSize = 0;
-  private sessionId = 0;
-  private _steamId: Long.Long = Long.fromString("76561197960265728", true);
-  // Map<Language.EMsg[EMsg], jobidSource>
-  private readonly jobidSources: Map<string, Long.Long> = new Map();
+  private readonly jobidSources: JobidSources = new Map();
+  private readonly jobidTargets: JobidTargets = new Map();
+  private readonly options;
+  public readonly timeout: number = 15000;
   private heartBeatId: NodeJS.Timeout;
   private error: SteamClientError;
-  private readonly options;
-  protected readonly timeout: number;
-  protected connectionDestroyed = false;
+  private connectionDestroyed = false;
+  private session: Session = {
+    clientId: 0,
+    key: null,
+    steamId: Long.fromString("76561197960265728", true),
+  };
 
-  constructor(options: Options) {
+  constructor(options: ConnectionOptions) {
     super();
     this.options = options;
-    if (this.options.timeout) this.timeout = this.options.timeout;
-    else this.timeout = 15000;
+
+    // set timeout
+    if (this.options.timeout) {
+      if (this.options.timeout < 15000) {
+        throw new SteamClientError("Timeout must be at least 15000 ms");
+      } else {
+        this.timeout = this.options.timeout;
+      }
+    }
   }
 
   /**
@@ -73,6 +81,7 @@ export default abstract class Connection extends EventEmitter {
       // connection successfull
       this.once("encryption-success", () => {
         clearTimeout(timeoutId);
+        this.send({ EMsg: Language.EMsg.ClientHello, payload: { protocolVersion: 65580 } });
         resolve();
       });
 
@@ -117,10 +126,14 @@ export default abstract class Connection extends EventEmitter {
     }
   }
 
+  public get steamId() {
+    return this.session.steamId;
+  }
+
   /**
    * Important socks events
    */
-  private registerListeners(): void {
+  private registerListeners() {
     // start reading data
     this.socket.on("readable", () => this.readData());
     // transmission error,
@@ -131,9 +144,9 @@ export default abstract class Connection extends EventEmitter {
   }
 
   /**
-   * Disconnect from Steam CM server.
+   * Silently disconnect from Steam CM server.
    */
-  public disconnect(): void {
+  public disconnect() {
     this.destroyConnection(true);
   }
 
@@ -141,7 +154,7 @@ export default abstract class Connection extends EventEmitter {
    * Destroy connection to Steam and do some cleanup
    * silent is truthy when user destroys connection
    */
-  protected destroyConnection(silent?: boolean): void {
+  private destroyConnection(silent?: boolean) {
     // make sure this is called only once
     if (this.connectionDestroyed) return;
     this.connectionDestroyed = true;
@@ -165,9 +178,7 @@ export default abstract class Connection extends EventEmitter {
   /**
    * Heartbeat connection after login
    */
-  protected startHeartBeat(beatTimeSecs: number): void {
-    // increase timeout so connection is not dropped in between heartbeats
-    this.socket.setTimeout((beatTimeSecs + 5) * 1000);
+  protected startHeartBeat(beatTimeSecs: number) {
     this.heartBeatId = setInterval(() => {
       this.send({ EMsg: Language.EMsg.ClientHeartBeat, payload: {} });
     }, beatTimeSecs * 1000);
@@ -175,24 +186,25 @@ export default abstract class Connection extends EventEmitter {
 
   /**
    * Send packet to steam
-   * packet: [message.length, MAGIC, message]
-   * message: [MsgHdrProtoBuf, payload] | [channelEncryptResponse]
+   * message: Buffer(message.length, MAGIC, proto | channelEncryptResponse)
    */
-  protected send(options: SendOptions): void {
-    if (!this.socket) return;
-
-    let message = options.message;
-
+  public send(message: Proto | Buffer) {
+    // sending proto
     // build MsgHdrProtoBuf, encode message
-    if (options.EMsg && options.payload) {
-      const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(options.EMsg);
-      const payload = Protos.encode(`CMsg${Language.EMsg[options.EMsg]}`, options.payload);
+    if (!Buffer.isBuffer(message)) {
+      // jobid for unified message
+      const jobId = message.unified?.jobId;
+      const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(message.EMsg, jobId);
+      const payload = jobId
+        ? (message.payload as Buffer)
+        : Protos.encode(`CMsg${Language.EMsgMap.get(message.EMsg)}`, message.payload);
+
       message = Buffer.concat([MsgHdrProtoBuf, payload]);
     }
 
     // encrypt message
     if (this.encrypted) {
-      message = SteamCrypto.symmetricEncryptWithHmacIv(message, this.sessionKey.plain);
+      message = SteamCrypto.symmetricEncryptWithHmacIv(message, this.session.key.plain);
     }
 
     const packet = new SmartBuffer();
@@ -204,28 +216,59 @@ export default abstract class Connection extends EventEmitter {
     this.socket.write(packet.toBuffer());
   }
 
-  /**
-   * Build a MsgHdrProtoBuf
-   */
-  private buildMsgHdrProtoBuf(EMsg: number): Buffer {
-    //int EMsg
-    //int CMsgProtoBufHeader length;
-    //Proto CMsgProtoBufHeader buffer
+  public sendUnified(serviceName: string, method: string, payload: T): Promise<T> {
+    const targetJobName = `${serviceName}.${method}#1`;
+    method = `C${serviceName}_${method}`;
 
+    return new Promise((resolve) => {
+      const jobId = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
+      this.jobidSources.set(jobId.toString(), { method, targetJobName, resolve });
+
+      // delete after 2 mins if never got response
+      setTimeout(() => this.jobidSources.delete(jobId.toString()), 2 * 60 * 1000);
+
+      let EMsg;
+
+      if (this.session.steamId.equals(Long.fromString("76561197960265728", true))) {
+        EMsg = Language.EMsg.ServiceMethodCallFromClientNonAuthed;
+      } else {
+        EMsg = Language.EMsg.ServiceMethodCallFromClient;
+      }
+
+      const proto: Proto = {
+        EMsg,
+        payload: Protos.encode(method + "_Request", payload),
+        unified: { jobId },
+      };
+
+      this.send(proto);
+    });
+  }
+
+  /**
+   * MsgHdrProtoBuf:
+   * int EMsg
+   * int CMsgProtoBufHeader length;
+   * Proto CMsgProtoBufHeader buffer
+   */
+  private buildMsgHdrProtoBuf(EMsg: number, jobidSource: Long): Buffer {
     const sBuffer = new SmartBuffer();
+
+    const unifiedMessage = jobidSource ? this.jobidSources.get(jobidSource.toString()) : null;
 
     //MsgHdrProtoBuf
     sBuffer.writeInt32LE(EMsg | PROTO_MASK);
 
     //CMsgProtoBufHeader
     const message: ProtoBufHeader = {
-      steamid: this._steamId,
-      clientSessionid: this.sessionId,
+      steamid: this.session.steamId,
+      clientSessionid: this.session.clientId,
+      jobidTarget: this.jobidTargets.get(EMsg) || JOB_NONE,
+      targetJobName: unifiedMessage?.targetJobName,
+      jobidSource: jobidSource || JOB_NONE, // unified messages
     };
 
-    // steam is expecting a response to htis jobid
-    message.jobidTarget = this.jobidSources.get(Language.EMsg[EMsg]);
-    this.jobidSources.delete(Language.EMsg[EMsg]);
+    this.jobidTargets.delete(EMsg);
 
     const header = Protos.encode("CMsgProtoBufHeader", message);
     sBuffer.writeInt32LE(header.length);
@@ -235,13 +278,25 @@ export default abstract class Connection extends EventEmitter {
   }
 
   /**
+   * MsgHdr:
+   * int EMsg
+   * int CMsgProtoBufHeader length;
+   * Proto CMsgProtoBufHeader buffer
+   */
+  private buildMsgHdr(EMsg: number): Buffer {
+    const sBuffer = new SmartBuffer();
+    sBuffer.writeUInt32LE(EMsg);
+    sBuffer.writeBigUInt64LE(18446744073709551615n); //tarjetjobid
+    sBuffer.writeBigUInt64LE(18446744073709551615n); //sourjobid
+    return sBuffer.toBuffer();
+  }
+
+  /**
    * Read data sent by steam
    * header: 8 bytes (uint packetsize 4 bytes, string MAGIC 4 bytes)
    * Packet: packetsize bytes
    */
-  private readData(): void {
-    if (!this.socket) return;
-
+  private readData() {
     // not waiting for a packet, decode header
     if (!this.incompletePacket) {
       const header: Buffer = this.socket.read(8);
@@ -272,7 +327,7 @@ export default abstract class Connection extends EventEmitter {
     // decrypt packet
     if (this.encrypted) {
       try {
-        packet = SteamCrypto.symmetricDecrypt(packet, this.sessionKey.plain);
+        packet = SteamCrypto.symmetricDecrypt(packet, this.session.key.plain);
       } catch (error) {
         this.error = new SteamClientError("SteamDataDecryptionFailed");
         this.destroyConnection();
@@ -287,29 +342,31 @@ export default abstract class Connection extends EventEmitter {
    * Decode packet and emmit decoded payload
    * Packet has two parts: (MsgHdrProtoBuf or ExtendedClientMsgHdr) and payload message (proto)
    */
-  private decodePacket(data: Buffer): void {
+  private decodePacket(data: Buffer) {
     const packet = SmartBuffer.fromBuffer(data);
 
     const rawEMsg = packet.readUInt32LE();
     const EMsg = rawEMsg & ~PROTO_MASK;
     const isProto = rawEMsg & PROTO_MASK;
 
+    console.log(Language.EMsgMap.get(EMsg));
+
     // Steam is sending encryption request or result
     if (!this.encrypted) {
       packet.readBigUInt64LE(); //jobidTarget 18446744073709551615n
       packet.readBigUInt64LE(); //jobidSource 18446744073709551615n
 
-      if (Language.EMsg[EMsg] === "ChannelEncryptRequest") {
+      if (EMsg === Language.EMsg.ChannelEncryptRequest) {
         return this.channelEncryptResponse(packet);
       }
 
-      if (Language.EMsg[EMsg] === "ChannelEncryptResult") {
+      if (EMsg === Language.EMsg.ChannelEncryptResult) {
         return this.ChannelEncryptResult(packet);
       }
     }
 
     // package is zipped, have to unzip it first
-    if (Language.EMsg[EMsg] === "Multi") {
+    if (EMsg === Language.EMsg.Multi) {
       this.multi(packet.readBuffer());
       return;
     }
@@ -321,12 +378,24 @@ export default abstract class Connection extends EventEmitter {
       const CMsgProtoBufHeader = packet.readBuffer(headerLength);
       const body = Protos.decode("CMsgProtoBufHeader", CMsgProtoBufHeader) as ProtoBufHeader;
 
-      this._steamId = body.steamid;
-      this.sessionId = body.clientSessionid;
+      if (!body.steamid.equals(Long.UZERO)) {
+        this.session.steamId = body.steamid;
+      }
 
-      // got a jobId from steam, store it in the map for later use in a response to steam
-      if (body.jobidSource) {
-        this.jobidSources.set(Language.EMsg[EMsg] + "Response", body.jobidSource);
+      this.session.clientId = body.clientSessionid;
+
+      // got a jobId that steam expects a respond to
+      if (body.jobidSource && !JOB_NONE.equals(body.jobidSource)) {
+        const key = (Language.EMsgMap.get(EMsg) + "Response") as keyof typeof Language.EMsg;
+        this.jobidTargets.set(Language.EMsg[key], body.jobidSource);
+      }
+
+      // got response to a unified message
+      if (body.jobidTarget && !JOB_NONE.equals(body.jobidTarget)) {
+        const unifiedMessage = this.jobidSources.get(body.jobidTarget.toString());
+
+        const message = Protos.decode(unifiedMessage.method + "_Response", packet.readBuffer());
+        return unifiedMessage.resolve({ EResult: body.eresult, ...message });
       }
     } else {
       // Decode ExtendedClientMsgHdr
@@ -336,31 +405,31 @@ export default abstract class Connection extends EventEmitter {
 
       packet.readBuffer(1); // skip header canary (1 byte)
 
-      this._steamId = Long.fromString(packet.readBigUInt64LE().toString(), true);
-      this.sessionId = packet.readInt32LE();
+      const steamId = Long.fromString(packet.readBigUInt64LE().toString(), true);
+      if (!steamId.equals(Long.UZERO)) {
+        this.session.steamId = steamId;
+      }
 
-      if (Language.EMsg[EMsg] !== "ClientVACBanStatus") return;
+      this.session.clientId = packet.readInt32LE();
+
+      if (EMsg !== Language.EMsg.ClientVACBanStatus) return;
     }
 
-    // don't decode these messages because there's no proto for them
-    if (Language.EMsg[EMsg] === "ServiceMethod") return;
-    if (Language.EMsg[EMsg] === "ClientFriendMsgEchoToSender") return;
-    if (Language.EMsg[EMsg] === "ClientChatOfflineMessageNotification") return;
-    if (Language.EMsg[EMsg] === "ClientFromGC") return;
+    if (EMsg === Language.EMsg.ServiceMethod) return;
 
     // manually handle this proto because there's no Proto for it
-    if (Language.EMsg[EMsg] === "ClientVACBanStatus") {
-      const bans = packet.readUInt32LE(0);
-      this.emit("CMsgClientVACBanStatus", {
-        vacbanned: !!bans,
+    if (EMsg === Language.EMsg.ClientVACBanStatus) {
+      const bans = packet.readUInt32LE();
+      this.emit("ClientVACBanStatus", {
+        vac: !!bans,
       });
       return;
     }
 
     // decode protos and emit message
-    const type = "CMsg" + Language.EMsg[EMsg];
-    const message = Protos.decode(type, packet.readBuffer());
-    this.emit(type, message);
+    const EMsgStr = Language.EMsgMap.get(EMsg);
+    const message = Protos.decode("CMsg" + EMsgStr, packet.readBuffer());
+    this.emit(EMsgStr, message);
   }
 
   /**
@@ -400,37 +469,32 @@ export default abstract class Connection extends EventEmitter {
    * Send connection encryption response.
    * Starts encryption handshake
    */
-  private channelEncryptResponse(body: SmartBuffer): void {
+  private channelEncryptResponse(body: SmartBuffer) {
     const protocol = body.readUInt32LE();
-    const universe = body.readUInt32LE();
+    body.readUInt32LE(); // skip universe
     const nonce = body.readBuffer();
 
     // Generate a 32-byte symmetric session key and encrypt it with Steam's public "System" key.
-    this.sessionKey = SteamCrypto.generateSessionKey(nonce);
-    if (!this.sessionKey) return;
+    this.session.key = SteamCrypto.generateSessionKey(nonce);
 
-    const keycrc = crc32.unsigned(this.sessionKey.encrypted);
+    const MsgHdr = this.buildMsgHdr(Language.EMsg.ChannelEncryptResponse);
 
-    const data = new SmartBuffer();
-
-    // MsgHdr
-    data.writeUInt32LE(Language.EMsg.ChannelEncryptResponse);
-    data.writeBigUInt64LE(18446744073709551615n); //tarjetjobid
-    data.writeBigUInt64LE(18446744073709551615n); //sourjobid
     // MsgChannelEncryptResponse
+    const data = new SmartBuffer();
+    const keycrc = crc32.unsigned(this.session.key.encrypted);
     data.writeUInt32LE(protocol);
-    data.writeUInt32LE(this.sessionKey.encrypted.length);
-    data.writeBuffer(this.sessionKey.encrypted);
-
+    data.writeUInt32LE(this.session.key.encrypted.length);
+    data.writeBuffer(this.session.key.encrypted);
     data.writeUInt32LE(keycrc);
     data.writeUInt32LE(0);
-    this.send({ message: data.toBuffer() });
+
+    this.send(Buffer.concat([MsgHdr, data.toBuffer()]));
   }
 
   /**
    * Connection encryption handshake result
    */
-  private ChannelEncryptResult(body: SmartBuffer): void {
+  private ChannelEncryptResult(body: SmartBuffer) {
     const EResult: number = body.readUInt32LE();
     // connection channel successfully encrypted
     if (EResult === Language.EResult.OK) {

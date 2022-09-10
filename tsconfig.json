@@ -15,6 +15,6 @@
     "outDir": "lib/",
     "baseUrl": "src/"
   },
-  "include": ["src/**/*", "@types/index.d.ts"],
+  "include": ["src/**/*", "@types"],
   "compileOnSave": false
 }

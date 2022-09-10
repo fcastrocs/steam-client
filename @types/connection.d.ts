@@ -2,62 +2,100 @@
  * Handle low-level connection to steam.
  */
 import { EventEmitter } from "events";
-import { LooseObject } from "@types";
-import { Options } from "./index";
+import Long from "long";
+import { Socket } from "net";
+
+type JobidTargets = Map<number, Long>;
+type JobidSources = Map<string, UnifiedMessage>;
 
 interface SessionKey {
   plain: Buffer;
   encrypted: Buffer;
 }
 
+interface Session {
+  clientId: number;
+  key: SessionKey;
+  steamId: Long;
+}
+
+interface UnifiedMessage {
+  method: string;
+  targetJobName: string;
+  resolve: (value: T) => void;
+}
+
+interface Proto {
+  EMsg: number;
+  payload: Record<string, T> | Buffer;
+  unified?: { jobId: Long };
+}
+
+interface ConnectionOptions {
+  steamCM: SocksClientOptions["destination"];
+  proxy?: SocksClientOptions["proxy"];
+  timeout?: number;
+}
+
 export default abstract class Connection extends EventEmitter {
-  private socket;
-  private sessionKey;
-  private encrypted;
-  private incompletePacket;
-  private packetSize;
-  private sessionId;
-  private _steamId;
-  private readonly jobidSources;
-  private heartBeatId;
-  private error;
-  private readonly options;
-  protected readonly timeout: number;
-  protected connectionDestroyed: boolean;
-  constructor(options: Options);
+  private socket: Socket;
+  private encrypted: boolean;
+  private incompletePacket: boolean;
+  private packetSize: number;
+  private readonly jobidSources: JobidSources;
+  private readonly jobidTargets: JobidTargets;
+  private readonly options: ConnectionOptions;
+  public readonly timeout: number;
+  private heartBeatId: NodeJS.Timeout;
+  private error: SteamClientError;
+  private connectionDestroyed: boolean;
+  private session: Session;
+
+  constructor(options: ConnectionOptions);
   /**
    * Connect to Steam CM server.
    */
   connect(): Promise<void>;
   private directConnect;
   private proxyConnect;
+  get steamId(): Long;
   /**
    * Important socks events
    */
   private registerListeners;
   /**
-   * Disconnect from Steam CM server.
+   * Silently disconnect from Steam CM server.
    */
   disconnect(): void;
   /**
    * Destroy connection to Steam and do some cleanup
    * silent is truthy when user destroys connection
    */
-  protected destroyConnection(silent?: boolean): void;
+  private destroyConnection;
   /**
    * Heartbeat connection after login
    */
   protected startHeartBeat(beatTimeSecs: number): void;
   /**
    * Send packet to steam
-   * packet: [message.length, MAGIC, message]
-   * message: [MsgHdrProtoBuf, payload] | [channelEncryptResponse]
+   * message: Buffer(message.length, MAGIC, proto | channelEncryptResponse)
    */
-  protected send(options: SendOptions): void;
+  send(message: Proto | Buffer): void;
+  sendUnified(serviceName: string, method: string, payload: T): Promise<T>;
   /**
-   * Build a MsgHdrProtoBuf
+   * MsgHdrProtoBuf:
+   * int EMsg
+   * int CMsgProtoBufHeader length;
+   * Proto CMsgProtoBufHeader buffer
    */
   private buildMsgHdrProtoBuf;
+  /**
+   * MsgHdr:
+   * int EMsg
+   * int CMsgProtoBufHeader length;
+   * Proto CMsgProtoBufHeader buffer
+   */
+  private buildMsgHdr;
   /**
    * Read data sent by steam
    * header: 8 bytes (uint packetsize 4 bytes, string MAGIC 4 bytes)
@@ -86,18 +124,4 @@ export default abstract class Connection extends EventEmitter {
    * Connection encryption handshake result
    */
   private ChannelEncryptResult;
-}
-
-interface ProtoBufHeader {
-  steamid: Long;
-  clientSessionid: number;
-  jobidSource?: Long.Long;
-  jobidTarget?: Long;
-  targetJobName?: string;
-}
-
-interface SendOptions {
-  EMsg?: number;
-  payload?: LooseObject;
-  message?: Buffer;
 }
