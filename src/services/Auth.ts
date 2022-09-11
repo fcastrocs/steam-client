@@ -1,22 +1,25 @@
 import NodeRSA from "node-rsa";
+import QRCode from "qrcode";
 import Steam from "../Steam.js";
 import SteamClientError from "../SteamClientError.js";
 import { Language } from "../resources.js";
 import Long from "long";
-import {
+import IAuth, {
   SessionViaCredentialsRes,
   AuthTokens,
   SessionViaQrRes,
   UnifiedMsgRes,
   PollAuthSessionStatusRes,
   Confirmation,
-} from "../../@types/auth.js";
+  QRType,
+} from "../../@types/services/auth.js";
 const EAuthSessionGuardType = Language.EAuthSessionGuardType;
 
-export default class AuthService {
+export default class Auth implements IAuth {
   private waitingForConfirmation = false;
   private partialSession: SessionViaCredentialsRes;
   private readonly serviceName = "Authentication";
+  private qrType: QRType;
   constructor(private steam: Steam) {}
 
   /**
@@ -24,8 +27,9 @@ export default class AuthService {
    * @emits "waitingForConfirmation" with QR challenge URL
    * @throws "LogonWasNotConfirmed"
    */
-  async getAuthTokensViaQR(): Promise<AuthTokens> {
+  async getAuthTokensViaQR(qrType: QRType): Promise<AuthTokens> {
     this.checkLoggedStatus();
+    this.qrType = qrType;
 
     // begin login by getting QR challenge URL
     const res: SessionViaQrRes = await this.steam.sendUnified(this.serviceName, "BeginAuthSessionViaQR", {
@@ -35,9 +39,9 @@ export default class AuthService {
 
     this.checkResult(res);
 
-    // emit challengeUrl and poll for user respond
+    const qrCode = await this.genQRCode(res.challengeUrl);
     this.steam.emit("waitingForConfirmation", {
-      challengeUrl: res.challengeUrl,
+      qrCode,
     } as Confirmation);
 
     // poll auth status until user responds to QR or timeouts
@@ -159,9 +163,11 @@ export default class AuthService {
 
         // got new challenge
         if (pollStatus.newChallengeUrl) {
+          const qrCode = await this.genQRCode(pollStatus.newChallengeUrl);
           this.steam.emit("waitingForConfirmation", {
-            challengeUrl: pollStatus.newChallengeUrl,
+            qrCode,
           } as Confirmation);
+
           clientId = pollStatus.newClientId;
           return;
         }
@@ -185,6 +191,16 @@ export default class AuthService {
         });
       }, ms);
     });
+  }
+
+  private async genQRCode(challengeUrl: string) {
+    let code;
+    if (this.qrType === "terminal") {
+      code = await QRCode.toString(challengeUrl, { type: "terminal", small: true, errorCorrectionLevel: "H" });
+    } else if (this.qrType === "image") {
+      code = await QRCode.toDataURL(challengeUrl, { type: "image/webp" });
+    }
+    return code;
   }
 
   private encryptPass(password: string, publickeyMod: string, publickeyExp: string) {

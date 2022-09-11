@@ -17,7 +17,7 @@ import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
 import Actions from "./Actions.js";
 import { Language } from "./resources.js";
-import { AccountAuth, AccountData, Game, LoginOptions } from "../@types/steam.js";
+import SteamInterface, { AccountAuth, AccountData, Game, LoginOptions } from "../@types/steam.js";
 import { ConnectionOptions } from "../@types/connection.js";
 import {
   AppBuffer,
@@ -35,14 +35,17 @@ import {
 } from "../@types/protoResponse.js";
 
 import SteamClientError from "./SteamClientError.js";
+import IActions from "../@types/Actions.js";
+import ICredentials from "../@types/services/credentials.js";
+import IAuth from "../@types/services/auth.js";
 
-export default class Steam extends Connection {
+export default class Steam extends Connection implements SteamInterface {
   public readonly service: {
-    auth: Auth;
-    credentials: Credentials;
+    auth: IAuth;
+    credentials: ICredentials;
   };
 
-  public readonly action: Actions;
+  public readonly action: IActions;
   public readonly machineName: string;
   private loggedIn = false;
   private playingBlocked = false;

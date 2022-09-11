@@ -1,4 +1,4 @@
 {
-  "timeout": "15000",
+  "timeout": "180000",
   "spec": "lib/__tests__"
 }

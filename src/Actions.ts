@@ -5,8 +5,9 @@ import SteamClientError from "./SteamClientError.js";
 import { Language } from "./resources.js";
 import Steam from "./Steam.js";
 import { Game } from "../@types/steam.js";
+import IActions from "../@types/Actions.js";
 
-export default class Actions {
+export default class Actions implements IActions {
   constructor(private steam: Steam) {}
 
   public changePlayerName(playerName: string) {

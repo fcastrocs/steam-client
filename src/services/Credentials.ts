@@ -1,6 +1,7 @@
+import ICredentials from "../../@types/services/credentials.js";
 import Steam from "../Steam.js";
 
-export default class CredentialsService {
+export default class Credentials implements ICredentials {
   private readonly serviceName = "Credentials";
   constructor(private steam: Steam) {}
 

@@ -1,5 +1,7 @@
 import Long from "long";
 
+type QRType = "terminal" | "image";
+
 interface UnifiedMsgRes {
   EResult: number;
 }
@@ -43,6 +45,31 @@ interface AuthTokens {
 }
 
 interface Confirmation {
-  challengeUrl?: string;
+  qrCode?: string;
   guardType?: string;
+}
+
+export default interface IAuth {
+  /**
+   * Login via QR
+   * @emits "waitingForConfirmation" with QR challenge URL
+   * @throws "LogonWasNotConfirmed"
+   */
+  getAuthTokensViaQR(qrType: QRType): Promise<AuthTokens>;
+  /**
+   * Login via Credentials
+   * @emits "waitingForConfirmation" with confirmation type
+   * @throws EResult, SteamGuardIsUnknown, SteamGuardIsDisabled
+   */
+  getAuthTokensViaCredentials(accountName: string, password: string): Promise<AuthTokens>;
+  /**
+   * Submit Steam Guard Code to auth session
+   * @throws EResult
+   */
+  updateWithSteamGuardCode(code: string, guardType: keyof typeof EAuthSessionGuardType): Promise<void>;
+  /**
+   * Poll auth session for auth tokens
+   * Will stop after one minute of polling
+   * @throws "LogonWasNotConfirmed"
+   */
 }

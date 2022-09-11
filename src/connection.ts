@@ -16,13 +16,13 @@ import Long from "long";
 import net from "net";
 import SteamClientError from "./SteamClientError.js";
 
-import { ConnectionOptions, JobidSources, JobidTargets, Proto, Session } from "../@types/connection.js";
+import IConnection, { ConnectionOptions, JobidSources, JobidTargets, Proto, Session } from "../@types/connection.js";
 
 const MAGIC = "VT01";
 const PROTO_MASK = 0x80000000;
 const JOB_NONE = Long.fromString("18446744073709551615", true);
 
-export default abstract class Connection extends EventEmitter {
+export default abstract class Connection extends EventEmitter implements IConnection {
   private socket: Socket;
   private encrypted: boolean;
   private incompletePacket: boolean;
