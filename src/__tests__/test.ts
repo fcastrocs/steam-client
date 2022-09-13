@@ -38,6 +38,7 @@ describe("Test steam-client", () => {
     });
 
     const authTokens = await steam.service.auth.getAuthTokensViaQR("terminal");
+    console.log(authTokens);
 
     const res = await steam.login({ accountName: "", accessToken: authTokens.refreshToken });
     console.log(res);
