@@ -11,7 +11,7 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
 const VDF = require("vdf");
-import SteamCrypto from "steam-crypto-esm";
+import SteamCrypto from "@machiavelli/steam-client-crypto";
 import Connection from "./Connection.js";
 import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
@@ -347,7 +347,7 @@ export default class Steam extends Connection implements SteamInterface {
   }
 
   private clientUpdateMachineAuthResponse(sentryBytes: ClientUpdateMachineAuth["bytes"]) {
-    const stringHex = SteamCrypto.sha1(sentryBytes);
+    const stringHex = SteamCrypto.sha1Hash(sentryBytes);
     const buffer = Buffer.from(stringHex, "hex");
 
     this.send({
@@ -374,7 +374,7 @@ export default class Steam extends Connection implements SteamInterface {
     // Machine IDs are binary KV objects with root key MessageObject and three hashes named BB3, FF2, and 3B3.
 
     // generate hash from machine name
-    const hash = SteamCrypto.sha1(machineName);
+    const hash = SteamCrypto.sha1Hash(machineName);
 
     const buffer = Buffer.alloc(155);
     buffer.writeInt8(0, 0); // 1 byte

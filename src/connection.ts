@@ -9,7 +9,7 @@ import { Socket } from "net";
 import { SmartBuffer } from "smart-buffer";
 import Zip from "zlib";
 import crc32 from "buffer-crc32";
-import * as SteamCrypto from "steam-crypto-esm";
+import SteamCrypto from "@machiavelli/steam-client-crypto";
 import { Language } from "./resources.js";
 import * as Protos from "./protos.js";
 import Long from "long";
@@ -204,7 +204,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
 
     // encrypt message
     if (this.encrypted) {
-      message = SteamCrypto.symmetricEncryptWithHmacIv(message, this.session.key.plain);
+      message = SteamCrypto.encrypt(message, this.session.key.plain);
     }
 
     const packet = new SmartBuffer();
@@ -327,7 +327,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
     // decrypt packet
     if (this.encrypted) {
       try {
-        packet = SteamCrypto.symmetricDecrypt(packet, this.session.key.plain);
+        packet = SteamCrypto.decrypt(packet, this.session.key.plain);
       } catch (error) {
         this.error = new SteamClientError("SteamDataDecryptionFailed");
         this.destroyConnection();
@@ -475,7 +475,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
     const nonce = body.readBuffer();
 
     // Generate a 32-byte symmetric session key and encrypt it with Steam's public "System" key.
-    this.session.key = SteamCrypto.generateSessionKey(nonce);
+    this.session.key = SteamCrypto.genSessionKey(nonce);
 
     const MsgHdr = this.buildMsgHdr(Language.EMsg.ChannelEncryptResponse);
 
