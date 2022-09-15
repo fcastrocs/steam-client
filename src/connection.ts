@@ -29,7 +29,6 @@ export default abstract class Connection extends EventEmitter implements IConnec
   private packetSize = 0;
   private readonly jobidSources: JobidSources = new Map();
   private readonly jobidTargets: JobidTargets = new Map();
-  private readonly options;
   public readonly timeout: number = 15000;
   private heartBeatId: NodeJS.Timeout;
   private error: SteamClientError;
@@ -40,9 +39,8 @@ export default abstract class Connection extends EventEmitter implements IConnec
     steamId: Long.fromString("76561197960265728", true),
   };
 
-  constructor(options: ConnectionOptions) {
+  constructor(private options: ConnectionOptions) {
     super();
-    this.options = options;
 
     // set timeout
     if (this.options.timeout) {
@@ -335,14 +333,14 @@ export default abstract class Connection extends EventEmitter implements IConnec
       }
     }
 
-    this.decodePacket(packet);
+    this.decodeData(packet);
   }
 
   /**
    * Decode packet and emmit decoded payload
    * Packet has two parts: (MsgHdrProtoBuf or ExtendedClientMsgHdr) and payload message (proto)
    */
-  private decodePacket(data: Buffer) {
+  private decodeData(data: Buffer) {
     const packet = SmartBuffer.fromBuffer(data);
 
     const rawEMsg = packet.readUInt32LE();
@@ -433,7 +431,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
   }
 
   /**
-   * Unzip payload and decode it
+   * Unzip data and decode it
    */
   private async multi(payload: Buffer): Promise<void> {
     const message = Protos.decode("CMsgMulti", payload);
@@ -446,7 +444,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
 
     while (payload.length) {
       const subSize = payload.readUInt32LE(0);
-      this.decodePacket(payload.subarray(4, 4 + subSize));
+      this.decodeData(payload.subarray(4, 4 + subSize));
       payload = payload.subarray(4 + subSize);
     }
   }
