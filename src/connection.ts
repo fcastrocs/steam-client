@@ -79,6 +79,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
       // connection successfull
       this.once("encryption-success", () => {
         clearTimeout(timeoutId);
+        this.encrypted = true;
         this.send({ EMsg: Language.EMsg.ClientHello, payload: { protocolVersion: 65580 } });
         resolve();
       });
@@ -337,7 +338,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
   }
 
   /**
-   * Decode packet and emmit decoded payload
+   * Decode data and emmit decoded payload
    * Packet has two parts: (MsgHdrProtoBuf or ExtendedClientMsgHdr) and payload message (proto)
    */
   private decodeData(data: Buffer) {
@@ -363,14 +364,12 @@ export default abstract class Connection extends EventEmitter implements IConnec
       }
     }
 
-    // package is zipped, have to unzip it first
+    // package is gzipped, have to gunzip it first
     if (EMsg === Language.EMsg.Multi) {
-      this.multi(packet.readBuffer());
-      return;
+      return this.multi(packet.readBuffer());
     }
 
-    // got proto
-    else if (isProto) {
+    if (isProto) {
       // decode proto: headersize, header: [steamid, clientSessionid]
       const headerLength = packet.readUInt32LE();
       const CMsgProtoBufHeader = packet.readBuffer(headerLength);
@@ -472,7 +471,6 @@ export default abstract class Connection extends EventEmitter implements IConnec
     body.readUInt32LE(); // skip universe
     const nonce = body.readBuffer();
 
-    // Generate a 32-byte symmetric session key and encrypt it with Steam's public "System" key.
     this.session.key = SteamCrypto.genSessionKey(nonce);
 
     const MsgHdr = this.buildMsgHdr(Language.EMsg.ChannelEncryptResponse);
@@ -496,7 +494,6 @@ export default abstract class Connection extends EventEmitter implements IConnec
     const EResult: number = body.readUInt32LE();
     // connection channel successfully encrypted
     if (EResult === Language.EResult.OK) {
-      this.encrypted = true;
       this.emit("encryption-success");
     } else {
       this.emit("encryption-fail");
