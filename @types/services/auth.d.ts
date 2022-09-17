@@ -1,6 +1,7 @@
 import Long from "long";
 
 type QRType = "terminal" | "image";
+type PartialSession = SessionViaCredentialsRes | SessionViaQrRes;
 
 interface UnifiedMsgRes {
   EResult: number;
@@ -67,9 +68,4 @@ export default interface IAuth {
    * @throws EResult
    */
   updateWithSteamGuardCode(code: string, guardType: keyof typeof EAuthSessionGuardType): Promise<void>;
-  /**
-   * Poll auth session for auth tokens
-   * Will stop after one minute of polling
-   * @throws "LogonWasNotConfirmed"
-   */
 }

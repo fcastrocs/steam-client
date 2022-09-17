@@ -67,6 +67,8 @@ export default interface ISteam extends IConnection {
 
   login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }>;
 
+  disconnect(): void;
+
   get isLoggedIn(): boolean;
   get isPlayingBlocked(): boolean;
   /**

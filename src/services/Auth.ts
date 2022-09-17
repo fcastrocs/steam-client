@@ -3,7 +3,6 @@ import QRCode from "qrcode";
 import Steam from "../Steam.js";
 import SteamClientError from "../SteamClientError.js";
 import { Language } from "../resources.js";
-import Long from "long";
 import IAuth, {
   SessionViaCredentialsRes,
   AuthTokens,
@@ -12,12 +11,13 @@ import IAuth, {
   PollAuthSessionStatusRes,
   Confirmation,
   QRType,
+  PartialSession,
 } from "../../@types/services/auth.js";
 const EAuthSessionGuardType = Language.EAuthSessionGuardType;
 
 export default class Auth implements IAuth {
   private waitingForConfirmation = false;
-  private partialSession: SessionViaCredentialsRes;
+  private partialSession: PartialSession;
   private readonly serviceName = "Authentication";
   private qrType: QRType;
   constructor(private steam: Steam) {}
@@ -27,8 +27,9 @@ export default class Auth implements IAuth {
    * @emits "waitingForConfirmation" with QR challenge URL
    * @throws "LogonWasNotConfirmed"
    */
-  async getAuthTokensViaQR(qrType: QRType): Promise<AuthTokens> {
-    this.checkLoggedStatus();
+  public async getAuthTokensViaQR(qrType: QRType): Promise<AuthTokens> {
+    if (this.steam.isLoggedIn) throw new SteamClientError("AlreadyLoggedIn");
+
     this.qrType = qrType;
 
     // begin login by getting QR challenge URL
@@ -40,12 +41,16 @@ export default class Auth implements IAuth {
     this.checkResult(res);
 
     const qrCode = await this.genQRCode(res.challengeUrl);
+
     this.steam.emit("waitingForConfirmation", {
       qrCode,
     } as Confirmation);
 
+    this.waitingForConfirmation = true;
+    this.partialSession = res;
+
     // poll auth status until user responds to QR or timeouts
-    return this.pollAuthStatusInterval(res.clientId, res.requestId);
+    return this.pollAuthStatusInterval();
   }
 
   /**
@@ -53,8 +58,8 @@ export default class Auth implements IAuth {
    * @emits "waitingForConfirmation" with confirmation type
    * @throws EResult, SteamGuardIsUnknown, SteamGuardIsDisabled
    */
-  async getAuthTokensViaCredentials(accountName: string, password: string): Promise<AuthTokens> {
-    this.checkLoggedStatus();
+  public async getAuthTokensViaCredentials(accountName: string, password: string): Promise<AuthTokens> {
+    if (this.steam.isLoggedIn) throw new SteamClientError("AlreadyLoggedIn");
 
     const rsa = await this.steam.sendUnified(this.serviceName, "GetPasswordRSAPublicKey", { accountName });
 
@@ -111,26 +116,25 @@ export default class Auth implements IAuth {
     this.waitingForConfirmation = true;
     this.partialSession = res;
 
-    return this.pollAuthStatusInterval(res.clientId, res.requestId);
+    return this.pollAuthStatusInterval();
   }
 
   /**
    * Submit Steam Guard Code to auth session
    * @throws EResult
    */
-  async updateWithSteamGuardCode(code: string, guardType: keyof typeof EAuthSessionGuardType) {
+  public async updateWithSteamGuardCode(code: string, guardType: keyof typeof EAuthSessionGuardType) {
     if (!this.waitingForConfirmation) throw new SteamClientError("NotWaitingForConfirmation");
 
     // submit steam guard code
     const res: UnifiedMsgRes = await this.steam.sendUnified(this.serviceName, "UpdateAuthSessionWithSteamGuardCode", {
       clientId: this.partialSession.clientId,
-      steamid: this.partialSession.steamid,
+      steamid: (this.partialSession as SessionViaCredentialsRes).steamid,
       code,
       codeType: EAuthSessionGuardType[guardType],
     });
 
     this.checkResult(res);
-    this.waitingForConfirmation = false;
   }
 
   /**
@@ -138,14 +142,14 @@ export default class Auth implements IAuth {
    * Will stop after one minute of polling
    * @throws "LogonWasNotConfirmed"
    */
-  private pollAuthStatusInterval(clientId: Long, requestId: Buffer): Promise<AuthTokens> {
+  private pollAuthStatusInterval(): Promise<AuthTokens> {
     const ms = 5 * 1000;
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       // clear interval after one minute, and fail login
       const timeout = setTimeout(() => {
         clearInterval(interval);
-        throw new SteamClientError("LogonWasNotConfirmed");
+        reject(new SteamClientError("LogonWasNotConfirmed"));
       }, ms * 12);
 
       // poll auth status until user responds to QR or timeouts
@@ -154,8 +158,8 @@ export default class Auth implements IAuth {
           this.serviceName,
           "PollAuthSessionStatus",
           {
-            clientId,
-            requestId,
+            clientId: this.partialSession.clientId,
+            requestId: this.partialSession.requestId,
           }
         );
 
@@ -168,7 +172,7 @@ export default class Auth implements IAuth {
             qrCode,
           } as Confirmation);
 
-          clientId = pollStatus.newClientId;
+          this.partialSession.clientId = pollStatus.newClientId;
           return;
         }
 
@@ -179,6 +183,7 @@ export default class Auth implements IAuth {
         if (!pollStatus.refreshToken || !pollStatus.accessToken) return;
 
         // user confirmed logon
+        this.waitingForConfirmation = false;
         clearInterval(interval);
         clearTimeout(timeout);
 
@@ -223,12 +228,6 @@ export default class Auth implements IAuth {
     );
 
     return key.encrypt(password, "base64");
-  }
-
-  private checkLoggedStatus() {
-    if (this.steam.isLoggedIn) {
-      throw new SteamClientError("AlreadyLoggedIn");
-    }
   }
 
   private checkResult(res: UnifiedMsgRes) {

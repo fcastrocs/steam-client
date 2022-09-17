@@ -17,7 +17,7 @@ import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
 import Actions from "./Actions.js";
 import { Language } from "./resources.js";
-import SteamInterface, { AccountAuth, AccountData, Game, LoginOptions } from "../@types/steam.js";
+import ISteam, { AccountAuth, AccountData, Game, LoginOptions } from "../@types/steam.js";
 import { ConnectionOptions } from "../@types/connection.js";
 import {
   AppBuffer,
@@ -39,14 +39,14 @@ import IActions from "../@types/Actions.js";
 import ICredentials from "../@types/services/credentials.js";
 import IAuth from "../@types/services/auth.js";
 
-export default class Steam extends Connection implements SteamInterface {
+export default class Steam extends Connection implements ISteam {
   public readonly service: {
     auth: IAuth;
     credentials: ICredentials;
   };
-
   public readonly action: IActions;
   public readonly machineName: string;
+
   private loggedIn = false;
   private playingBlocked = false;
 
@@ -73,6 +73,10 @@ export default class Steam extends Connection implements SteamInterface {
       this.disconnect();
       this.emit("ClientLoggedOff", body);
     });
+  }
+
+  public disconnect() {
+    this.destroyConnection();
   }
 
   public login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {

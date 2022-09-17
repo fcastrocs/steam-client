@@ -15,23 +15,22 @@ import * as Protos from "./protos.js";
 import Long from "long";
 import net from "net";
 import SteamClientError from "./SteamClientError.js";
-
 import IConnection, { ConnectionOptions, JobidSources, JobidTargets, Proto, Session } from "../@types/connection.js";
 
 const MAGIC = "VT01";
 const PROTO_MASK = 0x80000000;
 const JOB_NONE = Long.fromString("18446744073709551615", true);
 
-export default abstract class Connection extends EventEmitter implements IConnection {
+abstract class Connection extends EventEmitter implements IConnection {
+  public readonly timeout: number = 15000;
+
   private socket: Socket;
   private encrypted: boolean;
   private incompletePacket: boolean;
   private packetSize = 0;
   private readonly jobidSources: JobidSources = new Map();
   private readonly jobidTargets: JobidTargets = new Map();
-  public readonly timeout: number = 15000;
   private heartBeatId: NodeJS.Timeout;
-  private error: SteamClientError;
   private connectionDestroyed = false;
   private session: Session = {
     clientId: 0,
@@ -45,12 +44,14 @@ export default abstract class Connection extends EventEmitter implements IConnec
     // set timeout
     if (this.options.timeout) {
       if (this.options.timeout < 15000) {
-        throw new SteamClientError("Timeout must be at least 15000 ms");
+        throw new SteamClientError("Timeout must be at least 15000 ms.");
       } else {
         this.timeout = this.options.timeout;
       }
     }
   }
+
+  abstract disconnect(): void;
 
   /**
    * Connect to Steam CM server.
@@ -65,29 +66,29 @@ export default abstract class Connection extends EventEmitter implements IConnec
 
     this.socket.setTimeout(this.timeout);
 
-    // register socket events
-    this.registerListeners();
+    // start reading data
+    this.socket.on("readable", () => this.readData());
 
     // wait for encryption handshake
     return new Promise((resolve, reject) => {
       // expect connection handshake before timeout
-      const timeoutId = setTimeout(() => {
-        this.destroyConnection(true);
-        reject(new SteamClientError("HandShakeTimeout"));
-      }, this.timeout);
+      const timeoutId = setTimeout(() => reject(new SteamClientError("Encryption handshake timeout.")), this.timeout);
 
-      // connection successfull
       this.once("encryption-success", () => {
         clearTimeout(timeoutId);
         this.encrypted = true;
         this.send({ EMsg: Language.EMsg.ClientHello, payload: { protocolVersion: 65580 } });
+
+        // catch all transmission errors
+        this.socket.on("error", (err) => this.destroyConnection(new SteamClientError(err.message)));
+
         resolve();
       });
 
       this.once("encryption-fail", () => {
         clearTimeout(timeoutId);
-        this.destroyConnection(true);
-        reject(new SteamClientError("SteamEncryptionFailed"));
+        this.destroyConnection();
+        reject(new SteamClientError("Encryption handshake failed."));
       });
     });
   }
@@ -95,13 +96,10 @@ export default abstract class Connection extends EventEmitter implements IConnec
   private async directConnect(): Promise<Socket> {
     return new Promise((resolve, reject) => {
       const socket = net.createConnection(this.options.steamCM);
-      const errorListener = (error: Error) => {
-        // convert Error to SteamClientError
-        const err = new SteamClientError(error.message);
-        err.stack = error.stack;
-        reject(err);
-      };
+
+      const errorListener = (error: Error) => reject(new SteamClientError(error.message));
       socket.once("error", errorListener);
+
       socket.once("connect", () => {
         socket.removeListener("error", errorListener);
         resolve(socket);
@@ -118,49 +116,21 @@ export default abstract class Connection extends EventEmitter implements IConnec
       });
       return socket;
     } catch (error) {
-      // convert Error to SteamClientError
-      const err = new SteamClientError(error.message);
-      err.stack = error.stack;
-      throw err;
+      throw new SteamClientError(error.message);
     }
-  }
-
-  public get steamId() {
-    return this.session.steamId;
-  }
-
-  /**
-   * Important socks events
-   */
-  private registerListeners() {
-    // start reading data
-    this.socket.on("readable", () => this.readData());
-    // transmission error,
-    this.socket.on("error", (err) => {
-      this.error = new SteamClientError(err.message);
-      this.destroyConnection();
-    });
-  }
-
-  /**
-   * Silently disconnect from Steam CM server.
-   */
-  public disconnect() {
-    this.destroyConnection(true);
   }
 
   /**
    * Destroy connection to Steam and do some cleanup
-   * silent is truthy when user destroys connection
+   * disconnected is emmitted when error is passed
    */
-  private destroyConnection(silent?: boolean) {
+  protected destroyConnection(error?: SteamClientError) {
     // make sure this is called only once
     if (this.connectionDestroyed) return;
     this.connectionDestroyed = true;
 
-    // only emit when connection drops unexpectedly
-    if (!silent) {
-      this.emit("disconnected", this.error);
+    if (error) {
+      this.emit("disconnected", error);
     }
 
     if (this.heartBeatId) {
@@ -304,8 +274,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
       this.packetSize = header.readUInt32LE(0);
 
       if (header.subarray(4).toString("ascii") != MAGIC) {
-        this.error = new SteamClientError("SteamConnectionOutOfSync");
-        this.destroyConnection();
+        this.destroyConnection(new SteamClientError("SteamConnectionOutOfSync"));
         return;
       }
     }
@@ -328,8 +297,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
       try {
         packet = SteamCrypto.decrypt(packet, this.session.key.plain);
       } catch (error) {
-        this.error = new SteamClientError("SteamDataDecryptionFailed");
-        this.destroyConnection();
+        this.destroyConnection(new SteamClientError("SteamDataDecryptionFailed"));
         return;
       }
     }
@@ -429,16 +397,18 @@ export default abstract class Connection extends EventEmitter implements IConnec
     this.emit(EMsgStr, message);
   }
 
-  /**
-   * Unzip data and decode it
-   */
   private async multi(payload: Buffer): Promise<void> {
     const message = Protos.decode("CMsgMulti", payload);
     payload = message.messageBody;
 
-    // check if payload is actually zipped (check later if this check is necessary)
+    // message is gzipped
     if (message.sizeUnzipped) {
-      payload = await this.unzipPayload(payload);
+      payload = await new Promise((resolve) => {
+        Zip.gunzip(payload, (err, unzipped) => {
+          if (err) throw new SteamClientError(err.message);
+          resolve(unzipped);
+        });
+      });
     }
 
     while (payload.length) {
@@ -446,20 +416,6 @@ export default abstract class Connection extends EventEmitter implements IConnec
       this.decodeData(payload.subarray(4, 4 + subSize));
       payload = payload.subarray(4 + subSize);
     }
-  }
-
-  /**
-   * unzip payload in Multi
-   */
-  private unzipPayload(payload: Buffer): Promise<Buffer> {
-    return new Promise((resolve) => {
-      Zip.gunzip(payload, (err, unzipped) => {
-        if (err) {
-          throw err;
-        }
-        resolve(unzipped as Buffer);
-      });
-    });
   }
 
   /**
@@ -500,3 +456,5 @@ export default abstract class Connection extends EventEmitter implements IConnec
     }
   }
 }
+
+export default Connection;

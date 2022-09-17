@@ -41,18 +41,14 @@ export default interface IConnection extends EventEmitter {
   on(event: "disconnected", listener: (error: SteamClientError) => void): this;
   readonly timeout: number;
   /**
-   * Connect to Steam CM server.
-   */
-  connect(): Promise<void>;
-  get steamId(): Long;
-  /**
-   * Silently disconnect from Steam CM server.
-   */
-  disconnect(): void;
-  /**
    * Send packet to steam
    * message: Buffer(message.length, MAGIC, proto | channelEncryptResponse)
    */
-  send(message: Proto | Buffer): void;
-  sendUnified(serviceName: string, method: string, payload: T): Promise<T>;
+  public send(message: Proto | Buffer);
+
+  public sendUnified(serviceName: string, method: string, payload: T): Promise<T>;
+  /**
+   * Connect to Steam CM server.
+   */
+  connect(): Promise<void>;
 }
