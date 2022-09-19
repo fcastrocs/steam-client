@@ -1,9 +1,13 @@
-import { Language } from "../src/resources.js";
 import { Game } from "../@types/steam.js";
+import { ClientChangeStatus } from "./protoRequest.js";
+
+interface State {
+  personaState: number;
+  playerName: string;
+}
 
 export default interface IActions {
-  changePlayerName(playerName: string): void;
-  changePersonaState(state: keyof typeof Language.EPersonaState): void;
+  changeStatus(payload: ClientChangeStatus): Promise<Friend>;
   /**
    * Idle an array of appIds
    * Empty array stops idling

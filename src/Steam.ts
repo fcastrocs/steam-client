@@ -97,10 +97,10 @@ export default class Steam extends Connection implements ISteam {
     let responses = [
       "ClientAccountInfo",
       "ClientEmailAddrInfo",
+      "ClientPersonaState",
       "ClientLicenseList",
       "ClientIsLimitedAccount",
       "ClientVACBanStatus",
-      "ClientPersonaState",
     ];
 
     const receivedResponse = (response: string) => {
@@ -119,6 +119,12 @@ export default class Steam extends Connection implements ISteam {
     this.once("ClientAccountInfo", (body: ClientAccountInfo) => {
       accountData.personaName = body.personaName;
       receivedResponse("ClientAccountInfo");
+    });
+
+    this.once("ClientPersonaState", (body: ClientPersonaState) => {
+      // get avatar
+      accountData.avatar = this.getAvatar(body.friends[0].avatarHash);
+      receivedResponse("ClientPersonaState");
     });
 
     this.once("ClientEmailAddrInfo", (body: ClientEmailAddrInfo) => {
@@ -160,15 +166,6 @@ export default class Steam extends Connection implements ISteam {
       receivedResponse("ClientVACBanStatus");
     });
 
-    this.on("ClientPersonaState", (body: ClientPersonaState) => {
-      if (body.friends[0].playerName !== accountData.personaName) {
-        return;
-      }
-
-      accountData.avatar = this.getAvatar(body.friends[0]);
-      receivedResponse("ClientPersonaState");
-    });
-
     // send login request to steam
     const res: ClientLogonResponse = await this.sendProtoPromise(Language.EMsg.ClientLogon, options);
 
@@ -187,12 +184,13 @@ export default class Steam extends Connection implements ISteam {
         responses.push("ClientUpdateMachineAuth");
       }
 
-      this.action.changePersonaState("Online");
       this.loggedIn = true;
     } else {
       this.disconnect();
       throw new SteamClientError(Language.EResultMap.get(res.eresult));
     }
+
+    await this.action.changeStatus({ personaState: "Online" });
 
     return new Promise((resolve, reject) => {
       // expect responses to occur before timeout
@@ -344,16 +342,18 @@ export default class Steam extends Connection implements ISteam {
     });
   }
 
-  private getAvatar(body: Friend): string {
-    const url = "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars";
-    let avatarHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb"; //default avatar
-
-    const hash = body.avatarHash.toString("hex");
+  private getAvatar(hash: Friend["avatarHash"]): string {
     //default avatar
-    if (hash !== "0000000000000000000000000000000000000000") {
-      avatarHash = hash;
+    const defaultHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
+
+    let hashHex = hash.toString("hex");
+
+    //default avatar
+    if (hashHex === "0000000000000000000000000000000000000000") {
+      hashHex = defaultHash;
     }
-    return `${url}/${avatarHash.substring(0, 2)}/${avatarHash}_full.jpg`;
+
+    return `https://avatars.akamai.steamstatic.com/${hashHex}_full.jpg`;
   }
 
   private clientUpdateMachineAuthResponse(sentryBytes: ClientUpdateMachineAuth["bytes"]) {

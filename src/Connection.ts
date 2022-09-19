@@ -23,6 +23,7 @@ import IConnection, {
   Session,
   UnifiedMessage,
 } from "../@types/connection.js";
+import { ProtoBufHeader } from "../@types/protoRequest.js";
 
 const MAGIC = "VT01";
 const PROTO_MASK = 0x80000000;
@@ -331,7 +332,7 @@ abstract class Connection extends EventEmitter implements IConnection {
     const EMsg = rawEMsg & ~PROTO_MASK;
     const isProto = rawEMsg & PROTO_MASK;
 
-    console.log(Language.EMsgMap.get(EMsg));
+    //console.log(Language.EMsgMap.get(EMsg));
 
     // Steam is sending encryption request or result
     if (!this.encrypted) {

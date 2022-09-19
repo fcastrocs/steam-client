@@ -6,16 +6,49 @@ import { Language } from "./resources.js";
 import Steam from "./Steam.js";
 import { Game } from "../@types/steam.js";
 import IActions from "../@types/Actions.js";
+import { ClientPersonaState, Friend } from "../@types/protoResponse.js";
+import { ClientChangeStatus } from "../@types/protoRequest.js";
 
 export default class Actions implements IActions {
+  private status: Friend;
+
   constructor(private steam: Steam) {}
 
-  public changePlayerName(playerName: string) {
-    this.steam.sendProto(Language.EMsg.ClientChangeStatus, { playerName });
-  }
+  /**
+   * Change player name or persona state
+   */
+  public async changeStatus(options: ClientChangeStatus): Promise<Friend> {
+    const payload: {
+      personaState?: number;
+      playerName?: string;
+    } = { playerName: options.playerName };
 
-  public changePersonaState(state: keyof typeof Language.EPersonaState) {
-    this.steam.sendProto(Language.EMsg.ClientChangeStatus, { personaState: Language.EPersonaState[state] });
+    let differentstate = 0;
+
+    if (options.personaState) {
+      payload.personaState = Language.EPersonaState[options.personaState];
+      // check whether personaState changed
+      if (this.status) if (payload.personaState !== this.status.personaState) differentstate++;
+    }
+
+    if (options.playerName) {
+      payload.playerName = options.playerName;
+      // check whether playerName changed
+      if (this.status) if (payload.playerName !== this.status?.playerName) differentstate++;
+    }
+
+    // nothing changed return old status
+    if (this.status) if (differentstate === 0) return this.status;
+
+    const res: ClientPersonaState = await this.steam.sendProtoPromise(
+      Language.EMsg.ClientChangeStatus,
+      payload,
+      Language.EMsg.ClientPersonaState
+    );
+
+    this.status = res.friends[0];
+
+    return this.status;
   }
 
   /**
