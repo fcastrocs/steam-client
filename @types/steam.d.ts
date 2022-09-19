@@ -1,7 +1,6 @@
 /**
  * Manages high-level Steam operations
  */
-import Long from "long";
 import Auth, { Confirmation } from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
 import Actions from "./Actions.js";
@@ -28,7 +27,6 @@ export interface AccountAuth {
   machineName: string;
   machineId: Buffer;
   webNonce: string;
-  tokenId: Long;
 }
 
 export interface AccountData {
@@ -65,22 +63,38 @@ export default interface ISteam extends IConnection {
   readonly action: Actions;
   readonly machineName: string;
 
-  login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }>;
+  /**
+   * login to steam via credentials or refresh_token
+   */
+  public login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }>;
 
-  disconnect(): void;
+  /**
+   * Disconnect user from Steam and kill connection
+   */
+  public disconnect(): void;
 
+  /**
+   * Whether user is logged in
+   */
   get isLoggedIn(): boolean;
+
+  /**
+   * Whether playing is blocked by another session
+   */
   get isPlayingBlocked(): boolean;
+
   /**
    * Get all appIds from packages
    */
-  getAppIds(packageIds: number[]): Promise<{ appid: number }[]>;
+  public getAppIds(packageIds: number[]): Promise<{ appid: number }[]>;
+
   /**
    * Get appsInfo from a list of appIds
    */
-  getAppsInfo(apps: { appid: number }[]): Promise<AppBuffer["appinfo"][]>;
+  public getAppsInfo(apps: { appid: number }[]): Promise<AppBuffer["appinfo"][]>;
+
   /**
    * Get only games from appsInfo[]
    */
-  getGames(appsInfo: AppBuffer["appinfo"][]): Game[];
+  public getGames(appsInfo: AppBuffer["appinfo"][]): Game[];
 }

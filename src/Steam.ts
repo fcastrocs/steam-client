@@ -52,39 +52,36 @@ export default class Steam extends Connection implements ISteam {
 
   constructor(options: ConnectionOptions) {
     super(options);
+
     // inject dependencies
     this.service = {
       auth: new Auth(this),
       credentials: new Credentials(this),
     };
-
     this.action = new Actions(this);
 
     // create machine name
     this.machineName = this.createMachineName();
 
-    // catch events
     this.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
       this.playingBlocked = body.playingBlocked;
-      this.emit("playingBlocked", this.playingBlocked);
     });
 
     this.once("ClientLoggedOff", (body) => {
       this.disconnect();
-      this.emit("ClientLoggedOff", body);
+      this.emit("ClientLoggedOff", Language.EResultMap.get(body.eresult));
     });
   }
 
-  public disconnect() {
-    this.destroyConnection();
-  }
-
-  public login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
+  /**
+   * login to steam via credentials or refresh_token
+   */
+  public async login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
     // set up default login options
     options.clientOsType = Language.EOSType.Win11;
     options.protocolVersion = 65580;
     options.supportsRateLimitResponse = true;
-    options.shouldRememberPassword = true;
+    options.shouldRememberPassword = options.shouldRememberPassword === false ? false : true;
     options.machineName = options.machineName || this.machineName;
     options.machineId = options.machineId || this.createMachineId(options.machineName);
 
@@ -97,140 +94,143 @@ export default class Steam extends Connection implements ISteam {
       machineId: options.machineId,
     } as AccountAuth;
 
+    let responses = [
+      "ClientAccountInfo",
+      "ClientEmailAddrInfo",
+      "ClientLicenseList",
+      "ClientIsLimitedAccount",
+      "ClientVACBanStatus",
+      "ClientPersonaState",
+    ];
+
+    const receivedResponse = (response: string) => {
+      // remove this response from array
+      responses = responses.filter((item) => item !== response);
+    };
+
+    this.once("ClientUpdateMachineAuth", (body: ClientUpdateMachineAuth) => {
+      // don't respond to sentry when not remembering password
+      if (options.shouldRememberPassword) {
+        accountAuth.sentry = this.clientUpdateMachineAuthResponse(body.bytes);
+      }
+      receivedResponse("ClientUpdateMachineAuth");
+    });
+
+    this.once("ClientAccountInfo", (body: ClientAccountInfo) => {
+      accountData.personaName = body.personaName;
+      receivedResponse("ClientAccountInfo");
+    });
+
+    this.once("ClientEmailAddrInfo", (body: ClientEmailAddrInfo) => {
+      accountData.isEmailVerified = body.emailIsValidated;
+      accountData.emailOrDomain = body.emailAddress;
+      accountData.credentialChangeRequiresCode = body.credentialChangeRequiresCode;
+      receivedResponse("ClientEmailAddrInfo");
+    });
+
+    this.once("ClientLicenseList", async (body: ClientLicenseList) => {
+      const packageIds = [];
+
+      for (const license of body.licenses) {
+        packageIds.push(license.packageId);
+      }
+
+      // get packages Info
+      const appIds = await this.getAppIds(packageIds);
+      if (!appIds.length) return receivedResponse("ClientLicenseList");
+
+      // get apps info
+      const appsInfo = await this.getAppsInfo(appIds);
+      if (!appsInfo.length) return receivedResponse("ClientLicenseList");
+
+      accountData.games = this.getGames(appsInfo);
+
+      receivedResponse("ClientLicenseList");
+    });
+
+    this.once("ClientIsLimitedAccount", (body: ClientIsLimitedAccount) => {
+      accountData.limited = body.bisLimitedAccount;
+      accountData.communityBanned = body.bisCommunityBanned;
+      accountData.locked = body.bisLockedAccount;
+      receivedResponse("ClientIsLimitedAccount");
+    });
+
+    this.once("ClientVACBanStatus", (body) => {
+      accountData.vac = body.vac;
+      receivedResponse("ClientVACBanStatus");
+    });
+
+    this.on("ClientPersonaState", (body: ClientPersonaState) => {
+      if (body.friends[0].playerName !== accountData.personaName) {
+        return;
+      }
+
+      accountData.avatar = this.getAvatar(body.friends[0]);
+      receivedResponse("ClientPersonaState");
+    });
+
     // send login request to steam
-    this.send({ EMsg: Language.EMsg.ClientLogon, payload: options });
+    const res: ClientLogonResponse = await this.sendProtoPromise(Language.EMsg.ClientLogon, options);
 
-    // wait for all account data
+    if (res.eresult === Language.EResult.OK) {
+      this.startHeartBeat(res.heartbeatSeconds);
+      accountAuth.webNonce = res.webapiAuthenticateUserNonce;
+      accountData.steamId = res.clientSuppliedSteamid.toString();
+
+      accountData.isSteamGuardEnabled = !!(
+        options.accessToken ||
+        (options.password && (options.authCode || options.twoFactorCode))
+      );
+
+      // sentry is emitted if guard is enabled, and when sentry not passed
+      if (accountData.isSteamGuardEnabled && !options.shaSentryfile && !options.accessToken) {
+        responses.push("ClientUpdateMachineAuth");
+      }
+
+      this.action.changePersonaState("Online");
+      this.loggedIn = true;
+    } else {
+      this.disconnect();
+      throw new SteamClientError(Language.EResultMap.get(res.eresult));
+    }
+
     return new Promise((resolve, reject) => {
-      let responses = [
-        "ClientLogonResponse",
-        "ClientAccountInfo",
-        "ClientEmailAddrInfo",
-        "ClientLicenseList",
-        "ClientIsLimitedAccount",
-        "ClientVACBanStatus",
-        "ClientPersonaState",
-      ];
-
       // expect responses to occur before timeout
-      const loginTimeoutId = setTimeout(() => {
+      const timeout = setTimeout(() => {
+        clearInterval(interval);
         this.disconnect();
         reject(new SteamClientError(responses.toString()));
       }, this.timeout);
 
-      // catch responses
-      this.once("ClientLogonResponse", (body: ClientLogonResponse) => {
-        if (body.eresult === Language.EResult.OK) {
-          this.startHeartBeat(body.heartbeatSeconds);
-          accountAuth.webNonce = body.webapiAuthenticateUserNonce;
-          accountData.steamId = body.clientSuppliedSteamid.toString();
-          accountAuth.tokenId = body.tokenId;
-
-          accountData.isSteamGuardEnabled = !!(
-            options.accessToken ||
-            (options.password && (options.authCode || options.twoFactorCode))
-          );
-
-          // sentry is emitted if guard is enabled, and sentry not passed
-          if (accountData.isSteamGuardEnabled && !options.shaSentryfile && !options.accessToken) {
-            responses.push("ClientUpdateMachineAuth");
-          }
-        } else {
-          clearTimeout(loginTimeoutId);
-          this.disconnect();
-          return reject(new SteamClientError(Language.EResultMap.get(body.eresult)));
-        }
-        // set online state this will trigger ClientPersonaState
-        this.action.changePersonaState("Online");
-        checkCanResolve("ClientLogonResponse");
-      });
-
-      this.once("ClientUpdateMachineAuth", (body: ClientUpdateMachineAuth) => {
-        accountAuth.sentry = this.clientUpdateMachineAuthResponse(body.bytes);
-        checkCanResolve("ClientUpdateMachineAuth");
-      });
-
-      this.once("ClientAccountInfo", (body: ClientAccountInfo) => {
-        accountData.personaName = body.personaName;
-        checkCanResolve("ClientAccountInfo");
-      });
-
-      this.once("ClientEmailAddrInfo", (body: ClientEmailAddrInfo) => {
-        accountData.isEmailVerified = body.emailIsValidated;
-        accountData.emailOrDomain = body.emailAddress;
-        accountData.credentialChangeRequiresCode = body.credentialChangeRequiresCode;
-        checkCanResolve("ClientEmailAddrInfo");
-      });
-
-      this.once("ClientLicenseList", async (body: ClientLicenseList) => {
-        const packageIds = [];
-
-        for (const license of body.licenses) {
-          packageIds.push(license.packageId);
-        }
-
-        // get packages Info
-        const appIds = await this.getAppIds(packageIds);
-        if (!appIds.length) return checkCanResolve("ClientLicenseList");
-
-        // get apps info
-        const appsInfo = await this.getAppsInfo(appIds);
-        if (!appsInfo.length) return checkCanResolve("ClientLicenseList");
-
-        accountData.games = this.getGames(appsInfo);
-
-        checkCanResolve("ClientLicenseList");
-      });
-
-      this.once("ClientIsLimitedAccount", (body: ClientIsLimitedAccount) => {
-        accountData.limited = body.bisLimitedAccount;
-        accountData.communityBanned = body.bisCommunityBanned;
-        accountData.locked = body.bisLockedAccount;
-        checkCanResolve("ClientIsLimitedAccount");
-      });
-
-      this.once("ClientVACBanStatus", (body) => {
-        accountData.vac = body.vac;
-        checkCanResolve("ClientVACBanStatus");
-      });
-
-      this.once("ClientPersonaState", (body: ClientPersonaState) => {
-        accountData.avatar = this.getAvatar(body.friends[0]);
-        checkCanResolve("ClientPersonaState");
-      });
-
-      // check if this promise can be resolved
-      const checkCanResolve = (response: string) => {
-        // remove this response from array
-        responses = responses.filter((item) => item !== response);
-        //  there are still responses left
+      // check whether user is logged in every second
+      const interval = setInterval(() => {
         if (responses.length) return;
-
-        // no more responses left, finally return from login()
-        clearTimeout(loginTimeoutId);
+        clearTimeout(timeout);
+        clearInterval(interval);
         resolve({ auth: accountAuth, data: accountData });
-      };
+      }, 1000);
     });
   }
 
+  /**
+   * Disconnect user from Steam and kill connection
+   */
+  public disconnect() {
+    this.destroyConnection();
+  }
+
+  /**
+   * Whether user is logged in
+   */
   public get isLoggedIn() {
     return this.loggedIn;
   }
 
+  /**
+   * Whether playing is blocked by another session
+   */
   public get isPlayingBlocked() {
     return this.playingBlocked;
-  }
-
-  private getAvatar(body: Friend): string {
-    const url = "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars";
-    let avatarHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb"; //default avatar
-
-    const hash = body.avatarHash.toString("hex");
-    //default avatar
-    if (hash !== "0000000000000000000000000000000000000000") {
-      avatarHash = hash;
-    }
-    return `${url}/${avatarHash.substring(0, 2)}/${avatarHash}_full.jpg`;
   }
 
   /**
@@ -247,10 +247,7 @@ export default class Steam extends Connection implements ISteam {
     });
 
     // send packge info request to steam
-    this.send({
-      EMsg: Language.EMsg.ClientPICSProductInfoRequest,
-      payload: { packages },
-    });
+    this.sendProto(Language.EMsg.ClientPICSProductInfoRequest, { packages });
 
     // wait for all(Multi response) packages info
     return new Promise((resolve) => {
@@ -291,10 +288,7 @@ export default class Steam extends Connection implements ISteam {
     if (!apps.length) return Promise.resolve([]);
 
     // send apps info request to steam
-    this.send({
-      EMsg: Language.EMsg.ClientPICSProductInfoRequest,
-      payload: { apps },
-    });
+    this.sendProto(Language.EMsg.ClientPICSProductInfoRequest, { apps });
 
     // wait for all(may come in Multi response) apps info responses
     return new Promise((resolve) => {
@@ -350,15 +344,22 @@ export default class Steam extends Connection implements ISteam {
     });
   }
 
+  private getAvatar(body: Friend): string {
+    const url = "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars";
+    let avatarHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb"; //default avatar
+
+    const hash = body.avatarHash.toString("hex");
+    //default avatar
+    if (hash !== "0000000000000000000000000000000000000000") {
+      avatarHash = hash;
+    }
+    return `${url}/${avatarHash.substring(0, 2)}/${avatarHash}_full.jpg`;
+  }
+
   private clientUpdateMachineAuthResponse(sentryBytes: ClientUpdateMachineAuth["bytes"]) {
     const stringHex = SteamCrypto.sha1Hash(sentryBytes);
     const buffer = Buffer.from(stringHex, "hex");
-
-    this.send({
-      EMsg: Language.EMsg.ClientUpdateMachineAuthResponse,
-      payload: { shaFile: buffer },
-    });
-
+    this.sendProto(Language.EMsg.ClientUpdateMachineAuthResponse, { shaFile: buffer });
     return buffer;
   }
 

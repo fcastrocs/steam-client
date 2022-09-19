@@ -9,6 +9,9 @@ const steamCM = { host: "162.254.192.71", port: 27017 };
 const timeout = 15000;
 let steam: ISteam = null;
 
+const accountName = "";
+const refresh_token = "";
+
 describe("Test steam-client", () => {
   step("connect() should throw SteamClientError", async () => {
     steam = new Steam({ steamCM: { host: "0.0.0.0", port: 0 }, timeout });
@@ -30,19 +33,27 @@ describe("Test steam-client", () => {
     const options: ConnectionOptions = { steamCM, timeout };
     steam = new Steam(options);
     await steam.connect();
-  });
-
-  step("loginViarQR()", async () => {
-    steam.on("waitingForConfirmation", (res) => {
-      console.log(res.qrCode);
+    await steam.login({
+      accountName,
+      accessToken: refresh_token,
+      shouldRememberPassword: false,
     });
 
-    const authTokens = await steam.service.auth.getAuthTokensViaQR("terminal");
-    console.log(authTokens);
-
-    const res = await steam.login({ accountName: authTokens.accountName, accessToken: authTokens.refreshToken });
-    console.log(res);
+    await steam.action.idleGames([730], { forcePlay: true });
   });
 
-  after(() => steam.disconnect());
+  // login via QR
+  // step("loginViarQR()", async () => {
+  //   steam.on("waitingForConfirmation", (res) => {
+  //     console.log(res.qrCode);
+  //   });
+
+  //   const authTokens = await steam.service.auth.getAuthTokensViaQR("terminal");
+  //   console.log(authTokens);
+
+  //   const res = await steam.login({ accountName: authTokens.accountName, accessToken: authTokens.refreshToken });
+  //   console.log(res);
+  // });
+
+  // after(() => steam.disconnect());
 });

@@ -11,26 +11,26 @@ export default class Actions implements IActions {
   constructor(private steam: Steam) {}
 
   public changePlayerName(playerName: string) {
-    this.steam.send({
-      EMsg: Language.EMsg.ClientChangeStatus,
-      payload: { playerName },
-    });
+    this.steam.sendProto(Language.EMsg.ClientChangeStatus, { playerName });
   }
 
   public changePersonaState(state: keyof typeof Language.EPersonaState) {
-    this.steam.send({
-      EMsg: Language.EMsg.ClientChangeStatus,
-      payload: { personaState: Language.EPersonaState[state] },
-    });
+    this.steam.sendProto(Language.EMsg.ClientChangeStatus, { personaState: Language.EPersonaState[state] });
   }
 
   /**
    * Idle an array of appIds
-   * empty array stops idling
+   * Empty array stops idling
+   * forcePlay truthy kicks another playing session
    */
-  public idleGames(gameIds: number[]) {
-    if (this.steam.isPlayingBlocked) {
+  public async idleGames(gameIds: number[], options?: { forcePlay?: boolean }) {
+    if (this.steam.isPlayingBlocked && !options?.forcePlay) {
       throw new SteamClientError("AlreadyPlayingElseWhere");
+    }
+
+    // kick another playing session before attemping to play in this session
+    if (this.steam.isPlayingBlocked) {
+      this.steam.sendProto(Language.EMsg.ClientKickPlayingSession, { onlyStopGame: true });
     }
 
     const payload = {
@@ -39,20 +39,18 @@ export default class Actions implements IActions {
       }),
     };
 
-    this.steam.send({
-      EMsg: Language.EMsg.ClientGamesPlayed,
+    await this.steam.sendProtoPromise(
+      Language.EMsg.ClientGamesPlayed,
       payload,
-    });
+      Language.EMsg.ClientPlayingSessionState
+    );
   }
 
   /**
    * Activate cdkey
    */
   public cdkeyRedeem(cdkey: string): Promise<Game[]> {
-    this.steam.send({
-      EMsg: Language.EMsg.ClientRegisterKey,
-      payload: { key: cdkey },
-    });
+    this.steam.sendProto(Language.EMsg.ClientRegisterKey, { key: cdkey });
 
     return new Promise((resolve, reject) => {
       this.steam.once("ClientPurchaseResponse", async (res: T) => {
@@ -83,10 +81,7 @@ export default class Actions implements IActions {
   public activateFreeToPlayGames(appids: number[]): Promise<Game[]> {
     if (!appids.length) return Promise.resolve([]);
 
-    this.steam.send({
-      EMsg: Language.EMsg.ClientRequestFreeLicense,
-      payload: { appids },
-    });
+    this.steam.sendProto(Language.EMsg.ClientRequestFreeLicense, { appids });
 
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {

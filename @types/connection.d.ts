@@ -5,8 +5,11 @@ import { EventEmitter } from "events";
 import Long from "long";
 import SteamClientError from "SteamClientError";
 
+type PromiseResolve = (value: T) => void;
+
 type JobidTargets = Map<number, Long>;
 type JobidSources = Map<string, UnifiedMessage>;
+type ProtoResponses = Map<string, PromiseResolve>;
 
 interface SessionKey {
   plain: Buffer;
@@ -21,8 +24,9 @@ interface Session {
 
 interface UnifiedMessage {
   method: string;
+  jobidSource: Long;
   targetJobName: string;
-  resolve: (value: T) => void;
+  resolve: PromiseResolve;
 }
 
 interface Proto {
@@ -40,11 +44,10 @@ interface ConnectionOptions {
 export default interface IConnection extends EventEmitter {
   on(event: "disconnected", listener: (error: SteamClientError) => void): this;
   readonly timeout: number;
-  /**
-   * Send packet to steam
-   * message: Buffer(message.length, MAGIC, proto | channelEncryptResponse)
-   */
-  public send(message: Proto | Buffer);
+
+  public sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T>;
+
+  public sendProto(EMsg: number, payload: T): void;
 
   public sendUnified(serviceName: string, method: string, payload: T): Promise<T>;
   /**

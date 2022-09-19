@@ -15,7 +15,14 @@ import * as Protos from "./protos.js";
 import Long from "long";
 import net from "net";
 import SteamClientError from "./SteamClientError.js";
-import IConnection, { ConnectionOptions, JobidSources, JobidTargets, Proto, Session } from "../@types/connection.js";
+import IConnection, {
+  ConnectionOptions,
+  JobidSources,
+  JobidTargets,
+  ProtoResponses,
+  Session,
+  UnifiedMessage,
+} from "../@types/connection.js";
 
 const MAGIC = "VT01";
 const PROTO_MASK = 0x80000000;
@@ -30,6 +37,7 @@ abstract class Connection extends EventEmitter implements IConnection {
   private packetSize = 0;
   private readonly jobidSources: JobidSources = new Map();
   private readonly jobidTargets: JobidTargets = new Map();
+  private readonly protoResponses: ProtoResponses = new Map();
   private heartBeatId: NodeJS.Timeout;
   private connectionDestroyed = false;
   private session: Session = {
@@ -77,7 +85,7 @@ abstract class Connection extends EventEmitter implements IConnection {
       this.once("encryption-success", () => {
         clearTimeout(timeoutId);
         this.encrypted = true;
-        this.send({ EMsg: Language.EMsg.ClientHello, payload: { protocolVersion: 65580 } });
+        this.sendProto(Language.EMsg.ClientHello, { protocolVersion: 65580 });
 
         // catch all transmission errors
         this.socket.on("error", (err) => this.destroyConnection(new SteamClientError(err.message)));
@@ -149,28 +157,58 @@ abstract class Connection extends EventEmitter implements IConnection {
    */
   protected startHeartBeat(beatTimeSecs: number) {
     this.heartBeatId = setInterval(() => {
-      this.send({ EMsg: Language.EMsg.ClientHeartBeat, payload: {} });
+      this.sendProto(Language.EMsg.ClientHeartBeat, {});
     }, beatTimeSecs * 1000);
+  }
+
+  public sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T> {
+    return new Promise((resolve) => {
+      const EMsgName = resEMsg ? Language.EMsgMap.get(resEMsg) : Language.EMsgMap.get(EMsg) + "Response";
+      this.protoResponses.set(EMsgName, resolve);
+      this.sendProto(EMsg, payload);
+    });
+  }
+
+  public sendProto(EMsg: number, payload: T) {
+    const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(EMsg);
+    payload = Protos.encode(`CMsg${Language.EMsgMap.get(EMsg)}`, payload);
+    this.send(Buffer.concat([MsgHdrProtoBuf, payload]));
+  }
+
+  public sendUnified(serviceName: string, method: string, payload: T): Promise<T> {
+    const targetJobName = `${serviceName}.${method}#1`;
+    method = `C${serviceName}_${method}`;
+
+    return new Promise((resolve) => {
+      const jobidSource = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
+
+      const unifiedMessage: UnifiedMessage = {
+        method,
+        resolve,
+        targetJobName,
+        jobidSource,
+      };
+
+      this.jobidSources.set(jobidSource.toString(), unifiedMessage);
+
+      // delete after 2 mins if never got response
+      setTimeout(() => this.jobidSources.delete(jobidSource.toString()), 2 * 60 * 1000);
+
+      const EMsg = this.session.steamId.equals(Long.fromString("76561197960265728", true))
+        ? Language.EMsg.ServiceMethodCallFromClientNonAuthed
+        : Language.EMsg.ServiceMethodCallFromClient;
+
+      const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(EMsg, unifiedMessage);
+      payload = Protos.encode(method + "_Request", payload);
+      this.send(Buffer.concat([MsgHdrProtoBuf, payload]));
+    });
   }
 
   /**
    * Send packet to steam
    * message: Buffer(message.length, MAGIC, proto | channelEncryptResponse)
    */
-  public send(message: Proto | Buffer) {
-    // sending proto
-    // build MsgHdrProtoBuf, encode message
-    if (!Buffer.isBuffer(message)) {
-      // jobid for unified message
-      const jobId = message.unified?.jobId;
-      const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(message.EMsg, jobId);
-      const payload = jobId
-        ? (message.payload as Buffer)
-        : Protos.encode(`CMsg${Language.EMsgMap.get(message.EMsg)}`, message.payload);
-
-      message = Buffer.concat([MsgHdrProtoBuf, payload]);
-    }
-
+  private send(message: Buffer) {
     // encrypt message
     if (this.encrypted) {
       message = SteamCrypto.encrypt(message, this.session.key.plain);
@@ -185,45 +223,14 @@ abstract class Connection extends EventEmitter implements IConnection {
     this.socket.write(packet.toBuffer());
   }
 
-  public sendUnified(serviceName: string, method: string, payload: T): Promise<T> {
-    const targetJobName = `${serviceName}.${method}#1`;
-    method = `C${serviceName}_${method}`;
-
-    return new Promise((resolve) => {
-      const jobId = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
-      this.jobidSources.set(jobId.toString(), { method, targetJobName, resolve });
-
-      // delete after 2 mins if never got response
-      setTimeout(() => this.jobidSources.delete(jobId.toString()), 2 * 60 * 1000);
-
-      let EMsg;
-
-      if (this.session.steamId.equals(Long.fromString("76561197960265728", true))) {
-        EMsg = Language.EMsg.ServiceMethodCallFromClientNonAuthed;
-      } else {
-        EMsg = Language.EMsg.ServiceMethodCallFromClient;
-      }
-
-      const proto: Proto = {
-        EMsg,
-        payload: Protos.encode(method + "_Request", payload),
-        unified: { jobId },
-      };
-
-      this.send(proto);
-    });
-  }
-
   /**
    * MsgHdrProtoBuf:
    * int EMsg
    * int CMsgProtoBufHeader length;
    * Proto CMsgProtoBufHeader buffer
    */
-  private buildMsgHdrProtoBuf(EMsg: number, jobidSource: Long): Buffer {
+  private buildMsgHdrProtoBuf(EMsg: number, unifiedMessage?: UnifiedMessage): Buffer {
     const sBuffer = new SmartBuffer();
-
-    const unifiedMessage = jobidSource ? this.jobidSources.get(jobidSource.toString()) : null;
 
     //MsgHdrProtoBuf
     sBuffer.writeInt32LE(EMsg | PROTO_MASK);
@@ -234,7 +241,7 @@ abstract class Connection extends EventEmitter implements IConnection {
       clientSessionid: this.session.clientId,
       jobidTarget: this.jobidTargets.get(EMsg) || JOB_NONE,
       targetJobName: unifiedMessage?.targetJobName,
-      jobidSource: jobidSource || JOB_NONE, // unified messages
+      jobidSource: unifiedMessage?.jobidSource || JOB_NONE, // unified messages
     };
 
     this.jobidTargets.delete(EMsg);
@@ -395,6 +402,13 @@ abstract class Connection extends EventEmitter implements IConnection {
     const EMsgStr = Language.EMsgMap.get(EMsg);
     const message = Protos.decode("CMsg" + EMsgStr, packet.readBuffer());
     this.emit(EMsgStr, message);
+
+    // response to sendProtoPromise
+    const promiseResolve = this.protoResponses.get(Language.EMsgMap.get(EMsg));
+    if (promiseResolve) {
+      this.protoResponses.delete(Language.EMsgMap.get(EMsg));
+      promiseResolve(message);
+    }
   }
 
   private async multi(payload: Buffer): Promise<void> {

@@ -1,4 +1,4 @@
-import { Language } from "./resources.js";
+import { Language } from "../src/resources.js";
 import { Game } from "../@types/steam.js";
 
 export default interface IActions {
@@ -6,9 +6,10 @@ export default interface IActions {
   changePersonaState(state: keyof typeof Language.EPersonaState): void;
   /**
    * Idle an array of appIds
-   * empty array stops idling
+   * Empty array stops idling
+   * forcePlay truthy kicks another playing session
    */
-  idleGames(gameIds: number[]): void;
+  idleGames(gameIds: number[], options?: { forcePlay?: boolean }): Promise<void>;
   /**
    * Activate cdkey
    */
