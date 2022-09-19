@@ -1,0 +1,42 @@
+{
+    "name": "@types/qrcode",
+    "version": "1.5.0",
+    "description": "TypeScript definitions for qrcode",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/qrcode",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "York Yao",
+            "url": "https://github.com/plantain-00",
+            "githubUsername": "plantain-00"
+        },
+        {
+            "name": "Michael Nahkies",
+            "url": "https://github.com/mnahkies",
+            "githubUsername": "mnahkies"
+        },
+        {
+            "name": "Rémi Sormain",
+            "url": "https://github.com/Marchelune",
+            "githubUsername": "Marchelune"
+        },
+        {
+            "name": "BendingBender",
+            "url": "https://github.com/BendingBender",
+            "githubUsername": "BendingBender"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/qrcode"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "typesPublisherContentHash": "5842f76f0969762cb2555454982dcb9f7cad6cafb29039b98e95a58880308fab",
+    "typeScriptVersion": "4.0"
+}
