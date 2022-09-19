@@ -162,6 +162,10 @@ abstract class Connection extends EventEmitter implements IConnection {
   }
 
   public sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T> {
+    if (!this.encrypted) {
+      throw new SteamClientError("NotConnected");
+    }
+
     return new Promise((resolve) => {
       const EMsgName = resEMsg ? Language.EMsgMap.get(resEMsg) : Language.EMsgMap.get(EMsg) + "Response";
       this.protoResponses.set(EMsgName, resolve);
@@ -176,6 +180,10 @@ abstract class Connection extends EventEmitter implements IConnection {
   }
 
   public sendUnified(serviceName: string, method: string, payload: T): Promise<T> {
+    if (!this.encrypted) {
+      throw new SteamClientError("NotConnected");
+    }
+
     const targetJobName = `${serviceName}.${method}#1`;
     method = `C${serviceName}_${method}`;
 
