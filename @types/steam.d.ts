@@ -5,6 +5,7 @@ import Auth, { Confirmation } from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
 import Client from "./client.js";
 import IConnection from "./connection.js";
+import { Friend } from "./protoResponse.js";
 
 export interface LoginOptions {
   accountName?: string;
@@ -56,6 +57,9 @@ export interface Game {
 
 export default interface ISteam extends IConnection {
   on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
+  on(event: "ClientLoggedOff", listener: (eresult: string) => void): this;
+  on(event: "PersonaStateChanged", listener: (state: Friend) => void): this;
+
   readonly service: {
     auth: Auth;
     credentials: Credentials;

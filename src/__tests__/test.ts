@@ -4,6 +4,7 @@ import fs from "fs";
 import SteamClientError from "../SteamClientError.js";
 import assert from "assert";
 import { Language } from "../resources.js";
+import ISteam from "../../@types/steam.js";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0
 
@@ -17,7 +18,7 @@ let auth: {
   sentryHex: string;
 };
 
-let steam: Steam;
+let steam: ISteam;
 
 describe("Test steam-client", () => {
   before("Load auth.json", () => {
