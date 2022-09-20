@@ -3,7 +3,7 @@
  */
 import Auth, { Confirmation } from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
-import Actions from "./Actions.js";
+import Client from "./client.js";
 import IConnection from "./connection.js";
 
 export interface LoginOptions {
@@ -60,7 +60,7 @@ export default interface ISteam extends IConnection {
     auth: Auth;
     credentials: Credentials;
   };
-  readonly action: Actions;
+  readonly client: Client;
   readonly machineName: string;
 
   /**

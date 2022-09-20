@@ -1,4 +1,4 @@
-import { Game } from "../@types/steam.js";
+import { Game } from "./steam.js";
 import { ClientChangeStatus } from "./protoRequest.js";
 
 interface State {
@@ -6,7 +6,7 @@ interface State {
   playerName: string;
 }
 
-export default interface IActions {
+export default interface IClient {
   changeStatus(payload: ClientChangeStatus): Promise<Friend>;
   /**
    * Idle an array of appIds
@@ -21,5 +21,5 @@ export default interface IActions {
   /**
    * Activate free games
    */
-  activateFreeToPlayGames(appids: number[]): Promise<Game[]>;
+  requestFreeLicense(appids: number[]): Promise<Game[]>;
 }

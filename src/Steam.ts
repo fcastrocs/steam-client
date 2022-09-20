@@ -15,7 +15,7 @@ import SteamCrypto from "@machiavelli/steam-client-crypto";
 import Connection from "./Connection.js";
 import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
-import Actions from "./Actions.js";
+import Client from "./Client.js";
 import { Language } from "./resources.js";
 import ISteam, { AccountAuth, AccountData, Game, LoginOptions } from "../@types/steam.js";
 import { ConnectionOptions } from "../@types/connection.js";
@@ -35,7 +35,6 @@ import {
 } from "../@types/protoResponse.js";
 
 import SteamClientError from "./SteamClientError.js";
-import IActions from "../@types/Actions.js";
 import ICredentials from "../@types/services/credentials.js";
 import IAuth from "../@types/services/auth.js";
 
@@ -44,7 +43,7 @@ export default class Steam extends Connection implements ISteam {
     auth: IAuth;
     credentials: ICredentials;
   };
-  public readonly action: IActions;
+  public readonly client: Client;
   public readonly machineName: string;
 
   private loggedIn = false;
@@ -58,7 +57,7 @@ export default class Steam extends Connection implements ISteam {
       auth: new Auth(this),
       credentials: new Credentials(this),
     };
-    this.action = new Actions(this);
+    this.client = new Client(this);
 
     // create machine name
     this.machineName = this.createMachineName();
@@ -190,7 +189,7 @@ export default class Steam extends Connection implements ISteam {
       throw new SteamClientError(Language.EResultMap.get(res.eresult));
     }
 
-    await this.action.changeStatus({ personaState: "Online" });
+    await this.client.changeStatus({ personaState: "Online" });
 
     return new Promise((resolve, reject) => {
       // expect responses to occur before timeout

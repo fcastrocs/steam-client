@@ -5,11 +5,11 @@ import SteamClientError from "./SteamClientError.js";
 import { Language } from "./resources.js";
 import Steam from "./Steam.js";
 import { Game } from "../@types/steam.js";
-import IActions from "../@types/Actions.js";
+import IClient from "../@types/client.d.js";
 import { ClientPersonaState, Friend } from "../@types/protoResponse.js";
 import { ClientChangeStatus } from "../@types/protoRequest.js";
 
-export default class Actions implements IActions {
+export default class Client implements IClient {
   private status: Friend;
 
   constructor(private steam: Steam) {}
@@ -111,23 +111,13 @@ export default class Actions implements IActions {
   /**
    * Activate free games
    */
-  public activateFreeToPlayGames(appids: number[]): Promise<Game[]> {
-    if (!appids.length) return Promise.resolve([]);
+  public async requestFreeLicense(appids: number[]): Promise<Game[]> {
+    if (!appids.length) return [];
+    const res = await this.steam.sendProtoPromise(Language.EMsg.ClientRequestFreeLicense, { appids });
+    console.log(res);
 
-    this.steam.sendProto(Language.EMsg.ClientRequestFreeLicense, { appids });
-
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new SteamClientError("DidNotGetResponse"));
-      }, this.steam.timeout);
-
-      this.steam.once("ClientRequestFreeLicenseResponse", async (res) => {
-        clearTimeout(timeout);
-        if (!res.grantedAppids.length) resolve([]);
-        const appsInfo = await this.steam.getAppsInfo(res.grantedAppids);
-        const games = this.steam.getGames(appsInfo);
-        resolve(games);
-      });
-    });
+    if (!res.grantedAppids.length) return [];
+    const appsInfo = await this.steam.getAppsInfo(res.grantedAppids);
+    return this.steam.getGames(appsInfo);
   }
 }

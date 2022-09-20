@@ -84,25 +84,25 @@ describe("Test steam-client", () => {
 
   step("Idle Game", async () => {
     try {
-      await steam.action.idleGames([730]);
+      await steam.client.idleGames([730]);
     } catch (error) {
       if (error.message === "AlreadyPlayingElseWhere") {
         console.log("Playing elsewhere, forcing idle ...");
-        await steam.action.idleGames([730], { forcePlay: true });
+        await steam.client.idleGames([730], { forcePlay: true });
       }
     }
   });
 
   step("Change persona state", async () => {
-    await steam.action.changeStatus({ personaState: "Invisible" });
+    await steam.client.changeStatus({ personaState: "Invisible" });
   });
 
   step("Change player name", async () => {
-    await steam.action.changeStatus({ playerName: "Machiavelli" });
+    await steam.client.changeStatus({ playerName: "Machiavelli" });
   });
 
   step("Change persona state and player name", async () => {
-    await steam.action.changeStatus({ playerName: "Machiavelli1", personaState: "Invisible" });
+    await steam.client.changeStatus({ playerName: "Machiavelli1", personaState: "Invisible" });
   });
 
   after(() => steam.disconnect());
