@@ -113,5 +113,10 @@ describe("Test steam-client", () => {
     assert.equal(games.length, 0);
   });
 
+  step("registerKey", async () => {
+    const res = await steam.client.registerKey("");
+    assert.equal(res.length, 1);
+  });
+
   after(() => steam.disconnect());
 });

@@ -189,12 +189,14 @@ interface ClientPlayingSessionState {
   playingApp: number;
 }
 
+// proto
 interface ClientRequestFreeLicenseRes {
   eresult: number;
   grantedAppids: number[];
 }
 
-interface ClientPurchaseResponse {
+// proto
+interface ClientPurchaseRes {
   eresult: number;
   purchaseResultDetails: number;
   purchaseReceiptInfo: Buffer;

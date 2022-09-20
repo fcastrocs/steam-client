@@ -6,7 +6,13 @@ import { Language } from "./resources.js";
 import Steam from "./Steam.js";
 import { Game } from "../@types/steam.js";
 import IClient from "../@types/client.d.js";
-import { ClientPersonaState, ClientRequestFreeLicenseRes, Friend } from "../@types/protoResponse.js";
+import {
+  ClientPersonaState,
+  ClientPurchaseRes,
+  ClientRequestFreeLicenseRes,
+  Friend,
+  PurchaseReceiptInfo,
+} from "../@types/protoResponse.js";
 
 export default class Client implements IClient {
   private state: Friend;
@@ -115,30 +121,30 @@ export default class Client implements IClient {
   /**
    * Activate cdkey
    */
-  public registerKey(cdkey: string): Promise<Game[]> {
-    this.steam.sendProto(Language.EMsg.ClientRegisterKey, { key: cdkey });
+  public async registerKey(cdkey: string): Promise<Game[]> {
+    const res: ClientPurchaseRes = await this.steam.sendProtoPromise(
+      Language.EMsg.ClientRegisterKey,
+      { key: cdkey },
+      Language.EMsg.ClientPurchaseResponse
+    );
 
-    return new Promise((resolve, reject) => {
-      this.steam.once("ClientPurchaseResponse", async (res: T) => {
-        // something went wrong
-        if (res.eresult !== 1) {
-          return reject(new SteamClientError(Language.EPurchaseResultMap.get(res.purchaseResultDetails)));
-        }
+    // something went wrong
+    if (res.eresult !== Language.EResult.OK) {
+      throw new SteamClientError(Language.EPurchaseResultMap.get(res.purchaseResultDetails));
+    }
 
-        const receipt = (BinaryKVParser.parse(res.purchaseReceiptInfo) as T).MessageObject;
-        // get packgeIds
-        const packageIds = [];
-        for (const item of receipt.lineitems) {
-          const packageId = item.PackageID || item.packageID || item.packageid;
-          if (!packageId) continue;
-          packageIds.push(packageId);
-        }
+    const receipt = (BinaryKVParser.parse(res.purchaseReceiptInfo) as PurchaseReceiptInfo).MessageObject;
+    // get packgeIds
+    const packageIds = [];
+    for (const item of receipt.lineitems) {
+      const packageId = item.PackageID || item.packageID || item.packageid;
+      if (!packageId) continue;
+      packageIds.push(packageId);
+    }
 
-        const appIds = await this.steam.getAppIds(packageIds);
-        const appInfo = await this.steam.getAppsInfo(appIds);
-        return resolve(this.steam.getGames(appInfo));
-      });
-    });
+    const appIds = await this.steam.getAppIds(packageIds);
+    const appInfo = await this.steam.getAppsInfo(appIds);
+    return this.steam.getGames(appInfo);
   }
 
   /**
