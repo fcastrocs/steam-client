@@ -158,7 +158,7 @@ export default class Client implements IClient {
     });
 
     if (res.eresult !== Language.EResult.OK) {
-      throw new SteamClientError("EResult: " + Language.EResultMap.get(res.eresult));
+      throw new SteamClientError(Language.EResultMap.get(res.eresult));
     }
 
     if (!res.grantedAppids || !res.grantedAppids.length) return [];

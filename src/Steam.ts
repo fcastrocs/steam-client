@@ -189,7 +189,7 @@ export default class Steam extends Connection implements ISteam {
       const timeout = setTimeout(() => {
         clearInterval(interval);
         this.disconnect();
-        reject(new SteamClientError(responses.toString()));
+        reject(new SteamClientError("Did not receive responses: " + responses.toString()));
       }, this.timeout);
 
       // check whether user is logged in every second

@@ -232,7 +232,7 @@ export default class Auth implements IAuth {
 
   private checkResult(res: UnifiedMsgRes) {
     if (res.EResult !== Language.EResult.OK) {
-      throw new SteamClientError("EResult: " + Language.EResultMap.get(res.EResult));
+      throw new SteamClientError(Language.EResultMap.get(res.EResult));
     }
   }
 }

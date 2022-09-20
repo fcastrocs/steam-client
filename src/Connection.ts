@@ -163,7 +163,7 @@ abstract class Connection extends EventEmitter implements IConnection {
 
   public sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T> {
     if (!this.encrypted) {
-      throw new SteamClientError("NotConnected");
+      throw new SteamClientError("Not connected to Steam.");
     }
 
     return new Promise((resolve) => {
@@ -181,7 +181,7 @@ abstract class Connection extends EventEmitter implements IConnection {
 
   public sendUnified(serviceName: string, method: string, payload: T): Promise<T> {
     if (!this.encrypted) {
-      throw new SteamClientError("NotConnected");
+      throw new SteamClientError("Not connected to Steam.");
     }
 
     const targetJobName = `${serviceName}.${method}#1`;
@@ -289,7 +289,7 @@ abstract class Connection extends EventEmitter implements IConnection {
       this.packetSize = header.readUInt32LE(0);
 
       if (header.subarray(4).toString("ascii") != MAGIC) {
-        this.destroyConnection(new SteamClientError("SteamConnectionOutOfSync"));
+        this.destroyConnection(new SteamClientError("Connection is out of sync."));
         return;
       }
     }
@@ -312,7 +312,7 @@ abstract class Connection extends EventEmitter implements IConnection {
       try {
         packet = SteamCrypto.decrypt(packet, this.session.key.plain);
       } catch (error) {
-        this.destroyConnection(new SteamClientError("SteamDataDecryptionFailed"));
+        this.destroyConnection(new SteamClientError("Data Encryption failed."));
         return;
       }
     }
