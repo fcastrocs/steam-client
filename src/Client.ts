@@ -6,49 +6,82 @@ import { Language } from "./resources.js";
 import Steam from "./Steam.js";
 import { Game } from "../@types/steam.js";
 import IClient from "../@types/client.d.js";
-import { ClientPersonaState, Friend } from "../@types/protoResponse.js";
-import { ClientChangeStatus } from "../@types/protoRequest.js";
+import { ClientPersonaState, ClientRequestFreeLicenseRes, Friend } from "../@types/protoResponse.js";
 
 export default class Client implements IClient {
-  private status: Friend;
+  private state: Friend;
 
-  constructor(private steam: Steam) {}
+  constructor(private steam: Steam) {
+    // catch changes to personaState, playerName or avatar
+    this.steam.on("ClientPersonaState", (body: ClientPersonaState) => {
+      // have never received status
+      if (!this.state) {
+        this.state = body.friends[0];
+        this.steam.emit("PersonaStateChanged", this.state);
+        return;
+      }
+
+      const state = body.friends[0];
+
+      // not this user
+      if (state.friendid.notEquals(this.state.friendid)) return;
+
+      let somethingChanged = false;
+
+      // check if playerName, personaState or avatar changed
+      if (
+        state.avatarHash.toString("hex") !== this.state.avatarHash.toString("hex") ||
+        state.personaState !== this.state.personaState ||
+        state.playerName !== this.state.playerName
+      ) {
+        somethingChanged = true;
+      }
+
+      if (somethingChanged) {
+        this.state = state;
+        this.steam.emit("PersonaStateChanged", this.state);
+      }
+    });
+  }
+
+  /**
+   * Change player nickname
+   */
+  public setPlayerName(playerName: string): Promise<Friend> {
+    return this.changeStatus({ playerName });
+  }
+
+  /**
+   * Change player persona state
+   */
+  public setPersonaState(personaState: keyof typeof Language.EPersonaState): Promise<Friend> {
+    return this.changeStatus({ personaState: Language.EPersonaState[personaState] });
+  }
 
   /**
    * Change player name or persona state
    */
-  public async changeStatus(options: ClientChangeStatus): Promise<Friend> {
-    const payload: {
-      personaState?: number;
-      playerName?: string;
-    } = { playerName: options.playerName };
+  private async changeStatus(payload: ClientChangeStatus): Promise<Friend> {
+    let somethingChanged = false;
 
-    let differentstate = 0;
-
-    if (options.personaState) {
-      payload.personaState = Language.EPersonaState[options.personaState];
-      // check whether personaState changed
-      if (this.status) if (payload.personaState !== this.status.personaState) differentstate++;
+    if (payload.personaState) {
+      // whether a change is being made
+      if (this.state) if (payload.personaState !== this.state.personaState) somethingChanged = true;
+    } else {
+      // whether a change is being made
+      if (this.state) if (payload.playerName !== this.state?.playerName) somethingChanged = true;
     }
 
-    if (options.playerName) {
-      payload.playerName = options.playerName;
-      // check whether playerName changed
-      if (this.status) if (payload.playerName !== this.status?.playerName) differentstate++;
-    }
+    // nothing changed return old state
+    if (this.state) if (!somethingChanged) return this.state;
 
-    // nothing changed return old status
-    if (this.status) if (differentstate === 0) return this.status;
+    this.steam.sendProto(Language.EMsg.ClientChangeStatus, payload);
 
-    const res: ClientPersonaState = await this.steam.sendProtoPromise(
-      Language.EMsg.ClientChangeStatus,
-      payload,
-      Language.EMsg.ClientPersonaState
-    );
-
-    this.status = res.friends[0];
-
-    return this.status;
+    return new Promise((resolve) => {
+      this.steam.once("PersonaStateChanged", (state: Friend) => {
+        return resolve(state);
+      });
+    });
   }
 
   /**
@@ -56,7 +89,7 @@ export default class Client implements IClient {
    * Empty array stops idling
    * forcePlay truthy kicks another playing session
    */
-  public async idleGames(gameIds: number[], options?: { forcePlay?: boolean }) {
+  public async gamesPlayed(gameIds: number[], options?: { forcePlay?: boolean }) {
     if (this.steam.isPlayingBlocked && !options?.forcePlay) {
       throw new SteamClientError("AlreadyPlayingElseWhere");
     }
@@ -82,7 +115,7 @@ export default class Client implements IClient {
   /**
    * Activate cdkey
    */
-  public cdkeyRedeem(cdkey: string): Promise<Game[]> {
+  public registerKey(cdkey: string): Promise<Game[]> {
     this.steam.sendProto(Language.EMsg.ClientRegisterKey, { key: cdkey });
 
     return new Promise((resolve, reject) => {
@@ -113,10 +146,17 @@ export default class Client implements IClient {
    */
   public async requestFreeLicense(appids: number[]): Promise<Game[]> {
     if (!appids.length) return [];
-    const res = await this.steam.sendProtoPromise(Language.EMsg.ClientRequestFreeLicense, { appids });
-    console.log(res);
 
-    if (!res.grantedAppids.length) return [];
+    const res: ClientRequestFreeLicenseRes = await this.steam.sendProtoPromise(Language.EMsg.ClientRequestFreeLicense, {
+      appids,
+    });
+
+    if (res.eresult !== Language.EResult.OK) {
+      throw new SteamClientError("EResult: " + Language.EResultMap.get(res.eresult));
+    }
+
+    if (!res.grantedAppids || !res.grantedAppids.length) return [];
+
     const appsInfo = await this.steam.getAppsInfo(res.grantedAppids);
     return this.steam.getGames(appsInfo);
   }

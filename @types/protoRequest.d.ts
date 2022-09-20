@@ -1,5 +1,3 @@
-import { Language } from "../src/resources.js";
-
 interface ProtoBufHeader {
   steamid: Long;
   clientSessionid: number;
@@ -11,6 +9,6 @@ interface ProtoBufHeader {
 }
 
 interface ClientChangeStatus {
-  personaState?: keyof typeof Language.EPersonaState;
+  personaState?: number;
   playerName?: string;
 }

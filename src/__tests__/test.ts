@@ -1,8 +1,9 @@
 import Steam from "../Steam.js";
 import { ConnectionOptions } from "../../@types/connection";
-import ISteam from "../../@types/steam.js";
 import fs from "fs";
 import SteamClientError from "../SteamClientError.js";
+import assert from "assert";
+import { Language } from "../resources.js";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0
 
@@ -16,7 +17,7 @@ let auth: {
   sentryHex: string;
 };
 
-let steam: ISteam;
+let steam: Steam;
 
 describe("Test steam-client", () => {
   before("Load auth.json", () => {
@@ -82,27 +83,34 @@ describe("Test steam-client", () => {
     });
   });
 
-  step("Idle Game", async () => {
+  step("gamesPlayed", async () => {
     try {
-      await steam.client.idleGames([730]);
+      await steam.client.gamesPlayed([730]);
     } catch (error) {
       if (error.message === "AlreadyPlayingElseWhere") {
         console.log("Playing elsewhere, forcing idle ...");
-        await steam.client.idleGames([730], { forcePlay: true });
+        await steam.client.gamesPlayed([730], { forcePlay: true });
       }
     }
   });
 
-  step("Change persona state", async () => {
-    await steam.client.changeStatus({ personaState: "Invisible" });
+  step("changeStatus", async () => {
+    // change player name
+    let res = await steam.client.setPlayerName("Machiavelli");
+    assert.equal(res.playerName, "Machiavelli");
+
+    // change both
+    res = await steam.client.setPersonaState("Invisible");
+    assert.equal(res.personaState, Language.EPersonaState.Invisible);
   });
 
-  step("Change player name", async () => {
-    await steam.client.changeStatus({ playerName: "Machiavelli" });
-  });
-
-  step("Change persona state and player name", async () => {
-    await steam.client.changeStatus({ playerName: "Machiavelli1", personaState: "Invisible" });
+  step("requestFreeLicense", async () => {
+    // tf2
+    let games = await steam.client.requestFreeLicense([440, -12312]);
+    assert.equal(games.length, 1);
+    // non-existent game
+    games = await steam.client.requestFreeLicense([-12312]);
+    assert.equal(games.length, 0);
   });
 
   after(() => steam.disconnect());

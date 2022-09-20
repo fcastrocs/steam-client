@@ -86,12 +86,12 @@ export default interface ISteam extends IConnection {
   /**
    * Get all appIds from packages
    */
-  public getAppIds(packageIds: number[]): Promise<{ appid: number }[]>;
+  public getAppIds(packageIds: number[]): Promise<number[]>;
 
   /**
    * Get appsInfo from a list of appIds
    */
-  public getAppsInfo(apps: { appid: number }[]): Promise<AppBuffer["appinfo"][]>;
+  public getAppsInfo(appIds: number[]): Promise<AppBuffer["appinfo"][]>;
 
   /**
    * Get only games from appsInfo[]

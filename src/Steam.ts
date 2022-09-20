@@ -26,7 +26,6 @@ import {
   ClientIsLimitedAccount,
   ClientLicenseList,
   ClientLogonResponse,
-  ClientPersonaState,
   ClientPICSProductInfoResponse,
   ClientPlayingSessionState,
   ClientUpdateMachineAuth,
@@ -96,7 +95,6 @@ export default class Steam extends Connection implements ISteam {
     let responses = [
       "ClientAccountInfo",
       "ClientEmailAddrInfo",
-      "ClientPersonaState",
       "ClientLicenseList",
       "ClientIsLimitedAccount",
       "ClientVACBanStatus",
@@ -118,12 +116,6 @@ export default class Steam extends Connection implements ISteam {
     this.once("ClientAccountInfo", (body: ClientAccountInfo) => {
       accountData.personaName = body.personaName;
       receivedResponse("ClientAccountInfo");
-    });
-
-    this.once("ClientPersonaState", (body: ClientPersonaState) => {
-      // get avatar
-      accountData.avatar = this.getAvatar(body.friends[0].avatarHash);
-      receivedResponse("ClientPersonaState");
     });
 
     this.once("ClientEmailAddrInfo", (body: ClientEmailAddrInfo) => {
@@ -189,7 +181,8 @@ export default class Steam extends Connection implements ISteam {
       throw new SteamClientError(Language.EResultMap.get(res.eresult));
     }
 
-    await this.client.changeStatus({ personaState: "Online" });
+    const state = await this.client.setPersonaState("Online");
+    accountData.avatar = this.getAvatar(state.avatarHash);
 
     return new Promise((resolve, reject) => {
       // expect responses to occur before timeout
@@ -233,7 +226,7 @@ export default class Steam extends Connection implements ISteam {
   /**
    * Get all appIds from packages
    */
-  public getAppIds(packageIds: number[]): Promise<{ appid: number }[]> {
+  public getAppIds(packageIds: number[]): Promise<number[]> {
     // don't include default steam package id === 0
     packageIds = packageIds.filter((id) => id !== 0);
 
@@ -268,11 +261,7 @@ export default class Steam extends Connection implements ISteam {
         // received all packages info
         if (!res.responsePending) {
           this.removeAllListeners("ClientPICSProductInfoResponse");
-          resolve(
-            [...new Set(appIds)].map((id) => {
-              return { appid: id };
-            })
-          );
+          resolve([...new Set(appIds)]);
         }
       });
     });
@@ -281,8 +270,12 @@ export default class Steam extends Connection implements ISteam {
   /**
    * Get appsInfo from a list of appIds
    */
-  public getAppsInfo(apps: { appid: number }[]): Promise<AppBuffer["appinfo"][]> {
-    if (!apps.length) return Promise.resolve([]);
+  public getAppsInfo(appIds: number[]): Promise<AppBuffer["appinfo"][]> {
+    if (!appIds.length) return Promise.resolve([]);
+
+    const apps = appIds.map((appid) => {
+      return { appid };
+    });
 
     // send apps info request to steam
     this.sendProto(Language.EMsg.ClientPICSProductInfoRequest, { apps });

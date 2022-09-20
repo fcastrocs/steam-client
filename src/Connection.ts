@@ -23,7 +23,6 @@ import IConnection, {
   Session,
   UnifiedMessage,
 } from "../@types/connection.js";
-import { ProtoBufHeader } from "../@types/protoRequest.js";
 
 const MAGIC = "VT01";
 const PROTO_MASK = 0x80000000;

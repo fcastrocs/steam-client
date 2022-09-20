@@ -189,6 +189,11 @@ interface ClientPlayingSessionState {
   playingApp: number;
 }
 
+interface ClientRequestFreeLicenseRes {
+  eresult: number;
+  grantedAppids: number[];
+}
+
 interface ClientPurchaseResponse {
   eresult: number;
   purchaseResultDetails: number;
