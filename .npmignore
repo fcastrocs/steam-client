@@ -1,0 +1,8 @@
+node_modules
+package-lock.json
+.eslintrc.json
+src
+auth.json
+.eslintrc.json
+.gitignore
+.mocharc.json
