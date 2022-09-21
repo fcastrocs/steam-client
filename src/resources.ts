@@ -6,6 +6,9 @@ import ProtoBuf from "protobufjs";
 import EMsg from "./language/EMsg.js";
 import EResult from "./language/EResult.js";
 import * as LangConstants from "./language/constants.js";
+import { resolve } from "path";
+
+const rootDir = resolve("./");
 
 const LangConstantsExtended = { ...LangConstants, EMsg, EResult };
 
@@ -17,14 +20,14 @@ testLanguage();
 export { Protos, Language };
 
 function loadProtos() {
-  const protoFileNames = fs.readdirSync("./protos/steam");
+  const protoFileNames = fs.readdirSync(rootDir + "/protos/steam");
 
   const root = new ProtoBuf.Root();
   root.resolvePath = (origin, target) => {
     if (target.includes("google/protobuf")) {
-      return "./protos/" + target;
+      return rootDir + "/protos/" + target;
     } else {
-      return "./protos/steam/" + target;
+      return rootDir + "/protos/steam/" + target;
     }
   };
 
