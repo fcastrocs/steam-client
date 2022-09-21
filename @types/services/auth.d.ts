@@ -38,14 +38,14 @@ interface PollAuthSessionStatusRes extends UnifiedMsgRes {
   accountName: string;
 }
 
-interface AuthTokens {
+export interface AuthTokens {
   accountName: string;
   refreshToken: string;
   accessToken: string;
   machineName: string;
 }
 
-interface Confirmation {
+export interface Confirmation {
   qrCode?: string;
   guardType?: string;
 }
