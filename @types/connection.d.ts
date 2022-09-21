@@ -55,3 +55,27 @@ export default class IConnection extends EventEmitter {
    */
   connect(): Promise<void>;
 }
+
+export default abstract class Connection extends EventEmitter implements IConnection {
+  on(event: "disconnected", listener: (error: SteamClientError) => void): this;
+
+  readonly timeout: number;
+  constructor(options: ConnectionOptions);
+  abstract disconnect(): void;
+  /**
+   * Connect to Steam CM server.
+   */
+  connect(): Promise<void>;
+  /**
+   * Destroy connection to Steam and do some cleanup
+   * disconnected is emmitted when error is passed
+   */
+  protected destroyConnection(error?: SteamClientError): void;
+  /**
+   * Heartbeat connection after login
+   */
+  protected startHeartBeat(beatTimeSecs: number): void;
+  sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T>;
+  sendProto(EMsg: number, payload: T): void;
+  sendUnified(serviceName: string, method: string, payload: T): Promise<T>;
+}

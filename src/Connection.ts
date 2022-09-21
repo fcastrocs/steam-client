@@ -28,7 +28,7 @@ const MAGIC = "VT01";
 const PROTO_MASK = 0x80000000;
 const JOB_NONE = Long.fromString("18446744073709551615", true);
 
-abstract class Connection extends EventEmitter implements IConnection {
+export default abstract class Connection extends EventEmitter implements IConnection {
   public readonly timeout: number = 15000;
 
   private socket: Socket;
@@ -478,5 +478,3 @@ abstract class Connection extends EventEmitter implements IConnection {
     }
   }
 }
-
-export default Connection;
