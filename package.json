@@ -1,12 +1,12 @@
 {
   "name": "@machiavelli/steam-client",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "./lib/Steam.js",
   "types": "./@types/steam.d.ts",
   "type": "module",
   "scripts": {
-    "buildresources": "node scripts/build-resources.js",
     "build": "tsc",
+    "buildresources": "node scripts/build-resources.js",
     "test": "mocha --require mocha-steps"
   },
   "author": "Machiavelli",
