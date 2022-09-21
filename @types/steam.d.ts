@@ -3,7 +3,7 @@
  */
 import Auth, { Confirmation } from "./services/Auth.js";
 import Client from "./client.js";
-import Connection from "./connection.js";
+import Connection, { ConnectionOptions } from "./connection.js";
 import { Friend } from "./protoResponse.js";
 import SteamClientError from "SteamClientError.js";
 
