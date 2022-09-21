@@ -6,6 +6,7 @@ import Credentials from "./services/Credentials.js";
 import Client from "./client.js";
 import IConnection from "./connection.js";
 import { Friend } from "./protoResponse.js";
+import SteamClientError from "SteamClientError.js";
 
 export interface LoginOptions {
   accountName?: string;
@@ -54,6 +55,8 @@ export interface Game {
   clienttga: string;
   gameid: number;
 }
+
+export { SteamClientError };
 
 export default interface ISteam extends IConnection {
   on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
