@@ -58,7 +58,7 @@ export interface Game {
 
 export { SteamClientError };
 
-export default interface ISteam extends IConnection {
+export default class ISteam extends IConnection {
   on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
   on(event: "ClientLoggedOff", listener: (eresult: string) => void): this;
   on(event: "PersonaStateChanged", listener: (state: Friend) => void): this;

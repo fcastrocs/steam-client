@@ -41,7 +41,7 @@ interface ConnectionOptions {
   timeout?: number;
 }
 
-export default interface IConnection extends EventEmitter {
+export default class IConnection extends EventEmitter {
   on(event: "disconnected", listener: (error: SteamClientError) => void): this;
   readonly timeout: number;
 
