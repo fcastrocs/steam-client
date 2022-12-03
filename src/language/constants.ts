@@ -1,3 +1,7 @@
+/**
+ * Do NOT delete this file, as it's not automatically generated
+ */
+
 export const EPersonaState = {
   Offline: 0,
   Online: 1,

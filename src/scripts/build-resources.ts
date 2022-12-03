@@ -1,3 +1,7 @@
+/**
+ * Fetch Steam Protos and Language constants
+ */
+
 import fs from "fs";
 import fetch from "node-fetch";
 import readline from "readline";
@@ -48,7 +52,7 @@ async function fetchProtos() {
 }
 
 /**
- * Fetch Steam Language
+ * Fetch eresult.steamd and build EResult.ts
  */
 async function buildEResultConstants() {
   const url = "https://raw.githubusercontent.com/SteamRE/SteamKit/master/Resources/SteamLanguage/eresult.steamd";
@@ -57,9 +61,12 @@ async function buildEResultConstants() {
 
   const file = LANGUAGE_PATH + "eresult.steamd";
   const stream = fs.createWriteStream(LANGUAGE_PATH + "EResult.ts");
+  stream.write("// Automatically generated\n\n");
   const rl = readline.createInterface({
     input: fs.createReadStream(file),
   });
+
+  // convert eresult.steamd fiile to a .ts file by fixing syntax
   rl.on("line", (line) => {
     if (line.includes("; removed") || line.includes("; obsolete") || !line) {
       return;
@@ -75,6 +82,9 @@ async function buildEResultConstants() {
   rl.on("close", () => fs.unlinkSync(file));
 }
 
+/**
+ * build EMsg from enums_clientserver.proto
+ */
 async function buildEMsgConstants() {
   const file = fs.readFileSync(PROTOS_PATH + "steam/" + "enums_clientserver.proto", "utf-8").split(/\r?\n/);
 
@@ -116,7 +126,7 @@ async function buildEMsgConstants() {
 
   // write to file
   for (const [key, properties] of lists) {
-    const string = "export default" + " {\n" + properties.join("\n") + "\n}";
+    const string = "// Automatically generated\n\n" + "export default" + " {\n" + properties.join("\n") + "\n}";
     fs.writeFileSync(LANGUAGE_PATH + key + ".ts", string);
   }
 }
