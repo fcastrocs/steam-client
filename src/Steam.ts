@@ -1,5 +1,5 @@
 /**
- * Manages high-level Steam operations
+ * Handles Steam operations
  *
  * Emits the following:
  * 'disconnected' when connection is lost.
@@ -80,7 +80,7 @@ export default class Steam extends Connection implements ISteam {
     options.clientOsType = Language.EOSType.Win11;
     options.protocolVersion = 65580;
     options.supportsRateLimitResponse = true;
-    options.shouldRememberPassword = options.shouldRememberPassword === false ? false : true;
+    options.shouldRememberPassword = !!options.shouldRememberPassword;
     options.machineName = options.machineName || this.machineName;
     options.machineId = options.machineId || this.createMachineId(options.machineName);
 

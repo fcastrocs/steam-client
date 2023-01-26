@@ -123,7 +123,7 @@ describe("Test steam-client", () => {
   step("registerKey", async () => {
     const res = await steam.client.registerKey("");
     console.log(res);
-    
+
     assert.equal(res.length, 1);
   });
 
