@@ -10,6 +10,7 @@ const LANGUAGE_PATH = "./src/language/";
 const PROTOS_PATH = "./protos/";
 
 const PROTOS = [
+  "contenthubs.proto",
   "encrypted_app_ticket.proto",
   "steammessages_unified_base.steamclient.proto",
   "steammessages_base.proto",
