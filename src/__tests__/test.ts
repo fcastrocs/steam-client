@@ -20,6 +20,9 @@ let auth: {
 
 let steam: ISteam;
 
+const steamIP = "162.254.192.71";
+const steamPort = 27017;
+
 describe("Test steam-client", () => {
   before("Load auth.json", () => {
     if (fs.existsSync("auth.json")) {
@@ -30,7 +33,7 @@ describe("Test steam-client", () => {
   });
 
   step("Connect to Steam", async () => {
-    const steamCM = { host: "162.254.192.71", port: 27017 };
+    const steamCM = { host: steamIP, port: steamPort };
     const timeout = 15000;
 
     const options: ConnectionOptions = { steamCM, timeout };
@@ -46,12 +49,15 @@ describe("Test steam-client", () => {
     steam.on("waitingForConfirmation", (res) => console.log(res.qrCode));
 
     const authTokens = await steam.service.auth.getAuthTokensViaQR("terminal");
+
+    // attempt login
     const res = await steam.login({
       accountName: authTokens.accountName,
       accessToken: authTokens.refreshToken,
       shouldRememberPassword: true,
     });
 
+    // save authentication for later use
     const sentryHex = res.auth.sentry.toString("hex");
     const machineIdHex = res.auth.machineId.toString("hex");
 
@@ -116,8 +122,12 @@ describe("Test steam-client", () => {
 
   step("registerKey", async () => {
     const res = await steam.client.registerKey("");
+    console.log(res);
+    
     assert.equal(res.length, 1);
   });
 
-  after(() => steam.disconnect());
+  after(() => {
+    if (steam) steam.disconnect();
+  });
 });
