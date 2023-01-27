@@ -286,6 +286,8 @@ export default class Steam extends Connection implements ISteam {
       const appsInfo: AppBuffer["appinfo"][] = [];
 
       this.on("ClientPICSProductInfoResponse", (res: ClientPICSProductInfoResponse) => {
+        let timeout;
+        clearTimeout(timeout);
         if (res.apps) {
           for (const app of res.apps) {
             const appBuffer: AppBuffer = VDF.parse(app.buffer.toString());
@@ -296,7 +298,15 @@ export default class Steam extends Connection implements ISteam {
           }
         }
 
-        if (!res.responsePending) {
+        // sometimes steam just doesn't send the last response with responsePending: false
+        // wait 2500 seconds in between responses before counting operation as finished
+        if (res.responsePending) {
+          timeout = setTimeout(() => {
+            this.removeAllListeners("ClientPICSProductInfoResponse");
+            resolve(appsInfo);
+          }, 2500);
+        } else {
+          clearTimeout(timeout);
           this.removeAllListeners("ClientPICSProductInfoResponse");
           resolve(appsInfo);
         }
