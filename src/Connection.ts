@@ -396,6 +396,7 @@ export default abstract class Connection extends EventEmitter implements IConnec
     }
 
     if (EMsg === Language.EMsg.ServiceMethod) return;
+    if (EMsg === Language.EMsg.ClientFriendMsgEchoToSender) return;
 
     // manually handle this proto because there's no Proto for it
     if (EMsg === Language.EMsg.ClientVACBanStatus) {
