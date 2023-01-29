@@ -4,7 +4,6 @@ import fs from "fs";
 import SteamClientError from "../SteamClientError.js";
 import assert from "assert";
 import { Language } from "../resources.js";
-import ISteam from "../../@types/steam.js";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0
 
@@ -18,7 +17,7 @@ let auth: {
   sentryHex: string;
 };
 
-let steam: ISteam;
+let steam: Steam;
 
 const steamIP = "162.254.192.71";
 const steamPort = 27017;

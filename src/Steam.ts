@@ -17,7 +17,7 @@ import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
 import Client from "./Client.js";
 import { Language } from "./resources.js";
-import ISteam, { AccountAuth, AccountData, Game, LoginOptions } from "../@types/steam.js";
+import { AccountAuth, AccountData, Game, LoginOptions } from "../@types/steam.js";
 import { ConnectionOptions } from "../@types/connection.js";
 import {
   AppBuffer,
@@ -38,7 +38,7 @@ import ICredentials from "../@types/services/credentials.js";
 import IAuth from "../@types/services/auth.js";
 export { SteamClientError };
 
-export default class Steam extends Connection implements ISteam {
+export default class Steam extends Connection {
   public readonly service: {
     auth: IAuth;
     credentials: ICredentials;

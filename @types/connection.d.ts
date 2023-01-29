@@ -41,22 +41,7 @@ interface ConnectionOptions {
   timeout?: number;
 }
 
-export default class IConnection extends EventEmitter {
-  on(event: "disconnected", listener: (error: SteamClientError) => void): this;
-  readonly timeout: number;
-
-  public sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T>;
-
-  public sendProto(EMsg: number, payload: T): void;
-
-  public sendUnified(serviceName: string, method: string, payload: T): Promise<T>;
-  /**
-   * Connect to Steam CM server.
-   */
-  connect(): Promise<void>;
-}
-
-export default abstract class Connection extends EventEmitter implements IConnection {
+export default abstract class Connection extends EventEmitter {
   on(event: "disconnected", listener: (error: SteamClientError) => void): this;
 
   readonly timeout: number;

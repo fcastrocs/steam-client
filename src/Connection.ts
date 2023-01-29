@@ -15,7 +15,7 @@ import * as Protos from "./protos.js";
 import Long from "long";
 import net from "net";
 import SteamClientError from "./SteamClientError.js";
-import IConnection, {
+import {
   ConnectionOptions,
   JobidSources,
   JobidTargets,
@@ -28,7 +28,7 @@ const MAGIC = "VT01";
 const PROTO_MASK = 0x80000000;
 const JOB_NONE = Long.fromString("18446744073709551615", true);
 
-export default abstract class Connection extends EventEmitter implements IConnection {
+export default abstract class Connection extends EventEmitter {
   public readonly timeout: number = 15000;
 
   private socket: Socket;
