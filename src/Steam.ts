@@ -88,10 +88,13 @@ export default class Steam extends Connection implements ISteam {
       games: [],
     } as AccountData;
 
-    const accountAuth = {
+    const accountAuth: AccountAuth = {
       machineName: options.machineName,
       machineId: options.machineId,
-    } as AccountAuth;
+      password: options.password,
+      webNonce: null,
+      sentry: null,
+    };
 
     let responses = [
       "ClientAccountInfo",

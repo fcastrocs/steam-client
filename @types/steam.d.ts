@@ -1,7 +1,7 @@
 /**
  * Manages high-level Steam operations
  */
-import Auth, { Confirmation } from "./services/Auth.js";
+import Auth, { AuthTokens, Confirmation } from "./services/Auth.js";
 import Client from "./client.js";
 import Connection, { ConnectionOptions } from "./connection.js";
 import { Friend } from "./protoResponse.js";
@@ -28,6 +28,7 @@ export interface AccountAuth {
   machineName: string;
   machineId: Buffer;
   webNonce: string;
+  password: string;
 }
 
 export interface AccountData {
