@@ -1,10 +1,16 @@
 import { Game } from "./steam.js";
-import { Language } from "../src/resources.js";
+import { Friend } from "./protoResponse.js";
 
-interface State {
-  personaState: number;
-  playerName: string;
-}
+interface EPersonaState {
+  Offline: 0,
+  Online: 1,
+  Busy: 2,
+  Away: 3,
+  Snooze: 4,
+  LookingToTrade: 5,
+  LookingToPlay: 6,
+  Invisible: 7,
+};
 
 export default interface IClient {
   /**
@@ -14,7 +20,7 @@ export default interface IClient {
   /**
    * Change player persona state
    */
-  setPersonaState(personaState: keyof typeof Language.EPersonaState): Promise<Friend>;
+  setPersonaState(personaState: keyof EPersonaState): Promise<Friend>;
   /**
    * Idle an array of appIds
    * Empty array stops idling

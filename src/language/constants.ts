@@ -2,6 +2,7 @@
  * Do NOT delete this file, as it's not automatically generated
  */
 
+// used in client.d.ts, update file when this changes.
 export const EPersonaState = {
   Offline: 0,
   Online: 1,
