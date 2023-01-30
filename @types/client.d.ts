@@ -1,7 +1,7 @@
 import { Game } from "./steam.js";
 import { Friend } from "./protoResponse.js";
 
-interface EPersonaState {
+export interface EPersonaState {
   Offline: 0,
   Online: 1,
   Busy: 2,
