@@ -36,6 +36,7 @@ import {
 import ICredentials from "../@types/services/credentials.js";
 import IAuth from "../@types/services/auth.js";
 import { SteamClientError } from "./common.js";
+export { SteamClientError };
 
 export default class Steam extends Connection {
   public readonly service: {
