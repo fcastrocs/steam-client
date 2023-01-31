@@ -3,6 +3,7 @@
  */
 import { EventEmitter } from "events";
 import Long from "long";
+import { SocksClientOptions } from "socks";
 import SteamClientError from "SteamClientError";
 
 type PromiseResolve = (value: T) => void;
