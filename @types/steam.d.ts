@@ -5,7 +5,8 @@ import Auth, { AuthTokens, Confirmation } from "./services/Auth.js";
 import Client from "./client.js";
 import Connection, { ConnectionOptions } from "./connection.js";
 import { Friend } from "./protoResponse.js";
-import SteamClientError from "SteamClientError.js";
+import { SteamClientError } from "./common.js";
+export { SteamClientError };
 
 export interface LoginOptions {
   accountName?: string;
@@ -59,7 +60,7 @@ export interface Game {
 export { SteamClientError };
 
 export default class Steam extends Connection {
-  on(event: Parameters<Connection['on']>[0], listener: Parameters<Connection['on']>[1]): this;
+  on(event: Parameters<Connection["on"]>[0], listener: Parameters<Connection["on"]>[1]): this;
   on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
   on(event: "ClientLoggedOff", listener: (eresult: string) => void): this;
   on(event: "PersonaStateChanged", listener: (state: Friend) => void): this;
