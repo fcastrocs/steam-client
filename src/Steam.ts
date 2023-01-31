@@ -33,10 +33,9 @@ import {
   PackageBuffer,
 } from "../@types/protoResponse.js";
 
-import SteamClientError from "./SteamClientError.js";
 import ICredentials from "../@types/services/credentials.js";
 import IAuth from "../@types/services/auth.js";
-export { SteamClientError };
+import { SteamClientError } from "./common.js";
 
 export default class Steam extends Connection {
   public readonly service: {

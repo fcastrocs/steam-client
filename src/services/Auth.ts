@@ -1,7 +1,6 @@
 import NodeRSA from "node-rsa";
 import QRCode from "qrcode";
 import Steam from "../Steam.js";
-import SteamClientError from "../SteamClientError.js";
 import { Language } from "../resources.js";
 import IAuth, {
   SessionViaCredentialsRes,
@@ -13,6 +12,7 @@ import IAuth, {
   QRType,
   PartialSession,
 } from "../../@types/services/auth.js";
+import { SteamClientError } from "../common.js";
 const EAuthSessionGuardType = Language.EAuthSessionGuardType;
 
 export default class Auth implements IAuth {

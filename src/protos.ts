@@ -1,6 +1,7 @@
 /**
  * Proto encode and decoder
  */
+import { T } from "../@types/common.js";
 import { Protos } from "./resources.js";
 
 export function decode(type: string, body: Buffer): Record<string, T> {

@@ -1,9 +1,9 @@
 import Steam from "../Steam.js";
 import { ConnectionOptions } from "../../@types/connection";
 import fs from "fs";
-import SteamClientError from "../SteamClientError.js";
 import assert from "assert";
 import { Language } from "../resources.js";
+import { SteamClientError } from "../common.js";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0
 

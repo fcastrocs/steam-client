@@ -1,7 +1,6 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
-import SteamClientError from "./SteamClientError.js";
 import { Language } from "./resources.js";
 import Steam from "./Steam.js";
 import { Game } from "../@types/steam.js";
@@ -13,6 +12,7 @@ import {
   Friend,
   PurchaseReceiptInfo,
 } from "../@types/protoResponse.js";
+import { SteamClientError } from "./common.js";
 
 export default class Client implements IClient {
   private state: Friend;
