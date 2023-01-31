@@ -36,6 +36,7 @@ interface PollAuthSessionStatusRes extends UnifiedMsgRes {
   accessToken: string;
   hadRemoteInteraction: boolean;
   accountName: string;
+  newGuardData: string;
 }
 
 export interface AuthTokens {

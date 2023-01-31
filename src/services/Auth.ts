@@ -176,11 +176,13 @@ export default class Auth implements IAuth {
           return;
         }
 
-        // no interaction from user
-        if (!pollStatus.hadRemoteInteraction) return;
-
-        // user responded, but hasn't accepted login
-        if (!pollStatus.refreshToken || !pollStatus.accessToken) return;
+        // newGuardData is sent with emailCode
+        if (!pollStatus.newGuardData) {
+          // no interaction from user
+          if (!pollStatus.hadRemoteInteraction) return;
+          // user responded, but hasn't accepted login
+          if (!pollStatus.refreshToken || !pollStatus.accessToken) return;
+        }
 
         // user confirmed logon
         this.waitingForConfirmation = false;
