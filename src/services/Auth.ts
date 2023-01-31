@@ -195,6 +195,7 @@ export default class Auth implements IAuth {
           refreshToken: pollStatus.refreshToken,
           accessToken: pollStatus.accessToken,
           machineName: this.steam.machineName,
+          newGuardData: pollStatus.newGuardData
         });
       }, ms);
     });

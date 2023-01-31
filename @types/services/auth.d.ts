@@ -44,6 +44,7 @@ export interface AuthTokens {
   refreshToken: string;
   accessToken: string;
   machineName: string;
+  newGuardData: string;
 }
 
 export interface Confirmation {
