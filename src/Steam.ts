@@ -117,7 +117,6 @@ export default class Steam extends Connection {
     });
 
     this.once("ClientAccountInfo", (body: ClientAccountInfo) => {
-      accountData.personaName = body.personaName;
       receivedResponse("ClientAccountInfo");
     });
 
@@ -184,8 +183,7 @@ export default class Steam extends Connection {
       throw new SteamClientError(Language.EResultMap.get(res.eresult));
     }
 
-    const state = await this.client.setPersonaState("Online");
-    accountData.avatar = this.getAvatar(state.avatarHash);
+    accountData.state = await this.client.setPersonaState("Online");
 
     return new Promise((resolve, reject) => {
       // expect responses to occur before timeout
@@ -345,20 +343,6 @@ export default class Steam extends Connection {
       set.add(game.gameid);
       return !seen;
     });
-  }
-
-  private getAvatar(hash: Friend["avatarHash"]): string {
-    //default avatar
-    const defaultHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
-
-    let hashHex = hash.toString("hex");
-
-    //default avatar
-    if (hashHex === "0000000000000000000000000000000000000000") {
-      hashHex = defaultHash;
-    }
-
-    return `https://avatars.akamai.steamstatic.com/${hashHex}_full.jpg`;
   }
 
   private clientUpdateMachineAuthResponse(sentryBytes: ClientUpdateMachineAuth["bytes"]) {

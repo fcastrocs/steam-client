@@ -9,7 +9,6 @@ const BinaryKVParser = require("binarykvparser");
 import { Language } from "./resources.js";
 import Steam from "./Steam.js";
 import { Game } from "../@types/steam.js";
-import IClient from "../@types/client.d.js";
 import {
   ClientPersonaState,
   ClientPurchaseRes,
@@ -50,6 +49,7 @@ export default class Client {
 
       if (somethingChanged) {
         this.state = state;
+        this.state.avatarString = this.getAvatar(this.state.avatarHash);
         this.steam.emit("PersonaStateChanged", this.state);
       }
     });
@@ -172,5 +172,19 @@ export default class Client {
 
     const appsInfo = await this.steam.getAppsInfo(res.grantedAppids);
     return this.steam.getGames(appsInfo);
+  }
+
+  private getAvatar(hash: Friend["avatarHash"]): string {
+    //default avatar
+    const defaultHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
+
+    let hashHex = hash.toString("hex");
+
+    //default avatar
+    if (hashHex === "0000000000000000000000000000000000000000") {
+      hashHex = defaultHash;
+    }
+
+    return `https://avatars.akamai.steamstatic.com/${hashHex}_full.jpg`;
   }
 }

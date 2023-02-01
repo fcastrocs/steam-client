@@ -36,8 +36,6 @@ export interface AccountData {
   steamId: string;
   limited: boolean;
   vac: boolean;
-  avatar: string;
-  personaName: string;
   communityBanned: boolean;
   locked: boolean;
   games: Game[];
@@ -45,6 +43,7 @@ export interface AccountData {
   isEmailVerified: boolean;
   credentialChangeRequiresCode: boolean;
   isSteamGuardEnabled: boolean;
+  state: Friend;
 }
 
 export interface Game {
@@ -56,8 +55,6 @@ export interface Game {
   clienttga: string;
   gameid: number;
 }
-
-export { SteamClientError };
 
 export default class Steam extends Connection {
   on(event: Parameters<Client["on"]>[0], listener: Parameters<Client["on"]>[1]): this;
