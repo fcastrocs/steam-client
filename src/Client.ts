@@ -27,6 +27,7 @@ export default class Client {
       // have never received status
       if (!this.state) {
         this.state = body.friends[0];
+        this.state.avatarString = this.getAvatar(this.state.avatarHash);
         this.steam.emit("PersonaStateChanged", this.state);
         return;
       }
