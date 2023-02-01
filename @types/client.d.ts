@@ -2,17 +2,18 @@ import { Game } from "./steam.js";
 import { Friend } from "./protoResponse.js";
 
 export interface EPersonaState {
-  Offline: 0,
-  Online: 1,
-  Busy: 2,
-  Away: 3,
-  Snooze: 4,
-  LookingToTrade: 5,
-  LookingToPlay: 6,
-  Invisible: 7,
-};
+  Offline: 0;
+  Online: 1;
+  Busy: 2;
+  Away: 3;
+  Snooze: 4;
+  LookingToTrade: 5;
+  LookingToPlay: 6;
+  Invisible: 7;
+}
 
-export default interface IClient {
+export default class IClient {
+  on(event: "PersonaStateChanged", listener: (state: Friend) => void): this;
   /**
    * Change player nickname
    */

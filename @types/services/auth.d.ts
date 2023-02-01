@@ -52,7 +52,9 @@ export interface Confirmation {
   guardType?: string;
 }
 
-export default interface IAuth {
+export default class IAuth {
+  on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
+
   /**
    * Login via QR
    * @emits "waitingForConfirmation" with QR challenge URL

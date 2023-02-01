@@ -15,7 +15,7 @@ import IAuth, {
 import { SteamClientError } from "../common.js";
 const EAuthSessionGuardType = Language.EAuthSessionGuardType;
 
-export default class Auth implements IAuth {
+export default class Auth {
   private waitingForConfirmation = false;
   private partialSession: PartialSession;
   private readonly serviceName = "Authentication";

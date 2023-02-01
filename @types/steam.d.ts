@@ -60,10 +60,10 @@ export interface Game {
 export { SteamClientError };
 
 export default class Steam extends Connection {
+  on(event: Parameters<Client["on"]>[0], listener: Parameters<Client["on"]>[1]): this;
   on(event: Parameters<Connection["on"]>[0], listener: Parameters<Connection["on"]>[1]): this;
-  on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
+  on(event: Parameters<Auth["on"]>[0], listener: Parameters<Auth["on"]>[1]): this;
   on(event: "ClientLoggedOff", listener: (eresult: string) => void): this;
-  on(event: "PersonaStateChanged", listener: (state: Friend) => void): this;
 
   readonly service: {
     auth: Auth;

@@ -1,3 +1,8 @@
+/*
+  Handles client side operations.
+  Emits: "PersonaStateChanged"
+*/
+
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
@@ -14,7 +19,7 @@ import {
 } from "../@types/protoResponse.js";
 import { SteamClientError } from "./common.js";
 
-export default class Client implements IClient {
+export default class Client {
   private state: Friend;
 
   constructor(private steam: Steam) {
@@ -70,16 +75,18 @@ export default class Client implements IClient {
   private async changeStatus(payload: ClientChangeStatus): Promise<Friend> {
     let somethingChanged = false;
 
-    if (payload.personaState) {
-      // whether a change is being made
-      if (this.state) if (payload.personaState !== this.state.personaState) somethingChanged = true;
-    } else {
-      // whether a change is being made
-      if (this.state) if (payload.playerName !== this.state?.playerName) somethingChanged = true;
-    }
+    if (this.state) {
+      if (payload.personaState) {
+        // whether a change is being made
+        if (payload.personaState !== this.state.personaState) somethingChanged = true;
+      } else {
+        // whether a change is being made
+        if (payload.playerName !== this.state?.playerName) somethingChanged = true;
+      }
 
-    // nothing changed return old state
-    if (this.state) if (!somethingChanged) return this.state;
+      // nothing changed return old state
+      if (!somethingChanged) return this.state;
+    }
 
     this.steam.sendProto(Language.EMsg.ClientChangeStatus, payload);
 
