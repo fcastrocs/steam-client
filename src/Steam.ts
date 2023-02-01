@@ -67,7 +67,7 @@ export default class Steam extends Connection {
 
     this.once("ClientLoggedOff", (body) => {
       this.disconnect();
-      this.emit("ClientLoggedOff", Language.EResultMap.get(body.eresult));
+      this.emit("AccountLoggedOff", Language.EResultMap.get(body.eresult));
     });
   }
 
