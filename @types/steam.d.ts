@@ -6,7 +6,7 @@ import Client from "./client.js";
 import Connection, { ConnectionOptions } from "./connection.js";
 import { Friend } from "./protoResponse.js";
 import { SteamClientError } from "./common.js";
-export { SteamClientError };
+export { SteamClientError, AuthTokens, Confirmation };
 
 export interface LoginOptions {
   accountName?: string;
