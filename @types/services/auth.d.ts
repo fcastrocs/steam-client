@@ -50,6 +50,7 @@ export interface AuthTokens {
 export interface Confirmation {
   qrCode?: string;
   guardType?: string;
+  timeoutSeconds: number;
 }
 
 export default class IAuth {

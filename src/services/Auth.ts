@@ -20,7 +20,7 @@ export default class Auth {
   private partialSession: PartialSession;
   private readonly serviceName = "Authentication";
   private qrType: QRType;
-  public readonly LogonWasNotConfirmedSeconds = 120;
+  private readonly LogonWasNotConfirmedSeconds = 120;
   constructor(private steam: Steam) {}
 
   /**
@@ -45,6 +45,7 @@ export default class Auth {
 
     this.steam.emit("waitingForConfirmation", {
       qrCode,
+      timeoutSeconds: this.LogonWasNotConfirmedSeconds,
     } as Confirmation);
 
     this.waitingForConfirmation = true;
@@ -112,6 +113,7 @@ export default class Auth {
 
     this.steam.emit("waitingForConfirmation", {
       guardType: Language.EAuthSessionGuardTypeMap.get(guardType),
+      timeoutSeconds: this.LogonWasNotConfirmedSeconds,
     } as Confirmation);
 
     this.waitingForConfirmation = true;
