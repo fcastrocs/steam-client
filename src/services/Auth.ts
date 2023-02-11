@@ -20,6 +20,7 @@ export default class Auth {
   private partialSession: PartialSession;
   private readonly serviceName = "Authentication";
   private qrType: QRType;
+  public readonly LogonWasNotConfirmedSeconds = 120;
   constructor(private steam: Steam) {}
 
   /**
@@ -143,14 +144,12 @@ export default class Auth {
    * @throws "LogonWasNotConfirmed"
    */
   private pollAuthStatusInterval(): Promise<AuthTokens> {
-    const ms = 5 * 1000;
-
     return new Promise((resolve, reject) => {
       // clear interval after one minute, and fail login
       const timeout = setTimeout(() => {
         clearInterval(interval);
         reject(new SteamClientError("LogonWasNotConfirmed"));
-      }, ms * 12);
+      }, this.LogonWasNotConfirmedSeconds * 1000);
 
       // poll auth status until user responds to QR or timeouts
       const interval = setInterval(async () => {
@@ -195,9 +194,9 @@ export default class Auth {
           refreshToken: pollStatus.refreshToken,
           accessToken: pollStatus.accessToken,
           machineName: this.steam.machineName,
-          newGuardData: pollStatus.newGuardData
+          newGuardData: pollStatus.newGuardData,
         });
-      }, ms);
+      }, 5 * 1000);
     });
   }
 
