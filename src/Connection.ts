@@ -397,6 +397,7 @@ export default abstract class Connection extends EventEmitter {
     }
 
     if (EMsg === Language.EMsg.ServiceMethod) return;
+    if (EMsg === Language.EMsg.ClientFromGC) return;
     if (EMsg === Language.EMsg.ClientFriendMsgEchoToSender) return;
     if (EMsg === Language.EMsg.ClientChatOfflineMessageNotification) return;
 
