@@ -12,4 +12,6 @@ Executing this script could be breaking, refrain from executing it.
 npm run buildresources
 ```
 
+## DO NOT USE THIS PACKAGE FOR PRODUCTION RIGHT NOW, EXPECT BREAKING CHANGES.
+
 ## MORE DOCUMENATION COMING SOON
