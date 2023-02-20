@@ -85,7 +85,7 @@ interface Friend {
   playerName: string;
   steamidSource: Long;
   avatarHash: Buffer;
-  avatarString: String;
+  avatarString: string;
   lastLogoff: number;
   lastLogon: number;
   lastSeenOnline: number;
