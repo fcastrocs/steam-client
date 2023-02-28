@@ -183,7 +183,7 @@ export default class Steam extends Connection {
       throw new SteamClientError(Language.EResultMap.get(res.eresult));
     }
 
-    accountData.state = await this.client.setPersonaState("Offline");
+    accountData.state = await this.client.setPersonaState("Invisible");
 
     return new Promise((resolve, reject) => {
       // expect responses to occur before timeout
