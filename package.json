@@ -1,5 +1,5 @@
 {
-  "name": "@machiavelli/steamclientttt",
+  "name": "@machiavelli/steam-client",
   "version": "2.0.0",
   "main": "./lib/Steam.js",
   "types": "./@types/steam.d.ts",
