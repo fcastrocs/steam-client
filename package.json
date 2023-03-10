@@ -1,6 +1,6 @@
 {
   "name": "@machiavelli/steam-client",
-  "version": "1.0.50",
+  "version": "1.0.51",
   "main": "./lib/Steam.js",
   "types": "./@types/steam.d.ts",
   "type": "module",
