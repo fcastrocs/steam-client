@@ -1,5 +1,5 @@
 {
-  "name": "@machiagod/machiaclient",
+  "name": "@fcastrocs/steamclient",
   "version": "1.0.0",
   "main": "./lib/Steam.js",
   "types": "./@types/steam.d.ts",
@@ -10,7 +10,7 @@
     "buildresources": "node lib/scripts/build-resources.js",
     "test": "mocha --require mocha-steps"
   },
-  "author": "machiavelli",
+  "author": "Francisco Castro",
   "license": "ISC",
   "description": "Node.js implementation of the Steam client.",
   "keywords": [
@@ -19,7 +19,7 @@
     "steam client"
   ],
   "dependencies": {
-    "@machiavelli/steam-client-crypto": "^1.0.0",
+    "@fcastrocs/steam-client-crypto": "^1.0.0",
     "binarykvparser": "^2.2.0",
     "buffer-crc32": "^0.2.13",
     "long": "^5.2.0",

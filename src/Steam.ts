@@ -11,7 +11,7 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
 const VDF = require("vdf");
-import SteamCrypto from "@machiavelli/steam-client-crypto";
+import SteamCrypto from "@fcastrocs/steam-client-crypto";
 import Connection from "./Connection.js";
 import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";

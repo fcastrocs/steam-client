@@ -9,7 +9,7 @@ import { Socket } from "net";
 import { SmartBuffer } from "smart-buffer";
 import Zip from "zlib";
 import crc32 from "buffer-crc32";
-import SteamCrypto from "@machiavelli/steam-client-crypto";
+import SteamCrypto from "@fcastrocs/steam-client-crypto";
 import { Language } from "./resources.js";
 import * as Protos from "./protos.js";
 import Long from "long";
