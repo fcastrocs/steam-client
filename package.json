@@ -10,7 +10,7 @@
     "buildresources": "node lib/scripts/build-resources.js",
     "test": "mocha --require mocha-steps"
   },
-  "author": "Machiavelli",
+  "author": "machiavelli",
   "license": "ISC",
   "description": "Node.js implementation of the Steam client.",
   "keywords": [
