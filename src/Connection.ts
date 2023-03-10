@@ -396,11 +396,11 @@ export default abstract class Connection extends EventEmitter {
       if (EMsg !== Language.EMsg.ClientVACBanStatus) return;
     }
 
-    if (EMsg === Language.EMsg.ServiceMethod) return;
-    if (EMsg === Language.EMsg.ClientFromGC) return;
-    if (EMsg === Language.EMsg.ClientFriendMsgEchoToSender) return;
-    if (EMsg === Language.EMsg.ClientChatOfflineMessageNotification) return;
-    if (EMsg === Language.EMsg.ClientUCMPublishedFileUpdated) return;
+    // if (EMsg === Language.EMsg.ServiceMethod) return;
+    // if (EMsg === Language.EMsg.ClientFromGC) return;
+    // if (EMsg === Language.EMsg.ClientFriendMsgEchoToSender) return;
+    // if (EMsg === Language.EMsg.ClientChatOfflineMessageNotification) return;
+    // if (EMsg === Language.EMsg.ClientUCMPublishedFileUpdated) return;
 
     // manually handle this proto because there's no Proto for it
     if (EMsg === Language.EMsg.ClientVACBanStatus) {
@@ -412,15 +412,20 @@ export default abstract class Connection extends EventEmitter {
     }
 
     // decode protos and emit message
-    const EMsgStr = Language.EMsgMap.get(EMsg);
-    const message = Protos.decode("CMsg" + EMsgStr, packet.readBuffer());
-    this.emit(EMsgStr, message);
+    try {
+      const EMsgStr = Language.EMsgMap.get(EMsg);
+      const message = Protos.decode("CMsg" + EMsgStr, packet.readBuffer());
+      this.emit(EMsgStr, message);
 
-    // response to sendProtoPromise
-    const promiseResolve = this.protoResponses.get(Language.EMsgMap.get(EMsg));
-    if (promiseResolve) {
-      this.protoResponses.delete(Language.EMsgMap.get(EMsg));
-      promiseResolve(message);
+      // response to sendProtoPromise
+      const promiseResolve = this.protoResponses.get(EMsgStr);
+      if (promiseResolve) {
+        this.protoResponses.delete(EMsgStr);
+        promiseResolve(message);
+      }
+    } catch (error) {
+      console.error("Proto decode failed.");
+      console.error(error);
     }
   }
 
