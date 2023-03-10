@@ -304,7 +304,7 @@ export default class Steam extends Connection {
           timeout = setTimeout(() => {
             this.removeAllListeners("ClientPICSProductInfoResponse");
             resolve(appsInfo);
-          }, 2500);
+          }, 4000);
         } else {
           clearTimeout(timeout);
           this.removeAllListeners("ClientPICSProductInfoResponse");

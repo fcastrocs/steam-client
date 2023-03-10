@@ -400,6 +400,7 @@ export default abstract class Connection extends EventEmitter {
     if (EMsg === Language.EMsg.ClientFromGC) return;
     if (EMsg === Language.EMsg.ClientFriendMsgEchoToSender) return;
     if (EMsg === Language.EMsg.ClientChatOfflineMessageNotification) return;
+    if (EMsg === Language.EMsg.ClientUCMPublishedFileUpdated) return;
 
     // manually handle this proto because there's no Proto for it
     if (EMsg === Language.EMsg.ClientVACBanStatus) {
