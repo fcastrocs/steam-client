@@ -15,6 +15,7 @@ import SteamCrypto from "@fcastrocs/steam-client-crypto";
 import Connection from "./Connection.js";
 import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
+import Player from "./services/Player.js";
 import Client from "./Client.js";
 import { Language } from "./resources.js";
 import { AccountAuth, AccountData, Game, LoginOptions } from "../@types/steam.js";
@@ -40,7 +41,8 @@ export { SteamClientError };
 export default class Steam extends Connection {
   public readonly service: {
     auth: Auth;
-    credentials: ICredentials;
+    credentials: Credentials;
+    player: Player;
   };
   public readonly client: Client;
   public readonly machineName: string;
@@ -55,6 +57,7 @@ export default class Steam extends Connection {
     this.service = {
       auth: new Auth(this),
       credentials: new Credentials(this),
+      player: new Player(this),
     };
     this.client = new Client(this);
 
@@ -98,7 +101,7 @@ export default class Steam extends Connection {
     let responses = [
       "ClientAccountInfo",
       "ClientEmailAddrInfo",
-      "ClientLicenseList",
+      // "ClientLicenseList",
       "ClientIsLimitedAccount",
       "ClientVACBanStatus",
     ];
@@ -127,25 +130,25 @@ export default class Steam extends Connection {
       receivedResponse("ClientEmailAddrInfo");
     });
 
-    this.once("ClientLicenseList", async (body: ClientLicenseList) => {
-      const packageIds = [];
+    // this.once("ClientLicenseList", async (body: ClientLicenseList) => {
+    //   const packageIds = [];
 
-      for (const license of body.licenses) {
-        packageIds.push(license.packageId);
-      }
+    //   for (const license of body.licenses) {
+    //     packageIds.push(license.packageId);
+    //   }
 
-      // get packages Info
-      const appIds = await this.getAppIds(packageIds);
-      if (!appIds.length) return receivedResponse("ClientLicenseList");
+    //   // get packages Info
+    //   const appIds = await this.getAppIds(packageIds);
+    //   if (!appIds.length) return receivedResponse("ClientLicenseList");
 
-      // get apps info
-      const appsInfo = await this.getAppsInfo(appIds);
-      if (!appsInfo.length) return receivedResponse("ClientLicenseList");
+    //   // get apps info
+    //   const appsInfo = await this.getAppsInfo(appIds);
+    //   if (!appsInfo.length) return receivedResponse("ClientLicenseList");
 
-      accountData.games = this.getGames(appsInfo);
+    //   accountData.games = this.getGames(appsInfo);
 
-      receivedResponse("ClientLicenseList");
-    });
+    //   receivedResponse("ClientLicenseList");
+    // });
 
     this.once("ClientIsLimitedAccount", (body: ClientIsLimitedAccount) => {
       accountData.limited = body.bisLimitedAccount;
@@ -166,6 +169,7 @@ export default class Steam extends Connection {
       this.startHeartBeat(res.heartbeatSeconds);
       accountAuth.webNonce = res.webapiAuthenticateUserNonce;
       accountData.steamId = res.clientSuppliedSteamid.toString();
+      accountData.games = await this.service.player.getOwnedGames(res.clientSuppliedSteamid);
 
       accountData.isSteamGuardEnabled = !!(
         options.accessToken ||
@@ -326,12 +330,9 @@ export default class Steam extends Connection {
 
       games.push({
         name: app.common.name,
-        logo: app.common.logo,
-        logo_small: app.common.logo_small,
         icon: app.common.icon,
-        clienticon: app.common.clienticon,
-        clienttga: app.common.clienttga,
         gameid: Number(app.common.gameid),
+        playtime: 0,
       });
     }
 

@@ -210,3 +210,10 @@ interface PurchaseReceiptInfo {
     lineitems: { PackageID?: number; packageID?: number; packageid?: number }[];
   };
 }
+
+interface GetOwnedGamesRes {
+  appid: number;
+  name: string;
+  playtimeForever: number;
+  imgIconUrl: string;
+}

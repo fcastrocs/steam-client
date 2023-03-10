@@ -48,12 +48,9 @@ export interface AccountData {
 
 export interface Game {
   name: string;
-  logo: string;
-  logo_small: string;
-  icon: string;
-  clienticon: string;
-  clienttga: string;
   gameid: number;
+  icon: string;
+  playtime: number;
 }
 
 export default class Steam extends Connection {
