@@ -79,7 +79,7 @@ describe("Test steam-client", () => {
     // already logged in
     if (steam.isLoggedIn) return;
 
-    await steam.login({
+    const res = await steam.login({
       accountName: auth.accountName,
       accessToken: auth.refreshToken,
       shouldRememberPassword: true,
@@ -87,6 +87,8 @@ describe("Test steam-client", () => {
       machineId: auth.machineId,
       machineName: auth.machineName,
     });
+
+    console.log(res);
   });
 
   step("gamesPlayed", async () => {
@@ -95,7 +97,7 @@ describe("Test steam-client", () => {
     } catch (error) {
       if (error.message === "AlreadyPlayingElseWhere") {
         console.log("Playing elsewhere, forcing idle ...");
-        await steam.client.gamesPlayed([730], { forcePlay: true });
+        await steam.client.gamesPlayed([730], { forcePlay: false });
       }
     }
   });

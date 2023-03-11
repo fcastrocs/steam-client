@@ -25,16 +25,13 @@ import {
   ClientAccountInfo,
   ClientEmailAddrInfo,
   ClientIsLimitedAccount,
-  ClientLicenseList,
   ClientLogonResponse,
   ClientPICSProductInfoResponse,
   ClientPlayingSessionState,
   ClientUpdateMachineAuth,
-  Friend,
   PackageBuffer,
 } from "../@types/protoResponse.js";
 
-import ICredentials from "../@types/services/credentials.js";
 import { SteamClientError } from "./common.js";
 export { SteamClientError };
 
@@ -66,6 +63,7 @@ export default class Steam extends Connection {
 
     this.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
       this.playingBlocked = body.playingBlocked;
+      this.emit("PlayingSessionState", body);
     });
 
     this.once("ClientLoggedOff", (body) => {
@@ -98,13 +96,7 @@ export default class Steam extends Connection {
       sentry: null,
     };
 
-    let responses = [
-      "ClientAccountInfo",
-      "ClientEmailAddrInfo",
-      // "ClientLicenseList",
-      "ClientIsLimitedAccount",
-      "ClientVACBanStatus",
-    ];
+    let responses = ["ClientAccountInfo", "ClientEmailAddrInfo", "ClientIsLimitedAccount", "ClientVACBanStatus"];
 
     const receivedResponse = (response: string) => {
       // remove this response from array
@@ -129,26 +121,6 @@ export default class Steam extends Connection {
       accountData.credentialChangeRequiresCode = body.credentialChangeRequiresCode;
       receivedResponse("ClientEmailAddrInfo");
     });
-
-    // this.once("ClientLicenseList", async (body: ClientLicenseList) => {
-    //   const packageIds = [];
-
-    //   for (const license of body.licenses) {
-    //     packageIds.push(license.packageId);
-    //   }
-
-    //   // get packages Info
-    //   const appIds = await this.getAppIds(packageIds);
-    //   if (!appIds.length) return receivedResponse("ClientLicenseList");
-
-    //   // get apps info
-    //   const appsInfo = await this.getAppsInfo(appIds);
-    //   if (!appsInfo.length) return receivedResponse("ClientLicenseList");
-
-    //   accountData.games = this.getGames(appsInfo);
-
-    //   receivedResponse("ClientLicenseList");
-    // });
 
     this.once("ClientIsLimitedAccount", (body: ClientIsLimitedAccount) => {
       accountData.limited = body.bisLimitedAccount;
