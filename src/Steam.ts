@@ -3,8 +3,8 @@
  *
  * Emits the following:
  * 'disconnected' when connection is lost.
- * 'loginkey' loginkey when it is accepted.
- *
+ * 'PlayingState' when playing session changes.
+ * 'ClientLoggedOff' unexpectedly when client logs off.
  */
 
 import { createRequire } from "module";
@@ -18,7 +18,7 @@ import Credentials from "./services/Credentials.js";
 import Player from "./services/Player.js";
 import Client from "./Client.js";
 import { Language } from "./resources.js";
-import { AccountAuth, AccountData, Game, LoginOptions } from "../@types/steam.js";
+import { AccountAuth, AccountData, Game, LoginOptions, LoginOptionsExtended } from "../@types/steam.js";
 import { ConnectionOptions } from "../@types/connection.js";
 import {
   AppBuffer,
@@ -28,7 +28,6 @@ import {
   ClientLogonResponse,
   ClientPICSProductInfoResponse,
   ClientPlayingSessionState,
-  ClientUpdateMachineAuth,
   PackageBuffer,
 } from "../@types/protoResponse.js";
 
@@ -45,7 +44,7 @@ export default class Steam extends Connection {
   public readonly machineName: string;
 
   private loggedIn = false;
-  private playingBlocked = false;
+  private playingSessionState = {} as ClientPlayingSessionState;
 
   constructor(options: ConnectionOptions) {
     super(options);
@@ -62,8 +61,8 @@ export default class Steam extends Connection {
     this.machineName = this.createMachineName();
 
     this.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
-      this.playingBlocked = body.playingBlocked;
-      this.emit("PlayingSessionState", body);
+      this.playingSessionState = body;
+      this.emit("PlayingState", body);
     });
 
     this.once("ClientLoggedOff", (body) => {
@@ -76,13 +75,13 @@ export default class Steam extends Connection {
    * login to steam via credentials or refresh_token
    */
   public async login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
-    // set up default login options
-    options.clientOsType = Language.EOSType.Win11;
-    options.protocolVersion = 65580;
-    options.supportsRateLimitResponse = true;
-    options.shouldRememberPassword = !!options.shouldRememberPassword;
-    options.machineName = options.machineName || this.machineName;
-    options.machineId = options.machineId || this.createMachineId(options.machineName);
+    options = {
+      ...options,
+      clientOsType: Language.EOSType.Win11,
+      protocolVersion: 65580,
+      supportsRateLimitResponse: true,
+      machineName: options.machineName || this.machineName,
+    } as LoginOptionsExtended;
 
     const accountData = {
       games: [],
@@ -90,10 +89,6 @@ export default class Steam extends Connection {
 
     const accountAuth: AccountAuth = {
       machineName: options.machineName,
-      machineId: options.machineId,
-      password: options.password,
-      webNonce: null,
-      sentry: null,
     };
 
     let responses = ["ClientAccountInfo", "ClientEmailAddrInfo", "ClientIsLimitedAccount", "ClientVACBanStatus"];
@@ -102,14 +97,6 @@ export default class Steam extends Connection {
       // remove this response from array
       responses = responses.filter((item) => item !== response);
     };
-
-    this.once("ClientUpdateMachineAuth", (body: ClientUpdateMachineAuth) => {
-      // don't respond to sentry when not remembering password
-      if (options.shouldRememberPassword) {
-        accountAuth.sentry = this.clientUpdateMachineAuthResponse(body.bytes);
-      }
-      receivedResponse("ClientUpdateMachineAuth");
-    });
 
     this.once("ClientAccountInfo", (body: ClientAccountInfo) => {
       receivedResponse("ClientAccountInfo");
@@ -139,19 +126,8 @@ export default class Steam extends Connection {
 
     if (res.eresult === Language.EResult.OK) {
       this.startHeartBeat(res.heartbeatSeconds);
-      accountAuth.webNonce = res.webapiAuthenticateUserNonce;
       accountData.steamId = res.clientSuppliedSteamid.toString();
       accountData.games = await this.service.player.getOwnedGames(res.clientSuppliedSteamid);
-
-      accountData.isSteamGuardEnabled = !!(
-        options.accessToken ||
-        (options.password && (options.authCode || options.twoFactorCode))
-      );
-
-      // sentry is emitted if guard is enabled, and when sentry not passed
-      if (accountData.isSteamGuardEnabled && !options.shaSentryfile && !options.accessToken) {
-        responses.push("ClientUpdateMachineAuth");
-      }
 
       this.loggedIn = true;
     } else {
@@ -174,7 +150,7 @@ export default class Steam extends Connection {
         if (responses.length) return;
         clearTimeout(timeout);
         clearInterval(interval);
-        resolve({ auth: accountAuth, data: accountData });
+        resolve({ auth: accountAuth, data: { ...accountData, playingState: this.playingSessionState } });
       }, 1000);
     });
   }
@@ -197,7 +173,7 @@ export default class Steam extends Connection {
    * Whether playing is blocked by another session
    */
   public get isPlayingBlocked() {
-    return this.playingBlocked;
+    return this.playingSessionState.playingBlocked;
   }
 
   /**
@@ -316,13 +292,6 @@ export default class Steam extends Connection {
       set.add(game.gameid);
       return !seen;
     });
-  }
-
-  private clientUpdateMachineAuthResponse(sentryBytes: ClientUpdateMachineAuth["bytes"]) {
-    const stringHex = SteamCrypto.sha1Hash(sentryBytes);
-    const buffer = Buffer.from(stringHex, "hex");
-    this.sendProto(Language.EMsg.ClientUpdateMachineAuthResponse, { shaFile: buffer });
-    return buffer;
   }
 
   private createMachineName(): string {

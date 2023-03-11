@@ -1,7 +1,9 @@
 /**
  * Manages high-level Steam operations
  */
-import Auth, { AuthTokens, Confirmation } from "./services/Auth.js";
+import Auth, { AuthTokens, Confirmation } from "./services/auth.js";
+import Credentials from "./services/credentials.js";
+import Player from "./services/player.js";
 import Client from "./client.js";
 import Connection, { ConnectionOptions } from "./connection.js";
 import { Friend } from "./protoResponse.js";
@@ -9,27 +11,23 @@ import { SteamClientError } from "./common.js";
 export { SteamClientError, AuthTokens, Confirmation };
 
 export interface LoginOptions {
-  accountName?: string;
-  password?: string;
+  accountName: string;
+  accessToken: string;
   machineName?: string;
-  clientOsType?: number;
-  shouldRememberPassword?: boolean;
-  twoFactorCode?: string;
-  shaSentryfile?: Buffer;
-  authCode?: string;
-  protocolVersion?: 65580;
-  supportsRateLimitResponse?: true;
-  machineId?: Buffer;
-  anonUserTargetAccountName?: "anonymous";
-  accessToken?: string;
+}
+
+export interface LoginOptionsExtended extends LoginOptions {
+  accountName: string;
+  accessToken: string;
+  machineName?: string;
+  clientOsType: number;
+  shouldRememberPassword: boolean;
+  protocolVersion: 65580;
+  supportsRateLimitResponse: true;
 }
 
 export interface AccountAuth {
-  sentry: Buffer;
   machineName: string;
-  machineId: Buffer;
-  webNonce: string;
-  password: string;
 }
 
 export interface AccountData {
@@ -42,8 +40,8 @@ export interface AccountData {
   emailOrDomain: string;
   isEmailVerified: boolean;
   credentialChangeRequiresCode: boolean;
-  isSteamGuardEnabled: boolean;
   state: Friend;
+  playingState: ClientPlayingSessionState;
 }
 
 export interface Game {
@@ -58,10 +56,12 @@ export default class Steam extends Connection {
   on(event: Parameters<Connection["on"]>[0], listener: Parameters<Connection["on"]>[1]): this;
   on(event: Parameters<Auth["on"]>[0], listener: Parameters<Auth["on"]>[1]): this;
   on(event: "AccountLoggedOff", listener: (eresult: string) => void): this;
+  on(event: "PlayingState", listener: (eresult: ClientPlayingSessionState) => void): this;
 
   readonly service: {
     auth: Auth;
     credentials: Credentials;
+    player: Player;
   };
   readonly client: Client;
   readonly machineName: string;

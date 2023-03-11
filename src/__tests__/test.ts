@@ -53,19 +53,12 @@ describe("Test steam-client", () => {
     const res = await steam.login({
       accountName: authTokens.accountName,
       accessToken: authTokens.refreshToken,
-      shouldRememberPassword: true,
     });
-
-    // save authentication for later use
-    const sentryHex = res.auth.sentry.toString("hex");
-    const machineIdHex = res.auth.machineId.toString("hex");
 
     auth = {
       accountName: authTokens.accountName,
       machineName: authTokens.machineName,
       refreshToken: authTokens.refreshToken,
-      sentryHex,
-      machineIdHex,
     } as typeof auth;
 
     fs.writeFileSync("auth.json", JSON.stringify(auth));
@@ -79,16 +72,11 @@ describe("Test steam-client", () => {
     // already logged in
     if (steam.isLoggedIn) return;
 
-    const res = await steam.login({
+    await steam.login({
       accountName: auth.accountName,
       accessToken: auth.refreshToken,
-      shouldRememberPassword: true,
-      shaSentryfile: auth.sentry,
-      machineId: auth.machineId,
       machineName: auth.machineName,
     });
-
-    console.log(res);
   });
 
   step("gamesPlayed", async () => {
