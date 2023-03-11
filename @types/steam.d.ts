@@ -6,7 +6,7 @@ import Credentials from "./services/credentials.js";
 import Player from "./services/player.js";
 import Client from "./client.js";
 import Connection, { ConnectionOptions } from "./connection.js";
-import { Friend } from "./protoResponse.js";
+import { ClientPlayingSessionState, Friend } from "./protoResponse.js";
 import { SteamClientError } from "./common.js";
 export { SteamClientError, AuthTokens, Confirmation };
 
