@@ -62,7 +62,7 @@ export default class Steam extends Connection {
 
     this.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
       this.playingSessionState = body;
-      this.emit("PlayingState", body);
+      this.emit("PlayingStateChanged", body);
     });
 
     this.once("ClientLoggedOff", (body) => {

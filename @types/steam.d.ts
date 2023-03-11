@@ -56,7 +56,7 @@ export default class Steam extends Connection {
   on(event: Parameters<Connection["on"]>[0], listener: Parameters<Connection["on"]>[1]): this;
   on(event: Parameters<Auth["on"]>[0], listener: Parameters<Auth["on"]>[1]): this;
   on(event: "AccountLoggedOff", listener: (eresult: string) => void): this;
-  on(event: "PlayingState", listener: (eresult: ClientPlayingSessionState) => void): this;
+  on(event: "PlayingStateChanged", listener: (state: ClientPlayingSessionState) => void): this;
 
   readonly service: {
     auth: Auth;
