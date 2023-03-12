@@ -229,7 +229,12 @@ export default abstract class Connection extends EventEmitter {
     packet.writeString(MAGIC);
     packet.writeBuffer(message);
 
-    this.socket.write(packet.toBuffer());
+    // do not let this fail
+    try {
+      this.socket.write(packet.toBuffer());
+    } catch (error) {
+      return;
+    }
   }
 
   /**
