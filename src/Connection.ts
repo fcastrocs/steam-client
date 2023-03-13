@@ -401,12 +401,6 @@ export default abstract class Connection extends EventEmitter {
       if (EMsg !== Language.EMsg.ClientVACBanStatus) return;
     }
 
-    // if (EMsg === Language.EMsg.ServiceMethod) return;
-    // if (EMsg === Language.EMsg.ClientFromGC) return;
-    // if (EMsg === Language.EMsg.ClientFriendMsgEchoToSender) return;
-    // if (EMsg === Language.EMsg.ClientChatOfflineMessageNotification) return;
-    // if (EMsg === Language.EMsg.ClientUCMPublishedFileUpdated) return;
-
     // manually handle this proto because there's no Proto for it
     if (EMsg === Language.EMsg.ClientVACBanStatus) {
       const bans = packet.readUInt32LE();
@@ -430,7 +424,7 @@ export default abstract class Connection extends EventEmitter {
       }
     } catch (error) {
       console.error("Proto decode failed.");
-      console.error(error);
+      console.error(error.message);
     }
   }
 
