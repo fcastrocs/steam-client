@@ -6,18 +6,18 @@ export default class Econ implements IEcon {
   private readonly serviceName = "Econ";
   constructor(private steam: Steam) {}
 
-  async getSteamContextItems() {
-    return this.getInventoryItems(753, 6);
+  async getSteamContextItems(tradableOnly?: boolean) {
+    return this.getInventoryItems(753, 6, tradableOnly);
   }
 
-  async getInventoryItems(appid: number, contextid: number) {
+  async getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean) {
     const res = await this.steam.sendUnified(this.serviceName, "GetInventoryItemsWithDescriptions", {
       steamid: this.steam.steamId,
       contextid,
       appid,
       getDescriptions: true,
-      FilterOptions: {
-        tradableOnly: true,
+      filters: {
+        tradableOnly: !!tradableOnly,
       },
     });
 
@@ -39,6 +39,7 @@ export default class Econ implements IEcon {
         type: res.descriptions[d_index].type,
         tradable: res.descriptions[d_index].tradable,
         marketable: res.descriptions[d_index].marketable,
+        marketTradableRestriction: res.descriptions[d_index].marketTradableRestriction,
       } as Item;
     });
   }

@@ -12,9 +12,10 @@ interface Item {
   type: string;
   tradable: boolean;
   marketable: boolean;
+  marketTradableRestriction: boolean;
 }
 
 export default interface IEcon {
-  getInventoryItems(appId: number, contextId: number): Promise<Item[]>;
-  getSteamContextItems(): Promise<Item[]>;
+  getInventoryItems(appId: number, contextId: number, tradableOnly?: boolean): Promise<Item[]>;
+  getSteamContextItems(tradableOnly?: boolean): Promise<Item[]>;
 }
