@@ -427,8 +427,8 @@ export default abstract class Connection extends EventEmitter {
         promiseResolve(message);
       }
     } catch (error) {
-      console.error("Proto decode failed.");
-      console.error(error.message);
+      // console.error("Proto decode failed.");
+      // console.error(error.message);
     }
   }
 
