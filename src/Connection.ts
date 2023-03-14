@@ -129,6 +129,10 @@ export default abstract class Connection extends EventEmitter {
     }
   }
 
+  protected get steamid() {
+    return this.session.steamId;
+  }
+
   /**
    * Destroy connection to Steam and do some cleanup
    * disconnected is emmitted when error is passed

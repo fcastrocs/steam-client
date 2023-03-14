@@ -26,8 +26,6 @@ describe("Test steam-client", () => {
   before("Load auth.json", () => {
     if (fs.existsSync("auth.json")) {
       auth = JSON.parse(fs.readFileSync("auth.json").toString());
-      auth.sentry = Buffer.from(auth.sentryHex, "hex");
-      auth.machineId = Buffer.from(auth.machineIdHex, "hex");
     }
   });
 

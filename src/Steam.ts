@@ -16,6 +16,7 @@ import Connection from "./Connection.js";
 import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
 import Player from "./services/Player.js";
+import Econ from "./services/Econ.js";
 import Client from "./Client.js";
 import { Language } from "./resources.js";
 import { AccountAuth, AccountData, Game, LoginOptions, LoginOptionsExtended } from "../@types/steam.js";
@@ -32,6 +33,7 @@ import {
 } from "../@types/protoResponse.js";
 
 import { SteamClientError } from "./common.js";
+import Long from "long";
 export { SteamClientError };
 
 export default class Steam extends Connection {
@@ -39,6 +41,7 @@ export default class Steam extends Connection {
     auth: Auth;
     credentials: Credentials;
     player: Player;
+    econ: Econ;
   };
   public readonly client: Client;
   public readonly machineName: string;
@@ -54,6 +57,7 @@ export default class Steam extends Connection {
       auth: new Auth(this),
       credentials: new Credentials(this),
       player: new Player(this),
+      econ: new Econ(this),
     };
     this.client = new Client(this);
 
@@ -85,6 +89,7 @@ export default class Steam extends Connection {
 
     const accountData = {
       games: [],
+      inventory: {},
     } as AccountData;
 
     const accountAuth: AccountAuth = {
@@ -128,7 +133,7 @@ export default class Steam extends Connection {
       this.startHeartBeat(res.heartbeatSeconds);
       accountData.steamId = res.clientSuppliedSteamid.toString();
       accountData.games = await this.service.player.getOwnedGames(res.clientSuppliedSteamid);
-
+      accountData.inventory.steam = await this.service.econ.getSteamContextItems();
       this.loggedIn = true;
     } else {
       this.disconnect();
@@ -174,6 +179,13 @@ export default class Steam extends Connection {
    */
   public get isPlayingBlocked() {
     return this.playingSessionState.playingBlocked;
+  }
+
+  /**
+   * returns account's steamId
+   */
+  public get steamId(): Long {
+    return this.steamid;
   }
 
   /**

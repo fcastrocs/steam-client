@@ -4,6 +4,7 @@
 import Auth, { AuthTokens, Confirmation } from "./services/auth.js";
 import Credentials from "./services/credentials.js";
 import Player from "./services/player.js";
+import Econ, { Item } from "./services/Econ.js";
 import Client from "./client.js";
 import Connection, { ConnectionOptions } from "./connection.js";
 import { ClientPlayingSessionState, Friend } from "./protoResponse.js";
@@ -42,6 +43,9 @@ export interface AccountData {
   credentialChangeRequiresCode: boolean;
   state: Friend;
   playingState: ClientPlayingSessionState;
+  inventory: {
+    steam: Item[];
+  };
 }
 
 export interface Game {
@@ -62,6 +66,7 @@ export default class Steam extends Connection {
     auth: Auth;
     credentials: Credentials;
     player: Player;
+    econ: Econ;
   };
   readonly client: Client;
   readonly machineName: string;
@@ -79,6 +84,12 @@ export default class Steam extends Connection {
    * Disconnect user from Steam and kill connection
    */
   disconnect(): void;
+
+  /**
+   * Get account's steamId
+   */
+  get steamId(): Long;
+
   /**
    * Whether user is logged in
    */

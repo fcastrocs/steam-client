@@ -52,6 +52,9 @@ export default abstract class Connection extends EventEmitter {
    * Connect to Steam CM server.
    */
   connect(): Promise<void>;
+
+  protected get steamid(): Long;
+
   /**
    * Destroy connection to Steam and do some cleanup
    * disconnected is emmitted when error is passed
