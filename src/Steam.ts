@@ -181,6 +181,10 @@ export default class Steam extends Connection {
     return this.playingSessionState.playingBlocked;
   }
 
+  public get isPlayingGame() {
+    return !!this.playingSessionState.playingApp;
+  }
+
   /**
    * returns account's steamId
    */

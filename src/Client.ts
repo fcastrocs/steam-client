@@ -105,13 +105,21 @@ export default class Client {
    * forcePlay truthy kicks another playing session
    */
   public async gamesPlayed(gameIds: number[], options?: { forcePlay?: boolean }) {
-    if (this.steam.isPlayingBlocked && !options?.forcePlay) {
+    const playingBlocked = this.steam.isPlayingBlocked;
+    const playingGame = this.steam.isPlayingGame;
+
+    if (playingBlocked && !options?.forcePlay) {
       throw new SteamClientError("AlreadyPlayingElseWhere");
     }
 
     // kick another playing session before attemping to play in this session
-    if (this.steam.isPlayingBlocked) {
+    if (playingBlocked) {
       this.steam.sendProto(Language.EMsg.ClientKickPlayingSession, { onlyStopGame: true });
+    }
+
+    // not playing and trying to stop idle
+    if (!playingGame && !gameIds.length) {
+      return;
     }
 
     const payload = {

@@ -98,6 +98,12 @@ export default class Steam extends Connection {
    * Whether playing is blocked by another session
    */
   get isPlayingBlocked(): boolean;
+
+  /**
+   * Whether user is playing a game
+   */
+  get isPlayingGame(): boolean;
+
   /**
    * Get all appIds from packages
    */
