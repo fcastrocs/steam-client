@@ -43,7 +43,8 @@ export default class Client {
       if (
         state.avatarHash.toString("hex") !== this.state.avatarHash.toString("hex") ||
         state.personaState !== this.state.personaState ||
-        state.playerName !== this.state.playerName
+        state.playerName !== this.state.playerName ||
+        state.gamePlayedAppId !== this.state.gamePlayedAppId
       ) {
         somethingChanged = true;
       }
