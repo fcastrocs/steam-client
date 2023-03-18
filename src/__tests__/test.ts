@@ -50,7 +50,7 @@ describe("Test steam-client", () => {
     // attempt login
     const res = await steam.login({
       accountName: authTokens.accountName,
-      accessToken: authTokens.refreshToken,
+      refreshToken: authTokens.refreshToken,
     });
 
     auth = {
@@ -72,7 +72,7 @@ describe("Test steam-client", () => {
 
     await steam.login({
       accountName: auth.accountName,
-      accessToken: auth.refreshToken,
+      refreshToken: auth.refreshToken,
       machineName: auth.machineName,
     });
   });

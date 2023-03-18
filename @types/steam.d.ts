@@ -13,7 +13,7 @@ export { SteamClientError, AuthTokens, Confirmation };
 
 export interface LoginOptions {
   accountName: string;
-  accessToken: string;
+  refreshToken: string;
   machineName?: string;
 }
 
@@ -41,7 +41,7 @@ export interface AccountData {
   emailOrDomain: string;
   isEmailVerified: boolean;
   credentialChangeRequiresCode: boolean;
-  state: Friend;
+  personaState: Friend;
   playingState: ClientPlayingSessionState;
   inventory: {
     steam: Item[];

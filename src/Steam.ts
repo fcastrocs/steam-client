@@ -79,8 +79,12 @@ export default class Steam extends Connection {
    * login to steam via credentials or refresh_token
    */
   public async login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
+    const refreshToken = options.refreshToken;
+    delete options.refreshToken;
+
     options = {
       ...options,
+      accessToken: refreshToken,
       clientOsType: Language.EOSType.Win11,
       protocolVersion: 65580,
       supportsRateLimitResponse: true,
@@ -140,7 +144,7 @@ export default class Steam extends Connection {
       throw new SteamClientError(Language.EResultMap.get(res.eresult));
     }
 
-    accountData.state = await this.client.setPersonaState("Online");
+    accountData.personaState = await this.client.setPersonaState("Online");
 
     return new Promise((resolve, reject) => {
       // expect responses to occur before timeout
