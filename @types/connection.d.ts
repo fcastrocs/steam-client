@@ -44,10 +44,9 @@ interface ConnectionOptions {
 
 export default abstract class Connection extends EventEmitter {
   on(event: "disconnected", listener: (error: SteamClientError) => void): this;
-
+  private guardType: number;
   readonly timeout: number;
   constructor(options: ConnectionOptions);
-  abstract disconnect(): void;
   /**
    * Connect to Steam CM server.
    */

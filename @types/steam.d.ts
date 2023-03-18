@@ -59,8 +59,7 @@ export default class Steam extends Connection {
   on(event: Parameters<Client["on"]>[0], listener: Parameters<Client["on"]>[1]): this;
   on(event: Parameters<Connection["on"]>[0], listener: Parameters<Connection["on"]>[1]): this;
   on(event: Parameters<Auth["on"]>[0], listener: Parameters<Auth["on"]>[1]): this;
-  on(event: "AccountLoggedOff", listener: (eresult: string) => void): this;
-  on(event: "PlayingStateChanged", listener: (state: ClientPlayingSessionState) => void): this;
+  on(event: "accountLoggedOff", listener: (eresult: string) => void): this;
 
   readonly service: {
     auth: Auth;
@@ -94,26 +93,4 @@ export default class Steam extends Connection {
    * Whether user is logged in
    */
   get isLoggedIn(): boolean;
-  /**
-   * Whether playing is blocked by another session
-   */
-  get isPlayingBlocked(): boolean;
-
-  /**
-   * Whether user is playing a game
-   */
-  get isPlayingGame(): boolean;
-
-  /**
-   * Get all appIds from packages
-   */
-  getAppIds(packageIds: number[]): Promise<number[]>;
-  /**
-   * Get appsInfo from a list of appIds
-   */
-  getAppsInfo(appIds: number[]): Promise<AppBuffer["appinfo"][]>;
-  /**
-   * Get only games from appsInfo[]
-   */
-  getGames(appsInfo: AppBuffer["appinfo"][]): Game[];
 }

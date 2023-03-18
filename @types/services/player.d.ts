@@ -1,3 +1,3 @@
 export default interface IPlayer {
-  getOwnedGames(steamid: Long, appidsFilter?: number[]): Promise<Game[]>;
+  getOwnedGames(steamid: Long, options: { appidsFilter?: number[]; includePlayedFreeGames: boolean });
 }

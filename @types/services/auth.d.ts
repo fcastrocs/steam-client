@@ -55,7 +55,6 @@ export interface Confirmation {
 
 export default class IAuth {
   on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
-
   /**
    * Login via QR
    * @emits "waitingForConfirmation" with QR challenge URL
@@ -72,5 +71,5 @@ export default class IAuth {
    * Submit Steam Guard Code to auth session
    * @throws EResult
    */
-  updateWithSteamGuardCode(code: string, guardType: keyof typeof EAuthSessionGuardType): Promise<void>;
+  updateWithSteamGuardCode(guardCode: string): Promise<void>;
 }

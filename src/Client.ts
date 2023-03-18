@@ -1,8 +1,3 @@
-/*
-  Handles client side operations.
-  Emits: "PersonaStateChanged"
-*/
-
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
@@ -13,47 +8,56 @@ import {
   ClientPersonaState,
   ClientPurchaseRes,
   ClientRequestFreeLicenseRes,
+  ClientPlayingSessionState,
   Friend,
   PurchaseReceiptInfo,
+  ClientPICSProductInfoResponse,
+  PackageBuffer,
 } from "../@types/protoResponse.js";
 import { SteamClientError } from "./common.js";
 
 export default class Client {
-  private state: Friend;
+  private personaState: Friend;
+  private _playingSessionState = {} as ClientPlayingSessionState;
 
   constructor(private steam: Steam) {
     // catch changes to personaState, playerName or avatar
     this.steam.on("ClientPersonaState", (body: ClientPersonaState) => {
       // have never received status
-      if (!this.state) {
-        this.state = body.friends[0];
-        this.state.avatarString = this.getAvatar(this.state.avatarHash);
-        this.steam.emit("PersonaStateChanged", this.state);
+      if (!this.personaState) {
+        this.personaState = body.friends[0];
+        this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
+        this.steam.emit("personaStateChanged", this.personaState);
         return;
       }
 
       const state = body.friends[0];
 
       // not this user
-      if (state.friendid.notEquals(this.state.friendid)) return;
+      if (state.friendid.notEquals(this.personaState.friendid)) return;
 
       let somethingChanged = false;
 
       // check if playerName, personaState or avatar changed
       if (
-        state.avatarHash.toString("hex") !== this.state.avatarHash.toString("hex") ||
-        state.personaState !== this.state.personaState ||
-        state.playerName !== this.state.playerName ||
-        state.gamePlayedAppId !== this.state.gamePlayedAppId
+        state.avatarHash.toString("hex") !== this.personaState.avatarHash.toString("hex") ||
+        state.personaState !== this.personaState.personaState ||
+        state.playerName !== this.personaState.playerName ||
+        state.gamePlayedAppId !== this.personaState.gamePlayedAppId
       ) {
         somethingChanged = true;
       }
 
       if (somethingChanged) {
-        this.state = state;
-        this.state.avatarString = this.getAvatar(this.state.avatarHash);
-        this.steam.emit("PersonaStateChanged", this.state);
+        this.personaState = state;
+        this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
+        this.steam.emit("personaStateChanged", this.personaState);
       }
+    });
+
+    this.steam.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
+      this._playingSessionState = body;
+      this.steam.emit("PlayingStateChanged", body);
     });
   }
 
@@ -72,41 +76,13 @@ export default class Client {
   }
 
   /**
-   * Change player name or persona state
-   */
-  private async changeStatus(payload: ClientChangeStatus): Promise<Friend> {
-    let somethingChanged = false;
-
-    if (this.state) {
-      if (payload.personaState) {
-        // whether a change is being made
-        if (payload.personaState !== this.state.personaState) somethingChanged = true;
-      } else {
-        // whether a change is being made
-        if (payload.playerName !== this.state?.playerName) somethingChanged = true;
-      }
-
-      // nothing changed return old state
-      if (!somethingChanged) return this.state;
-    }
-
-    this.steam.sendProto(Language.EMsg.ClientChangeStatus, payload);
-
-    return new Promise((resolve) => {
-      this.steam.once("PersonaStateChanged", (state: Friend) => {
-        return resolve(state);
-      });
-    });
-  }
-
-  /**
    * Idle an array of appIds
    * Empty array stops idling
    * forcePlay truthy kicks another playing session
    */
   public async gamesPlayed(gameIds: number[], options?: { forcePlay?: boolean }) {
-    const playingBlocked = this.steam.isPlayingBlocked;
-    const playingGame = this.steam.isPlayingGame;
+    const playingBlocked = this.isPlayingBlocked;
+    const playingGame = this.isPlayingGame;
 
     if (playingBlocked && !options?.forcePlay) {
       throw new SteamClientError("AlreadyPlayingElseWhere");
@@ -159,9 +135,8 @@ export default class Client {
       packageIds.push(packageId);
     }
 
-    const appIds = await this.steam.getAppIds(packageIds);
-    const appInfo = await this.steam.getAppsInfo(appIds);
-    return this.steam.getGames(appInfo);
+    const appIds = await this.getAppIds(packageIds);
+    return this.steam.service.player.getOwnedGames({ appidsFilter: appIds });
   }
 
   /**
@@ -180,8 +155,25 @@ export default class Client {
 
     if (!res.grantedAppids || !res.grantedAppids.length) return [];
 
-    const appsInfo = await this.steam.getAppsInfo(res.grantedAppids);
-    return this.steam.getGames(appsInfo);
+    return this.steam.service.player.getOwnedGames({ appidsFilter: res.grantedAppids, includePlayedFreeGames: true });
+  }
+
+  /**
+   * Whether playing is blocked by another session
+   */
+  public get isPlayingBlocked() {
+    return this._playingSessionState.playingBlocked;
+  }
+
+  /**
+   * Whether account is playing a game
+   */
+  public get isPlayingGame() {
+    return !!this._playingSessionState.playingApp;
+  }
+
+  public get playingSessionState() {
+    return JSON.parse(JSON.stringify(this._playingSessionState)) as ClientPlayingSessionState;
   }
 
   private getAvatar(hash: Friend["avatarHash"]): string {
@@ -196,5 +188,77 @@ export default class Client {
     }
 
     return `https://avatars.akamai.steamstatic.com/${hashHex}_full.jpg`;
+  }
+
+  /**
+   * Change player name or persona state
+   */
+  private async changeStatus(payload: ClientChangeStatus): Promise<Friend> {
+    let somethingChanged = false;
+
+    if (this.personaState) {
+      if (payload.personaState) {
+        // whether a change is being made
+        if (payload.personaState !== this.personaState.personaState) somethingChanged = true;
+      } else {
+        // whether a change is being made
+        if (payload.playerName !== this.personaState?.playerName) somethingChanged = true;
+      }
+
+      // nothing changed return old state
+      if (!somethingChanged) return this.personaState;
+    }
+
+    this.steam.sendProto(Language.EMsg.ClientChangeStatus, payload);
+
+    return new Promise((resolve) => {
+      this.steam.once("personaStateChanged", (state: Friend) => {
+        return resolve(state);
+      });
+    });
+  }
+
+  /**
+   * Get all appIds from packages
+   */
+  private getAppIds(packageIds: number[]): Promise<number[]> {
+    // don't include default steam package id === 0
+    packageIds = packageIds.filter((id) => id !== 0);
+
+    if (!packageIds.length) return Promise.resolve([]);
+
+    const packages = packageIds.map((id) => {
+      return { packageid: id };
+    });
+
+    // send packge info request to steam
+    this.steam.sendProto(Language.EMsg.ClientPICSProductInfoRequest, { packages });
+
+    // wait for all(Multi response) packages info
+    return new Promise((resolve) => {
+      const appIds: number[] = [];
+
+      this.steam.on("ClientPICSProductInfoResponse", (res: ClientPICSProductInfoResponse) => {
+        if (res.packages) {
+          for (const pkg of res.packages) {
+            // package not fully received
+            if (pkg.missingToken) {
+              continue;
+            }
+            const packageBuffer: PackageBuffer = BinaryKVParser.parse(pkg.buffer);
+
+            for (const appid of packageBuffer[pkg.packageid].appids) {
+              appIds.push(appid);
+            }
+          }
+        }
+
+        // received all packages info
+        if (!res.responsePending) {
+          this.steam.removeAllListeners("ClientPICSProductInfoResponse");
+          resolve([...new Set(appIds)]);
+        }
+      });
+    });
   }
 }

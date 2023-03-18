@@ -1,5 +1,5 @@
 import { Game } from "./steam.js";
-import { Friend } from "./protoResponse.js";
+import { ClientPlayingSessionState, Friend } from "./protoResponse.js";
 
 export interface EPersonaState {
   Offline: 0;
@@ -13,7 +13,12 @@ export interface EPersonaState {
 }
 
 export default class IClient {
-  on(event: "PersonaStateChanged", listener: (state: Friend) => void): this;
+  on(event: "personaStateChanged", listener: (state: Friend) => void): this;
+  on(event: "playingStateChanged", listener: (state: ClientPlayingSessionState) => void): this;
+
+  private playingSessionState: ClientPlayingSessionState;
+  private personaState: Friend;
+
   /**
    * Change player nickname
    */
@@ -36,4 +41,16 @@ export default class IClient {
    * Activate free games
    */
   requestFreeLicense(appids: number[]): Promise<Game[]>;
+
+  /**
+   * Whether playing is blocked by another session
+   */
+  get isPlayingBlocked(): boolean;
+
+  /**
+   * Whether user is playing a game
+   */
+  get isPlayingGame(): boolean;
+
+  get playingSessionState(): ClientPlayingSessionState;
 }

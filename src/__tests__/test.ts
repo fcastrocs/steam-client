@@ -77,7 +77,7 @@ describe("Test steam-client", () => {
     });
   });
 
-  step("gamesPlayed", async () => {
+  it("gamesPlayed", async () => {
     try {
       await steam.client.gamesPlayed([730]);
     } catch (error) {
@@ -88,7 +88,7 @@ describe("Test steam-client", () => {
     }
   });
 
-  step("changeStatus", async () => {
+  it("changeStatus", async () => {
     // change player name
     let res = await steam.client.setPlayerName("Machiavelli");
     assert.equal(res.playerName, "Machiavelli");
@@ -98,16 +98,16 @@ describe("Test steam-client", () => {
     assert.equal(res.personaState, Language.EPersonaState.Invisible);
   });
 
-  step("requestFreeLicense", async () => {
+  it("requestFreeLicense", async () => {
     // tf2
-    let games = await steam.client.requestFreeLicense([440, -12312]);
+    let games = await steam.client.requestFreeLicense([1449850, -12312]);
     assert.equal(games.length, 1);
     // non-existent game
     games = await steam.client.requestFreeLicense([-12312]);
     assert.equal(games.length, 0);
   });
 
-  step("registerKey", async () => {
+  it("registerKey", async () => {
     const res = await steam.client.registerKey("");
     console.log(res);
 

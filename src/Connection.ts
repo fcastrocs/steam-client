@@ -60,8 +60,6 @@ export default abstract class Connection extends EventEmitter {
     }
   }
 
-  abstract disconnect(): void;
-
   /**
    * Connect to Steam CM server.
    */
