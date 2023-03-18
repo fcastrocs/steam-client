@@ -90,6 +90,9 @@ export default abstract class Connection extends EventEmitter {
 
         // catch all transmission errors
         this.socket.on("error", (err) => this.destroyConnection(new SteamClientError(err.message)));
+        this.socket.on("close", () => this.destroyConnection(new SteamClientError("Remote host closed connection.")));
+        this.socket.on("end", () => this.destroyConnection(new SteamClientError("Connection ended.")));
+        this.socket.on("timeout", () => this.destroyConnection(new SteamClientError("Connection timed out.")));
 
         resolve();
       });
@@ -153,6 +156,7 @@ export default abstract class Connection extends EventEmitter {
 
     if (this.socket) {
       this.socket.destroy();
+      this.socket.removeAllListeners();
       this.socket = null;
     }
   }
