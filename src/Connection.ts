@@ -103,6 +103,66 @@ export default abstract class Connection extends EventEmitter {
     });
   }
 
+  /**
+   * Use this for proto messages that have a response from Steam
+   */
+  public sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T> {
+    if (!this.encrypted) {
+      throw new SteamClientError("Not connected to Steam.");
+    }
+
+    return new Promise((resolve) => {
+      const EMsgName = resEMsg ? Language.EMsgMap.get(resEMsg) : Language.EMsgMap.get(EMsg) + "Response";
+      this.protoResponses.set(EMsgName, resolve);
+      this.sendProto(EMsg, payload);
+    });
+  }
+
+  /**
+   * Use this for proto messages that don't have a response from Steam
+   */
+  public sendProto(EMsg: number, payload: T) {
+    const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(EMsg);
+    payload = Protos.encode(`CMsg${Language.EMsgMap.get(EMsg)}`, payload);
+    this.send(Buffer.concat([MsgHdrProtoBuf, payload]));
+  }
+
+  /**
+   * use this for steammessages_unified or service proto messages
+   */
+  public sendUnified(serviceName: string, method: string, payload: T): Promise<T> {
+    if (!this.encrypted) {
+      throw new SteamClientError("Not connected to Steam.");
+    }
+
+    const targetJobName = `${serviceName}.${method}#1`;
+    method = `C${serviceName}_${method}`;
+
+    return new Promise((resolve) => {
+      const jobidSource = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
+
+      const unifiedMessage: UnifiedMessage = {
+        method,
+        resolve,
+        targetJobName,
+        jobidSource,
+      };
+
+      this.jobidSources.set(jobidSource.toString(), unifiedMessage);
+
+      // delete after 2 mins if never got response
+      setTimeout(() => this.jobidSources.delete(jobidSource.toString()), 2 * 60 * 1000);
+
+      const EMsg = this.session.steamId.equals(Long.fromString("76561197960265728", true))
+        ? Language.EMsg.ServiceMethodCallFromClientNonAuthed
+        : Language.EMsg.ServiceMethodCallFromClient;
+
+      const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(EMsg, unifiedMessage);
+      payload = Protos.encode(method + "_Request", payload);
+      this.send(Buffer.concat([MsgHdrProtoBuf, payload]));
+    });
+  }
+
   private async directConnect(): Promise<Socket> {
     return new Promise((resolve, reject) => {
       const socket = net.createConnection(this.options.steamCM);
@@ -166,57 +226,6 @@ export default abstract class Connection extends EventEmitter {
     this.heartBeatId = setInterval(() => {
       this.sendProto(Language.EMsg.ClientHeartBeat, {});
     }, beatTimeSecs * 1000);
-  }
-
-  public sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T> {
-    if (!this.encrypted) {
-      throw new SteamClientError("Not connected to Steam.");
-    }
-
-    return new Promise((resolve) => {
-      const EMsgName = resEMsg ? Language.EMsgMap.get(resEMsg) : Language.EMsgMap.get(EMsg) + "Response";
-      this.protoResponses.set(EMsgName, resolve);
-      this.sendProto(EMsg, payload);
-    });
-  }
-
-  public sendProto(EMsg: number, payload: T) {
-    const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(EMsg);
-    payload = Protos.encode(`CMsg${Language.EMsgMap.get(EMsg)}`, payload);
-    this.send(Buffer.concat([MsgHdrProtoBuf, payload]));
-  }
-
-  public sendUnified(serviceName: string, method: string, payload: T): Promise<T> {
-    if (!this.encrypted) {
-      throw new SteamClientError("Not connected to Steam.");
-    }
-
-    const targetJobName = `${serviceName}.${method}#1`;
-    method = `C${serviceName}_${method}`;
-
-    return new Promise((resolve) => {
-      const jobidSource = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
-
-      const unifiedMessage: UnifiedMessage = {
-        method,
-        resolve,
-        targetJobName,
-        jobidSource,
-      };
-
-      this.jobidSources.set(jobidSource.toString(), unifiedMessage);
-
-      // delete after 2 mins if never got response
-      setTimeout(() => this.jobidSources.delete(jobidSource.toString()), 2 * 60 * 1000);
-
-      const EMsg = this.session.steamId.equals(Long.fromString("76561197960265728", true))
-        ? Language.EMsg.ServiceMethodCallFromClientNonAuthed
-        : Language.EMsg.ServiceMethodCallFromClient;
-
-      const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(EMsg, unifiedMessage);
-      payload = Protos.encode(method + "_Request", payload);
-      this.send(Buffer.concat([MsgHdrProtoBuf, payload]));
-    });
   }
 
   /**

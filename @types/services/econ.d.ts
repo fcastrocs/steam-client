@@ -1,6 +1,6 @@
 import Long from "long";
 
-interface Item {
+export interface Item {
   appid: number;
   contextid: string;
   assetid: string;
@@ -15,7 +15,9 @@ interface Item {
   marketTradableRestriction: boolean;
 }
 
-export default interface IEcon {
+declare class Econ {
   getInventoryItems(appId: number, contextId: number, tradableOnly?: boolean): Promise<Item[]>;
   getSteamContextItems(tradableOnly?: boolean): Promise<Item[]>;
 }
+
+export default Econ;

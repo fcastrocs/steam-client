@@ -1,20 +1,15 @@
-import Steam from "../Steam.js";
-import { ConnectionOptions } from "../../@types/connection";
+import Steam, { SteamClientError } from "../Steam.js";
 import fs from "fs";
 import assert from "assert";
 import { Language } from "../resources.js";
-import { SteamClientError } from "../common.js";
+import { ConnectionOptions } from "../../@types/connection.js";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0
 
 let auth: {
   accountName: string;
   machineName: string;
-  machineId: Buffer;
-  machineIdHex: string;
   refreshToken: string;
-  sentry: Buffer;
-  sentryHex: string;
 };
 
 let steam: Steam;

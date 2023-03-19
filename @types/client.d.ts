@@ -1,4 +1,4 @@
-import { Game } from "./steam.js";
+import Steam, { Game } from "./steam.js";
 import { ClientPlayingSessionState, Friend } from "./protoResponse.js";
 
 export interface EPersonaState {
@@ -12,13 +12,8 @@ export interface EPersonaState {
   Invisible: 7;
 }
 
-export default class IClient {
-  on(event: "personaStateChanged", listener: (state: Friend) => void): this;
-  on(event: "playingStateChanged", listener: (state: ClientPlayingSessionState) => void): this;
-
-  private playingSessionState: ClientPlayingSessionState;
-  private personaState: Friend;
-
+declare class Client {
+  constructor(steam: Steam);
   /**
    * Change player nickname
    */
@@ -32,7 +27,12 @@ export default class IClient {
    * Empty array stops idling
    * forcePlay truthy kicks another playing session
    */
-  gamesPlayed(gameIds: number[], options?: { forcePlay?: boolean }): Promise<void>;
+  gamesPlayed(
+    gameIds: number[],
+    options?: {
+      forcePlay?: boolean;
+    }
+  ): Promise<void>;
   /**
    * Activate cdkey
    */
@@ -41,16 +41,24 @@ export default class IClient {
    * Activate free games
    */
   requestFreeLicense(appids: number[]): Promise<Game[]>;
-
   /**
    * Whether playing is blocked by another session
    */
   get isPlayingBlocked(): boolean;
-
   /**
-   * Whether user is playing a game
+   * Whether account is playing a game
    */
   get isPlayingGame(): boolean;
-
   get playingSessionState(): ClientPlayingSessionState;
+  private getAvatar;
+  /**
+   * Change player name or persona state
+   */
+  private changeStatus;
+  /**
+   * Get all appIds from packages
+   */
+  private getAppIds;
 }
+
+export default Client;

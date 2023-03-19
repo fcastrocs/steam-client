@@ -9,7 +9,9 @@ import Client from "./client.js";
 import Connection, { ConnectionOptions } from "./connection.js";
 import { ClientPlayingSessionState, Friend } from "./protoResponse.js";
 import { SteamClientError } from "./common.js";
-export { SteamClientError, AuthTokens, Confirmation };
+
+// expose the following types from other declaration files
+export { SteamClientError, AuthTokens, Confirmation, ConnectionOptions };
 
 export interface LoginOptions {
   accountName: string;
@@ -55,11 +57,12 @@ export interface Game {
   playtime: number;
 }
 
-export default class Steam extends Connection {
+declare class Steam extends Connection {
   on(event: "accountLoggedOff", listener: (eresult: string) => void): this;
-  on(event: Parameters<Client["on"]>[0], listener: Parameters<Client["on"]>[1]): this;
-  on(event: Parameters<Connection["on"]>[0], listener: Parameters<Connection["on"]>[1]): this;
-  on(event: Parameters<Auth["on"]>[0], listener: Parameters<Auth["on"]>[1]): this;
+  on(event: "personaStateChanged", listener: (state: Friend) => void): this;
+  on(event: "playingStateChanged", listener: (state: ClientPlayingSessionState) => void): this;
+  on(event: "disconnected", listener: (error: SteamClientError) => void): this;
+  on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
 
   readonly service: {
     auth: Auth;
@@ -71,7 +74,6 @@ export default class Steam extends Connection {
   readonly machineName: string;
 
   constructor(options: ConnectionOptions);
-
   /**
    * login to steam via credentials or refresh_token
    */
@@ -83,14 +85,14 @@ export default class Steam extends Connection {
    * Disconnect user from Steam and kill connection
    */
   disconnect(): void;
-
-  /**
-   * Get account's steamId
-   */
-  get steamId(): Long;
-
   /**
    * Whether user is logged in
    */
   get isLoggedIn(): boolean;
+  /**
+   * returns account's steamId
+   */
+  get steamId(): Long;
 }
+
+export default Steam;
