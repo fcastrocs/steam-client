@@ -29,6 +29,7 @@ export default class Steam extends Connection {
   public readonly machineName: string;
 
   private loggedIn = false;
+  public personaName: string;
 
   constructor(options: ConnectionOptions) {
     super(options);
@@ -83,7 +84,9 @@ export default class Steam extends Connection {
       responses = responses.filter((item) => item !== response);
     };
 
-    this.once("ClientAccountInfo", (body: ClientAccountInfo) => {
+    this.once("ClientAccountInfo", async (body: ClientAccountInfo) => {
+      this.personaName = body.personaName;
+      accountData.personaState = await this.client.setPersonaState("Online");
       receivedResponse("ClientAccountInfo");
     });
 
@@ -119,8 +122,6 @@ export default class Steam extends Connection {
       this.disconnect();
       throw new SteamClientError(Language.EResultMap.get(res.eresult));
     }
-
-    accountData.personaState = await this.client.setPersonaState("Online");
 
     return new Promise((resolve, reject) => {
       // expect responses to occur before timeout

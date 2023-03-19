@@ -25,6 +25,8 @@ export default class Client {
     this.steam.on("ClientPersonaState", (body: ClientPersonaState) => {
       // have never received status
       if (!this.personaState) {
+        // state does not belong to this account
+        if (this.steam.personaName !== body.friends[0].playerName) return;
         this.personaState = body.friends[0];
         this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
         this.steam.emit("personaStateChanged", this.personaState);
@@ -33,12 +35,11 @@ export default class Client {
 
       const state = body.friends[0];
 
-      // not this user
+      // state does not belong to this account
       if (state.friendid.notEquals(this.personaState.friendid)) return;
 
-      let somethingChanged = false;
-
       // check if playerName, personaState or avatar changed
+      let somethingChanged = false;
       if (
         state.avatarHash.toString("hex") !== this.personaState.avatarHash.toString("hex") ||
         state.personaState !== this.personaState.personaState ||
@@ -50,6 +51,7 @@ export default class Client {
 
       if (somethingChanged) {
         this.personaState = state;
+        this.steam.personaName = this.personaState.playerName;
         this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
         this.steam.emit("personaStateChanged", this.personaState);
       }
