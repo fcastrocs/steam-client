@@ -56,10 +56,10 @@ export interface Game {
 }
 
 export default class Steam extends Connection {
+  on(event: "accountLoggedOff", listener: (eresult: string) => void): this;
   on(event: Parameters<Client["on"]>[0], listener: Parameters<Client["on"]>[1]): this;
   on(event: Parameters<Connection["on"]>[0], listener: Parameters<Connection["on"]>[1]): this;
   on(event: Parameters<Auth["on"]>[0], listener: Parameters<Auth["on"]>[1]): this;
-  on(event: "accountLoggedOff", listener: (eresult: string) => void): this;
 
   readonly service: {
     auth: Auth;
