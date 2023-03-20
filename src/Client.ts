@@ -59,7 +59,7 @@ export default class Client {
 
     this.steam.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
       this._playingSessionState = body;
-      this.steam.emit("PlayingStateChanged", body);
+      this.steam.emit("playingStateChanged", body);
     });
   }
 
