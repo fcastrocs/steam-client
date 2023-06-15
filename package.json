@@ -18,6 +18,10 @@
     "steam api",
     "steam client"
   ],
+  "engines": {
+    "npm": ">=9.5.1",
+    "node": ">=18.16.0"
+  },
   "dependencies": {
     "@fcastrocs/steam-client-crypto": "^1.0.1",
     "binarykvparser": "^2.2.0",
