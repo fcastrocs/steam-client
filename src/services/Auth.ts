@@ -61,7 +61,11 @@ export default class Auth {
    * @emits "waitingForConfirmation" with confirmation type
    * @throws EResult, SteamGuardIsUnknown, SteamGuardIsDisabled
    */
-  public async getAuthTokensViaCredentials(accountName: string, password: string): Promise<AuthTokens> {
+  public async getAuthTokensViaCredentials(
+    accountName: string,
+    password: string,
+    skipPolling?: boolean
+  ): Promise<AuthTokens | any> {
     if (this.steam.isLoggedIn) throw new SteamClientError("AlreadyLoggedIn");
 
     const rsa = await this.steam.sendUnified(this.serviceName, "GetPasswordRSAPublicKey", { accountName });
@@ -79,6 +83,8 @@ export default class Auth {
         websiteId: "Client",
       }
     );
+
+    if (skipPolling) return res;
 
     this.checkResult(res);
 
