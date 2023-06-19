@@ -15,8 +15,9 @@ import {
 } from "../@types/protoResponse.js";
 
 import { SteamClientError } from "./common.js";
+import EResult from "./language/EResult.js";
 import Long from "long";
-export { SteamClientError };
+export { SteamClientError, EResult };
 
 export default class Steam extends Connection {
   public readonly service: {
