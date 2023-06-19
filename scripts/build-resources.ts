@@ -61,7 +61,7 @@ async function buildEResultConstants() {
   fs.writeFileSync(LANGUAGE_PATH + "eresult.steamd", text);
 
   const file = LANGUAGE_PATH + "eresult.steamd";
-  const stream = fs.createWriteStream(LANGUAGE_PATH + "EResult.ts");
+  const stream = fs.createWriteStream(LANGUAGE_PATH + "EResult.js");
   stream.write("// Automatically generated\n\n");
   const rl = readline.createInterface({
     input: fs.createReadStream(file),
@@ -80,7 +80,10 @@ async function buildEResultConstants() {
 
     stream.write(line + "\n");
   });
-  rl.on("close", () => fs.unlinkSync(file));
+  rl.on("close", () => {
+    fs.unlinkSync(file);
+    buildTypesForEResult();
+  });
 }
 
 /**
@@ -130,4 +133,14 @@ async function buildEMsgConstants() {
     const string = "// Automatically generated\n\n" + "export default" + " {\n" + properties.join("\n") + "\n}";
     fs.writeFileSync(LANGUAGE_PATH + key + ".ts", string);
   }
+}
+
+async function buildTypesForEResult() {
+  // @ts-ignore
+  const EResult = (await import("../src/language/EResult.js")).default;
+
+  const data = "export default interface EResult\n" + JSON.stringify(EResult, null, "\t");
+
+  fs.writeFileSync("./@types/EResult.d.ts", data);
+  fs.renameSync("./src/language/EResult.js", "./src/language/EResult.ts");
 }
