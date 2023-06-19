@@ -84,9 +84,9 @@ export default class Auth {
       }
     );
 
-    if (skipPolling) return res;
-
     this.checkResult(res);
+
+    if (skipPolling) return res;
 
     const allowedConfirmations = res.allowedConfirmations.map((confirmation) => confirmation.confirmationType);
 
