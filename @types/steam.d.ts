@@ -9,9 +9,9 @@ import Client from "./client.js";
 import Connection, { ConnectionOptions } from "./connection.js";
 import { ClientPlayingSessionState, Friend } from "./protoResponse.js";
 import { SteamClientError } from "./common.js";
-import EResultType from "./EResult.js";
+import EResultConst from "./EResult.js";
 
-declare const EResult: EResultType;
+declare const EResult: EResultConst;
 
 // expose the following types and constants
 export { SteamClientError, AuthTokens, Confirmation, ConnectionOptions, EResult };

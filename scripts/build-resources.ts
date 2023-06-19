@@ -94,7 +94,7 @@ async function buildEMsgConstants() {
 
   // load enums into lists
   const lists = new Map();
-  let currentList: string[];
+  let currentList: string[] = [];
   let currKey;
 
   for (let line of file) {
