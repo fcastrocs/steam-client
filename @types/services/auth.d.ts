@@ -65,7 +65,7 @@ export default class IAuth {
    * @emits "waitingForConfirmation" with confirmation type
    * @throws EResult, SteamGuardIsUnknown, SteamGuardIsDisabled
    */
-  getAuthTokensViaCredentials(accountName: string, password: string, skipPolling: boolean): Promise<AuthTokens | any>;
+  getAuthTokensViaCredentials(accountName: string, password: string, skipPolling: boolean): Promise<AuthTokens | SessionViaCredentialsRes>;
   /**
    * Submit Steam Guard Code to auth session
    * @throws EResult

@@ -65,7 +65,7 @@ export default class Auth {
     accountName: string,
     password: string,
     skipPolling?: boolean
-  ): Promise<AuthTokens | any> {
+  ): Promise<AuthTokens | SessionViaCredentialsRes> {
     if (this.steam.isLoggedIn) throw new SteamClientError("AlreadyLoggedIn");
 
     const rsa = await this.steam.sendUnified(this.serviceName, "GetPasswordRSAPublicKey", { accountName });
