@@ -18,7 +18,8 @@ export { SteamClientError, AuthTokens, Confirmation, ConnectionOptions, EResult 
 
 export interface LoginOptions {
   accountName: string;
-  refreshToken: string;
+  password?: string;
+  refreshToken?: string;
   machineName?: string;
 }
 
