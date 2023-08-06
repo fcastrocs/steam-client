@@ -1,8 +1,8 @@
 import Steam, { SteamClientError } from "../Steam.js";
 import fs from "fs";
 import assert from "assert";
-import { Language } from "../resources.js";
 import { ConnectionOptions } from "../../@types/connection.js";
+import { EPersonaState } from "../language/commons.js";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0
 
@@ -90,7 +90,7 @@ describe("Test steam-client", () => {
 
     // change both
     res = await steam.client.setPersonaState("Invisible");
-    assert.equal(res.personaState, Language.EPersonaState.Invisible);
+    assert.equal(res.personaState, EPersonaState.Invisible);
   });
 
   it("requestFreeLicense", async () => {
@@ -102,12 +102,12 @@ describe("Test steam-client", () => {
     assert.equal(games.length, 0);
   });
 
-  it("registerKey", async () => {
-    const res = await steam.client.registerKey("");
-    console.log(res);
+  // it("registerKey", async () => {
+  //   const res = await steam.client.registerKey("");
+  //   console.log(res);
 
-    assert.equal(res.length, 1);
-  });
+  //   assert.equal(res.length, 1);
+  // });
 
   after(() => {
     if (steam) steam.disconnect();

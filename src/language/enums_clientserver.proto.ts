@@ -1,6 +1,6 @@
-// Automatically generated
+//Auto-generated
 
-export default {
+export const EMsg = {
 	Invalid: 0,
 	Multi: 1,
 	ProtobufWrapped: 2,
@@ -13,7 +13,7 @@ export default {
 	JobHeartbeat: 123,
 	HubConnect: 124,
 	Subscribe: 126,
-	EMRouteMessage: 127,
+	RouteMessage: 127,
 	WGRequest: 130,
 	WGResponse: 131,
 	KeepAlive: 132,
@@ -140,8 +140,6 @@ export default {
 	AMReverseChargeback: 536,
 	AMReverseChargebackResponse: 537,
 	AMClanCleanupList: 538,
-	AMGetLicenses: 539,
-	AMGetLicensesResponse: 540,
 	AMSendCartRepurchase: 541,
 	AMSendCartRepurchaseResponse: 542,
 	AllowUserToPlayQuery: 550,
@@ -883,12 +881,8 @@ export default {
 	AMECommPayPaymentResponse: 4424,
 	AMSetRemoteClientID: 4425,
 	BasePSRange: 5000,
-	PSCreateShoppingCart: 5001,
-	PSCreateShoppingCartResponse: 5002,
 	PSIsValidShoppingCart: 5003,
 	PSIsValidShoppingCartResponse: 5004,
-	PSRemoveLineItemFromShoppingCart: 5007,
-	PSRemoveLineItemFromShoppingCartResponse: 5008,
 	PSGetShoppingCartContents: 5009,
 	PSGetShoppingCartContentsResponse: 5010,
 	PSAddWalletCreditToShoppingCart: 5011,
@@ -1205,7 +1199,7 @@ export default {
 	NonStdMsgDFSTransfer: 6807,
 	NonStdMsgTests: 6808,
 	NonStdMsgUMQpipeAAPL: 6809,
-	EMSgNonStdMsgSyslog: 6810,
+	SgNonStdMsgSyslog: 6810,
 	NonStdMsgLogsink: 6811,
 	NonStdMsgSteam2Emulator: 6812,
 	NonStdMsgRTMPServer: 6813,
@@ -1462,6 +1456,7 @@ export default {
 	ClientHello: 9805,
 	ClientEnableOrDisableDownloads: 9806,
 	ClientEnableOrDisableDownloadsResponse: 9807,
+	ClientFeatureGroupInfo: 9808,
 	ClientLANP2PBase: 9900,
 	ClientLANP2PRequestChunk: 9900,
 	ClientLANP2PRequestChunkResponse: 9901,
@@ -1489,4 +1484,57 @@ export default {
 	WGConnectionValidateUserTokenResponse: 12202,
 	WGConnectionLegacyWGRequest: 12203,
 	WGConnectionLegacyWGResponse: 12204,
-}
+};
+
+export const EClientPersonaStateFlag = {
+	Status: 1,
+	PlayerName: 2,
+	QueryPort: 4,
+	SourceID: 8,
+	Presence: 16,
+	LastSeen: 64,
+	UserClanRank: 128,
+	GameExtraInfo: 256,
+	GameDataBlob: 512,
+	ClanData: 1024,
+	Facebook: 2048,
+	RichPresence: 4096,
+	Broadcast: 8192,
+	Watching: 16384,
+};
+
+export const EMsgClanAccountFlags = {
+	Public: 1,
+	Large: 2,
+	Locked: 4,
+	Disabled: 8,
+	OGG: 16,
+};
+
+export const ESteamReviewScore = {
+	OverwhelminglyPositive: 9,
+	VeryPositive: 8,
+	Positive: 7,
+	MostlyPositive: 6,
+	Mixed: 5,
+	MostlyNegative: 4,
+	Negative: 3,
+	VeryNegative: 2,
+	OverwhelminglyNegative: 1,
+	None: 0,
+};
+
+export const ECodecUsagePlatform = {
+	Unknown: 0,
+	Windows: 1,
+	MacOS: 2,
+	Linux: 3,
+	SteamDeck: 4,
+};
+
+export const ECodecUsageReason = {
+	Unknown: 0,
+	RemotePlay: 1,
+	Broadcasting: 2,
+	GameVideo: 3,
+};

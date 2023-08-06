@@ -24,6 +24,8 @@ import {
 } from "../@types/connection.js";
 import { SteamClientError } from "./common.js";
 import { T } from "../@types/common.js";
+import { EMsg } from "./language/enums_clientserver.proto.js";
+import { EResult } from "./language/EResult.js";
 
 const MAGIC = "VT01";
 const PROTO_MASK = 0x80000000;
@@ -84,7 +86,7 @@ export default abstract class Connection extends EventEmitter {
       this.once("encryption-success", () => {
         clearTimeout(timeoutId);
         this.encrypted = true;
-        this.sendProto(Language.EMsg.ClientHello, { protocolVersion: 65580 });
+        this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
 
         // catch all transmission errors
         this.socket.on("error", (err) => this.destroyConnection(new SteamClientError(err.message)));
@@ -153,11 +155,11 @@ export default abstract class Connection extends EventEmitter {
       // delete after 2 mins if never got response
       setTimeout(() => this.jobidSources.delete(jobidSource.toString()), 2 * 60 * 1000);
 
-      const EMsg = this.session.steamId.equals(Long.fromString("76561197960265728", true))
-        ? Language.EMsg.ServiceMethodCallFromClientNonAuthed
-        : Language.EMsg.ServiceMethodCallFromClient;
+      const serviceMethodEMsg = this.session.steamId.equals(Long.fromString("76561197960265728", true))
+        ? EMsg.ServiceMethodCallFromClientNonAuthed
+        : EMsg.ServiceMethodCallFromClient;
 
-      const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(EMsg, unifiedMessage);
+      const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(serviceMethodEMsg, unifiedMessage);
       payload = Protos.encode(method + "_Request", payload);
       this.send(Buffer.concat([MsgHdrProtoBuf, payload]));
     });
@@ -224,7 +226,7 @@ export default abstract class Connection extends EventEmitter {
    */
   protected startHeartBeat(beatTimeSecs: number) {
     this.heartBeatId = setInterval(() => {
-      this.sendProto(Language.EMsg.ClientHeartBeat, {});
+      this.sendProto(EMsg.ClientHeartBeat, {});
     }, beatTimeSecs * 1000);
   }
 
@@ -349,27 +351,27 @@ export default abstract class Connection extends EventEmitter {
     const packet = SmartBuffer.fromBuffer(data);
 
     const rawEMsg = packet.readUInt32LE();
-    const EMsg = rawEMsg & ~PROTO_MASK;
+    const EMsgReceived = rawEMsg & ~PROTO_MASK;
     const isProto = rawEMsg & PROTO_MASK;
 
-    //console.log(Language.EMsgMap.get(EMsg));
+    console.log(Language.EMsgMap.get(EMsgReceived));
 
     // Steam is sending encryption request or result
     if (!this.encrypted) {
       packet.readBigUInt64LE(); //jobidTarget 18446744073709551615n
       packet.readBigUInt64LE(); //jobidSource 18446744073709551615n
 
-      if (EMsg === Language.EMsg.ChannelEncryptRequest) {
+      if (EMsgReceived === EMsg.ChannelEncryptRequest) {
         return this.channelEncryptResponse(packet);
       }
 
-      if (EMsg === Language.EMsg.ChannelEncryptResult) {
+      if (EMsgReceived === EMsg.ChannelEncryptResult) {
         return this.ChannelEncryptResult(packet);
       }
     }
 
     // package is gzipped, have to gunzip it first
-    if (EMsg === Language.EMsg.Multi) {
+    if (EMsgReceived === EMsg.Multi) {
       return this.multi(packet.readBuffer());
     }
 
@@ -387,8 +389,8 @@ export default abstract class Connection extends EventEmitter {
 
       // got a jobId that steam expects a respond to
       if (body.jobidSource && !JOB_NONE.equals(body.jobidSource)) {
-        const key = (Language.EMsgMap.get(EMsg) + "Response") as keyof typeof Language.EMsg;
-        this.jobidTargets.set(Language.EMsg[key], body.jobidSource);
+        const key = (Language.EMsgMap.get(EMsgReceived) + "Response") as keyof typeof EMsg;
+        this.jobidTargets.set(EMsg[key], body.jobidSource);
       }
 
       // got response to a unified message
@@ -413,11 +415,11 @@ export default abstract class Connection extends EventEmitter {
 
       this.session.clientId = packet.readInt32LE();
 
-      if (EMsg !== Language.EMsg.ClientVACBanStatus) return;
+      if (EMsgReceived !== EMsg.ClientVACBanStatus) return;
     }
 
     // manually handle this proto because there's no Proto for it
-    if (EMsg === Language.EMsg.ClientVACBanStatus) {
+    if (EMsgReceived === EMsg.ClientVACBanStatus) {
       const bans = packet.readUInt32LE();
       this.emit("ClientVACBanStatus", {
         vac: !!bans,
@@ -427,14 +429,14 @@ export default abstract class Connection extends EventEmitter {
 
     // decode protos and emit message
     try {
-      const EMsgStr = Language.EMsgMap.get(EMsg);
-      const message = Protos.decode("CMsg" + EMsgStr, packet.readBuffer());
-      this.emit(EMsgStr, message);
+      const EMsgKey = Language.EMsgMap.get(EMsgReceived);
+      const message = Protos.decode("CMsg" + EMsgKey, packet.readBuffer());
+      this.emit(EMsgKey, message);
 
       // response to sendProtoPromise
-      const promiseResolve = this.protoResponses.get(EMsgStr);
+      const promiseResolve = this.protoResponses.get(EMsgKey);
       if (promiseResolve) {
-        this.protoResponses.delete(EMsgStr);
+        this.protoResponses.delete(EMsgKey);
         promiseResolve(message);
       }
     } catch (error) {
@@ -475,7 +477,7 @@ export default abstract class Connection extends EventEmitter {
 
     this.session.key = SteamCrypto.genSessionKey(nonce);
 
-    const MsgHdr = this.buildMsgHdr(Language.EMsg.ChannelEncryptResponse);
+    const MsgHdr = this.buildMsgHdr(EMsg.ChannelEncryptResponse);
 
     // MsgChannelEncryptResponse
     const data = new SmartBuffer();
@@ -493,9 +495,9 @@ export default abstract class Connection extends EventEmitter {
    * Connection encryption handshake result
    */
   private ChannelEncryptResult(body: SmartBuffer) {
-    const EResult: number = body.readUInt32LE();
+    const eresult: number = body.readUInt32LE();
     // connection channel successfully encrypted
-    if (EResult === Language.EResult.OK) {
+    if (eresult === EResult.OK) {
       this.emit("encryption-success");
     } else {
       this.emit("encryption-fail");

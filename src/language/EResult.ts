@@ -1,7 +1,6 @@
-// Automatically generated
+//Auto-generated
 
-export default
-{
+export const EResult = {
 	Invalid: 0,
 	OK: 1,
 	Fail: 2,
@@ -129,4 +128,4 @@ export default
 	ChargerRequired: 125,
 	CachedCredentialInvalid: 126,
 	PhoneNumberIsVOIP: 127,
-}
+};

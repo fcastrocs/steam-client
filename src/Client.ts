@@ -14,7 +14,10 @@ import {
   ClientPICSProductInfoResponse,
   PackageBuffer,
 } from "../@types/protoResponse.js";
-import { SteamClientError } from "./common.js";
+import { SteamClientError, getKeyByValue } from "./common.js";
+import { EPersonaState, EPurchaseResultDetail } from "./language/commons.js";
+import { EMsg } from "./language/enums_clientserver.proto.js";
+import { EResult } from "./language/EResult.js"
 
 export default class Client {
   private personaState: Friend;
@@ -73,8 +76,8 @@ export default class Client {
   /**
    * Change player persona state
    */
-  public setPersonaState(personaState: keyof typeof Language.EPersonaState): Promise<Friend> {
-    return this.changeStatus({ personaState: Language.EPersonaState[personaState] });
+  public setPersonaState(personaState: keyof typeof EPersonaState): Promise<Friend> {
+    return this.changeStatus({ personaState: EPersonaState[personaState] });
   }
 
   /**
@@ -92,7 +95,7 @@ export default class Client {
 
     // kick another playing session before attemping to play in this session
     if (playingBlocked) {
-      this.steam.sendProto(Language.EMsg.ClientKickPlayingSession, { onlyStopGame: true });
+      this.steam.sendProto(EMsg.ClientKickPlayingSession, { onlyStopGame: true });
     }
 
     // not playing and trying to stop idle
@@ -107,9 +110,9 @@ export default class Client {
     };
 
     await this.steam.sendProtoPromise(
-      Language.EMsg.ClientGamesPlayed,
+      EMsg.ClientGamesPlayed,
       payload,
-      Language.EMsg.ClientPlayingSessionState
+      EMsg.ClientPlayingSessionState
     );
   }
 
@@ -118,14 +121,14 @@ export default class Client {
    */
   public async registerKey(cdkey: string): Promise<Game[]> {
     const res: ClientPurchaseRes = await this.steam.sendProtoPromise(
-      Language.EMsg.ClientRegisterKey,
+      EMsg.ClientRegisterKey,
       { key: cdkey },
-      Language.EMsg.ClientPurchaseResponse
+      EMsg.ClientPurchaseResponse
     );
 
     // something went wrong
-    if (res.eresult !== Language.EResult.OK) {
-      throw new SteamClientError(Language.EPurchaseResultMap.get(res.purchaseResultDetails));
+    if (res.eresult !== EResult.OK) {
+      throw new SteamClientError(getKeyByValue(EPurchaseResultDetail, res.purchaseResultDetails));
     }
 
     const receipt = (BinaryKVParser.parse(res.purchaseReceiptInfo) as PurchaseReceiptInfo).MessageObject;
@@ -147,11 +150,11 @@ export default class Client {
   public async requestFreeLicense(appids: number[]): Promise<Game[]> {
     if (!appids.length) return [];
 
-    const res: ClientRequestFreeLicenseRes = await this.steam.sendProtoPromise(Language.EMsg.ClientRequestFreeLicense, {
+    const res: ClientRequestFreeLicenseRes = await this.steam.sendProtoPromise(EMsg.ClientRequestFreeLicense, {
       appids,
     });
 
-    if (res.eresult !== Language.EResult.OK) {
+    if (res.eresult !== EResult.OK) {
       throw new SteamClientError(Language.EResultMap.get(res.eresult));
     }
 
@@ -211,7 +214,7 @@ export default class Client {
       if (!somethingChanged) return this.personaState;
     }
 
-    this.steam.sendProto(Language.EMsg.ClientChangeStatus, payload);
+    this.steam.sendProto(EMsg.ClientChangeStatus, payload);
 
     return new Promise((resolve) => {
       this.steam.once("personaStateChanged", (state: Friend) => {
@@ -234,7 +237,7 @@ export default class Client {
     });
 
     // send packge info request to steam
-    this.steam.sendProto(Language.EMsg.ClientPICSProductInfoRequest, { packages });
+    this.steam.sendProto(EMsg.ClientPICSProductInfoRequest, { packages });
 
     // wait for all(Multi response) packages info
     return new Promise((resolve) => {

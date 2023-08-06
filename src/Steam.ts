@@ -15,8 +15,11 @@ import {
 } from "../@types/protoResponse.js";
 
 import { SteamClientError } from "./common.js";
-import EResult from "./language/EResult.js";
 import Long from "long";
+import { EResult } from "./language/EResult.js";
+import { EOSType } from "./language/commons.js";
+import { EMsg } from "./language/enums_clientserver.proto.js";
+
 export { SteamClientError, EResult };
 
 export default class Steam extends Connection {
@@ -63,7 +66,7 @@ export default class Steam extends Connection {
     options = {
       ...options,
       accessToken: refreshToken,
-      clientOsType: Language.EOSType.Win11,
+      clientOsType: EOSType.Win11,
       protocolVersion: 65580,
       supportsRateLimitResponse: true,
       machineName: options.machineName || this.machineName,
@@ -111,9 +114,9 @@ export default class Steam extends Connection {
     });
 
     // send login request to steam
-    const res: ClientLogonResponse = await this.sendProtoPromise(Language.EMsg.ClientLogon, options);
+    const res: ClientLogonResponse = await this.sendProtoPromise(EMsg.ClientLogon, options);
 
-    if (res.eresult === Language.EResult.OK) {
+    if (res.eresult === EResult.OK) {
       this.startHeartBeat(res.heartbeatSeconds);
       accountData.steamId = res.clientSuppliedSteamid.toString();
       accountData.games = await this.service.player.getOwnedGames();

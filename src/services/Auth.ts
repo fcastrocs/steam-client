@@ -12,8 +12,9 @@ import {
   QRType,
   PartialSession,
 } from "../../@types/services/auth.js";
-import { SteamClientError } from "../common.js";
-const EAuthSessionGuardType = Language.EAuthSessionGuardType;
+import { SteamClientError, getKeyByValue } from "../common.js";
+import { EAuthSessionGuardType } from "../language/steammessages_auth.steamclient.proto.js";
+import { EResult } from "../language/EResult.js";
 
 export default class Auth {
   private waitingForConfirmation = false;
@@ -22,7 +23,7 @@ export default class Auth {
   private qrType: QRType;
   private readonly LogonWasNotConfirmedSeconds = 120;
   private guardType: number;
-  constructor(private steam: Steam) {}
+  constructor(private steam: Steam) { }
 
   /**
    * Login via QR
@@ -90,34 +91,34 @@ export default class Auth {
 
     const allowedConfirmations = res.allowedConfirmations.map((confirmation) => confirmation.confirmationType);
 
-    if (allowedConfirmations.includes(EAuthSessionGuardType.unknown)) {
+    if (allowedConfirmations.includes(EAuthSessionGuardType.Unknown)) {
       throw new SteamClientError("SteamGuardIsUnknown");
     }
 
-    if (allowedConfirmations.includes(EAuthSessionGuardType.none)) {
+    if (allowedConfirmations.includes(EAuthSessionGuardType.None)) {
       throw new SteamClientError("SteamGuardIsDisabled");
     }
 
     // figure out the best confirmation type
     let guardType: number;
-    if (allowedConfirmations.includes(EAuthSessionGuardType.machineToken)) {
-      guardType = EAuthSessionGuardType.machineToken;
+    if (allowedConfirmations.includes(EAuthSessionGuardType.MachineToken)) {
+      guardType = EAuthSessionGuardType.MachineToken;
     }
     // device confirmation. It seems like when deviceCode confirmation is present,
     // we can also use deviceConfirmation instead
-    else if (allowedConfirmations.includes(EAuthSessionGuardType.deviceConfirmation))
-      guardType = EAuthSessionGuardType.deviceConfirmation;
-    else if (allowedConfirmations.includes(EAuthSessionGuardType.deviceCode))
-      guardType = EAuthSessionGuardType.deviceCode;
+    else if (allowedConfirmations.includes(EAuthSessionGuardType.DeviceConfirmation))
+      guardType = EAuthSessionGuardType.DeviceConfirmation;
+    else if (allowedConfirmations.includes(EAuthSessionGuardType.DeviceCode))
+      guardType = EAuthSessionGuardType.DeviceCode;
     // never seen this confirmation type
-    else if (allowedConfirmations.includes(EAuthSessionGuardType.emailConfirmation))
-      guardType = EAuthSessionGuardType.emailConfirmation;
+    else if (allowedConfirmations.includes(EAuthSessionGuardType.EmailConfirmation))
+      guardType = EAuthSessionGuardType.EmailConfirmation;
     // email code
-    else if (allowedConfirmations.includes(EAuthSessionGuardType.emailCode))
-      guardType = EAuthSessionGuardType.emailCode;
+    else if (allowedConfirmations.includes(EAuthSessionGuardType.EmailCode))
+      guardType = EAuthSessionGuardType.EmailCode;
 
     this.steam.emit("waitingForConfirmation", {
-      guardType: Language.EAuthSessionGuardTypeMap.get(guardType),
+      guardType: getKeyByValue(EAuthSessionGuardType, guardType),
       timeoutSeconds: this.LogonWasNotConfirmedSeconds,
     } as Confirmation);
 
@@ -241,7 +242,7 @@ export default class Auth {
   }
 
   private checkResult(res: UnifiedMsgRes) {
-    if (res.EResult !== Language.EResult.OK) {
+    if (res.EResult !== EResult.OK) {
       throw new SteamClientError(Language.EResultMap.get(res.EResult));
     }
   }
