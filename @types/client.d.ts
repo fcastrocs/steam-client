@@ -6,6 +6,13 @@ import { Item } from "./services/Econ.js";
 import { SteamClientError } from "./common.js";
 import { Confirmation } from "./services/auth.js";
 
+// expose constants
+import { EResult as EResultType } from "./enums/EResult.js";
+import { EMsg as EMsgType } from "./enums/enums_clientserver.proto.js";
+declare const EResult: EResultType;
+declare const EMsg: EMsgType;
+export { EResult, EMsg, SteamClientError }
+
 export interface AccountAuth {
   machineName: string;
 }

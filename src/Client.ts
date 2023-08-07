@@ -24,6 +24,7 @@ import { EMsg } from "./language/enums_clientserver.proto.js";
 import { EResult } from "./language/EResult.js"
 import { AccountAuth, AccountData, Game } from "../@types/client.js";
 import { ConnectionOptions } from "../@types/connection.js";
+export { EMsg, EResult, SteamClientError }
 
 export default class Client extends Steam {
   private personaState: Friend;
