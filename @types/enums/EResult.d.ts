@@ -1,4 +1,4 @@
-export default interface EResult
+export interface EResult
 {
 	"Invalid": 0,
 	"OK": 1,

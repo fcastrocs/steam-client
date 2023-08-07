@@ -1,4 +1,4 @@
-export default interface EAuthSessionGuardType
+export interface EAuthSessionGuardType
 {
 	"Unknown": 0,
 	"None": 1,
@@ -9,20 +9,20 @@ export default interface EAuthSessionGuardType
 	"MachineToken": 6,
 	"LegacyMachineAuth": 7
 }
-export default interface EAuthSessionSecurityHistory
+export interface EAuthSessionSecurityHistory
 {
 	"Invalid": 0,
 	"UsedPreviously": 1,
 	"NoPriorHistory": 2
 }
-export default interface EAuthTokenPlatformType
+export interface EAuthTokenPlatformType
 {
 	"Unknown": 0,
 	"SteamClient": 1,
 	"WebBrowser": 2,
 	"MobileApp": 3
 }
-export default interface EAuthTokenRevokeAction
+export interface EAuthTokenRevokeAction
 {
 	"Logout": 0,
 	"Permanent": 1,
@@ -33,7 +33,7 @@ export default interface EAuthTokenRevokeAction
 	"NonRememberedPermanent": 6,
 	"utomatic": 7
 }
-export default interface EAuthTokenState
+export interface EAuthTokenState
 {
 	"Invalid": 0,
 	"New": 1,
@@ -44,7 +44,7 @@ export default interface EAuthTokenState
 	"Consumed": 6,
 	"Revoked": 99
 }
-export default interface ETokenRenewalType
+export interface ETokenRenewalType
 {
 	"None": 0,
 	"Allow": 1

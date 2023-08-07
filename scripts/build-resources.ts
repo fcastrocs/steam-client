@@ -186,7 +186,7 @@ async function buildTypesFromEnums() {
     // @ts-ignore
     const enumFile = (await import(`../src/language/${fileName}`));
     for (const enumName in enumFile) {
-      data += `export default interface ${enumName}\n` + JSON.stringify(enumFile[enumName], null, "\t") + "\n";
+      data += `export interface ${enumName}\n` + JSON.stringify(enumFile[enumName], null, "\t") + "\n";
     }
 
     fileName = fileName.replace(".ts", ".d.ts");

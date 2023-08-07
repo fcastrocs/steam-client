@@ -1,4 +1,4 @@
-export default interface EAccountFlags
+export interface EAccountFlags
 {
 	"NormalUser": 0,
 	"PersonaNameSet": 1,
@@ -33,7 +33,7 @@ export default interface EAccountFlags
 	"ThirdPartySupport": 536870912,
 	"NeedsSSANextSteamLogon": 1073741824
 }
-export default interface EAccountType
+export interface EAccountType
 {
 	"Invalid": 0,
 	"Individual": 1,
@@ -47,7 +47,7 @@ export default interface EAccountType
 	"ConsoleUser": 9,
 	"AnonUser": 10
 }
-export default interface EActivationCodeClass
+export interface EActivationCodeClass
 {
 	"WonCDKey": 0,
 	"ValveCDKey": 1,
@@ -58,7 +58,7 @@ export default interface EActivationCodeClass
 	"Test": 2147483647,
 	"Invalid": 4294967295
 }
-export default interface EAppInfoSection
+export interface EAppInfoSection
 {
 	"Unknown": 0,
 	"All": 1,
@@ -80,7 +80,7 @@ export default interface EAppInfoSection
 	"Computed": 19,
 	"Albummetadata": 20
 }
-export default interface EAppType
+export interface EAppType
 {
 	"Invalid": 0,
 	"Game": 1,
@@ -102,7 +102,7 @@ export default interface EAppType
 	"Beta": 65536,
 	"Shortcut": 1073741824
 }
-export default interface EAppUsageEvent
+export interface EAppUsageEvent
 {
 	"GameLaunch": 1,
 	"GameLaunchTrial": 2,
@@ -113,7 +113,7 @@ export default interface EAppUsageEvent
 	"InGameAdViewed": 7,
 	"GameLaunchFreeWeekend": 8
 }
-export default interface EAuthSessionResponse
+export interface EAuthSessionResponse
 {
 	"OK": 0,
 	"UserNotConnectedToSteam": 1,
@@ -126,7 +126,7 @@ export default interface EAuthSessionResponse
 	"AuthTicketInvalid": 8,
 	"PublisherIssuedBan": 9
 }
-export default interface EBillingType
+export interface EBillingType
 {
 	"NoCost": 0,
 	"BillOnceOnly": 1,
@@ -146,7 +146,7 @@ export default interface EBillingType
 	"FreeCommercialLicense": 15,
 	"NumBillingTypes": 16
 }
-export default interface EChatAction
+export interface EChatAction
 {
 	"InviteChat": 1,
 	"Kick": 2,
@@ -165,7 +165,7 @@ export default interface EChatAction
 	"SetModerated": 15,
 	"SetUnmoderated": 16
 }
-export default interface EChatActionResult
+export interface EChatActionResult
 {
 	"Success": 1,
 	"Error": 2,
@@ -178,7 +178,7 @@ export default interface EChatActionResult
 	"ChatFull": 9,
 	"VoiceSlotsFull": 10
 }
-export default interface EChatEntryType
+export interface EChatEntryType
 {
 	"Invalid": 0,
 	"ChatMsg": 1,
@@ -194,20 +194,20 @@ export default interface EChatEntryType
 	"Reserved2": 13,
 	"LinkBlocked": 14
 }
-export default interface EChatFlags
+export interface EChatFlags
 {
 	"Locked": 1,
 	"InvisibleToFriends": 2,
 	"Moderated": 4,
 	"Unjoinable": 8
 }
-export default interface EChatInfoType
+export interface EChatInfoType
 {
 	"StateChange": 1,
 	"InfoUpdate": 2,
 	"MemberLimitChange": 3
 }
-export default interface EChatMemberStateChange
+export interface EChatMemberStateChange
 {
 	"Entered": 1,
 	"Left": 2,
@@ -217,7 +217,7 @@ export default interface EChatMemberStateChange
 	"VoiceSpeaking": 4096,
 	"VoiceDoneSpeaking": 8192
 }
-export default interface EChatPermission
+export interface EChatPermission
 {
 	"Close": 1,
 	"Invite": 2,
@@ -230,7 +230,7 @@ export default interface EChatPermission
 	"ChangeAccess": 512,
 	"Mask": 1019
 }
-export default interface EChatRoomEnterResponse
+export interface EChatRoomEnterResponse
 {
 	"Success": 1,
 	"DoesntExist": 2,
@@ -244,7 +244,7 @@ export default interface EChatRoomEnterResponse
 	"MemberBlockedYou": 10,
 	"YouBlockedMember": 11
 }
-export default interface EChatRoomGroupAction
+export interface EChatRoomGroupAction
 {
 	"Default": 0,
 	"CreateRenameDeleteChannel": 1,
@@ -259,7 +259,7 @@ export default interface EChatRoomGroupAction
 	"MentionAll": 10,
 	"SetWatchingBroadcast": 11
 }
-export default interface EChatRoomGroupPermissions
+export interface EChatRoomGroupPermissions
 {
 	"Default": 0,
 	"Valid": 1,
@@ -268,7 +268,7 @@ export default interface EChatRoomGroupPermissions
 	"CanBan": 8,
 	"CanAdminChannel": 16
 }
-export default interface EChatRoomGroupRank
+export interface EChatRoomGroupRank
 {
 	"Default": 0,
 	"Viewer": 10,
@@ -278,18 +278,18 @@ export default interface EChatRoomGroupRank
 	"Officer": 40,
 	"Owner": 50
 }
-export default interface EChatRoomGroupType
+export interface EChatRoomGroupType
 {
 	"Default": 0,
 	"Unmoderated": 1
 }
-export default interface EChatRoomJoinState
+export interface EChatRoomJoinState
 {
 	"Default": 0,
 	"None": 1,
 	"Joined": 2
 }
-export default interface EChatRoomMemberStateChange
+export interface EChatRoomMemberStateChange
 {
 	"Invalid": 0,
 	"Joined": 1,
@@ -302,7 +302,7 @@ export default interface EChatRoomMemberStateChange
 	"Banned": 10,
 	"RolesChanged": 12
 }
-export default interface EChatRoomServerMsg
+export interface EChatRoomServerMsg
 {
 	"Invalid": 0,
 	"RenameChatRoom": 1,
@@ -315,13 +315,13 @@ export default interface EChatRoomServerMsg
 	"ChatRoomAvatarChanged": 10,
 	"AppCustom": 11
 }
-export default interface EChatRoomType
+export interface EChatRoomType
 {
 	"Friend": 1,
 	"MUC": 2,
 	"Lobby": 3
 }
-export default interface EChatroomNotificationLevel
+export interface EChatroomNotificationLevel
 {
 	"Invalid": 0,
 	"None": 1,
@@ -329,7 +329,7 @@ export default interface EChatroomNotificationLevel
 	"MentionAll": 3,
 	"AllMessages": 4
 }
-export default interface EClanPermission
+export interface EClanPermission
 {
 	"Nobody": 0,
 	"Owner": 1,
@@ -340,7 +340,7 @@ export default interface EClanPermission
 	"OGGGameOwner": 16,
 	"NonMember": 128
 }
-export default interface EClanRank
+export interface EClanRank
 {
 	"None": 0,
 	"Owner": 1,
@@ -348,7 +348,7 @@ export default interface EClanRank
 	"Member": 3,
 	"Moderator": 4
 }
-export default interface EClanRelationship
+export interface EClanRelationship
 {
 	"None": 0,
 	"Blocked": 1,
@@ -359,7 +359,7 @@ export default interface EClanRelationship
 	"PendingApproval": 6,
 	"RequestDenied": 7
 }
-export default interface EClientPersonaStateFlag
+export interface EClientPersonaStateFlag
 {
 	"Status": 1,
 	"PlayerName": 2,
@@ -376,7 +376,7 @@ export default interface EClientPersonaStateFlag
 	"Broadcast": 8192,
 	"Watching": 16384
 }
-export default interface EClientStat
+export interface EClientStat
 {
 	"P2PConnectionsUDP": 0,
 	"P2PConnectionsRelay": 1,
@@ -384,14 +384,14 @@ export default interface EClientStat
 	"P2PVoiceConnections": 3,
 	"BytesDownloaded": 4
 }
-export default interface EClientStatAggregateMethod
+export interface EClientStatAggregateMethod
 {
 	"LatestOnly": 0,
 	"Sum": 1,
 	"Event": 2,
 	"Scalar": 3
 }
-export default interface EContentDownloadSourceType
+export interface EContentDownloadSourceType
 {
 	"Invalid": 0,
 	"CS": 1,
@@ -404,7 +404,7 @@ export default interface EContentDownloadSourceType
 	"OpenCache": 8,
 	"LANCache": 9
 }
-export default interface ECurrencyCode
+export interface ECurrencyCode
 {
 	"Invalid": 0,
 	"USD": 1,
@@ -448,7 +448,7 @@ export default interface ECurrencyCode
 	"CRC": 40,
 	"UYU": 41
 }
-export default interface EDRMBlobDownloadErrorDetail
+export interface EDRMBlobDownloadErrorDetail
 {
 	"None": 0,
 	"DownloadFailed": 1,
@@ -474,7 +474,7 @@ export default interface EDRMBlobDownloadErrorDetail
 	"TargetLocked_Max": 131071,
 	"NextBase": 131072
 }
-export default interface EDRMBlobDownloadType
+export interface EDRMBlobDownloadType
 {
 	"Error": 0,
 	"File": 1,
@@ -486,7 +486,7 @@ export default interface EDRMBlobDownloadType
 	"AddTimestamp": 32,
 	"LowPriority": 64
 }
-export default interface EDenyReason
+export interface EDenyReason
 {
 	"InvalidVersion": 1,
 	"Generic": 2,
@@ -504,7 +504,7 @@ export default interface EDenyReason
 	"SteamValidationStalled": 14,
 	"SteamOwnerLeftGuestUser": 15
 }
-export default interface EDepotFileFlag
+export interface EDepotFileFlag
 {
 	"UserConfig": 1,
 	"VersionedUserConfig": 2,
@@ -517,7 +517,7 @@ export default interface EDepotFileFlag
 	"InstallScript": 256,
 	"Symlink": 512
 }
-export default interface EDisplayStatus
+export interface EDisplayStatus
 {
 	"Invalid": 0,
 	"Launching": 1,
@@ -552,7 +552,7 @@ export default interface EDisplayStatus
 	"AvailGuestPass": 30,
 	"Purchase": 31
 }
-export default interface EEconTradeResponse
+export interface EEconTradeResponse
 {
 	"Accepted": 0,
 	"Declined": 1,
@@ -589,7 +589,7 @@ export default interface EEconTradeResponse
 	"DisabledInPartnerRegion": 33,
 	"OKToDeliver": 50
 }
-export default interface EFriendFlags
+export interface EFriendFlags
 {
 	"None": 0,
 	"Blocked": 1,
@@ -605,7 +605,7 @@ export default interface EFriendFlags
 	"ChatMember": 4096,
 	"FlagAll": 65535
 }
-export default interface EFriendRelationship
+export interface EFriendRelationship
 {
 	"None": 0,
 	"Blocked": 1,
@@ -615,12 +615,12 @@ export default interface EFriendRelationship
 	"Ignored": 5,
 	"IgnoredFriend": 6
 }
-export default interface EIntroducerRouting
+export interface EIntroducerRouting
 {
 	"P2PVoiceChat": 1,
 	"P2PNetworking": 2
 }
-export default interface ELauncherType
+export interface ELauncherType
 {
 	"Default": 0,
 	"PerfectWorld": 1,
@@ -632,32 +632,32 @@ export default interface ELauncherType
 	"SteamChina": 7,
 	"SingleApp": 8
 }
-export default interface ELeaderboardDataRequest
+export interface ELeaderboardDataRequest
 {
 	"Global": 0,
 	"GlobalAroundUser": 1,
 	"Friends": 2,
 	"Users": 3
 }
-export default interface ELeaderboardDisplayType
+export interface ELeaderboardDisplayType
 {
 	"Numeric": 1,
 	"TimeSeconds": 2,
 	"TimeMilliSeconds": 3
 }
-export default interface ELeaderboardSortMethod
+export interface ELeaderboardSortMethod
 {
 	"None": 0,
 	"Ascending": 1,
 	"Descending": 2
 }
-export default interface ELeaderboardUploadScoreMethod
+export interface ELeaderboardUploadScoreMethod
 {
 	"None": 0,
 	"KeepBest": 1,
 	"ForceUpdate": 2
 }
-export default interface ELicenseFlags
+export interface ELicenseFlags
 {
 	"None": 0,
 	"Renew": 1,
@@ -673,7 +673,7 @@ export default interface ELicenseFlags
 	"CancelledByFriendlyFraudLock": 1024,
 	"NotActivated": 2048
 }
-export default interface ELicenseType
+export interface ELicenseType
 {
 	"NoLicense": 0,
 	"SinglePurchase": 1,
@@ -684,7 +684,7 @@ export default interface ELicenseType
 	"RecurringOption": 6,
 	"LimitedUseDelayedActivation": 7
 }
-export default interface ELobbyComparison
+export interface ELobbyComparison
 {
 	"EqualToOrLessThan": -2,
 	"LessThan": -1,
@@ -693,14 +693,14 @@ export default interface ELobbyComparison
 	"EqualToOrGreaterThan": 2,
 	"NotEqual": 3
 }
-export default interface ELobbyDistanceFilter
+export interface ELobbyDistanceFilter
 {
 	"Close": 0,
 	"Default": 1,
 	"Far": 2,
 	"Worldwide": 3
 }
-export default interface ELobbyFilterType
+export interface ELobbyFilterType
 {
 	"String": 0,
 	"Numerical": 1,
@@ -708,7 +708,7 @@ export default interface ELobbyFilterType
 	"NearValue": 3,
 	"Distance": 4
 }
-export default interface ELobbyType
+export interface ELobbyType
 {
 	"Private": 0,
 	"FriendsOnly": 1,
@@ -716,7 +716,7 @@ export default interface ELobbyType
 	"Invisible": 3,
 	"PrivateUnique": 4
 }
-export default interface EMarketingMessageFlags
+export interface EMarketingMessageFlags
 {
 	"None": 0,
 	"HighPriority": 1,
@@ -724,7 +724,7 @@ export default interface EMarketingMessageFlags
 	"PlatformMac": 4,
 	"PlatformLinux": 8
 }
-export default interface ENewsUpdateType
+export interface ENewsUpdateType
 {
 	"AppNews": 0,
 	"SteamAds": 1,
@@ -732,7 +732,7 @@ export default interface ENewsUpdateType
 	"CDDBUpdate": 3,
 	"ClientUpdate": 4
 }
-export default interface EOSType
+export interface EOSType
 {
 	"Unknown": -1,
 	"Web": -700,
@@ -843,14 +843,14 @@ export default interface EOSType
 	"Win11": 20,
 	"WinMAX": 21
 }
-export default interface EPackageStatus
+export interface EPackageStatus
 {
 	"Available": 0,
 	"Preorder": 1,
 	"Unavailable": 2,
 	"Invalid": 3
 }
-export default interface EPaymentMethod
+export interface EPaymentMethod
 {
 	"None": 0,
 	"ActivationCode": 1,
@@ -942,7 +942,7 @@ export default interface EPaymentMethod
 	"Split": 512,
 	"Complimentary": 1024
 }
-export default interface EPersonaState
+export interface EPersonaState
 {
 	"Offline": 0,
 	"Online": 1,
@@ -953,7 +953,7 @@ export default interface EPersonaState
 	"LookingToPlay": 6,
 	"Invisible": 7
 }
-export default interface EPersonaStateFlag
+export interface EPersonaStateFlag
 {
 	"HasRichPresence": 1,
 	"InJoinableGame": 2,
@@ -966,7 +966,7 @@ export default interface EPersonaStateFlag
 	"LaunchTypeGamepad": 4096,
 	"LaunchTypeCompatTool": 8192
 }
-export default interface EPlatformType
+export interface EPlatformType
 {
 	"Unknown": 0,
 	"Win32": 1,
@@ -976,13 +976,13 @@ export default interface EPlatformType
 	"PS3": 5,
 	"Linux32": 6
 }
-export default interface EPublishedFileInappropriateProvider
+export interface EPublishedFileInappropriateProvider
 {
 	"Invalid": 0,
 	"Google": 1,
 	"Amazon": 2
 }
-export default interface EPublishedFileInappropriateResult
+export interface EPublishedFileInappropriateResult
 {
 	"NotScanned": 0,
 	"VeryUnlikely": 1,
@@ -991,7 +991,7 @@ export default interface EPublishedFileInappropriateResult
 	"Likely": 75,
 	"VeryLikely": 100
 }
-export default interface EPublishedFileQueryType
+export interface EPublishedFileQueryType
 {
 	"RankedByVote": 0,
 	"RankedByPublicationDate": 1,
@@ -1014,13 +1014,13 @@ export default interface EPublishedFileQueryType
 	"RankedByLifetimePlaytimeSessions": 18,
 	"RankedByInappropriateContentRating": 19
 }
-export default interface EPublishedFileVisibility
+export interface EPublishedFileVisibility
 {
 	"Public": 0,
 	"FriendsOnly": 1,
 	"Private": 2
 }
-export default interface EPurchaseResultDetail
+export interface EPurchaseResultDetail
 {
 	"NoDetail": 0,
 	"AVSFailure": 1,
@@ -1107,7 +1107,7 @@ export default interface EPurchaseResultDetail
 	"PaymentMethodTemporarilyUnavailable": 82,
 	"PaymentMethodNotSupportedForProduct": 83
 }
-export default interface ERegionCode
+export interface ERegionCode
 {
 	"USEast": 0,
 	"USWest": 1,
@@ -1118,7 +1118,7 @@ export default interface ERegionCode
 	"MiddleEast": 6,
 	"Africa": 7
 }
-export default interface ERemoteStoragePlatform
+export interface ERemoteStoragePlatform
 {
 	"None": 0,
 	"Windows": 1,
@@ -1130,7 +1130,7 @@ export default interface ERemoteStoragePlatform
 	"IPhoneOS": 64,
 	"All": -1
 }
-export default interface EServerFlags
+export interface EServerFlags
 {
 	"None": 0,
 	"Active": 1,
@@ -1140,7 +1140,7 @@ export default interface EServerFlags
 	"Passworded": 16,
 	"Private": 32
 }
-export default interface EServerType
+export interface EServerType
 {
 	"Util": -2,
 	"Client": -3,
@@ -1270,25 +1270,25 @@ export default interface EServerType
 	"China": 125,
 	"CrashDump": 126
 }
-export default interface ESteamIPv6ConnectivityProtocol
+export interface ESteamIPv6ConnectivityProtocol
 {
 	"Invalid": 0,
 	"Http": 1,
 	"Udp": 2
 }
-export default interface ESteamIPv6ConnectivityState
+export interface ESteamIPv6ConnectivityState
 {
 	"Unknown": 0,
 	"Good": 1,
 	"Bad": 2
 }
-export default interface ESteamRealm
+export interface ESteamRealm
 {
 	"Unknown": 0,
 	"SteamGlobal": 1,
 	"SteamChina": 2
 }
-export default interface ESystemIMType
+export interface ESystemIMType
 {
 	"RawText": 0,
 	"InvalidCard": 1,
@@ -1301,13 +1301,13 @@ export default interface ESystemIMType
 	"SupportMessage": 8,
 	"SupportMessageClearAlert": 9
 }
-export default interface ETradeOfferConfirmationMethod
+export interface ETradeOfferConfirmationMethod
 {
 	"Invalid": 0,
 	"Email": 1,
 	"MobileApp": 2
 }
-export default interface ETradeOfferState
+export interface ETradeOfferState
 {
 	"Invalid": 1,
 	"Active": 2,
@@ -1321,14 +1321,14 @@ export default interface ETradeOfferState
 	"CanceledBySecondFactor": 10,
 	"InEscrow": 11
 }
-export default interface EUCMFilePrivacyState
+export interface EUCMFilePrivacyState
 {
 	"Invalid": -1,
 	"Private": 2,
 	"FriendsOnly": 4,
 	"Public": 8
 }
-export default interface EUniverse
+export interface EUniverse
 {
 	"Invalid": 0,
 	"Public": 1,
@@ -1336,7 +1336,7 @@ export default interface EUniverse
 	"Internal": 3,
 	"Dev": 4
 }
-export default interface EVoiceCallState
+export interface EVoiceCallState
 {
 	"None": 0,
 	"ScheduledInitiate": 1,
@@ -1349,7 +1349,7 @@ export default interface EVoiceCallState
 	"NotifyingVoiceChatOfWebRTCSession": 8,
 	"Connected": 9
 }
-export default interface EWorkshopEnumerationType
+export interface EWorkshopEnumerationType
 {
 	"RankedByVote": 0,
 	"Recent": 1,
@@ -1359,12 +1359,12 @@ export default interface EWorkshopEnumerationType
 	"ContentByFriends": 5,
 	"RecentFromFollowedUsers": 6
 }
-export default interface EWorkshopFileAction
+export interface EWorkshopFileAction
 {
 	"Played": 0,
 	"Completed": 1
 }
-export default interface EWorkshopFileType
+export interface EWorkshopFileType
 {
 	"First": 0,
 	"Community": 0,

@@ -1,15 +1,11 @@
 /**
  * Manages high-level Steam operations
  */
-import Auth, { AuthTokens, Confirmation } from "./services/auth.js";
+import Auth from "./services/auth.js";
 import Credentials from "./services/credentials.js";
 import Player from "./services/player.js";
 import Econ from "./services/Econ.js";
 import Connection, { ConnectionOptions } from "./connection.js";
-import { SteamClientError } from "./common.js";
-
-// expose the following types and constants
-export { SteamClientError, AuthTokens, Confirmation, ConnectionOptions, EResult };
 
 export interface LoginOptions {
   accountName: string;

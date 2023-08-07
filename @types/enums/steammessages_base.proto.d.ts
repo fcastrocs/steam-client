@@ -1,4 +1,4 @@
-export default interface EBanContentCheckResult
+export interface EBanContentCheckResult
 {
 	"NotScanned": 0,
 	"Reset": 1,
@@ -9,7 +9,7 @@ export default interface EBanContentCheckResult
 	"Likely": 75,
 	"VeryLikely": 100
 }
-export default interface EProtoClanEventType
+export interface EProtoClanEventType
 {
 	"OtherEvent": 1,
 	"GameEvent": 2,
@@ -47,12 +47,12 @@ export default interface EProtoClanEventType
 	"CrosspostEvent": 34,
 	"InGameEventGeneral": 35
 }
-export default interface ESessionDisposition
+export interface ESessionDisposition
 {
 	"Normal": 0,
 	"Disconnect": 1
 }
-export default interface PartnerEventNotificationType
+export interface PartnerEventNotificationType
 {
 	"EventStart": 0,
 	"EventBroadcastStart": 1,

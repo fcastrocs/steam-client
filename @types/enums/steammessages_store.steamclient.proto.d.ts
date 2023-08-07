@@ -1,11 +1,11 @@
-export default interface EPlaytestStatus
+export interface EPlaytestStatus
 {
 	"TesterStatusNone": 0,
 	"TesterStatusPending": 1,
 	"TesterStatusInvited": 2,
 	"TesterStatusGranted": 3
 }
-export default interface EStoreDiscoveryQueueType
+export interface EStoreDiscoveryQueueType
 {
 	"New": 0,
 	"ComingSoon": 1,
@@ -23,7 +23,7 @@ export default interface EStoreDiscoveryQueueType
 	"DLCTopSellers": 14,
 	"MAX": 15
 }
-export default interface EUserReviewScorePreference
+export interface EUserReviewScorePreference
 {
 	"Unset": 0,
 	"IncludeAll": 1,

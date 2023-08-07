@@ -3,7 +3,7 @@ const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
 import { Language } from "./resources.js";
 import Steam from "./Steam.js";
-import { ConnectionOptions, LoginOptions, LoginOptionsExtended } from "../@types/steam.js";
+import { LoginOptions, LoginOptionsExtended } from "../@types/steam.js";
 import {
   ClientPersonaState,
   ClientPurchaseRes,
@@ -23,6 +23,7 @@ import { EOSType, EPersonaState, EPurchaseResultDetail } from "./language/common
 import { EMsg } from "./language/enums_clientserver.proto.js";
 import { EResult } from "./language/EResult.js"
 import { AccountAuth, AccountData, Game } from "../@types/client.js";
+import { ConnectionOptions } from "../@types/connection.js";
 
 export default class Client extends Steam {
   private personaState: Friend;

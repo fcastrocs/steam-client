@@ -1,4 +1,4 @@
-export default interface EClientPersonaStateFlag
+export interface EClientPersonaStateFlag
 {
 	"Status": 1,
 	"PlayerName": 2,
@@ -15,7 +15,7 @@ export default interface EClientPersonaStateFlag
 	"Broadcast": 8192,
 	"Watching": 16384
 }
-export default interface ECodecUsagePlatform
+export interface ECodecUsagePlatform
 {
 	"Unknown": 0,
 	"Windows": 1,
@@ -23,14 +23,14 @@ export default interface ECodecUsagePlatform
 	"Linux": 3,
 	"SteamDeck": 4
 }
-export default interface ECodecUsageReason
+export interface ECodecUsageReason
 {
 	"Unknown": 0,
 	"RemotePlay": 1,
 	"Broadcasting": 2,
 	"GameVideo": 3
 }
-export default interface EMsg
+export interface EMsg
 {
 	"Invalid": 0,
 	"Multi": 1,
@@ -1516,7 +1516,7 @@ export default interface EMsg
 	"WGConnectionLegacyWGRequest": 12203,
 	"WGConnectionLegacyWGResponse": 12204
 }
-export default interface EMsgClanAccountFlags
+export interface EMsgClanAccountFlags
 {
 	"Public": 1,
 	"Large": 2,
@@ -1524,7 +1524,7 @@ export default interface EMsgClanAccountFlags
 	"Disabled": 8,
 	"OGG": 16
 }
-export default interface ESteamReviewScore
+export interface ESteamReviewScore
 {
 	"OverwhelminglyPositive": 9,
 	"VeryPositive": 8,

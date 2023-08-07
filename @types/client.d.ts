@@ -1,5 +1,10 @@
-import { ConnectionOptions, Game } from "./steam.js";
+import { ConnectionOptions } from "./connection.js";
 import { ClientPlayingSessionState, Friend } from "./protoResponse.js";
+import Steam, { LoginOptions } from "./steam.js";
+import { EPersonaState } from "./enums/commons.js"
+import { Item } from "./services/Econ.js";
+import { SteamClientError } from "./common.js";
+import { Confirmation } from "./services/auth.js";
 
 export interface AccountAuth {
   machineName: string;
@@ -29,7 +34,7 @@ export interface Game {
   playtime: number;
 }
 
-declare class Client {
+declare class Client extends Steam {
   on(event: "accountLoggedOff", listener: (eresult: string) => void): this;
   on(event: "personaStateChanged", listener: (state: Friend) => void): this;
   on(event: "playingStateChanged", listener: (state: ClientPlayingSessionState) => void): this;
@@ -51,7 +56,7 @@ declare class Client {
   /**
    * Change player persona state
    */
-  setPersonaState(personaState: keyof typeof EPersonaState): Promise<Friend>;
+  setPersonaState(personaState: EPersonaState): Promise<Friend>;
   /**
    * Idle an array of appIds
    * Empty array stops idling
@@ -78,6 +83,5 @@ declare class Client {
   get isPlayingGame(): boolean;
   get playingSessionState(): ClientPlayingSessionState;
 }
-
 
 export default Client;

@@ -1,6 +1,6 @@
 {
   "name": "@fcastrocs/steamclient",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "./lib/Client.js",
   "types": "./@types/client.d.ts",
   "type": "module",

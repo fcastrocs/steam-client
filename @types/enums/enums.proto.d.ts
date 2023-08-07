@@ -1,18 +1,18 @@
-export default interface EACState
+export interface EACState
 {
 	"Unknown": 0,
 	"Disconnected": 1,
 	"Connected": 2,
 	"ConnectedSlow": 3
 }
-export default interface EBatteryState
+export interface EBatteryState
 {
 	"Unknown": 0,
 	"Discharging": 1,
 	"Charging": 2,
 	"Full": 3
 }
-export default interface EBluetoothDeviceType
+export interface EBluetoothDeviceType
 {
 	"Invalid": 0,
 	"Unknown": 1,
@@ -27,12 +27,12 @@ export default interface EBluetoothDeviceType
 	"Gamepad": 10,
 	"Keyboard": 11
 }
-export default interface EBroadcastEncoderSetting
+export interface EBroadcastEncoderSetting
 {
 	"BestQuality": 0,
 	"BestPerformance": 1
 }
-export default interface EBroadcastPermission
+export interface EBroadcastPermission
 {
 	"Disabled": 0,
 	"FriendsApprove": 1,
@@ -40,26 +40,26 @@ export default interface EBroadcastPermission
 	"Public": 3,
 	"Subscribers": 4
 }
-export default interface ECPUGovernor
+export interface ECPUGovernor
 {
 	"Invalid": 0,
 	"Perf": 1,
 	"Powersave": 2,
 	"Manual": 3
 }
-export default interface ECloudGamingPlatform
+export interface ECloudGamingPlatform
 {
 	"None": 0,
 	"Valve": 1,
 	"NVIDIA": 2
 }
-export default interface ECloudStoragePersistState
+export interface ECloudStoragePersistState
 {
 	"Persisted": 0,
 	"Forgotten": 1,
 	"Deleted": 2
 }
-export default interface ECommentThreadType
+export interface ECommentThreadType
 {
 	"Invalid": 0,
 	"Screenshot_Deprecated": 1,
@@ -84,7 +84,7 @@ export default interface ECommentThreadType
 	"QAndASession": 20,
 	"Max": 21
 }
-export default interface ECommunityItemClass
+export interface ECommunityItemClass
 {
 	"Invalid": 0,
 	"Badge": 1,
@@ -105,14 +105,14 @@ export default interface ECommunityItemClass
 	"SteamDeckKeyboardSkin": 16,
 	"SteamDeckStartupMovie": 17
 }
-export default interface EContentCheckProvider
+export interface EContentCheckProvider
 {
 	"Invalid": 0,
 	"Google": 1,
 	"Amazon": 2,
 	"Local": 3
 }
-export default interface EGPUPerformanceLevel
+export interface EGPUPerformanceLevel
 {
 	"Invalid": 0,
 	"Auto": 1,
@@ -121,7 +121,7 @@ export default interface EGPUPerformanceLevel
 	"High": 4,
 	"Profiling": 5
 }
-export default interface EGraphicsPerfOverlayLevel
+export interface EGraphicsPerfOverlayLevel
 {
 	"Hidden": 0,
 	"Basic": 1,
@@ -129,20 +129,20 @@ export default interface EGraphicsPerfOverlayLevel
 	"Full": 3,
 	"Minimal": 4
 }
-export default interface EHDRToneMapOperator
+export interface EHDRToneMapOperator
 {
 	"Invalid": 0,
 	"Uncharted": 1,
 	"Reinhard": 2
 }
-export default interface ENewSteamAnnouncementState
+export interface ENewSteamAnnouncementState
 {
 	"Invalid": 0,
 	"AllRead": 1,
 	"NewAnnouncement": 2,
 	"FeaturedAnnouncement": 3
 }
-export default interface EOSBranch
+export interface EOSBranch
 {
 	"Unknown": 0,
 	"Release": 1,
@@ -152,7 +152,7 @@ export default interface EOSBranch
 	"Main": 5,
 	"Staging": 6
 }
-export default interface EPersonaStateFlag
+export interface EPersonaStateFlag
 {
 	"HasRichPresence": 1,
 	"InJoinableGame": 2,
@@ -165,7 +165,7 @@ export default interface EPersonaStateFlag
 	"LaunchTypeGamepad": 4096,
 	"LaunchTypeCompatTool": 8192
 }
-export default interface EProfileCustomizationType
+export interface EProfileCustomizationType
 {
 	"Invalid": 0,
 	"RareAchievementShowcase": 1,
@@ -193,19 +193,19 @@ export default interface EProfileCustomizationType
 	"AchievementsCompletionist": 23,
 	"Replay": 24
 }
-export default interface EProvideDeckFeedbackPreference
+export interface EProvideDeckFeedbackPreference
 {
 	"Unset": 0,
 	"Yes": 1,
 	"No": 2
 }
-export default interface EPublishedFileInappropriateProvider
+export interface EPublishedFileInappropriateProvider
 {
 	"Invalid": 0,
 	"Google": 1,
 	"Amazon": 2
 }
-export default interface EPublishedFileInappropriateResult
+export interface EPublishedFileInappropriateResult
 {
 	"NotScanned": 0,
 	"VeryUnlikely": 1,
@@ -214,7 +214,7 @@ export default interface EPublishedFileInappropriateResult
 	"Likely": 75,
 	"VeryLikely": 100
 }
-export default interface EPublishedFileQueryType
+export interface EPublishedFileQueryType
 {
 	"RankedByVote": 0,
 	"RankedByPublicationDate": 1,
@@ -239,14 +239,14 @@ export default interface EPublishedFileQueryType
 	"RankedByBanContentCheck": 20,
 	"RankedByLastUpdatedDate": 21
 }
-export default interface EPublishedFileStorageSystem
+export interface EPublishedFileStorageSystem
 {
 	"Invalid": 0,
 	"LegacyCloud": 1,
 	"Depot": 2,
 	"UGCCloud": 3
 }
-export default interface ESDCardFormatStage
+export interface ESDCardFormatStage
 {
 	"Invalid": 0,
 	"Starting": 1,
@@ -255,7 +255,7 @@ export default interface ESDCardFormatStage
 	"Formatting": 4,
 	"Finalizing": 5
 }
-export default interface EScalingFilter
+export interface EScalingFilter
 {
 	"Invalid": 0,
 	"FSR": 1,
@@ -264,13 +264,13 @@ export default interface EScalingFilter
 	"Linear": 4,
 	"NIS": 5
 }
-export default interface ESessionPersistence
+export interface ESessionPersistence
 {
 	"Invalid": -1,
 	"Ephemeral": 0,
 	"Persistent": 1
 }
-export default interface ESplitScalingFilter
+export interface ESplitScalingFilter
 {
 	"Invalid": 0,
 	"Linear": 1,
@@ -278,7 +278,7 @@ export default interface ESplitScalingFilter
 	"FSR": 3,
 	"NIS": 4
 }
-export default interface ESplitScalingScaler
+export interface ESplitScalingScaler
 {
 	"Invalid": 0,
 	"Auto": 1,
@@ -287,21 +287,21 @@ export default interface ESplitScalingScaler
 	"Fill": 4,
 	"Stretch": 5
 }
-export default interface ESteamDeckCompatibilityCategory
+export interface ESteamDeckCompatibilityCategory
 {
 	"Unknown": 0,
 	"Unsupported": 1,
 	"Playable": 2,
 	"Verified": 3
 }
-export default interface ESteamDeckCompatibilityFeedback
+export interface ESteamDeckCompatibilityFeedback
 {
 	"Unset": 0,
 	"Agree": 1,
 	"Disagree": 2,
 	"Ignore": 3
 }
-export default interface ESteamDeckCompatibilityResultDisplayType
+export interface ESteamDeckCompatibilityResultDisplayType
 {
 	"Invisible": 0,
 	"Informational": 1,
@@ -309,7 +309,7 @@ export default interface ESteamDeckCompatibilityResultDisplayType
 	"Playable": 3,
 	"Verified": 4
 }
-export default interface EStorageBlockContentType
+export interface EStorageBlockContentType
 {
 	"Invalid": 0,
 	"Unknown": 1,
@@ -317,14 +317,14 @@ export default interface EStorageBlockContentType
 	"Crypto": 3,
 	"Raid": 4
 }
-export default interface EStorageBlockFileSystemType
+export interface EStorageBlockFileSystemType
 {
 	"Invalid": 0,
 	"Unknown": 1,
 	"VFat": 2,
 	"Ext4": 3
 }
-export default interface EStorageDriveMediaType
+export interface EStorageDriveMediaType
 {
 	"Invalid": 0,
 	"Unknown": 1,
@@ -332,7 +332,7 @@ export default interface EStorageDriveMediaType
 	"SSD": 3,
 	"Removable": 4
 }
-export default interface ESystemAudioChannel
+export interface ESystemAudioChannel
 {
 	"Invalid": 0,
 	"Aggregated": 1,
@@ -345,19 +345,19 @@ export default interface ESystemAudioChannel
 	"Unknown": 8,
 	"Mono": 9
 }
-export default interface ESystemAudioDirection
+export interface ESystemAudioDirection
 {
 	"Invalid": 0,
 	"Input": 1,
 	"Output": 2
 }
-export default interface ESystemAudioPortDirection
+export interface ESystemAudioPortDirection
 {
 	"Invalid": 0,
 	"Input": 1,
 	"Output": 2
 }
-export default interface ESystemAudioPortType
+export interface ESystemAudioPortType
 {
 	"Invalid": 0,
 	"Unknown": 1,
@@ -365,25 +365,25 @@ export default interface ESystemAudioPortType
 	"Midi8b": 3,
 	"Video32RGBA": 4
 }
-export default interface ESystemDisplayCompatibilityMode
+export interface ESystemDisplayCompatibilityMode
 {
 	"Invalid": 0,
 	"None": 1,
 	"MinimalBandwith": 2
 }
-export default interface ESystemFanControlMode
+export interface ESystemFanControlMode
 {
 	"Invalid": 0,
 	"Disabled": 1,
 	"Default": 2
 }
-export default interface ESystemServiceState
+export interface ESystemServiceState
 {
 	"Unavailable": 0,
 	"Disabled": 1,
 	"Enabled": 2
 }
-export default interface ETouchGesture
+export interface ETouchGesture
 {
 	"None": 0,
 	"Touch": 1,
@@ -400,7 +400,7 @@ export default interface ETouchGesture
 	"FlingStart": 12,
 	"FlingCancelled": 13
 }
-export default interface EUpdaterState
+export interface EUpdaterState
 {
 	"Invalid": 0,
 	"UpToDate": 2,
@@ -410,7 +410,7 @@ export default interface EUpdaterState
 	"ClientRestartPending": 6,
 	"SystemRestartPending": 7
 }
-export default interface EUpdaterType
+export interface EUpdaterType
 {
 	"Invalid": 0,
 	"Client": 1,
