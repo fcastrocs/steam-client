@@ -3,7 +3,7 @@ const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
 import { Language } from "./resources.js";
 import Steam from "./Steam.js";
-import { Game } from "../@types/steam.js";
+import { ConnectionOptions, LoginOptions, LoginOptionsExtended } from "../@types/steam.js";
 import {
   ClientPersonaState,
   ClientPurchaseRes,
@@ -13,26 +13,33 @@ import {
   PurchaseReceiptInfo,
   ClientPICSProductInfoResponse,
   PackageBuffer,
+  ClientAccountInfo,
+  ClientEmailAddrInfo,
+  ClientIsLimitedAccount,
+  ClientLogonResponse,
 } from "../@types/protoResponse.js";
 import { SteamClientError, getKeyByValue } from "./common.js";
-import { EPersonaState, EPurchaseResultDetail } from "./language/commons.js";
+import { EOSType, EPersonaState, EPurchaseResultDetail } from "./language/commons.js";
 import { EMsg } from "./language/enums_clientserver.proto.js";
 import { EResult } from "./language/EResult.js"
+import { AccountAuth, AccountData, Game } from "../@types/client.js";
 
-export default class Client {
+export default class Client extends Steam {
   private personaState: Friend;
   private _playingSessionState = {} as ClientPlayingSessionState;
 
-  constructor(private steam: Steam) {
+  constructor(options: ConnectionOptions) {
+    super(options);
+
     // catch changes to personaState, playerName or avatar
-    this.steam.on("ClientPersonaState", (body: ClientPersonaState) => {
+    this.on("ClientPersonaState", (body: ClientPersonaState) => {
       // have never received status
       if (!this.personaState) {
         // state does not belong to this account
-        if (this.steam.personaName !== body.friends[0].playerName) return;
+        if (this.personaName !== body.friends[0].playerName) return;
         this.personaState = body.friends[0];
         this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
-        this.steam.emit("personaStateChanged", this.personaState);
+        this.emit("personaStateChanged", this.personaState);
         return;
       }
 
@@ -54,15 +61,104 @@ export default class Client {
 
       if (somethingChanged) {
         this.personaState = state;
-        this.steam.personaName = this.personaState.playerName;
+        this.personaName = this.personaState.playerName;
         this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
-        this.steam.emit("personaStateChanged", this.personaState);
+        this.emit("personaStateChanged", this.personaState);
       }
     });
 
-    this.steam.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
+    this.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
       this._playingSessionState = body;
-      this.steam.emit("playingStateChanged", body);
+      this.emit("playingStateChanged", body);
+    });
+  }
+
+  /**
+ * login to steam via credentials or refresh_token
+ */
+  public async login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
+    const refreshToken = options.refreshToken;
+    delete options.refreshToken;
+
+    options = {
+      ...options,
+      accessToken: refreshToken,
+      clientOsType: EOSType.Win11,
+      protocolVersion: 65580,
+      supportsRateLimitResponse: true,
+      machineName: options.machineName || this.machineName,
+    } as LoginOptionsExtended;
+
+    const accountData = {
+      games: [],
+      inventory: {},
+    } as AccountData;
+
+    const accountAuth: AccountAuth = {
+      machineName: options.machineName,
+    };
+
+    let responses = ["ClientAccountInfo", "ClientEmailAddrInfo", "ClientIsLimitedAccount", "ClientVACBanStatus"];
+
+    const receivedResponse = (response: string) => {
+      // remove this response from array
+      responses = responses.filter((item) => item !== response);
+    };
+
+    this.once("ClientAccountInfo", async (body: ClientAccountInfo) => {
+      this.personaName = body.personaName;
+      accountData.personaState = await this.setPersonaState("Online");
+      receivedResponse("ClientAccountInfo");
+    });
+
+    this.once("ClientEmailAddrInfo", (body: ClientEmailAddrInfo) => {
+      accountData.isEmailVerified = body.emailIsValidated;
+      accountData.emailOrDomain = body.emailAddress;
+      accountData.credentialChangeRequiresCode = body.credentialChangeRequiresCode;
+      receivedResponse("ClientEmailAddrInfo");
+    });
+
+    this.once("ClientIsLimitedAccount", (body: ClientIsLimitedAccount) => {
+      accountData.limited = body.bisLimitedAccount;
+      accountData.communityBanned = body.bisCommunityBanned;
+      accountData.locked = body.bisLockedAccount;
+      receivedResponse("ClientIsLimitedAccount");
+    });
+
+    this.once("ClientVACBanStatus", (body) => {
+      accountData.vac = body.vac;
+      receivedResponse("ClientVACBanStatus");
+    });
+
+    // send login request to steam
+    const res: ClientLogonResponse = await this.sendProtoPromise(EMsg.ClientLogon, options);
+
+    if (res.eresult === EResult.OK) {
+      this.startHeartBeat(res.heartbeatSeconds);
+      accountData.steamId = res.clientSuppliedSteamid.toString();
+      accountData.games = await this.service.player.getOwnedGames();
+      accountData.inventory.steam = await this.service.econ.getSteamContextItems();
+      this.loggedIn = true;
+    } else {
+      this.disconnect();
+      throw new SteamClientError(Language.EResultMap.get(res.eresult));
+    }
+
+    return new Promise((resolve, reject) => {
+      // expect responses to occur before timeout
+      const timeout = setTimeout(() => {
+        clearInterval(interval);
+        this.disconnect();
+        reject(new SteamClientError("Did not receive responses: " + responses.toString()));
+      }, this.timeout);
+
+      // check whether user is logged in every second
+      const interval = setInterval(() => {
+        if (responses.length) return;
+        clearTimeout(timeout);
+        clearInterval(interval);
+        resolve({ auth: accountAuth, data: { ...accountData, playingState: this.playingSessionState } });
+      }, 1000);
     });
   }
 
@@ -95,7 +191,7 @@ export default class Client {
 
     // kick another playing session before attemping to play in this session
     if (playingBlocked) {
-      this.steam.sendProto(EMsg.ClientKickPlayingSession, { onlyStopGame: true });
+      this.sendProto(EMsg.ClientKickPlayingSession, { onlyStopGame: true });
     }
 
     // not playing and trying to stop idle
@@ -109,7 +205,7 @@ export default class Client {
       }),
     };
 
-    await this.steam.sendProtoPromise(
+    await this.sendProtoPromise(
       EMsg.ClientGamesPlayed,
       payload,
       EMsg.ClientPlayingSessionState
@@ -120,7 +216,7 @@ export default class Client {
    * Activate cdkey
    */
   public async registerKey(cdkey: string): Promise<Game[]> {
-    const res: ClientPurchaseRes = await this.steam.sendProtoPromise(
+    const res: ClientPurchaseRes = await this.sendProtoPromise(
       EMsg.ClientRegisterKey,
       { key: cdkey },
       EMsg.ClientPurchaseResponse
@@ -141,7 +237,7 @@ export default class Client {
     }
 
     const appIds = await this.getAppIds(packageIds);
-    return this.steam.service.player.getOwnedGames({ appidsFilter: appIds });
+    return this.service.player.getOwnedGames({ appidsFilter: appIds });
   }
 
   /**
@@ -150,7 +246,7 @@ export default class Client {
   public async requestFreeLicense(appids: number[]): Promise<Game[]> {
     if (!appids.length) return [];
 
-    const res: ClientRequestFreeLicenseRes = await this.steam.sendProtoPromise(EMsg.ClientRequestFreeLicense, {
+    const res: ClientRequestFreeLicenseRes = await this.sendProtoPromise(EMsg.ClientRequestFreeLicense, {
       appids,
     });
 
@@ -160,7 +256,7 @@ export default class Client {
 
     if (!res.grantedAppids || !res.grantedAppids.length) return [];
 
-    return this.steam.service.player.getOwnedGames({ appidsFilter: res.grantedAppids, includePlayedFreeGames: true });
+    return this.service.player.getOwnedGames({ appidsFilter: res.grantedAppids, includePlayedFreeGames: true });
   }
 
   /**
@@ -214,10 +310,10 @@ export default class Client {
       if (!somethingChanged) return this.personaState;
     }
 
-    this.steam.sendProto(EMsg.ClientChangeStatus, payload);
+    this.sendProto(EMsg.ClientChangeStatus, payload);
 
     return new Promise((resolve) => {
-      this.steam.once("personaStateChanged", (state: Friend) => {
+      this.once("personaStateChanged", (state: Friend) => {
         return resolve(state);
       });
     });
@@ -237,13 +333,13 @@ export default class Client {
     });
 
     // send packge info request to steam
-    this.steam.sendProto(EMsg.ClientPICSProductInfoRequest, { packages });
+    this.sendProto(EMsg.ClientPICSProductInfoRequest, { packages });
 
     // wait for all(Multi response) packages info
     return new Promise((resolve) => {
       const appIds: number[] = [];
 
-      this.steam.on("ClientPICSProductInfoResponse", (res: ClientPICSProductInfoResponse) => {
+      this.on("ClientPICSProductInfoResponse", (res: ClientPICSProductInfoResponse) => {
         if (res.packages) {
           for (const pkg of res.packages) {
             // package not fully received
@@ -260,7 +356,7 @@ export default class Client {
 
         // received all packages info
         if (!res.responsePending) {
-          this.steam.removeAllListeners("ClientPICSProductInfoResponse");
+          this.removeAllListeners("ClientPICSProductInfoResponse");
           resolve([...new Set(appIds)]);
         }
       });

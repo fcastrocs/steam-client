@@ -4,14 +4,9 @@
 import Auth, { AuthTokens, Confirmation } from "./services/auth.js";
 import Credentials from "./services/credentials.js";
 import Player from "./services/player.js";
-import Econ, { Item } from "./services/Econ.js";
-import Client from "./client.js";
+import Econ from "./services/Econ.js";
 import Connection, { ConnectionOptions } from "./connection.js";
-import { ClientPlayingSessionState, Friend } from "./protoResponse.js";
 import { SteamClientError } from "./common.js";
-import EResultConst from "./EResult.js";
-
-declare const EResult: EResultConst;
 
 // expose the following types and constants
 export { SteamClientError, AuthTokens, Confirmation, ConnectionOptions, EResult };
@@ -33,58 +28,18 @@ export interface LoginOptionsExtended extends LoginOptions {
   supportsRateLimitResponse: true;
 }
 
-export interface AccountAuth {
-  machineName: string;
-}
-
-export interface AccountData {
-  steamId: string;
-  limited: boolean;
-  vac: boolean;
-  communityBanned: boolean;
-  locked: boolean;
-  games: Game[];
-  emailOrDomain: string;
-  isEmailVerified: boolean;
-  credentialChangeRequiresCode: boolean;
-  personaState: Friend;
-  playingState: ClientPlayingSessionState;
-  inventory: {
-    steam: Item[];
-  };
-}
-
-export interface Game {
-  name: string;
-  gameid: number;
-  icon: string;
-  playtime: number;
-}
-
-declare class Steam extends Connection {
-  on(event: "accountLoggedOff", listener: (eresult: string) => void): this;
-  on(event: "personaStateChanged", listener: (state: Friend) => void): this;
-  on(event: "playingStateChanged", listener: (state: ClientPlayingSessionState) => void): this;
-  on(event: "disconnected", listener: (error: SteamClientError) => void): this;
-  on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
-
+declare abstract class Steam extends Connection {
   readonly service: {
     auth: Auth;
     credentials: Credentials;
     player: Player;
     econ: Econ;
   };
-  readonly client: Client;
-  readonly machineName: string;
 
+  readonly machineName: string;
+  protected loggedIn = false;
+  protected personaName: string;
   constructor(options: ConnectionOptions);
-  /**
-   * login to steam via credentials or refresh_token
-   */
-  login(options: LoginOptions): Promise<{
-    auth: AccountAuth;
-    data: AccountData;
-  }>;
   /**
    * Disconnect user from Steam and kill connection
    */

@@ -1,8 +1,8 @@
 import { T } from "../../@types/common.js";
-import IEcon, { Item } from "../../@types/services/Econ.js";
+import { Item } from "../../@types/services/Econ.js";
 import Steam from "../Steam.js";
 
-export default class Econ implements IEcon {
+export default class Econ {
   private readonly serviceName = "Econ";
   constructor(private steam: Steam) {}
 

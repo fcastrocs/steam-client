@@ -1,11 +1,11 @@
+import { Game } from "../../@types/client.js";
 import { GetOwnedGamesRes } from "../../@types/protoResponse.js";
 import IPlayer from "../../@types/services/player.js";
-import { Game } from "../../@types/steam.js";
 import Steam from "../Steam.js";
 
 export default class Player implements IPlayer {
   private readonly serviceName = "Player";
-  constructor(private steam: Steam) {}
+  constructor(private steam: Steam) { }
 
   async getOwnedGames(options?: { appidsFilter?: number[]; includePlayedFreeGames?: boolean }) {
     const res = await this.steam.sendUnified(this.serviceName, "GetOwnedGames", {

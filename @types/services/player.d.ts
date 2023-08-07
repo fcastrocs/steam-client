@@ -1,5 +1,9 @@
 declare class Player {
-  getOwnedGames(steamid: Long, options: { appidsFilter?: number[]; includePlayedFreeGames: boolean });
+  constructor(steam: Steam);
+  getOwnedGames(options?: {
+    appidsFilter?: number[];
+    includePlayedFreeGames?: boolean;
+  }): Promise<Game[]>;
 }
 
 export default Player;

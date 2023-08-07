@@ -1,9 +1,9 @@
 import Long from "long";
 
-type QRType = "terminal" | "image";
-type PartialSession = SessionViaCredentialsRes | SessionViaQrRes;
+export type QRType = "terminal" | "image";
+export type PartialSession = SessionViaCredentialsRes | SessionViaQrRes;
 
-interface UnifiedMsgRes {
+export interface UnifiedMsgRes {
   EResult: number;
 }
 
@@ -19,17 +19,17 @@ interface BaseAuthSession extends UnifiedMsgRes {
   allowedConfirmations: AllowedConfirmations[];
 }
 
-interface SessionViaCredentialsRes extends BaseAuthSession {
+export interface SessionViaCredentialsRes extends BaseAuthSession {
   steamid: Long;
   weakToken: string;
 }
 
-interface SessionViaQrRes extends BaseAuthSession {
+export interface SessionViaQrRes extends BaseAuthSession {
   challengeUrl: string;
   version: number;
 }
 
-interface PollAuthSessionStatusRes extends UnifiedMsgRes {
+export interface PollAuthSessionStatusRes extends UnifiedMsgRes {
   newClientId: Long;
   newChallengeUrl: string;
   refreshToken: string;
@@ -53,7 +53,8 @@ export interface Confirmation {
   timeoutSeconds: number;
 }
 
-export default class IAuth {
+declare class Auth {
+  constructor(steam: Steam);
   /**
    * Login via QR
    * @emits "waitingForConfirmation" with QR challenge URL
@@ -65,10 +66,12 @@ export default class IAuth {
    * @emits "waitingForConfirmation" with confirmation type
    * @throws EResult, SteamGuardIsUnknown, SteamGuardIsDisabled
    */
-  getAuthTokensViaCredentials(accountName: string, password: string, skipPolling: boolean): Promise<AuthTokens | SessionViaCredentialsRes>;
+  getAuthTokensViaCredentials(accountName: string, password: string, skipPolling?: boolean): Promise<AuthTokens | SessionViaCredentialsRes>;
   /**
    * Submit Steam Guard Code to auth session
-   * @throws EResult
+   * @throws EResult, NotWaitingForConfirmation
    */
   updateWithSteamGuardCode(guardCode: string): Promise<void>;
 }
+
+export default Auth;

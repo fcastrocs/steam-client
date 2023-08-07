@@ -1,8 +1,8 @@
 {
   "name": "@fcastrocs/steamclient",
-  "version": "1.0.29",
-  "main": "./lib/Steam.js",
-  "types": "./@types/steam.d.ts",
+  "version": "1.1.0",
+  "main": "./lib/Client.js",
+  "types": "./@types/client.d.ts",
   "type": "module",
   "scripts": {
     "prepare": "npm run build",

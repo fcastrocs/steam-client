@@ -354,8 +354,6 @@ export default abstract class Connection extends EventEmitter {
     const EMsgReceived = rawEMsg & ~PROTO_MASK;
     const isProto = rawEMsg & PROTO_MASK;
 
-    console.log(Language.EMsgMap.get(EMsgReceived));
-
     // Steam is sending encryption request or result
     if (!this.encrypted) {
       packet.readBigUInt64LE(); //jobidTarget 18446744073709551615n

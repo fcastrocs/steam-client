@@ -1,5 +1,3 @@
-import Long from "long";
-
 export interface Item {
   appid: number;
   contextid: string;
@@ -16,8 +14,9 @@ export interface Item {
 }
 
 declare class Econ {
-  getInventoryItems(appId: number, contextId: number, tradableOnly?: boolean): Promise<Item[]>;
+  constructor(steam: Steam);
   getSteamContextItems(tradableOnly?: boolean): Promise<Item[]>;
+  getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean): Promise<Item[]>;
 }
 
 export default Econ;
