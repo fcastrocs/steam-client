@@ -34,7 +34,6 @@
     "smart-buffer": "^4.2.0",
     "socks": "^2.7.1",
     "socks-proxy-agent": "^8.0.1",
-    "vdf": "^0.0.2",
     "ws": "^8.13.0"
   },
   "devDependencies": {
@@ -43,11 +42,16 @@
     "@types/node-rsa": "^1.1.1",
     "@types/qrcode": "^1.5.1",
     "@types/ws": "^8.5.5",
-    "@typescript-eslint/eslint-plugin": "^6.3.0",
-    "@typescript-eslint/parser": "^6.3.0",
-    "eslint": "^8.47.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6",
     "vitest": "^0.34.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fcastrocs/steam-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fcastrocs/steam-client/issues"
+  },
+  "homepage": "https://github.com/fcastrocs/steam-client#readme"
 }
