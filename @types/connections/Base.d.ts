@@ -1,13 +1,11 @@
-/**
- * Handle low-level connection to steam.
- */
+import { EventEmitter } from "events";
+import Long from "long";
+import { SteamClientError, T } from "../common.js";
 import { EventEmitter } from "events";
 import Long from "long";
 import { SocksClientOptions } from "socks";
-import SteamClientError from "SteamClientError";
 
 export type PromiseResolve = (value: T) => void;
-
 export type JobidTargets = Map<number, Long>;
 export type JobidSources = Map<string, UnifiedMessage>;
 export type ProtoResponses = Map<string, PromiseResolve>;
@@ -19,7 +17,6 @@ export interface SessionKey {
 
 export interface Session {
   clientId: number;
-  key: SessionKey;
   steamId: Long;
 }
 
@@ -37,41 +34,36 @@ export interface Proto {
 }
 
 export interface ConnectionOptions {
+  type: "ws" | "tcp";
   steamCM: SocksClientOptions["destination"];
   proxy?: SocksClientOptions["proxy"];
   timeout?: number;
 }
 
-declare abstract class Connection extends EventEmitter {
-  readonly timeout: number;
-  constructor(options: ConnectionOptions);
-  /**
-   * Connect to Steam CM server.
-   */
-  connect(): Promise<void>;
+declare abstract class Base extends EventEmitter {
+  on(event: "sendData", listener: (data: Buffer) => void): this;
+  once(event: "sendData", listener: (data: Buffer) => void): this;
+  on(event: "disconnected", listener: (error: SteamClientError) => void): this;
+  once(event: "disconnected", listener: (error: SteamClientError) => void): this;
+
+  constructor();
   /**
    * Use this for proto messages that have a response from Steam
    */
   sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T>;
   /**
-   * Use this for proto messages that don't have a response from Steam
-   */
+ * Use this for proto messages that don't have a response from Steam
+ */
   sendProto(EMsg: number, payload: T): void;
   /**
-   * use this for steammessages_unified or service proto messages
-   */
+ * use this for steammessages_unified or service proto messages
+ */
   sendUnified(serviceName: string, method: string, payload: T): Promise<T>;
-
-  protected get steamid(): Long;
   /**
-   * Destroy connection to Steam and do some cleanup
-   * disconnected is emmitted when error is passed
-   */
-  protected destroyConnection(error?: SteamClientError): void;
-  /**
-   * Heartbeat connection after login
-   */
-  protected startHeartBeat(beatTimeSecs: number): void;
+ * Heartbeat connection after login
+ */
+  startHeartBeat(beatTimeSecs: number): void;
+  get steamid(): Long;
 }
 
-export default Connection;
+export default Base;

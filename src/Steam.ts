@@ -2,20 +2,22 @@
  * Low-level Steam functionality
  */
 
-import Connection from "./Connection.js";
 import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
 import Player from "./services/Player.js";
 import Econ from "./services/Econ.js";
 import { Language } from "./resources.js";
-import { ConnectionOptions } from "../@types/connection.js";
 import { SteamClientError } from "./common.js";
 import Long from "long";
 import { EResult } from "./language/EResult.js";
+import TCPConnection from "./connections/TCPConn.js";
+import EventEmitter from "events";
+import WebSocketConnection from "./connections/WebsocketConn.js";
+import { ConnectionOptions } from "../@types/connections/Base.js";
 
 export { SteamClientError, EResult };
 
-export default abstract class Steam extends Connection {
+export default abstract class Steam extends EventEmitter {
   public readonly service: {
     auth: Auth;
     credentials: Credentials;
@@ -26,9 +28,18 @@ export default abstract class Steam extends Connection {
   public readonly machineName: string;
   protected loggedIn = false;
   protected personaName: string;
+  public readonly conn: WebSocketConnection | TCPConnection
+
 
   constructor(options: ConnectionOptions) {
-    super(options);
+    super();
+
+    // create connection
+    if (options.type === "ws") {
+      this.conn = new WebSocketConnection(options);
+    } else if (options.type === "tcp") {
+      this.conn = new TCPConnection(options);
+    }
 
     // inject dependencies
     this.service = {
@@ -41,9 +52,9 @@ export default abstract class Steam extends Connection {
     // create machine name
     this.machineName = this.createMachineName();
 
-    this.once("ClientLoggedOff", (body) => {
+    this.conn.once("ClientLoggedOff", (body) => {
       this.disconnect();
-      this.emit("accountLoggedOff", Language.EResultMap.get(body.eresult));
+      this.emit("ClientLoggedOff", Language.EResultMap.get(body.eresult));
     });
   }
 
@@ -51,7 +62,7 @@ export default abstract class Steam extends Connection {
    * Disconnect user from Steam and kill connection
    */
   public disconnect() {
-    this.destroyConnection();
+    this.conn.destroyConnection();
   }
 
   /**
@@ -65,7 +76,7 @@ export default abstract class Steam extends Connection {
    * returns account's steamId
    */
   public get steamId(): Long {
-    return this.steamid;
+    return this.conn.steamid;
   }
 
   private createMachineName(): string {

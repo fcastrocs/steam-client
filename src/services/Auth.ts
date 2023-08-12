@@ -15,15 +15,16 @@ import {
 import { SteamClientError, getKeyByValue } from "../common.js";
 import { EAuthSessionGuardType } from "../language/steammessages_auth.steamclient.proto.js";
 import { EResult } from "../language/EResult.js";
+import EventEmitter from "events";
 
-export default class Auth {
+export default class Auth extends EventEmitter {
   private waitingForConfirmation = false;
   private partialSession: PartialSession;
   private readonly serviceName = "Authentication";
   private qrType: QRType;
   private readonly LogonWasNotConfirmedSeconds = 120;
   private guardType: number;
-  constructor(private steam: Steam) { }
+  constructor(private steam: Steam) { super() }
 
   /**
    * Login via QR
@@ -36,7 +37,7 @@ export default class Auth {
     this.qrType = qrType;
 
     // begin login by getting QR challenge URL
-    const res: SessionViaQrRes = await this.steam.sendUnified(this.serviceName, "BeginAuthSessionViaQR", {
+    const res: SessionViaQrRes = await this.steam.conn.sendUnified(this.serviceName, "BeginAuthSessionViaQR", {
       deviceFriendlyName: this.steam.machineName,
       platformType: 1, // steam client
     });
@@ -45,7 +46,7 @@ export default class Auth {
 
     const qrCode = await this.genQRCode(res.challengeUrl);
 
-    this.steam.emit("waitingForConfirmation", {
+    this.emit("waitingForConfirmation", {
       qrCode,
       timeoutSeconds: this.LogonWasNotConfirmedSeconds,
     } as Confirmation);
@@ -69,9 +70,9 @@ export default class Auth {
   ): Promise<AuthTokens | SessionViaCredentialsRes> {
     if (this.steam.isLoggedIn) throw new SteamClientError("AlreadyLoggedIn");
 
-    const rsa = await this.steam.sendUnified(this.serviceName, "GetPasswordRSAPublicKey", { accountName });
+    const rsa = await this.steam.conn.sendUnified(this.serviceName, "GetPasswordRSAPublicKey", { accountName });
 
-    const res: SessionViaCredentialsRes = await this.steam.sendUnified(
+    const res: SessionViaCredentialsRes = await this.steam.conn.sendUnified(
       this.serviceName,
       "BeginAuthSessionViaCredentials",
       {
@@ -117,7 +118,7 @@ export default class Auth {
     else if (allowedConfirmations.includes(EAuthSessionGuardType.EmailCode))
       guardType = EAuthSessionGuardType.EmailCode;
 
-    this.steam.emit("waitingForConfirmation", {
+    this.emit("waitingForConfirmation", {
       guardType: getKeyByValue(EAuthSessionGuardType, guardType),
       timeoutSeconds: this.LogonWasNotConfirmedSeconds,
     } as Confirmation);
@@ -137,7 +138,7 @@ export default class Auth {
     if (!this.waitingForConfirmation) throw new SteamClientError("NotWaitingForConfirmation");
 
     // submit steam guard code
-    const res: UnifiedMsgRes = await this.steam.sendUnified(this.serviceName, "UpdateAuthSessionWithSteamGuardCode", {
+    const res: UnifiedMsgRes = await this.steam.conn.sendUnified(this.serviceName, "UpdateAuthSessionWithSteamGuardCode", {
       clientId: this.partialSession.clientId,
       steamid: (this.partialSession as SessionViaCredentialsRes).steamid,
       code: guardCode,
@@ -162,7 +163,7 @@ export default class Auth {
 
       // poll auth status until user responds to QR or timeouts
       const interval = setInterval(async () => {
-        const pollStatus: PollAuthSessionStatusRes = await this.steam.sendUnified(
+        const pollStatus: PollAuthSessionStatusRes = await this.steam.conn.sendUnified(
           this.serviceName,
           "PollAuthSessionStatus",
           {
@@ -176,7 +177,7 @@ export default class Auth {
         // got new challenge
         if (pollStatus.newChallengeUrl) {
           const qrCode = await this.genQRCode(pollStatus.newChallengeUrl);
-          this.steam.emit("waitingForConfirmation", {
+          this.emit("waitingForConfirmation", {
             qrCode,
           } as Confirmation);
 

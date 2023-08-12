@@ -54,6 +54,9 @@ export interface Confirmation {
 }
 
 declare class Auth {
+  on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
+  once(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
+
   constructor(steam: Steam);
   /**
    * Login via QR

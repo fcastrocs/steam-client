@@ -23,7 +23,7 @@ import { EOSType, EPersonaState, EPurchaseResultDetail } from "./language/common
 import { EMsg } from "./language/enums_clientserver.proto.js";
 import { EResult } from "./language/EResult.js"
 import { AccountAuth, AccountData, Game } from "../@types/client.js";
-import { ConnectionOptions } from "../@types/connection.js";
+import { ConnectionOptions } from "../@types/connections/Base.js";
 export { EMsg, EResult, SteamClientError }
 
 export default class Client extends Steam {
@@ -34,14 +34,14 @@ export default class Client extends Steam {
     super(options);
 
     // catch changes to personaState, playerName or avatar
-    this.on("ClientPersonaState", (body: ClientPersonaState) => {
+    this.conn.on("ClientPersonaState", (body: ClientPersonaState) => {
       // have never received status
       if (!this.personaState) {
         // state does not belong to this account
         if (this.personaName !== body.friends[0].playerName) return;
         this.personaState = body.friends[0];
         this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
-        this.emit("personaStateChanged", this.personaState);
+        this.emit("ClientPersonaState", this.personaState);
         return;
       }
 
@@ -65,13 +65,13 @@ export default class Client extends Steam {
         this.personaState = state;
         this.personaName = this.personaState.playerName;
         this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
-        this.emit("personaStateChanged", this.personaState);
+        this.emit("ClientPersonaState", this.personaState);
       }
     });
 
-    this.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
+    this.conn.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
       this._playingSessionState = body;
-      this.emit("playingStateChanged", body);
+      this.emit("ClientPlayingSessionState", body);
     });
   }
 
@@ -107,36 +107,36 @@ export default class Client extends Steam {
       responses = responses.filter((item) => item !== response);
     };
 
-    this.once("ClientAccountInfo", async (body: ClientAccountInfo) => {
+    this.conn.once("ClientAccountInfo", async (body: ClientAccountInfo) => {
       this.personaName = body.personaName;
       accountData.personaState = await this.setPersonaState("Online");
       receivedResponse("ClientAccountInfo");
     });
 
-    this.once("ClientEmailAddrInfo", (body: ClientEmailAddrInfo) => {
+    this.conn.once("ClientEmailAddrInfo", (body: ClientEmailAddrInfo) => {
       accountData.isEmailVerified = body.emailIsValidated;
       accountData.emailOrDomain = body.emailAddress;
       accountData.credentialChangeRequiresCode = body.credentialChangeRequiresCode;
       receivedResponse("ClientEmailAddrInfo");
     });
 
-    this.once("ClientIsLimitedAccount", (body: ClientIsLimitedAccount) => {
+    this.conn.once("ClientIsLimitedAccount", (body: ClientIsLimitedAccount) => {
       accountData.limited = body.bisLimitedAccount;
       accountData.communityBanned = body.bisCommunityBanned;
       accountData.locked = body.bisLockedAccount;
       receivedResponse("ClientIsLimitedAccount");
     });
 
-    this.once("ClientVACBanStatus", (body) => {
+    this.conn.once("ClientVACBanStatus", (body) => {
       accountData.vac = body.vac;
       receivedResponse("ClientVACBanStatus");
     });
 
     // send login request to steam
-    const res: ClientLogonResponse = await this.sendProtoPromise(EMsg.ClientLogon, options);
+    const res: ClientLogonResponse = await this.conn.sendProtoPromise(EMsg.ClientLogon, options);
 
     if (res.eresult === EResult.OK) {
-      this.startHeartBeat(res.heartbeatSeconds);
+      this.conn.startHeartBeat(res.heartbeatSeconds);
       accountData.steamId = res.clientSuppliedSteamid.toString();
       accountData.games = await this.service.player.getOwnedGames();
       accountData.inventory.steam = await this.service.econ.getSteamContextItems();
@@ -152,7 +152,7 @@ export default class Client extends Steam {
         clearInterval(interval);
         this.disconnect();
         reject(new SteamClientError("Did not receive responses: " + responses.toString()));
-      }, this.timeout);
+      }, 15000);
 
       // check whether user is logged in every second
       const interval = setInterval(() => {
@@ -193,7 +193,7 @@ export default class Client extends Steam {
 
     // kick another playing session before attemping to play in this session
     if (playingBlocked) {
-      this.sendProto(EMsg.ClientKickPlayingSession, { onlyStopGame: true });
+      this.conn.sendProto(EMsg.ClientKickPlayingSession, { onlyStopGame: true });
     }
 
     // not playing and trying to stop idle
@@ -207,7 +207,7 @@ export default class Client extends Steam {
       }),
     };
 
-    await this.sendProtoPromise(
+    await this.conn.sendProtoPromise(
       EMsg.ClientGamesPlayed,
       payload,
       EMsg.ClientPlayingSessionState
@@ -218,7 +218,7 @@ export default class Client extends Steam {
    * Activate cdkey
    */
   public async registerKey(cdkey: string): Promise<Game[]> {
-    const res: ClientPurchaseRes = await this.sendProtoPromise(
+    const res: ClientPurchaseRes = await this.conn.sendProtoPromise(
       EMsg.ClientRegisterKey,
       { key: cdkey },
       EMsg.ClientPurchaseResponse
@@ -248,7 +248,7 @@ export default class Client extends Steam {
   public async requestFreeLicense(appids: number[]): Promise<Game[]> {
     if (!appids.length) return [];
 
-    const res: ClientRequestFreeLicenseRes = await this.sendProtoPromise(EMsg.ClientRequestFreeLicense, {
+    const res: ClientRequestFreeLicenseRes = await this.conn.sendProtoPromise(EMsg.ClientRequestFreeLicense, {
       appids,
     });
 
@@ -312,10 +312,10 @@ export default class Client extends Steam {
       if (!somethingChanged) return this.personaState;
     }
 
-    this.sendProto(EMsg.ClientChangeStatus, payload);
+    this.conn.sendProto(EMsg.ClientChangeStatus, payload);
 
     return new Promise((resolve) => {
-      this.once("personaStateChanged", (state: Friend) => {
+      this.once("ClientPersonaState", (state: Friend) => {
         return resolve(state);
       });
     });
@@ -335,13 +335,13 @@ export default class Client extends Steam {
     });
 
     // send packge info request to steam
-    this.sendProto(EMsg.ClientPICSProductInfoRequest, { packages });
+    this.conn.sendProto(EMsg.ClientPICSProductInfoRequest, { packages });
 
     // wait for all(Multi response) packages info
     return new Promise((resolve) => {
       const appIds: number[] = [];
 
-      this.on("ClientPICSProductInfoResponse", (res: ClientPICSProductInfoResponse) => {
+      this.conn.on("ClientPICSProductInfoResponse", (res: ClientPICSProductInfoResponse) => {
         if (res.packages) {
           for (const pkg of res.packages) {
             // package not fully received

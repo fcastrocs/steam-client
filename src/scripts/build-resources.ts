@@ -78,14 +78,14 @@ async function fetchProtos() {
 async function fetchEResultFile(): Promise<string[]> {
   const url = "https://raw.githubusercontent.com/SteamRE/SteamKit/master/Resources/SteamLanguage/eresult.steamd";
   const EResult = (await fetch(url).then((res) => res.text())).split(/\r?\n/);
-  if (!EResult || !EResult.length) throw new Error("Failed to fetch EResult");
+  if (!EResult || !EResult.length) throw new Error("Failed to fetch EResult.");
   return EResult
 }
 
 async function fetchCommonEnums(): Promise<string[]> {
   const url = "https://raw.githubusercontent.com/SteamRE/SteamKit/master/Resources/SteamLanguage/enums.steamd";
   const Commons = (await fetch(url).then((res) => res.text())).split(/\r?\n/);
-  if (!Commons || !Commons.length) throw new Error("Failed to fetch EResult");
+  if (!Commons || !Commons.length) throw new Error("Failed to fetch common enums.");
   return Commons
 }
 
@@ -181,10 +181,9 @@ async function buildTypesFromEnums() {
   for (let fileName of fileNames) {
     let data = "";
 
-    //fileName = fileName.replace(".ts", ".js");
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const enumFile = (await import(`../src/language/${fileName}`));
+    const enumFile = (await import(`../language/${fileName}`));
     for (const enumName in enumFile) {
       data += `export interface ${enumName}\n` + JSON.stringify(enumFile[enumName], null, "\t") + "\n";
     }

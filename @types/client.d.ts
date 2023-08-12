@@ -4,7 +4,6 @@ import Steam, { LoginOptions } from "./steam.js";
 import { EPersonaState } from "./enums/commons.js"
 import { Item } from "./services/Econ.js";
 import { SteamClientError } from "./common.js";
-import { Confirmation } from "./services/auth.js";
 
 // expose constants
 import { EResult as EResultType } from "./enums/EResult.js";
@@ -42,11 +41,10 @@ export interface Game {
 }
 
 declare class Client extends Steam {
-  on(event: "accountLoggedOff", listener: (eresult: string) => void): this;
-  on(event: "personaStateChanged", listener: (state: Friend) => void): this;
-  on(event: "playingStateChanged", listener: (state: ClientPlayingSessionState) => void): this;
-  on(event: "disconnected", listener: (error: SteamClientError) => void): this;
-  on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
+  on(event: "ClientPersonaState", listener: (state: Friend) => void): this;
+  once(event: "ClientPersonaState", listener: (state: Friend) => void): this;
+  on(event: "ClientPlayingSessionState", listener: (state: ClientPlayingSessionState) => void): this;
+  once(event: "ClientPlayingSessionState", listener: (state: ClientPlayingSessionState) => void): this;
 
   constructor(options: ConnectionOptions);
   /**
@@ -63,7 +61,7 @@ declare class Client extends Steam {
   /**
    * Change player persona state
    */
-  setPersonaState(personaState: EPersonaState): Promise<Friend>;
+  setPersonaState(personaState: keyof EPersonaState): Promise<Friend>;
   /**
    * Idle an array of appIds
    * Empty array stops idling

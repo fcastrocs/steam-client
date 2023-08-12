@@ -11,7 +11,7 @@ export default class Econ {
   }
 
   async getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean) {
-    const res = await this.steam.sendUnified(this.serviceName, "GetInventoryItemsWithDescriptions", {
+    const res = await this.steam.conn.sendUnified(this.serviceName, "GetInventoryItemsWithDescriptions", {
       steamid: this.steam.steamId,
       contextid,
       appid,

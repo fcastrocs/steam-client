@@ -2,10 +2,10 @@ import Steam from "../Steam.js";
 
 export default class Credentials {
   private readonly serviceName = "Credentials";
-  constructor(private steam: Steam) {}
+  constructor(private steam: Steam) { }
 
   async getSteamGuardDetails() {
-    return await this.steam.sendUnified(this.serviceName, "GetSteamGuardDetails", {
+    return this.steam.conn.sendUnified(this.serviceName, "GetSteamGuardDetails", {
       includeNewAuthentications: true,
     });
   }

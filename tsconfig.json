@@ -16,5 +16,6 @@
     "baseUrl": "src/"
   },
   "include": ["src/**/*", "@types"],
+  "exclude": ["src/__tests__/*"],
   "compileOnSave": false
 }

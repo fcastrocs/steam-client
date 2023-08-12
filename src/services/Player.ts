@@ -8,7 +8,7 @@ export default class Player implements IPlayer {
   constructor(private steam: Steam) { }
 
   async getOwnedGames(options?: { appidsFilter?: number[]; includePlayedFreeGames?: boolean }) {
-    const res = await this.steam.sendUnified(this.serviceName, "GetOwnedGames", {
+    const res = await this.steam.conn.sendUnified(this.serviceName, "GetOwnedGames", {
       steamid: this.steam.steamId,
       appidsFilter: options && options.appidsFilter ? options.appidsFilter : undefined,
       includePlayedFreeGames: options && options.includePlayedFreeGames ? options.includePlayedFreeGames : undefined,
