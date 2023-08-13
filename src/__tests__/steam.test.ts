@@ -25,12 +25,12 @@ if (fs.existsSync("auth.json")) {
 
 describe.sequential("Test steam-client - TCP", () => {
   it("Connect to Steam", async () => await connectToSteam("tcp"));
-  it("Get tokens via QR Code", async () => await getQRCode());
-  it("login", async () => await login())
-  it.concurrent("Get games", async () => await getGames())
+  it("Get tokens via QR Code", async () => await getQRCode(), { timeout: 2 * 60 * 1000 });
+  it("login", async () => await login(), { timeout: 15 * 1000 });
+  it.concurrent("Get games", async () => await getGames());
   it.concurrent("gamesPlayed", async () => await gamesPlayed());
   it.concurrent("changePlayerName", async () => await changePlayerName());
-  it.concurrent("changePersonaState", async () => await changePersonaState())
+  it.concurrent("changePersonaState", async () => await changePersonaState());
   it.concurrent("requestFreeLicense", async () => await requestFreeLicense());
 
   // it("registerKey", async () => {
@@ -47,12 +47,12 @@ describe.sequential("Test steam-client - TCP", () => {
 
 describe.sequential("Test steam-client - WS", () => {
   it("Connect to Steam", async () => await connectToSteam("ws"));
-  it("Get tokens via QR Code", async () => await getQRCode());
-  it("login", async () => await login())
-  it.concurrent("Get games", async () => await getGames())
+  it("Get tokens via QR Code", async () => await getQRCode(), { timeout: 2 * 60 * 1000 });
+  it("login", async () => await login(), { timeout: 15 * 1000 });
+  it.concurrent("Get games", async () => await getGames());
   it.concurrent("gamesPlayed", async () => await gamesPlayed());
   it.concurrent("changePlayerName", async () => await changePlayerName());
-  it.concurrent("changePersonaState", async () => await changePersonaState())
+  it.concurrent("changePersonaState", async () => await changePersonaState());
   it.concurrent("requestFreeLicense", async () => await requestFreeLicense());
   afterAll(() => {
     if (steam) steam.disconnect();

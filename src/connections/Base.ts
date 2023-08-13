@@ -16,12 +16,11 @@ import { EMsg } from "../language/enums_clientserver.proto.js"
 import { JobidSources, JobidTargets, ProtoResponses, Session, UnifiedMessage } from "../../@types/connections/Base.js";
 import { CMsgMulti } from "../../@types/protos/protoResponse.js";
 
-const JOB_NONE = Long.fromString("18446744073709551615", true);
-
 export default abstract class Base extends EventEmitter {
   private heartBeat: NodeJS.Timer;
   protected readonly MAGIC = "VT01";
   protected readonly PROTO_MASK = 0x80000000;
+  private JOB_NONE = Long.fromString("18446744073709551615", true);
   private connectionDestroyed = false;
   private readonly jobidSources: JobidSources = new Map();
   private readonly jobidTargets: JobidTargets = new Map();
@@ -72,10 +71,12 @@ export default abstract class Base extends EventEmitter {
         jobidSource,
       };
 
+      // save jobId that steam will send a response to
       this.jobidSources.set(jobidSource.toString(), unifiedMessage);
-      
-      // delete after 2 mins if never got response
+
+      // delete after 2 mins if never got steam resonse to jobId.
       setTimeout(() => this.jobidSources.delete(jobidSource.toString()), 2 * 60 * 1000);
+
       const serviceMethodEMsg = this.session.steamId.equals(Long.fromString("76561197960265728", true))
         ? EMsg.ServiceMethodCallFromClientNonAuthed
         : EMsg.ServiceMethodCallFromClient;
@@ -112,16 +113,19 @@ export default abstract class Base extends EventEmitter {
       this.session.steamId = !body.steamid.equals(Long.UZERO) ? body.steamid : this.session.steamId
       this.session.clientId = body.clientSessionid;
 
-      // got a jobId that steam expects a respond to
-      if (body.jobidSource && !JOB_NONE.equals(body.jobidSource)) {
+      // steam expects a response to this jobId
+      if (body.jobidSource && !this.JOB_NONE.equals(body.jobidSource)) {
         const key = (Language.EMsgMap.get(EMsgReceived) + "Response") as keyof typeof EMsg;
         this.jobidTargets.set(EMsg[key], body.jobidSource);
+        // we have 3.5 seconds to send a reponse to this jobId
+        setTimeout(() => this.jobidTargets.delete(EMsg[key]), 3.5 * 60 * 1000);
       }
 
-      // got response to a unified message
-      if (body.jobidTarget && !JOB_NONE.equals(body.jobidTarget)) {
+      // steam response to jobId
+      if (body.jobidTarget && !this.JOB_NONE.equals(body.jobidTarget)) {
         const unifiedMessage = this.jobidSources.get(body.jobidTarget.toString());
         const message = Protos.decode(unifiedMessage.method + "_Response", packet.readBuffer());
+        this.jobidSources.delete(body.jobidTarget.toString());
         return unifiedMessage.resolve({ EResult: body.eresult, ...message });
       }
     } else {
@@ -204,11 +208,12 @@ export default abstract class Base extends EventEmitter {
     const message: CMsgProtoBufHeader = {
       steamid: this.session.steamId,
       clientSessionid: this.session.clientId,
-      jobidTarget: this.jobidTargets.get(EMsg) || JOB_NONE,
+      jobidTarget: this.jobidTargets.get(EMsg) || this.JOB_NONE, // steam expects response to this jobId
       targetJobName: unifiedMessage?.targetJobName,
-      jobidSource: unifiedMessage?.jobidSource || JOB_NONE, // unified messages
+      jobidSource: unifiedMessage?.jobidSource || this.JOB_NONE, // sending steam a jobId request
     };
 
+    // steam will receive response to this jobId
     this.jobidTargets.delete(EMsg);
 
     const CMsgProtoBufHeader = Protos.encode("CMsgProtoBufHeader", message);
