@@ -1,7 +1,7 @@
 /**
- * Handle low-level connection to steam.
+ * Handle low-level communication to steam.
  * Emits 'disconnected' if connection is lost
- *       'sendData' to catch in subclass
+ *       'sendData' to catch in connection protocal subclass
  */
 
 import { EventEmitter } from "events";
@@ -21,6 +21,7 @@ export default abstract class Base extends EventEmitter {
   protected readonly MAGIC = "VT01";
   protected readonly PROTO_MASK = 0x80000000;
   private JOB_NONE = Long.fromString("18446744073709551615", true);
+  private jobIdTimeout = 3 * 60 * 1000;
   private connectionDestroyed = false;
   private readonly jobidSources: JobidSources = new Map();
   private readonly jobidTargets: JobidTargets = new Map();
@@ -74,8 +75,8 @@ export default abstract class Base extends EventEmitter {
       // save jobId that steam will send a response to
       this.jobidSources.set(jobidSource.toString(), unifiedMessage);
 
-      // delete after 2 mins if never got steam resonse to jobId.
-      setTimeout(() => this.jobidSources.delete(jobidSource.toString()), 2 * 60 * 1000);
+      // steam has this.jobIdTimeout ms to response to this jobId
+      setTimeout(() => this.jobidSources.delete(jobidSource.toString()), this.jobIdTimeout);
 
       const serviceMethodEMsg = this.session.steamId.equals(Long.fromString("76561197960265728", true))
         ? EMsg.ServiceMethodCallFromClientNonAuthed
@@ -117,8 +118,8 @@ export default abstract class Base extends EventEmitter {
       if (body.jobidSource && !this.JOB_NONE.equals(body.jobidSource)) {
         const key = (Language.EMsgMap.get(EMsgReceived) + "Response") as keyof typeof EMsg;
         this.jobidTargets.set(EMsg[key], body.jobidSource);
-        // we have 3.5 seconds to send a reponse to this jobId
-        setTimeout(() => this.jobidTargets.delete(EMsg[key]), 3.5 * 60 * 1000);
+        // we have this.jobIdTimeout ms to response to this jobId
+        setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.jobIdTimeout);
       }
 
       // steam response to jobId
@@ -173,6 +174,7 @@ export default abstract class Base extends EventEmitter {
     // make sure method is called only once
     if (this.connectionDestroyed) return;
     this.connected = false;
+    this.session = null;
     this.connectionDestroyed = true;
 
     // emmit if disconnect happened because of an error

@@ -1,3 +1,6 @@
+/**
+ * Handle websocket connection to steam
+ */
 import WebSocket from "ws";
 import Base from "./Base.js";
 import { SteamClientError } from "../common.js";

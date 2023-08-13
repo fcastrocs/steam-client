@@ -1,6 +1,5 @@
 /**
- * Handle low-level connection to steam.
- * Emits 'socket disconnected' if connection is lost
+ * Handle TCP connection to steam
  */
 import { Socket } from "net";
 import { SmartBuffer } from "smart-buffer";
@@ -29,25 +28,8 @@ export default class TCPConnection extends Base {
         this.timeout = options.timeout ?
             (options.timeout > 15 ? options.timeout : this.timeout) : this.timeout;
 
-        // send data to Steam
-        this.on("sendData", (message: Buffer) => {
-            // encrypt message
-            if (this.encrypted) {
-                message = SteamCrypto.encrypt(message, this.encryptionKey.plain);
-            }
-
-            const packet = new SmartBuffer();
-            packet.writeUInt32LE(message.length);
-            packet.writeString(this.MAGIC);
-            packet.writeBuffer(message);
-
-            // do not let this fail
-            try {
-                this.socket.write(packet.toBuffer());
-            } catch (error) {
-                return;
-            }
-        })
+        // send data: [data length, MAGIC, message]
+        this.on("sendData", this.send)
     }
 
     /**
@@ -65,7 +47,7 @@ export default class TCPConnection extends Base {
         this.socket.setTimeout(this.timeout);
 
         // start reading data
-        this.socket.on("readable", () => this.readData());
+        this.socket.on("readable", this.readData);
 
         // wait for encryption handshake
         return new Promise((resolve, reject) => {
@@ -86,7 +68,6 @@ export default class TCPConnection extends Base {
                 this.socket.on("timeout", () => this.destroyConnection(new SteamClientError("Connection timed out.")));
 
                 this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
-
                 resolve();
             });
 
@@ -136,8 +117,8 @@ export default class TCPConnection extends Base {
     }
 
     /**
-     * Send packet to steam
-     * message: Buffer(message.length, MAGIC, proto | channelEncryptResponse)
+     * Send data
+     * [message.length, MAGIC, message: [steam proto | channelEncryptResponse]]
      */
     private send(message: Buffer) {
         // encrypt message
@@ -160,26 +141,11 @@ export default class TCPConnection extends Base {
     }
 
     /**
-     * MsgHdr:
-     * int EMsg
-     * int CMsgProtoBufHeader length;
-     * Proto CMsgProtoBufHeader buffer
-     */
-    private buildMsgHdr(EMsg: number): Buffer {
-        const sBuffer = new SmartBuffer();
-        sBuffer.writeUInt32LE(EMsg);
-        sBuffer.writeBigUInt64LE(18446744073709551615n); //tarjetjobid
-        sBuffer.writeBigUInt64LE(18446744073709551615n); //sourjobid
-        return sBuffer.toBuffer();
-    }
-
-    /**
-     * Read data sent by steam
-     * header: 8 bytes (uint packetsize 4 bytes, string MAGIC 4 bytes)
-     * Packet: packetsize bytes
+     * Read data
+     * [header, packet]
+     * where header: 8 bytes [packetSize(UInt32), magic(4 bytes string)]
      */
     private readData() {
-        // not waiting for a packet, decode header
         if (!this.incompletePacket) {
             const header: Buffer = this.socket.read(8);
             if (!header) return;
@@ -187,7 +153,7 @@ export default class TCPConnection extends Base {
             this.packetSize = header.readUInt32LE(0);
 
             if (header.subarray(4).toString("ascii") != this.MAGIC) {
-                this.destroyConnection(new SteamClientError("Connection is out of sync."));
+                this.destroyConnection(new SteamClientError("Steam sent bad data."));
                 return;
             }
         }
@@ -195,13 +161,13 @@ export default class TCPConnection extends Base {
         // read packet
         let packet: Buffer = this.socket.read(this.packetSize);
 
-        // we haven't received the complete packet
+        // we haven't received the pack
         if (!packet) {
             this.incompletePacket = true;
             return;
         }
 
-        // got the complete packet, reset variables
+        // we got the packet, reset variables
         this.packetSize = 0;
         this.incompletePacket = false;
 
@@ -235,27 +201,26 @@ export default class TCPConnection extends Base {
 
     /**
      * Send connection encryption response.
-     * Starts encryption handshake
      */
     private channelEncryptResponse(body: SmartBuffer) {
         const protocol = body.readUInt32LE();
-        body.readUInt32LE(); // skip universe
+        const universe = body.readUInt32LE();
         const nonce = body.readBuffer();
 
         this.encryptionKey = SteamCrypto.genSessionKey(nonce);
-
-        const MsgHdr = this.buildMsgHdr(EMsg.ChannelEncryptResponse);
-
-        // MsgChannelEncryptResponse
-        const data = new SmartBuffer();
         const keycrc = crc32.unsigned(this.encryptionKey.encrypted);
-        data.writeUInt32LE(protocol);
-        data.writeUInt32LE(this.encryptionKey.encrypted.length);
-        data.writeBuffer(this.encryptionKey.encrypted);
-        data.writeUInt32LE(keycrc);
-        data.writeUInt32LE(0);
 
-        this.send(Buffer.concat([MsgHdr, data.toBuffer()]));
+        const sBuffer = new SmartBuffer();
+        sBuffer.writeUInt32LE(EMsg.ChannelEncryptResponse);
+        sBuffer.writeBigUInt64LE(18446744073709551615n); //tarjetjobid
+        sBuffer.writeBigUInt64LE(18446744073709551615n); //sourjobid
+        sBuffer.writeUInt32LE(protocol);
+        sBuffer.writeUInt32LE(this.encryptionKey.encrypted.length);
+        sBuffer.writeBuffer(this.encryptionKey.encrypted);
+        sBuffer.writeUInt32LE(keycrc);
+        sBuffer.writeUInt32LE(0);
+
+        this.send(sBuffer.toBuffer());
     }
 
     /**
