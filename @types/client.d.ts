@@ -1,5 +1,5 @@
 import { ConnectionOptions } from "./connection.js";
-import { ClientPlayingSessionState, Friend } from "./protoResponse.js";
+import { ClientPlayingSessionState, Friend } from "./protos/protoResponse.js";
 import Steam, { LoginOptions } from "./steam.js";
 import { EPersonaState } from "./enums/commons.js"
 import { Item } from "./services/Econ.js";

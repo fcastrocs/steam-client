@@ -1,4 +1,4 @@
-interface ProtoBufHeader {
+interface CMsgProtoBufHeader {
   steamid: Long;
   clientSessionid: number;
   jobidSource?: Long;

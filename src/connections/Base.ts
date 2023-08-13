@@ -12,8 +12,9 @@ import * as Protos from "../protos.js";
 import Long from "long";
 import { SteamClientError } from "../common.js";
 import { T } from "../../@types/common.js";
-import { EMsg } from "../language/enums_clientserver.proto.js";
+import { EMsg } from "../language/enums_clientserver.proto.js"
 import { JobidSources, JobidTargets, ProtoResponses, Session, UnifiedMessage } from "../../@types/connections/Base.js";
+import { CMsgMulti } from "../../@types/protos/protoResponse.js";
 
 const JOB_NONE = Long.fromString("18446744073709551615", true);
 
@@ -34,7 +35,17 @@ export default abstract class Base extends EventEmitter {
   constructor() { super() }
 
   /**
-   * Use this for proto messages that have a response from Steam
+  * Send proto message
+  * [proto masked EMsg, proto header: [CMsgProtoBufHeader length, CMsgProtoBufHeader], steam proto]
+  */
+  public sendProto(EMsg: number, payload: T) {
+    const protoHeader = this.buildProtoHeader(EMsg);
+    payload = Protos.encode(`CMsg${Language.EMsgMap.get(EMsg)}`, payload);
+    this.emit("sendData", Buffer.concat([protoHeader, payload]))
+  }
+
+  /**
+   * Send proto message and wait for response
    */
   public sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T> {
     return new Promise((resolve) => {
@@ -45,24 +56,15 @@ export default abstract class Base extends EventEmitter {
   }
 
   /**
- * Use this for proto messages that don't have a response from Steam
- */
-  public sendProto(EMsg: number, payload: T) {
-    const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(EMsg);
-    payload = Protos.encode(`CMsg${Language.EMsgMap.get(EMsg)}`, payload);
-    this.emit("sendData", Buffer.concat([MsgHdrProtoBuf, payload]))
-  }
-
-  /**
- * use this for steammessages_unified or service proto messages
- */
+  * Send steammessages_unified
+  * [protoHeader, steam proto]
+  */
   public sendUnified(serviceName: string, method: string, payload: T): Promise<T> {
     const targetJobName = `${serviceName}.${method}#1`;
     method = `C${serviceName}_${method}`;
 
     return new Promise((resolve) => {
       const jobidSource = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
-
       const unifiedMessage: UnifiedMessage = {
         method,
         resolve,
@@ -71,23 +73,22 @@ export default abstract class Base extends EventEmitter {
       };
 
       this.jobidSources.set(jobidSource.toString(), unifiedMessage);
-
+      
       // delete after 2 mins if never got response
       setTimeout(() => this.jobidSources.delete(jobidSource.toString()), 2 * 60 * 1000);
-
       const serviceMethodEMsg = this.session.steamId.equals(Long.fromString("76561197960265728", true))
         ? EMsg.ServiceMethodCallFromClientNonAuthed
         : EMsg.ServiceMethodCallFromClient;
 
-      const MsgHdrProtoBuf = this.buildMsgHdrProtoBuf(serviceMethodEMsg, unifiedMessage);
+      const protoHeader = this.buildProtoHeader(serviceMethodEMsg, unifiedMessage);
       payload = Protos.encode(method + "_Request", payload);
-      this.emit("sendData", Buffer.concat([MsgHdrProtoBuf, payload]))
+      this.emit("sendData", Buffer.concat([protoHeader, payload]))
     });
   }
 
   /**
    * Decode data and emmit decoded payload
-   * Packet has two parts: Header[MsgHdrProtoBuf or ExtendedClientMsgHdr] and payload[proto]
+   * [proto masked EMsg, proto header: [CMsgProtoBufHeader length, CMsgProtoBufHeader] | ExtendedClientMsgHdr, steam proto]
    */
   protected decodeData(data: Buffer) {
     const packet = SmartBuffer.fromBuffer(data);
@@ -96,23 +97,19 @@ export default abstract class Base extends EventEmitter {
     const EMsgReceived = rawEMsg & ~this.PROTO_MASK;
     const isProto = rawEMsg & this.PROTO_MASK;
 
-    //console.log(Language.EMsgMap.get(EMsgReceived))
-
     // package is gzipped, have to gunzip it first
     if (EMsgReceived === EMsg.Multi) {
       return this.multi(packet.readBuffer());
     }
 
     if (isProto) {
-      // decode proto: headersize, header: [steamid, clientSessionid]
+      // [headersize, CMsgProtoBufHeader]
       const headerLength = packet.readUInt32LE();
       const CMsgProtoBufHeader = packet.readBuffer(headerLength);
-      const body = Protos.decode("CMsgProtoBufHeader", CMsgProtoBufHeader) as ProtoBufHeader;
+      const body = Protos.decode("CMsgProtoBufHeader", CMsgProtoBufHeader) as CMsgProtoBufHeader;
 
-      if (!body.steamid.equals(Long.UZERO)) {
-        this.session.steamId = body.steamid;
-      }
-
+      // got actual steamId from steam
+      this.session.steamId = !body.steamid.equals(Long.UZERO) ? body.steamid : this.session.steamId
       this.session.clientId = body.clientSessionid;
 
       // got a jobId that steam expects a respond to
@@ -124,34 +121,25 @@ export default abstract class Base extends EventEmitter {
       // got response to a unified message
       if (body.jobidTarget && !JOB_NONE.equals(body.jobidTarget)) {
         const unifiedMessage = this.jobidSources.get(body.jobidTarget.toString());
-
         const message = Protos.decode(unifiedMessage.method + "_Response", packet.readBuffer());
         return unifiedMessage.resolve({ EResult: body.eresult, ...message });
       }
     } else {
-      // Decode ExtendedClientMsgHdr
-      packet.readBuffer(3); // skip 3 bytes. header size (1 byte) header version (2 bytes)
-      packet.readBigUInt64LE(); //jobidTarget 18446744073709551615n
-      packet.readBigUInt64LE(); //jobidSource 18446744073709551615n
-
-      packet.readBuffer(1); // skip header canary (1 byte)
-
+      // Extended header
+      // [headerSize(1 byte), headerVersion(2 bytes), jobidTarget(BigUInt64), jobidSource(BigUInt64), canary(1 byte), steamId(BigUInt64), clientId(Int32)]
+      packet.readBuffer(3);
+      const jobidTarget = packet.readBigUInt64LE();
+      const jobidSource = packet.readBigUInt64LE();
+      packet.readBuffer(1);
       const steamId = Long.fromString(packet.readBigUInt64LE().toString(), true);
-      if (!steamId.equals(Long.UZERO)) {
-        this.session.steamId = steamId;
-      }
-
+      this.session.steamId = !steamId.equals(Long.UZERO) ? steamId : this.session.steamId
       this.session.clientId = packet.readInt32LE();
-
-      if (EMsgReceived !== EMsg.ClientVACBanStatus) return;
     }
 
     // manually handle this proto because there's no Proto for it
     if (EMsgReceived === EMsg.ClientVACBanStatus) {
       const bans = packet.readUInt32LE();
-      this.emit("ClientVACBanStatus", {
-        vac: !!bans,
-      });
+      this.emit("ClientVACBanStatus", { vac: !!bans });
       return;
     }
 
@@ -169,7 +157,7 @@ export default abstract class Base extends EventEmitter {
       }
     } catch (error) {
       // console.error("Proto decode failed.");
-      // console.error(error.message);
+      // console.log(Language.EMsgMap.get(EMsgReceived))
     }
   }
 
@@ -192,8 +180,8 @@ export default abstract class Base extends EventEmitter {
   }
 
   /**
- * Heartbeat connection after login
- */
+  * Heartbeat connection after login
+  */
   public startHeartBeat(beatTimeSecs: number) {
     this.heartBeat = setInterval(() => {
       this.sendProto(EMsg.ClientHeartBeat, {});
@@ -205,19 +193,15 @@ export default abstract class Base extends EventEmitter {
   }
 
   /**
- * MsgHdrProtoBuf:
- * int EMsg
- * int CMsgProtoBufHeader length;
- * Proto CMsgProtoBufHeader buffer
- */
-  private buildMsgHdrProtoBuf(EMsg: number, unifiedMessage?: UnifiedMessage): Buffer {
+   * build CMsgHdrProtoBuf: [proto masked EMsg, CMsgProtoBufHeader length, CMsgProtoBufHeader]
+  */
+  private buildProtoHeader(EMsg: number, unifiedMessage?: UnifiedMessage): Buffer {
     const sBuffer = new SmartBuffer();
 
-    //MsgHdrProtoBuf
     sBuffer.writeInt32LE(EMsg | this.PROTO_MASK);
 
     //CMsgProtoBufHeader
-    const message: ProtoBufHeader = {
+    const message: CMsgProtoBufHeader = {
       steamid: this.session.steamId,
       clientSessionid: this.session.clientId,
       jobidTarget: this.jobidTargets.get(EMsg) || JOB_NONE,
@@ -227,15 +211,15 @@ export default abstract class Base extends EventEmitter {
 
     this.jobidTargets.delete(EMsg);
 
-    const header = Protos.encode("CMsgProtoBufHeader", message);
-    sBuffer.writeInt32LE(header.length);
-    sBuffer.writeBuffer(header);
+    const CMsgProtoBufHeader = Protos.encode("CMsgProtoBufHeader", message);
+    sBuffer.writeInt32LE(CMsgProtoBufHeader.length);
+    sBuffer.writeBuffer(CMsgProtoBufHeader);
 
     return sBuffer.toBuffer();
   }
 
   private async multi(payload: Buffer): Promise<void> {
-    const message = Protos.decode("CMsgMulti", payload);
+    const message = Protos.decode("CMsgMulti", payload) as CMsgMulti;
     payload = message.messageBody;
 
     // message is gzipped

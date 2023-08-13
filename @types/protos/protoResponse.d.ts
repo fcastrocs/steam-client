@@ -217,3 +217,8 @@ interface GetOwnedGamesRes {
   playtimeForever: number;
   imgIconUrl: string;
 }
+
+interface CMsgMulti {
+  sizeUnzipped: number;
+  messageBody: Buffer;
+}

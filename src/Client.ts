@@ -17,7 +17,7 @@ import {
   ClientEmailAddrInfo,
   ClientIsLimitedAccount,
   ClientLogonResponse,
-} from "../@types/protoResponse.js";
+} from "../@types/protos/protoResponse.js";
 import { SteamClientError, getKeyByValue } from "./common.js";
 import { EOSType, EPersonaState, EPurchaseResultDetail } from "./language/commons.js";
 import { EMsg } from "./language/enums_clientserver.proto.js";

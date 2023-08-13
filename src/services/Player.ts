@@ -1,5 +1,5 @@
 import { Game } from "../../@types/client.js";
-import { GetOwnedGamesRes } from "../../@types/protoResponse.js";
+import { GetOwnedGamesRes } from "../../@types/protos/protoResponse.js";
 import IPlayer from "../../@types/services/player.js";
 import Steam from "../Steam.js";
 
