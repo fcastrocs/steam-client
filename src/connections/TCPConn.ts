@@ -47,7 +47,7 @@ export default class TCPConnection extends Base {
         this.socket.setTimeout(this.timeout);
 
         // start reading data
-        this.socket.on("readable", this.readData);
+        this.socket.on("readable", ()=> this.readData());
 
         // wait for encryption handshake
         return new Promise((resolve, reject) => {
