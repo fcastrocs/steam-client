@@ -13,7 +13,7 @@ import Long from "long";
 import { SteamClientError } from "../common.js";
 import { T } from "../../@types/common.js";
 import { EMsg } from "../language/enums_clientserver.proto.js"
-import { JobidSources, JobidTargets, ProtoResponses, Session, UnifiedMessage } from "../../@types/connections/Base.js";
+import { ConnectionOptions, JobidSources, JobidTargets, ProtoResponses, Session, UnifiedMessage } from "../../@types/connections/Base.js";
 import { CMsgMulti } from "../../@types/protos/protoResponse.js";
 
 export default abstract class Base extends EventEmitter {
@@ -26,13 +26,17 @@ export default abstract class Base extends EventEmitter {
   private readonly jobidSources: JobidSources = new Map();
   private readonly jobidTargets: JobidTargets = new Map();
   private readonly protoResponses: ProtoResponses = new Map();
+  protected readonly timeout: number = 10000;
   private session: Session = {
     clientId: 0,
     steamId: Long.fromString("76561197960265728", true),
   };
-  protected connected = false;
 
-  constructor() { super() }
+  constructor(public options: ConnectionOptions) {
+    super();
+    // set timeout only if greater than current value
+    this.timeout = options.timeout && options.timeout > this.timeout ? options.timeout : this.timeout;
+  }
 
   /**
   * Send proto message
@@ -173,14 +177,11 @@ export default abstract class Base extends EventEmitter {
   protected destroyConnection(error?: SteamClientError) {
     // make sure method is called only once
     if (this.connectionDestroyed) return;
-    this.connected = false;
     this.session = null;
     this.connectionDestroyed = true;
 
     // emmit if disconnect happened because of an error
-    if (error) {
-      this.emit("disconnected", error);
-    }
+    if (error) this.emit("disconnected", error);
 
     clearInterval(this.heartBeat);
   }
@@ -196,6 +197,12 @@ export default abstract class Base extends EventEmitter {
 
   public get steamid() {
     return this.session.steamId;
+  }
+
+  public isLoggedIn() {
+    return this.session &&
+      this.session.steamId !== Long.fromString("76561197960265728", true) &&
+      this.session.clientId !== 0;
   }
 
   /**

@@ -140,7 +140,6 @@ export default class Client extends Steam {
       accountData.steamId = res.clientSuppliedSteamid.toString();
       accountData.games = await this.service.player.getOwnedGames();
       accountData.inventory.steam = await this.service.econ.getSteamContextItems();
-      this.loggedIn = true;
     } else {
       this.disconnect();
       throw new SteamClientError(Language.EResultMap.get(res.eresult));

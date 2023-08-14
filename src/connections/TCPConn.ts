@@ -21,12 +21,8 @@ export default class TCPConnection extends Base {
     private packetSize = 0;
     private encryptionKey: SessionKey = null;
 
-    constructor(private options: ConnectionOptions) {
-        super();
-
-        // set timeout only if greater than 15
-        this.timeout = options.timeout ?
-            (options.timeout > 15 ? options.timeout : this.timeout) : this.timeout;
+    constructor(options: ConnectionOptions) {
+        super(options);
 
         // send data: [data length, MAGIC, message]
         this.on("sendData", this.send)
@@ -43,18 +39,17 @@ export default class TCPConnection extends Base {
             this.socket = await this.proxyConnect();
         }
 
-        this.connected = true;
         this.socket.setTimeout(this.timeout);
 
         // start reading data
-        this.socket.on("readable", ()=> this.readData());
+        this.socket.on("readable", () => this.readData());
 
         // wait for encryption handshake
         return new Promise((resolve, reject) => {
             // expect connection handshake before timeout
             const timeoutId = setTimeout(() => {
                 this.destroyConnection();
-                reject(new SteamClientError("Encryption handshake timeout."))
+                reject(new SteamClientError("Connecting to Steam timeout."))
             }, this.timeout);
 
             this.once("encryption-success", () => {

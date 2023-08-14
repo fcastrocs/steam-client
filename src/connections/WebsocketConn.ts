@@ -10,17 +10,15 @@ import { EMsg } from "../language/enums_clientserver.proto.js";
 
 export default class WebSocketConnection extends Base {
   private ws: WebSocket
-  private options: ConnectionOptions;
 
   constructor(options: ConnectionOptions) {
-    super();
-    this.options = options;
+    super(options);
 
     // send data to Steam
     this.on("sendData", (message: Buffer) => this.ws.send(message))
   }
 
-  public async connect() {
+  public async connect(): Promise<void> {
     // set proxy agent if proxy was specified
     const wsOptions = {
       agent: this.options.proxy ? new SocksProxyAgent(`socks://username:password@${this.options.proxy.host}:${this.options.proxy.port}`) : undefined
@@ -39,6 +37,7 @@ export default class WebSocketConnection extends Base {
 
 
     this.ws.once("close", (code) => {
+      if (!this.isLoggedIn()) return;
       // not normal close
       if (code !== 1000) {
         this.destroyConnection(new SteamClientError(code.toString()))
@@ -46,21 +45,30 @@ export default class WebSocketConnection extends Base {
     });
 
     this.ws.on("error", error => {
-      if (!this.connected) return;
+      if (!this.isLoggedIn()) return;
       this.destroyConnection(new SteamClientError(error.message))
-    })
+    });
 
     return new Promise((resolve, reject) => {
+      // expect connection handshake before timeout
+      const timeoutId = setTimeout(() => {
+        this.destroyConnection();
+        reject(new SteamClientError("Connecting to Steam timeout."))
+      }, this.timeout);
+
       const errorListener = (error: Error) => {
+        clearTimeout(timeoutId);
         this.destroyConnection();
         reject(new SteamClientError(error.message));
       }
       this.ws.once("error", errorListener);
+
+      // connected
       this.ws.once("open", () => {
+        clearTimeout(timeoutId);
         this.ws.removeListener("error", errorListener);
-        this.connected = true;
         this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
-        resolve("connected");
+        resolve();
       });
     })
   }

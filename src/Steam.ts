@@ -58,23 +58,14 @@ export default abstract class Steam extends EventEmitter {
     });
   }
 
-  /**
-   * Disconnect user from Steam and kill connection
-   */
   public disconnect() {
     this.conn.destroyConnection();
   }
 
-  /**
-   * Whether user is logged in
-   */
   public get isLoggedIn() {
-    return this.loggedIn;
+    return this.conn.isLoggedIn();
   }
 
-  /**
-   * returns account's steamId
-   */
   public get steamId(): Long {
     return this.conn.steamid;
   }
