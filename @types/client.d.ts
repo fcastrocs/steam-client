@@ -12,6 +12,14 @@ declare const EResult: EResultType;
 declare const EMsg: EMsgType;
 export { EResult, EMsg, SteamClientError }
 
+export type LoginOptions = {
+  accountName?: string;
+  password?: string;
+  refreshToken?: string;
+  machineName?: string;
+  machineId?: Buffer;
+}
+
 export interface AccountAuth {
   machineName: string;
 }
@@ -61,7 +69,7 @@ declare class Client extends Steam {
   /**
    * Change player persona state
    */
-  setPersonaState(personaState: keyof EPersonaState): Promise<Friend>;
+  setPersonaState(personaState: keyof typeof EPersonaState): Promise<Friend>;
   /**
    * Idle an array of appIds
    * Empty array stops idling

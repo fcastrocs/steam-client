@@ -7,94 +7,116 @@
 import { EventEmitter } from "events";
 import { SmartBuffer } from "smart-buffer";
 import Zip from "zlib";
-import { Language } from "../resources.js";
-import * as Protos from "../protos.js";
+import { Language } from "../modules/language.js";
+import * as Protos from "../modules/protos.js";
 import Long from "long";
-import { SteamClientError } from "../common.js";
-import { T } from "../../@types/common.js";
-import { EMsg } from "../language/enums_clientserver.proto.js"
-import { ConnectionOptions, JobidSources, JobidTargets, ProtoResponses, Session, UnifiedMessage } from "../../@types/connections/Base.js";
-import { CMsgMulti } from "../../@types/protos/protoResponse.js";
+import { SteamClientError } from "../modules/common.js";
+import { EMsg } from "../language/enums_clientserver.proto.js";
+import {
+  ConnectionOptions,
+  JobidTargets,
+  ProtoResponses,
+  ServiceMethodCall,
+  Session,
+} from "../../@types/connections/Base.js";
+import { UnknownRecord, ValueOf } from "type-fest";
+import { ClientLogonResponse } from "../../@types/protos/client.protos.js";
 
 export default abstract class Base extends EventEmitter {
-  private heartBeat: NodeJS.Timer;
+  private heartBeat!: NodeJS.Timer;
   protected readonly MAGIC = "VT01";
   protected readonly PROTO_MASK = 0x80000000;
   private JOB_NONE = Long.fromString("18446744073709551615", true);
   private jobIdTimeout = 3 * 60 * 1000;
   private connectionDestroyed = false;
-  private readonly jobidSources: JobidSources = new Map();
+  private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
   private readonly jobidTargets: JobidTargets = new Map();
   private readonly protoResponses: ProtoResponses = new Map();
   protected readonly timeout: number = 10000;
+  private DEFAULT_STEAMID = Long.fromString("76561197960265728", true)
   private session: Session = {
     clientId: 0,
-    steamId: Long.fromString("76561197960265728", true),
+    steamId: this.DEFAULT_STEAMID,
   };
 
-  constructor(public options: ConnectionOptions) {
+  constructor(protected options: ConnectionOptions) {
     super();
     // set timeout only if greater than current value
     this.timeout = options.timeout && options.timeout > this.timeout ? options.timeout : this.timeout;
   }
 
   /**
-  * Send proto message
-  * [proto masked EMsg, proto header: [CMsgProtoBufHeader length, CMsgProtoBufHeader], steam proto]
-  */
-  public sendProto(EMsg: number, payload: T) {
-    const protoHeader = this.buildProtoHeader(EMsg);
-    payload = Protos.encode(`CMsg${Language.EMsgMap.get(EMsg)}`, payload);
-    this.emit("sendData", Buffer.concat([protoHeader, payload]))
+   * Send proto message
+   */
+  public sendProto(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord) {
+    const protoHeader = this.buildProtoHeader(eMsg);
+    const body = Protos.encode(`CMsg${Language.EMsgMap.get(eMsg)}`, payload);
+    this.emit("sendData", Buffer.concat([protoHeader, body]));
   }
 
   /**
    * Send proto message and wait for response
    */
-  public sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T> {
+  public sendProtoPromise(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord, resEMsg?: ValueOf<typeof EMsg>): Promise<UnknownRecord> {
     return new Promise((resolve) => {
-      const EMsgName = resEMsg ? Language.EMsgMap.get(resEMsg) : Language.EMsgMap.get(EMsg) + "Response";
-      this.protoResponses.set(EMsgName, resolve);
-      this.sendProto(EMsg, payload);
+      const resEMsgKey = (resEMsg ? Language.EMsgMap.get(resEMsg) : Language.EMsgMap.get(eMsg) + "Response") as keyof typeof EMsg;
+      if (!resEMsgKey || !EMsg[resEMsgKey]) throw new SteamClientError("Specified EMsg does not exist.")
+      this.protoResponses.set(resEMsgKey, resolve);
+      this.sendProto(eMsg, payload);
     });
   }
 
   /**
-  * Send steammessages_unified
-  * [protoHeader, steam proto]
-  */
-  public sendUnified(serviceName: string, method: string, payload: T): Promise<T> {
+   * Send service method call
+   */
+  public sendServiceMethodCall(serviceName: string, method: string, body: UnknownRecord): Promise<UnknownRecord> {
     const targetJobName = `${serviceName}.${method}#1`;
     method = `C${serviceName}_${method}`;
+    const jobidSource = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
 
     return new Promise((resolve) => {
-      const jobidSource = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
-      const unifiedMessage: UnifiedMessage = {
+      const serviceMethodCall: ServiceMethodCall = {
         method,
-        resolve,
+        promiseResolve: resolve,
         targetJobName,
         jobidSource,
       };
 
       // save jobId that steam will send a response to
-      this.jobidSources.set(jobidSource.toString(), unifiedMessage);
+      this.serviceMethodCalls.set(jobidSource.toString(), serviceMethodCall);
 
       // steam has this.jobIdTimeout ms to response to this jobId
-      setTimeout(() => this.jobidSources.delete(jobidSource.toString()), this.jobIdTimeout);
+      setTimeout(() => this.serviceMethodCalls.delete(jobidSource.toString()), this.jobIdTimeout);
 
-      const serviceMethodEMsg = this.session.steamId.equals(Long.fromString("76561197960265728", true))
+      const serviceMethodEMsg = this.session.steamId.equals(this.DEFAULT_STEAMID)
         ? EMsg.ServiceMethodCallFromClientNonAuthed
         : EMsg.ServiceMethodCallFromClient;
 
-      const protoHeader = this.buildProtoHeader(serviceMethodEMsg, unifiedMessage);
-      payload = Protos.encode(method + "_Request", payload);
-      this.emit("sendData", Buffer.concat([protoHeader, payload]))
+      const protoHeader = this.buildProtoHeader(serviceMethodEMsg, serviceMethodCall);
+      const buffer = Protos.encode(method + "_Request", body);
+      this.emit("sendData", Buffer.concat([protoHeader, buffer]));
     });
   }
 
+  public isLoggedIn() {
+    return (
+      this.session && this.session.steamId !== this.DEFAULT_STEAMID && this.session.clientId !== 0
+    );
+  }
+
+  public get steamid() {
+    return this.session.steamId;
+  }
+
+  public setSteamId(steamId: string) {
+    this.session.steamId = Long.fromString(steamId, true);
+  }
+
   /**
-   * Decode data and emmit decoded payload
-   * [proto masked EMsg, proto header: [CMsgProtoBufHeader length, CMsgProtoBufHeader] | ExtendedClientMsgHdr, steam proto]
+   * Decode data and emmit decoded payload.
+   * Steam sends ProtoBuf or NonProtoBuf
+   * ProtoBuf: [ header: [EMsg, header length, CMsgProtoBufHeader], body: proto] ]
+   * NonProtoBuf: [ header: [EMsg, header length, ExtendedHeader], body: raw bytes] ]
    */
   protected decodeData(data: Buffer) {
     const packet = SmartBuffer.fromBuffer(data);
@@ -108,61 +130,65 @@ export default abstract class Base extends EventEmitter {
       return this.multi(packet.readBuffer());
     }
 
-    if (isProto) {
-      // [headersize, CMsgProtoBufHeader]
-      const headerLength = packet.readUInt32LE();
-      const CMsgProtoBufHeader = packet.readBuffer(headerLength);
-      const body = Protos.decode("CMsgProtoBufHeader", CMsgProtoBufHeader) as CMsgProtoBufHeader;
-
-      // got actual steamId from steam
-      this.session.steamId = !body.steamid.equals(Long.UZERO) ? body.steamid : this.session.steamId
-      this.session.clientId = body.clientSessionid;
-
-      // steam expects a response to this jobId
-      if (body.jobidSource && !this.JOB_NONE.equals(body.jobidSource)) {
-        const key = (Language.EMsgMap.get(EMsgReceived) + "Response") as keyof typeof EMsg;
-        this.jobidTargets.set(EMsg[key], body.jobidSource);
-        // we have this.jobIdTimeout ms to response to this jobId
-        setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.jobIdTimeout);
-      }
-
-      // steam response to jobId
-      if (body.jobidTarget && !this.JOB_NONE.equals(body.jobidTarget)) {
-        const unifiedMessage = this.jobidSources.get(body.jobidTarget.toString());
-        const message = Protos.decode(unifiedMessage.method + "_Response", packet.readBuffer());
-        this.jobidSources.delete(body.jobidTarget.toString());
-        return unifiedMessage.resolve({ EResult: body.eresult, ...message });
-      }
-    } else {
+    if (!isProto) {
       // Extended header
-      // [headerSize(1 byte), headerVersion(2 bytes), jobidTarget(BigUInt64), jobidSource(BigUInt64), canary(1 byte), steamId(BigUInt64), clientId(Int32)]
-      packet.readBuffer(3);
-      const jobidTarget = packet.readBigUInt64LE();
-      const jobidSource = packet.readBigUInt64LE();
-      packet.readBuffer(1);
+      const headerSize = packet.readUInt8();
+      const headerVersion = packet.readUInt16LE();
+      const targetJobId = packet.readBigUInt64LE();
+      const sourceJobId = packet.readBigUInt64LE();
+      const canaray = packet.readUInt8();
       const steamId = Long.fromString(packet.readBigUInt64LE().toString(), true);
-      this.session.steamId = !steamId.equals(Long.UZERO) ? steamId : this.session.steamId
+      this.session.steamId = !steamId.equals(Long.UZERO) ? steamId : this.session.steamId;
       this.session.clientId = packet.readInt32LE();
-    }
 
-    // manually handle this proto because there's no Proto for it
-    if (EMsgReceived === EMsg.ClientVACBanStatus) {
-      const bans = packet.readUInt32LE();
-      this.emit("ClientVACBanStatus", { vac: !!bans });
+      if (EMsgReceived === EMsg.ClientVACBanStatus) {
+        this.emit("ClientVACBanStatus", { numBans: packet.readUInt32LE() });
+      }
+
       return;
     }
 
-    // decode protos and emit message
+    const headerLength = packet.readUInt32LE();
+    const proto = Protos.decode("CMsgProtoBufHeader", packet.readBuffer(headerLength)) as CMsgProtoBufHeader;
+    this.session.steamId = proto.steamid;
+    this.session.clientId = proto.clientSessionid;
+
+    // steam expects a response to this jobId
+    if (proto.jobidSource && !this.JOB_NONE.equals(proto.jobidSource)) {
+      const key = (Language.EMsgMap.get(EMsgReceived) + "Response") as keyof typeof EMsg;
+      this.jobidTargets.set(EMsg[key], proto.jobidSource);
+      // we have this.jobIdTimeout ms to response to this jobId
+      setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.jobIdTimeout);
+    }
+
+    if (EMsgReceived === EMsg.ServiceMethodResponse) {
+      const serviceMethodCall = this.serviceMethodCalls.get(proto.jobidTarget.toString());
+      const message = Protos.decode(serviceMethodCall?.method + "_Response", packet.readBuffer());
+      this.serviceMethodCalls.delete(proto.jobidTarget.toString());
+      return serviceMethodCall?.promiseResolve({ EResult: proto.eresult, ...message });
+    }
+
+    // decode body and emit message
     try {
       const EMsgKey = Language.EMsgMap.get(EMsgReceived);
-      const message = Protos.decode("CMsg" + EMsgKey, packet.readBuffer());
-      this.emit(EMsgKey, message);
+      const body = Protos.decode("CMsg" + EMsgKey, packet.readBuffer());
+
+      // emit message 
+      this.emit(EMsgKey!, body);
 
       // response to sendProtoPromise
-      const promiseResolve = this.protoResponses.get(EMsgKey);
+      const promiseResolve = this.protoResponses.get(EMsgKey!);
       if (promiseResolve) {
-        this.protoResponses.delete(EMsgKey);
-        promiseResolve(message);
+        this.protoResponses.delete(EMsgKey!);
+        promiseResolve(body);
+      }
+
+      // start heartbeat if logged in successfully
+      if (EMsgReceived === EMsg.ClientLogonResponse) {
+        const res = body as ClientLogonResponse;
+        if (res.eresult === 1) {
+          this.startHeartBeat(res.heartbeatSeconds);
+        }
       }
     } catch (error) {
       // console.error("Proto decode failed.");
@@ -171,13 +197,13 @@ export default abstract class Base extends EventEmitter {
   }
 
   /**
-  * Destroy connection to Steam and do some cleanup
-  * disconnected is emmitted when error is passed
-  */
+   * Destroy connection to Steam and do some cleanup
+   * disconnected is emmitted when error is passed
+   */
   protected destroyConnection(error?: SteamClientError) {
     // make sure method is called only once
     if (this.connectionDestroyed) return;
-    this.session = null;
+    this.session = null!;
     this.connectionDestroyed = true;
 
     // emmit if disconnect happened because of an error
@@ -187,39 +213,30 @@ export default abstract class Base extends EventEmitter {
   }
 
   /**
-  * Heartbeat connection after login
-  */
-  public startHeartBeat(beatTimeSecs: number) {
+   * Heartbeat connection after login
+   */
+  private startHeartBeat(beatTimeSecs: number) {
     this.heartBeat = setInterval(() => {
       this.sendProto(EMsg.ClientHeartBeat, {});
     }, beatTimeSecs * 1000);
   }
 
-  public get steamid() {
-    return this.session.steamId;
-  }
-
-  public isLoggedIn() {
-    return this.session &&
-      this.session.steamId !== Long.fromString("76561197960265728", true) &&
-      this.session.clientId !== 0;
-  }
-
   /**
-   * build CMsgHdrProtoBuf: [proto masked EMsg, CMsgProtoBufHeader length, CMsgProtoBufHeader]
-  */
-  private buildProtoHeader(EMsg: number, unifiedMessage?: UnifiedMessage): Buffer {
+   * build header: [EMsg, CMsgProtoBufHeader length, CMsgProtoBufHeader]
+   */
+  private buildProtoHeader(EMsg: number, serviceMethodCall?: ServiceMethodCall): Buffer {
     const sBuffer = new SmartBuffer();
 
+    // EMsg must be PROTO MASKED
     sBuffer.writeInt32LE(EMsg | this.PROTO_MASK);
 
     //CMsgProtoBufHeader
     const message: CMsgProtoBufHeader = {
       steamid: this.session.steamId,
       clientSessionid: this.session.clientId,
-      jobidTarget: this.jobidTargets.get(EMsg) || this.JOB_NONE, // steam expects response to this jobId
-      targetJobName: unifiedMessage?.targetJobName,
-      jobidSource: unifiedMessage?.jobidSource || this.JOB_NONE, // sending steam a jobId request
+      jobidTarget: this.jobidTargets.get(EMsg) || this.JOB_NONE,
+      targetJobName: serviceMethodCall?.targetJobName,
+      jobidSource: serviceMethodCall?.jobidSource || this.JOB_NONE,
     };
 
     // steam will receive response to this jobId

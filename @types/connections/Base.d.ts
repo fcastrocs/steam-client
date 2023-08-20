@@ -4,11 +4,11 @@ import { SteamClientError, T } from "../common.js";
 import { EventEmitter } from "events";
 import Long from "long";
 import { SocksClientOptions } from "socks";
+import { EMsg } from "../enums/enums_clientserver.proto.js";
 
 export type PromiseResolve = (value: T) => void;
 export type JobidTargets = Map<number, Long>;
-export type JobidSources = Map<string, UnifiedMessage>;
-export type ProtoResponses = Map<string, PromiseResolve>;
+export type ProtoResponses = Map<keyof EMsg, PromiseResolve>;
 
 export interface SessionKey {
   plain: Buffer;
@@ -20,11 +20,11 @@ export interface Session {
   steamId: Long;
 }
 
-export interface UnifiedMessage {
+export interface ServiceMethodCall {
   method: string;
   jobidSource: Long;
   targetJobName: string;
-  resolve: PromiseResolve;
+  promiseResolve: PromiseResolve;
 }
 
 export interface Proto {
@@ -46,24 +46,39 @@ declare abstract class Base extends EventEmitter {
   on(event: "disconnected", listener: (error: SteamClientError) => void): this;
   once(event: "disconnected", listener: (error: SteamClientError) => void): this;
 
-  constructor();
+  protected options: ConnectionOptions;
+  protected readonly MAGIC = "VT01";
+  protected readonly PROTO_MASK = 2147483648;
+  protected readonly timeout: number;
+
+  constructor(protected options: ConnectionOptions);
   /**
-   * Use this for proto messages that have a response from Steam
+   * Send proto message
    */
-  sendProtoPromise(EMsg: number, payload: T, resEMsg?: number): Promise<T>;
+  sendProto(EMsg: number, payload: UnknownRecord): void;
   /**
- * Use this for proto messages that don't have a response from Steam
- */
-  sendProto(EMsg: number, payload: T): void;
+   * Send proto message and wait for response
+   */
+  sendProtoPromise(EMsg: number, payload: UnknownRecord, resEMsg?: number): Promise<UnknownRecord>;
   /**
- * use this for steammessages_unified or service proto messages
- */
-  sendUnified(serviceName: string, method: string, payload: T): Promise<T>;
-  /**
- * Heartbeat connection after login
- */
-  startHeartBeat(beatTimeSecs: number): void;
+   * Send service method call
+   */
+  sendServiceMethodCall(serviceName: string, method: string, body: UnknownRecord): Promise<UnknownRecord>;
+  isLoggedIn(): boolean;
   get steamid(): Long;
+  setSteamId(steamId: string): void;
+  /**
+   * Decode data and emmit decoded payload.
+   * Steam sends ProtoBuf or NonProtoBuf
+   * ProtoBuf: [ header: [EMsg, header length, CMsgProtoBufHeader], body: proto] ]
+   * NonProtoBuf: [ header: [EMsg, header length, ExtendedHeader], body: raw bytes] ]
+   */
+  protected decodeData(data: Buffer): void | Promise<void>;
+  /**
+   * Destroy connection to Steam and do some cleanup
+   * disconnected is emmitted when error is passed
+   */
+  protected destroyConnection(error?: SteamClientError): void;
 }
 
 export default Base;

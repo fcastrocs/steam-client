@@ -34,9 +34,11 @@
     "smart-buffer": "^4.2.0",
     "socks": "^2.7.1",
     "socks-proxy-agent": "^8.0.1",
+    "type-fest": "^4.2.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
+    "@tsconfig/node18": "^18.2.0",
     "@types/buffer-crc32": "^0.2.2",
     "@types/node": "^20.4.10",
     "@types/node-rsa": "^1.1.1",

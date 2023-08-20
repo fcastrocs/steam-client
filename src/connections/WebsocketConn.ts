@@ -3,13 +3,13 @@
  */
 import WebSocket from "ws";
 import Base from "./Base.js";
-import { SteamClientError } from "../common.js";
+import { SteamClientError } from "../modules/common.js";
 import { SocksProxyAgent } from "socks-proxy-agent";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
 import { EMsg } from "../language/enums_clientserver.proto.js";
 
 export default class WebSocketConnection extends Base {
-  private ws: WebSocket
+  private ws!: WebSocket
 
   constructor(options: ConnectionOptions) {
     super(options);
@@ -79,7 +79,6 @@ export default class WebSocketConnection extends Base {
       this.removeAllListeners();
       this.ws.terminate();
       this.ws.removeAllListeners();
-      this.ws = null;
     }
   }
 }

@@ -1,34 +1,20 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const BinaryKVParser = require("binarykvparser");
-import { Language } from "./resources.js";
+import { Language } from "./modules/language.js";
 import Steam from "./Steam.js";
-import { LoginOptions, LoginOptionsExtended } from "../@types/steam.js";
-import {
-  ClientPersonaState,
-  ClientPurchaseRes,
-  ClientRequestFreeLicenseRes,
-  ClientPlayingSessionState,
-  Friend,
-  PurchaseReceiptInfo,
-  ClientPICSProductInfoResponse,
-  PackageBuffer,
-  ClientAccountInfo,
-  ClientEmailAddrInfo,
-  ClientIsLimitedAccount,
-  ClientLogonResponse,
-} from "../@types/protos/protoResponse.js";
-import { SteamClientError, getKeyByValue } from "./common.js";
+import { SteamClientError, getKeyByValue } from "./modules/common.js";
 import { EOSType, EPersonaState, EPurchaseResultDetail } from "./language/commons.js";
 import { EMsg } from "./language/enums_clientserver.proto.js";
 import { EResult } from "./language/EResult.js"
-import { AccountAuth, AccountData, Game } from "../@types/client.js";
+import { AccountAuth, AccountData, Game, LoginOptions } from "../@types/client.js";
 import { ConnectionOptions } from "../@types/connections/Base.js";
+import { CMsgClientGamesPlayed, CMsgClientLogon_Request, ClientAccountInfo, ClientChangeStatus, ClientConcurrentSessionsBase, ClientEmailAddrInfo, ClientIsLimitedAccount, ClientLogonResponse, ClientPICSProductInfoResponse, ClientPersonaState, ClientPurchaseRes, ClientRequestFreeLicenseRes, Friend, PackageBuffer, PurchaseReceiptInfo } from "../@types/protos/client.protos.js";
 export { EMsg, EResult, SteamClientError }
 
 export default class Client extends Steam {
-  private personaState: Friend;
-  private _playingSessionState = {} as ClientPlayingSessionState;
+  private personaState!: Friend;
+  private _playingSessionState = {} as ClientConcurrentSessionsBase;
 
   constructor(options: ConnectionOptions) {
     super(options);
@@ -69,9 +55,10 @@ export default class Client extends Steam {
       }
     });
 
-    this.conn.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
+    // emitted after ClientGamesPlayed
+    this.conn.on("ClientConcurrentSessionsBase", (body: ClientConcurrentSessionsBase) => {
+      console.log(body)
       this._playingSessionState = body;
-      this.emit("ClientPlayingSessionState", body);
     });
   }
 
@@ -79,25 +66,39 @@ export default class Client extends Steam {
  * login to steam via credentials or refresh_token
  */
   public async login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
-    const refreshToken = options.refreshToken;
-    delete options.refreshToken;
+
+    // verify refresh token
+    if (options.refreshToken) {
+      this.verifyRefreshToken(options.refreshToken);
+    }
 
     options = {
       ...options,
-      accessToken: refreshToken,
-      clientOsType: EOSType.Win11,
       protocolVersion: 65580,
-      supportsRateLimitResponse: true,
+      cellId: 4294967295,
+      clientPackageVersion: 1690583737,
+      clientLanguage: "english",
+      clientOsType: EOSType.Win11,
+      shouldRememberPassword: true,
+      obfuscatedPrivateIp: {
+        ip: {
+          v4: await this.obfustucateIp()
+        }
+      },
+      qosLevel: 2,
+      machineId: options.machineId || this.machineId,
       machineName: options.machineName || this.machineName,
-    } as LoginOptionsExtended;
+      supportsRateLimitResponse: true,
+      priorityReason: 11,
+      accessToken: options.refreshToken,
+    } as CMsgClientLogon_Request;
 
-    const accountData = {
-      games: [],
-      inventory: {},
-    } as AccountData;
+    delete options.refreshToken;
+
+    const accountData = { inventory: {} } as AccountData;
 
     const accountAuth: AccountAuth = {
-      machineName: options.machineName,
+      machineName: options.machineName!,
     };
 
     let responses = ["ClientAccountInfo", "ClientEmailAddrInfo", "ClientIsLimitedAccount", "ClientVACBanStatus"];
@@ -133,16 +134,15 @@ export default class Client extends Steam {
     });
 
     // send login request to steam
-    const res: ClientLogonResponse = await this.conn.sendProtoPromise(EMsg.ClientLogon, options);
+    const res = (await this.conn.sendProtoPromise(EMsg.ClientLogon, options)) as ClientLogonResponse;
 
     if (res.eresult === EResult.OK) {
-      this.conn.startHeartBeat(res.heartbeatSeconds);
       accountData.steamId = res.clientSuppliedSteamid.toString();
       accountData.games = await this.service.player.getOwnedGames();
       accountData.inventory.steam = await this.service.econ.getSteamContextItems();
     } else {
       this.disconnect();
-      throw new SteamClientError(Language.EResultMap.get(res.eresult));
+      throw new SteamClientError(Language.EResultMap.get(res.eresult)!);
     }
 
     return new Promise((resolve, reject) => {
@@ -200,16 +200,17 @@ export default class Client extends Steam {
       return;
     }
 
-    const payload = {
+    const body = {
       gamesPlayed: gameIds.map((id) => {
         return { gameId: id };
       }),
-    };
+      clientOsType: EOSType.Win11,
+    } as CMsgClientGamesPlayed;
 
     await this.conn.sendProtoPromise(
-      EMsg.ClientGamesPlayed,
-      payload,
-      EMsg.ClientPlayingSessionState
+      EMsg.ClientGamesPlayedWithDataBlob,
+      body,
+      EMsg.ClientConcurrentSessionsBase
     );
   }
 
@@ -217,11 +218,11 @@ export default class Client extends Steam {
    * Activate cdkey
    */
   public async registerKey(cdkey: string): Promise<Game[]> {
-    const res: ClientPurchaseRes = await this.conn.sendProtoPromise(
+    const res = (await this.conn.sendProtoPromise(
       EMsg.ClientRegisterKey,
       { key: cdkey },
       EMsg.ClientPurchaseResponse
-    );
+    )) as ClientPurchaseRes;
 
     // something went wrong
     if (res.eresult !== EResult.OK) {
@@ -247,12 +248,12 @@ export default class Client extends Steam {
   public async requestFreeLicense(appids: number[]): Promise<Game[]> {
     if (!appids.length) return [];
 
-    const res: ClientRequestFreeLicenseRes = await this.conn.sendProtoPromise(EMsg.ClientRequestFreeLicense, {
+    const res = (await this.conn.sendProtoPromise(EMsg.ClientRequestFreeLicense, {
       appids,
-    });
+    })) as ClientRequestFreeLicenseRes;
 
     if (res.eresult !== EResult.OK) {
-      throw new SteamClientError(Language.EResultMap.get(res.eresult));
+      throw new SteamClientError(Language.EResultMap.get(res.eresult)!);
     }
 
     if (!res.grantedAppids || !res.grantedAppids.length) return [];
@@ -275,7 +276,7 @@ export default class Client extends Steam {
   }
 
   public get playingSessionState() {
-    return JSON.parse(JSON.stringify(this._playingSessionState)) as ClientPlayingSessionState;
+    return JSON.parse(JSON.stringify(this._playingSessionState)) as ClientConcurrentSessionsBase;
   }
 
   private getAvatar(hash: Friend["avatarHash"]): string {
@@ -362,5 +363,33 @@ export default class Client extends Steam {
         }
       });
     });
+  }
+
+  private verifyRefreshToken(refreshToken: string) {
+    try {
+      const headerBase64 = refreshToken.split(".")[1];
+      const header = JSON.parse(atob(headerBase64));
+
+      if (header.iss !== "steam" || !header.aud.includes("renew")) {
+        throw new SteamClientError("This is not a steam refresh token.")
+      }
+
+      if (!header.aud.includes("client")) {
+        throw new SteamClientError("This is not a client refresh token.")
+      }
+
+      if (header.exp - (Math.floor(Date.now() / 1000)) < 30) {
+        throw new SteamClientError("RefreshTokenExpired");
+      }
+
+      // all good supply steamid to base connection
+      this.conn.setSteamId(header.sub);
+
+    } catch (error) {
+      if (error instanceof SteamClientError) {
+        throw error;
+      }
+      throw new SteamClientError("Refresh token is bad.")
+    }
   }
 }

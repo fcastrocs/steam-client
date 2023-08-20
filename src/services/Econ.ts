@@ -1,32 +1,32 @@
-import { T } from "../../@types/common.js";
-import { Item } from "../../@types/services/Econ.js";
+import { GetInventoryItemsWithDescriptions_Request, GetInventoryItemsWithDescriptions_Response, Item } from "../../@types/services/Econ.js";
 import Steam from "../Steam.js";
+import Long from "long";
 
 export default class Econ {
   private readonly serviceName = "Econ";
-  constructor(private steam: Steam) {}
+  constructor(private steam: Steam) { }
 
   async getSteamContextItems(tradableOnly?: boolean) {
     return this.getInventoryItems(753, 6, tradableOnly);
   }
 
   async getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean) {
-    const res = await this.steam.conn.sendUnified(this.serviceName, "GetInventoryItemsWithDescriptions", {
+    const res = await this.steam.conn.sendServiceMethodCall(this.serviceName, "GetInventoryItemsWithDescriptions", {
       steamid: this.steam.steamId,
-      contextid,
+      contextid: Long.fromInt(contextid, true),
       appid,
       getDescriptions: true,
       filters: {
         tradableOnly: !!tradableOnly,
       },
-    });
+    } as GetInventoryItemsWithDescriptions_Request) as GetInventoryItemsWithDescriptions_Response;
 
     if (!res.assets) {
       return [];
     }
 
-    return (res.assets as T[]).map((item) => {
-      const d_index = res.descriptions.findIndex((des: T) => item.instanceid.toString() === des.instanceid.toString());
+    return (res.assets).map((item) => {
+      const d_index = res.descriptions.findIndex((des) => item.instanceid.toString() === des.instanceid.toString());
 
       return {
         appid: item.appid,

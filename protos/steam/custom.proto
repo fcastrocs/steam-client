@@ -1,0 +1,13 @@
+import "steammessages_base.proto";
+import "encrypted_app_ticket.proto";
+import "steammessages_clientserver.proto";
+
+option optimize_for = SPEED;
+option cc_generic_services = false;
+
+message CMsgClientGamesPlayedWithDataBlob {
+    repeated .CMsgClientGamesPlayed.GamePlayed games_played = 1;
+	optional uint32 client_os_type = 2;
+	optional uint32 cloud_gaming_platform = 3;
+	optional bool recent_reauthentication = 4;
+}

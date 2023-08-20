@@ -1,4 +1,4 @@
-import { T } from "../@types/common";
+import { UnknownRecord } from "type-fest";
 
 export class SteamClientError extends Error {
   constructor(message: string) {
@@ -7,7 +7,7 @@ export class SteamClientError extends Error {
   }
 }
 
-export function getKeyByValue(object: T, value: number) {
+export function getKeyByValue(object: UnknownRecord, value: number) {
   const key = Object.keys(object).find(key => object[key] === value);
   if (!key) throw new SteamClientError(`Could not find key from value ${value} of ${object}`)
   return key;

@@ -1,4 +1,4 @@
-interface CMsgProtoBufHeader {
+type CMsgProtoBufHeader = {
   steamid: Long;
   clientSessionid: number;
   jobidSource?: Long;
@@ -8,7 +8,7 @@ interface CMsgProtoBufHeader {
   errorMessage?: string;
 }
 
-interface ClientChangeStatus {
-  personaState?: number;
-  playerName?: string;
+type CMsgMulti = {
+  sizeUnzipped: number;
+  messageBody: Buffer;
 }

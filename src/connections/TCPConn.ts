@@ -6,7 +6,7 @@ import { SmartBuffer } from "smart-buffer";
 import crc32 from "buffer-crc32";
 import SteamCrypto, { SessionKey } from "@fcastrocs/steam-client-crypto";
 import net from "net";
-import { SteamClientError } from "../common.js";
+import { SteamClientError } from "../modules/common.js";
 import { EMsg } from "../language/enums_clientserver.proto.js";
 import { EResult } from "../language/EResult.js";
 import Base from "./Base.js";
@@ -15,11 +15,11 @@ import { ConnectionOptions } from "../../@types/connections/Base.js";
 
 export default class TCPConnection extends Base {
     public readonly timeout: number = 15000;
-    private socket: Socket;
-    private encrypted: boolean;
-    private incompletePacket: boolean;
-    private packetSize = 0;
-    private encryptionKey: SessionKey = null;
+    private socket!: Socket;
+    private encrypted!: boolean;
+    private incompletePacket!: boolean;
+    private packetSize!: number;
+    private encryptionKey!: SessionKey;
 
     constructor(options: ConnectionOptions) {
         super(options);
@@ -89,16 +89,12 @@ export default class TCPConnection extends Base {
     }
 
     private async proxyConnect(): Promise<Socket> {
-        try {
-            const { socket } = await SocksClient.createConnection({
-                destination: this.options.steamCM,
-                proxy: this.options.proxy,
-                command: "connect",
-            });
-            return socket;
-        } catch (error) {
-            throw new SteamClientError(error.message);
-        }
+        const { socket } = await SocksClient.createConnection({
+            destination: this.options.steamCM,
+            proxy: this.options.proxy!,
+            command: "connect",
+        });
+        return socket;
     }
 
     public destroyConnection(error?: SteamClientError) {
@@ -107,7 +103,6 @@ export default class TCPConnection extends Base {
             this.removeAllListeners();
             this.socket.destroy();
             this.socket.removeAllListeners();
-            this.socket = null;
         }
     }
 

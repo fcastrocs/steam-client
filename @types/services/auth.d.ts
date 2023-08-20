@@ -1,80 +1,36 @@
 import Long from "long";
-
-export type QRType = "terminal" | "image";
-export type PartialSession = SessionViaCredentialsRes | SessionViaQrRes;
-
-export interface UnifiedMsgRes {
-  EResult: number;
-}
-
-interface AllowedConfirmations {
-  confirmationType: number;
-  associatedMessage: string;
-}
-
-interface BaseAuthSession extends UnifiedMsgRes {
-  clientId: Long;
-  requestId: Buffer;
-  interval: number;
-  allowedConfirmations: AllowedConfirmations[];
-}
-
-export interface SessionViaCredentialsRes extends BaseAuthSession {
-  steamid: Long;
-  weakToken: string;
-}
-
-export interface SessionViaQrRes extends BaseAuthSession {
-  challengeUrl: string;
-  version: number;
-}
-
-export interface PollAuthSessionStatusRes extends UnifiedMsgRes {
-  newClientId: Long;
-  newChallengeUrl: string;
-  refreshToken: string;
-  accessToken: string;
-  hadRemoteInteraction: boolean;
-  accountName: string;
-  newGuardData: string;
-}
-
-export interface AuthTokens {
-  accountName: string;
-  refreshToken: string;
-  accessToken: string;
-  machineName: string;
-  newGuardData: string;
-}
-
-export interface Confirmation {
-  qrCode?: string;
-  guardType?: string;
-  timeoutSeconds: number;
-}
+import { AccessToken_GenerateForApp_Response, PollAuthSessionStatus_Response } from "../protos/auth.protos";
+import { ValueOf } from "type-fest";
+import { EAuthSessionGuardType } from "../enums/steammessages_auth.steamclient.proto";
 
 declare class Auth {
   on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
   once(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
+  on(event: "authTokens", listener: (authTokens: PollAuthSessionStatus_Response) => void): this;
+  once(event: "authTokens", listener: (authTokens: PollAuthSessionStatus_Response) => void): this;
+  on(event: "getAuthTokensTimeout", listener: () => void): this;
+  once(event: "getAuthTokensTimeout", listener: () => void): this;
 
-  constructor(steam: Steam);
+  constructor(private steam: Steam);
   /**
-   * Login via QR
-   * @emits "waitingForConfirmation" with QR challenge URL
-   * @throws "LogonWasNotConfirmed"
+   * Obtain auth tokens via QR
+   * @emits "waitingForConfirmation" "authTokens" "getAuthTokensTimeout"
+   * @throws EResult
    */
-  getAuthTokensViaQR(qrType: QRType): Promise<AuthTokens>;
+  getAuthTokensViaQR(): Promise<void>;
   /**
-   * Login via Credentials
-   * @emits "waitingForConfirmation" with confirmation type
+   * Obtain auth tokens via credentials
+   * @emits "waitingForConfirmation" "authTokens" "getAuthTokensTimeout"
    * @throws EResult, SteamGuardIsUnknown, SteamGuardIsDisabled
    */
-  getAuthTokensViaCredentials(accountName: string, password: string, skipPolling?: boolean): Promise<AuthTokens | SessionViaCredentialsRes>;
+  getAuthTokensViaCredentials(accountName: string, password: string): Promise<void>;
   /**
    * Submit Steam Guard Code to auth session
    * @throws EResult, NotWaitingForConfirmation
    */
-  updateWithSteamGuardCode(guardCode: string): Promise<void>;
+  updateWithSteamGuardCode(guardCode: string, guardType: ValueOf<EAuthSessionGuardType>): Promise<void>;
+
+  accessTokenGenerateForApp(refreshToken: string): Promise<AccessToken_GenerateForApp_Response>
 }
 
 export default Auth;
