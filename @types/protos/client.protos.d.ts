@@ -103,7 +103,7 @@ type ClientPersonaState = {
     friends: Friend[];
 }
 
-type ClientConcurrentSessionsBase = {
+type ClientPlayingSessionState = {
     playingBlocked: boolean;
     playingApp: number;
 }

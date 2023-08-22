@@ -9,12 +9,12 @@ import { EMsg } from "./language/enums_clientserver.proto.js";
 import { EResult } from "./language/EResult.js"
 import { AccountAuth, AccountData, Game, LoginOptions } from "../@types/client.js";
 import { ConnectionOptions } from "../@types/connections/Base.js";
-import { CMsgClientGamesPlayed, CMsgClientLogon_Request, ClientAccountInfo, ClientChangeStatus, ClientConcurrentSessionsBase, ClientEmailAddrInfo, ClientIsLimitedAccount, ClientLogonResponse, ClientPICSProductInfoResponse, ClientPersonaState, ClientPurchaseRes, ClientRequestFreeLicenseRes, Friend, PackageBuffer, PurchaseReceiptInfo } from "../@types/protos/client.protos.js";
+import { CMsgClientGamesPlayed, CMsgClientLogon_Request, ClientAccountInfo, ClientChangeStatus, ClientPlayingSessionState, ClientEmailAddrInfo, ClientIsLimitedAccount, ClientLogonResponse, ClientPICSProductInfoResponse, ClientPersonaState, ClientPurchaseRes, ClientRequestFreeLicenseRes, Friend, PackageBuffer, PurchaseReceiptInfo } from "../@types/protos/client.protos.js";
 export { EMsg, EResult, SteamClientError }
 
 export default class Client extends Steam {
   private personaState!: Friend;
-  private _playingSessionState = {} as ClientConcurrentSessionsBase;
+  private _playingSessionState = {} as ClientPlayingSessionState;
 
   constructor(options: ConnectionOptions) {
     super(options);
@@ -56,9 +56,13 @@ export default class Client extends Steam {
     });
 
     // emitted after ClientGamesPlayed
-    this.conn.on("ClientConcurrentSessionsBase", (body: ClientConcurrentSessionsBase) => {
-      console.log(body)
+    this.conn.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
       this._playingSessionState = body;
+      this.emit("ClientPlayingSessionState", body)
+    });
+    this.conn.on("ClientConcurrentSessionsBase", (body: ClientPlayingSessionState) => {
+      this._playingSessionState = body;
+      this.emit("ClientPlayingSessionState", body)
     });
   }
 
@@ -276,7 +280,7 @@ export default class Client extends Steam {
   }
 
   public get playingSessionState() {
-    return JSON.parse(JSON.stringify(this._playingSessionState)) as ClientConcurrentSessionsBase;
+    return JSON.parse(JSON.stringify(this._playingSessionState)) as ClientPlayingSessionState;
   }
 
   private getAvatar(hash: Friend["avatarHash"]): string {

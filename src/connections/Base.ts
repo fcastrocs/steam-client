@@ -100,7 +100,7 @@ export default abstract class Base extends EventEmitter {
 
   public isLoggedIn() {
     return (
-      this.session && this.session.steamId !== this.DEFAULT_STEAMID && this.session.clientId !== 0
+      !!this.session && this.session.steamId !== this.DEFAULT_STEAMID && this.session.clientId !== 0
     );
   }
 
@@ -124,6 +124,8 @@ export default abstract class Base extends EventEmitter {
     const rawEMsg = packet.readUInt32LE();
     const EMsgReceived = rawEMsg & ~this.PROTO_MASK;
     const isProto = rawEMsg & this.PROTO_MASK;
+
+    //console.log(Language.EMsgMap.get(EMsgReceived))
 
     // package is gzipped, have to gunzip it first
     if (EMsgReceived === EMsg.Multi) {

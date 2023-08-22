@@ -7,8 +7,10 @@ import Player from "./services/player.js";
 import Econ from "./services/Econ.js";
 import Connection, { ConnectionOptions } from "./connection.js";
 import { EResult } from "./enums/EResult.js";
+import TCPConnection from "./connections/TCPConn.js";
+import WebSocketConnection from "./connections/WebsocketConn.js";
 
-declare abstract class Steam extends Connection {
+declare abstract class Steam extends EventEmitter {
   on(event: "ClientLoggedOff", listener: (eresult: keyof EResult) => void): this;
   once(event: "ClientLoggedOff", listener: (eresult: keyof EResult) => void): this;
 

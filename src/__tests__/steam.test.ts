@@ -1,9 +1,9 @@
 import SteamClient from "../../"
 import fs from "fs";
-import { describe, it, afterAll, assert } from 'vitest'
+import { describe, it, afterAll, assert, expect } from 'vitest'
 import { EPersonaState } from "../language/commons.js";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
-import { Confirmation } from "../../@types/protos/auth";
+import { Confirmation } from "../../@types/protos/auth.protos";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0
 
@@ -27,36 +27,104 @@ if (fs.existsSync("auth.json")) {
   auth.machineId = Buffer.from(auth.machineId as unknown as string, "hex")
 }
 
-describe.sequential("Test steam-client - TCP", () => {
-  it("Connect to Steam", async () => await connectToSteam("tcp"));
-  it("Get tokens via QR Code", async () => await getAuthTokensViaQR(), { timeout: 1 * 60 * 1000 });
-  //it("Get tokens via credentials", async () => await getAuthTokensViaCredentials(), { timeout: 1 * 60 * 1000 });
-  it("login", async () => await login(), { timeout: 15 * 1000 });
-  //it("accessTokenGenerateForApp", async () => await accessTokenGenerateForApp());
-  //it.concurrent("getSteamGuardDetails", async () => await getSteamGuardDetails());
-  it.concurrent("Get games", async () => await getGames());
-  it.concurrent("gamesPlayed", async () => await gamesPlayed());
-  it.concurrent("changePlayerName", async () => await changePlayerName());
-  it.concurrent("changePersonaState", async () => await changePersonaState());
-  it.concurrent("requestFreeLicense", async () => await requestFreeLicense());
-  afterAll(() => {
-    if (steam) steam.disconnect();
-  });
+describe.sequential("Steam-Client", () => {
+  describe.sequential("Connection Classes", () => {
+    it("Connect to Steam - TCP", async () => await connectToSteam("tcp"));
+    it("destroyConnection", () => { steam.conn.destroyConnection() })
+    it("Connect to Steam - WS", async () => await connectToSteam("ws"));
+  })
+
+  describe.sequential("Client Class", () => {
+    it.concurrent("login", async () => await login(), { timeout: 10 * 1000 });
+    it.concurrent("ClientPersonaState", async () => {
+      await expect(ClientPersonaState()).resolves.not.toThrow()
+    })
+    it.concurrent("ClientPlayingSessionState", async () => {
+      await expect(ClientPlayingSessionState()).resolves.not.toThrow()
+    })
+    it("isLoggedIn toBeTruthy", () => { expect(steam.isLoggedIn).toBeTruthy() });
+    it.concurrent("setPlayerName", async () => await changePlayerName());
+    it.concurrent("setPersonaState", async () => await changePersonaState());
+    it.concurrent("requestFreeLicense", async () => await requestFreeLicense());
+    it("isPlayingGame toBeFalsy", () => { expect(steam.isPlayingGame).toBeFalsy() })
+    it("gamesPlayed", async () => await gamesPlayed());
+    it("isPlayingGame toBeTruthy", () => { expect(steam.isPlayingGame).toBeTruthy() })
+  })
+
+  describe.sequential("Player Service", () => {
+    it("getOwnedGames", async () => {
+      const games = await steam.service.player.getOwnedGames();
+      expect(Array.isArray(games)).toBeTruthy();
+      expect(games[0]).toHaveProperty("gameid")
+    })
+  })
+
+  describe.sequential("Econ Service", () => {
+    it("getSteamContextItems", async () => {
+      const items = await steam.service.econ.getSteamContextItems();
+      expect(Array.isArray(items)).toBeTruthy();
+      expect(items[0].contextid).toBe('6');
+    })
+  })
+
+  describe.sequential("Credentials Service", () => {
+    it("getSteamGuardDetails", async () => {
+      const details = await steam.service.credentials.getSteamGuardDetails();
+      expect(details.EResult).toBe(1);
+      expect(details.isSteamguardEnabled).toBeTruthy();
+    })
+  })
+
+  describe.sequential("Client Class continued", () => {
+    it("disconnect", () => { steam.disconnect() });
+    it("isLoggedIn toBeFalsy", () => { expect(steam.isLoggedIn).toBeFalsy() });
+  })
+
+
+  // it.concurrent("Get games", async () => await getGames());
+  // it("Get tokens via QR Code", async () => await getAuthTokensViaQR(), { timeout: 1 * 60 * 1000 });
+  // //it("Get tokens via credentials", async () => await getAuthTokensViaCredentials(), { timeout: 1 * 60 * 1000 });
+  // //it("accessTokenGenerateForApp", async () => await accessTokenGenerateForApp());
+  // it.concurrent("getSteamGuardDetails", async () => await getSteamGuardDetails());
+
+  // afterAll(() => {
+  //   if (steam) steam.disconnect();
+  // });
 });
 
-// describe.sequential("Test steam-client - WS", () => {
-//   it("Connect to Steam", async () => await connectToSteam("ws"));
-//   it("Get tokens via QR Code", async () => await getAuthTokensViaQR(), { timeout: 2 * 60 * 1000 });
-//   it("login", async () => await login(), { timeout: 15 * 1000 });
-//   it.concurrent("Get games", async () => await getGames());
-//   it.concurrent("gamesPlayed", async () => await gamesPlayed());
-//   it.concurrent("changePlayerName", async () => await changePlayerName());
-//   it.concurrent("changePersonaState", async () => await changePersonaState());
-//   it.concurrent("requestFreeLicense", async () => await requestFreeLicense());
-//   afterAll(() => {
-//     if (steam) steam.disconnect();
-//   });
-// });
+
+/**
+ * Test ClientPersonaState returns account's state correctly
+ */
+const ClientPersonaState = () => {
+  return new Promise((resolve, reject) => {
+    steam.once("ClientPersonaState", (state) => {
+      try {
+        expect(state.playerName).toBe("Machiavelli")
+      } catch (error) {
+        reject(error);
+      }
+      resolve(true)
+    })
+  })
+}
+
+/**
+ * Test ClientPlayingSessionState has the correct properties
+ */
+const ClientPlayingSessionState = () => {
+  return new Promise((resolve, reject) => {
+    steam.once("ClientPlayingSessionState", (state) => {
+      try {
+        expect(state).toHaveProperty("playingApp");
+        expect(state).toHaveProperty("playingBlocked");
+      } catch (error) {
+        reject(error);
+      }
+      resolve(true)
+    })
+  })
+}
 
 
 const connectToSteam = async (type: ConnectionOptions["type"]) => {
@@ -143,6 +211,13 @@ const gamesPlayed = async () => {
       return steam.gamesPlayed([730], { forcePlay: false });
     }
   }
+
+  return new Promise((resolve) => {
+    steam.once("ClientPlayingSessionState", state => {
+      expect(state.playingApp).toBe(730);
+      resolve("");
+    })
+  })
 }
 
 const changePlayerName = async () => {

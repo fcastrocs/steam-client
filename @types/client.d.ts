@@ -1,5 +1,4 @@
 import { ConnectionOptions } from "./connection.js";
-import { ClientPlayingSessionState, Friend } from "./protos/protoResponse.js";
 import Steam, { LoginOptions } from "./steam.js";
 import { EPersonaState } from "./enums/commons.js"
 import { Item } from "./services/Econ.js";
@@ -8,6 +7,7 @@ import { SteamClientError } from "./common.js";
 // expose constants
 import { EResult as EResultType } from "./enums/EResult.js";
 import { EMsg as EMsgType } from "./enums/enums_clientserver.proto.js";
+import { ClientPlayingSessionState, Friend } from "./protos/client.protos.js";
 declare const EResult: EResultType;
 declare const EMsg: EMsgType;
 export { EResult, EMsg, SteamClientError }

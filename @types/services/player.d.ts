@@ -1,3 +1,5 @@
+import { Game } from "../client";
+
 declare class Player {
   constructor(steam: Steam);
   getOwnedGames(options?: {
