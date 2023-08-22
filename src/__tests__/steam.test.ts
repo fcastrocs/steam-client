@@ -103,7 +103,6 @@ describe.sequential("Steam-Client", () => {
   // //it("accessTokenGenerateForApp", async () => await accessTokenGenerateForApp());
 });
 
-
 /**
  * Test ClientPersonaState returns account's state correctly
  */
@@ -208,10 +207,6 @@ const login = async () => {
   })
 }
 
-const getGames = async () => {
-  return steam.service.player.getOwnedGames()
-}
-
 const gamesPlayed = async () => {
   try {
     return steam.gamesPlayed([730]);
@@ -247,10 +242,6 @@ const requestFreeLicense = async () => {
   // non-existent game
   games = await steam.requestFreeLicense([-12312]);
   assert.equal(games.length, 0);
-}
-
-const getSteamGuardDetails = async () => {
-  await steam.service.credentials.getSteamGuardDetails();
 }
 
 const accessTokenGenerateForApp = async () => {
