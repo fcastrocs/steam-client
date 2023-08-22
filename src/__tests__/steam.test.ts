@@ -5,7 +5,6 @@ import { EPersonaState } from "../language/commons.js";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
 import { Confirmation } from "../../@types/protos/auth.protos";
 import Long from "long";
-import { error } from "console";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0
 
