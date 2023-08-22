@@ -64,6 +64,7 @@ export default class Client extends Steam {
       this._playingSessionState = body;
       this.emit("ClientPlayingSessionState", body)
     });
+    this.conn.on("disconnected", (err) => this.emit("disconnected", (err)))
   }
 
   /**

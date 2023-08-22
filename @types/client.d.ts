@@ -53,6 +53,8 @@ declare class Client extends Steam {
   once(event: "ClientPersonaState", listener: (state: Friend) => void): this;
   on(event: "ClientPlayingSessionState", listener: (state: ClientPlayingSessionState) => void): this;
   once(event: "ClientPlayingSessionState", listener: (state: ClientPlayingSessionState) => void): this;
+  on(event: "disconnected", listener: (error: SteamClientError) => void): this;
+  once(event: "disconnected", listener: (error: SteamClientError) => void): this;
 
   constructor(options: ConnectionOptions);
   /**

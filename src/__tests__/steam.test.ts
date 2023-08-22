@@ -1,9 +1,11 @@
-import SteamClient from "../../"
+import SteamClient, { SteamClientError } from "../../"
 import fs from "fs";
-import { describe, it, afterAll, assert, expect } from 'vitest'
+import { describe, it, assert, expect } from 'vitest'
 import { EPersonaState } from "../language/commons.js";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
 import { Confirmation } from "../../@types/protos/auth.protos";
+import Long from "long";
+import { error } from "console";
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0
 
@@ -51,10 +53,21 @@ describe.sequential("Steam-Client", () => {
     it("isPlayingGame toBeTruthy", () => { expect(steam.isPlayingGame).toBeTruthy() })
   })
 
+  describe.sequential("Steam Class", () => {
+    it("get obfustucatedIp", () => {
+      expect(steam.obfustucatedIp).toBeDefined();
+      expect(steam.obfustucatedIp).toBeGreaterThan(0)
+    })
+    it("get SteamId", () => {
+      expect(steam.steamId).not.toBe(Long.fromString("76561197960265728", true))
+    })
+  })
+
   describe.sequential("Player Service", () => {
     it("getOwnedGames", async () => {
       const games = await steam.service.player.getOwnedGames();
       expect(Array.isArray(games)).toBeTruthy();
+      expect(games.length).toBeGreaterThan(0);
       expect(games[0]).toHaveProperty("gameid")
     })
   })
@@ -63,6 +76,7 @@ describe.sequential("Steam-Client", () => {
     it("getSteamContextItems", async () => {
       const items = await steam.service.econ.getSteamContextItems();
       expect(Array.isArray(items)).toBeTruthy();
+      expect(items.length).toBeGreaterThan(0);
       expect(items[0].contextid).toBe('6');
     })
   })
@@ -76,20 +90,18 @@ describe.sequential("Steam-Client", () => {
   })
 
   describe.sequential("Client Class continued", () => {
-    it("disconnect", () => { steam.disconnect() });
+    it.concurrent("disconnect", () => { steam.conn.destroyConnection(new SteamClientError("simulation")) });
+    it.concurrent("disconnected event", () => {
+      steam.on("disconnected", error => {
+        expect(error.message).toBe("simulation")
+      })
+    });
     it("isLoggedIn toBeFalsy", () => { expect(steam.isLoggedIn).toBeFalsy() });
   })
 
-
-  // it.concurrent("Get games", async () => await getGames());
   // it("Get tokens via QR Code", async () => await getAuthTokensViaQR(), { timeout: 1 * 60 * 1000 });
   // //it("Get tokens via credentials", async () => await getAuthTokensViaCredentials(), { timeout: 1 * 60 * 1000 });
   // //it("accessTokenGenerateForApp", async () => await accessTokenGenerateForApp());
-  // it.concurrent("getSteamGuardDetails", async () => await getSteamGuardDetails());
-
-  // afterAll(() => {
-  //   if (steam) steam.disconnect();
-  // });
 });
 
 
@@ -125,7 +137,6 @@ const ClientPlayingSessionState = () => {
     })
   })
 }
-
 
 const connectToSteam = async (type: ConnectionOptions["type"]) => {
   let steamCM;
@@ -247,7 +258,6 @@ const accessTokenGenerateForApp = async () => {
   const res = await steam.service.auth.accessTokenGenerateForApp(auth.refreshToken);
   console.log(res);
 }
-
 
   // it("registerKey", async () => {
   //   const res = await steam.client.registerKey("");
