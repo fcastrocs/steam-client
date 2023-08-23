@@ -70,7 +70,8 @@ export default abstract class Base extends EventEmitter {
    * Send service method call
    */
   public sendServiceMethodCall(serviceName: string, method: string, body: UnknownRecord): Promise<UnknownRecord> {
-    const targetJobName = `${serviceName}.${method}#1`;
+    let targetJobName = `${serviceName}.${method}#1`;
+    targetJobName = targetJobName.replace("AccessToken_GenerateForApp", "GenerateAccessTokenForApp");
     method = `C${serviceName}_${method}`;
     const jobidSource = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
 

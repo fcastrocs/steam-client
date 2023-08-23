@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import Steam from "../Steam.js";
 import { Language } from "../modules/language.js";
 import { SteamClientError } from "../modules/common.js";
-import { EAuthSessionGuardType, EAuthTokenPlatformType } from "../language/steammessages_auth.steamclient.proto.js";
+import { EAuthSessionGuardType, EAuthTokenPlatformType, ETokenRenewalType } from "../language/steammessages_auth.steamclient.proto.js";
 import { EResult } from "../language/EResult.js";
 import EventEmitter from "events";
 import {
@@ -130,15 +130,12 @@ export default class Auth extends EventEmitter {
   }
 
   public async accessTokenGenerateForApp(refreshToken: string) {
-
     const res = await this.steam.conn.sendServiceMethodCall(this.serviceName,
       "AccessToken_GenerateForApp", {
         refreshToken,
         steamid: this.steam.steamId,
-        renewalType: 0
+        renewalType: ETokenRenewalType.None
       } as AccessToken_GenerateForApp_Request) as AccessToken_GenerateForApp_Response;
-
-    console.log(res);
 
     this.checkResult(res);
     return res;

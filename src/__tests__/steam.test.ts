@@ -88,6 +88,10 @@ describe.sequential("Steam-Client", () => {
     })
   })
 
+  describe.sequential("Auth Service", async () => {
+    it("accessTokenGenerateForApp", async () => await accessTokenGenerateForApp())
+  })
+
   describe.sequential("Client Class continued", () => {
     it.concurrent("disconnect", () => { steam.conn.destroyConnection(new SteamClientError("simulation")) });
     it.concurrent("disconnected event", () => {
@@ -100,7 +104,6 @@ describe.sequential("Steam-Client", () => {
 
   // it("Get tokens via QR Code", async () => await getAuthTokensViaQR(), { timeout: 1 * 60 * 1000 });
   // //it("Get tokens via credentials", async () => await getAuthTokensViaCredentials(), { timeout: 1 * 60 * 1000 });
-  // //it("accessTokenGenerateForApp", async () => await accessTokenGenerateForApp());
 });
 
 /**
@@ -246,7 +249,9 @@ const requestFreeLicense = async () => {
 
 const accessTokenGenerateForApp = async () => {
   const res = await steam.service.auth.accessTokenGenerateForApp(auth.refreshToken);
-  console.log(res);
+  expect(res.accessToken).toBeDefined();
+  auth.accessToken = res.accessToken;
+  fs.writeFileSync("auth.json", JSON.stringify(auth));
 }
 
   // it("registerKey", async () => {
