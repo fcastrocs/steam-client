@@ -11,30 +11,23 @@ import { Language } from "../modules/language.js";
 import * as Protos from "../modules/protos.js";
 import Long from "long";
 import { SteamClientError } from "../modules/common.js";
-import { EMsg } from "../language/enums_clientserver.proto.js";
-import {
-  ConnectionOptions,
-  JobidTargets,
-  ProtoResponses,
-  ServiceMethodCall,
-  Session,
-} from "../../@types/connections/Base.js";
+import { ConnectionOptions, ServiceMethodCall } from "../../@types/connections/Base.js";
 import { UnknownRecord, ValueOf } from "type-fest";
-import { ClientLogonResponse } from "../../@types/protos/client.protos.js";
+import { EMsg } from "../language/enums_clientserver.js";
 
 export default abstract class Base extends EventEmitter {
-  private heartBeat!: NodeJS.Timer;
+  private heartBeat!: NodeJS.Timeout;
   protected readonly MAGIC = "VT01";
   protected readonly PROTO_MASK = 0x80000000;
   private JOB_NONE = Long.fromString("18446744073709551615", true);
   private jobIdTimeout = 3 * 60 * 1000;
   private connectionDestroyed = false;
   private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
-  private readonly jobidTargets: JobidTargets = new Map();
-  private readonly protoResponses: ProtoResponses = new Map();
+  private readonly jobidTargets: Map<number, Long> = new Map();
+  private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();
   protected readonly timeout: number = 10000;
-  private DEFAULT_STEAMID = Long.fromString("76561197960265728", true)
-  private session: Session = {
+  private DEFAULT_STEAMID = Long.fromString("76561197960265728", true);
+  private session = {
     clientId: 0,
     steamId: this.DEFAULT_STEAMID,
   };
@@ -57,11 +50,9 @@ export default abstract class Base extends EventEmitter {
   /**
    * Send proto message and wait for response
    */
-  public sendProtoPromise(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord, resEMsg?: ValueOf<typeof EMsg>): Promise<UnknownRecord> {
+  public sendProtoPromise(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord, resEMsg: ValueOf<typeof EMsg>): Promise<UnknownRecord> {
     return new Promise((resolve) => {
-      const resEMsgKey = (resEMsg ? Language.EMsgMap.get(resEMsg) : Language.EMsgMap.get(eMsg) + "Response") as keyof typeof EMsg;
-      if (!resEMsgKey || !EMsg[resEMsgKey]) throw new SteamClientError("Specified EMsg does not exist.")
-      this.protoResponses.set(resEMsgKey, resolve);
+      this.protoResponses.set(resEMsg, resolve);
       this.sendProto(eMsg, payload);
     });
   }
@@ -89,9 +80,7 @@ export default abstract class Base extends EventEmitter {
       // steam has this.jobIdTimeout ms to response to this jobId
       setTimeout(() => this.serviceMethodCalls.delete(jobidSource.toString()), this.jobIdTimeout);
 
-      const serviceMethodEMsg = this.session.steamId.equals(this.DEFAULT_STEAMID)
-        ? EMsg.ServiceMethodCallFromClientNonAuthed
-        : EMsg.ServiceMethodCallFromClient;
+      const serviceMethodEMsg = this.session.steamId.equals(this.DEFAULT_STEAMID) ? EMsg.ServiceMethodCallFromClientNonAuthed : EMsg.ServiceMethodCallFromClient;
 
       const protoHeader = this.buildProtoHeader(serviceMethodEMsg, serviceMethodCall);
       const buffer = Protos.encode(method + "_Request", body);
@@ -100,9 +89,7 @@ export default abstract class Base extends EventEmitter {
   }
 
   public isLoggedIn() {
-    return (
-      !!this.session && this.session.steamId !== this.DEFAULT_STEAMID && this.session.clientId !== 0
-    );
+    return !!this.session && this.session.steamId !== this.DEFAULT_STEAMID && this.session.clientId !== 0;
   }
 
   public get steamid() {
@@ -119,7 +106,7 @@ export default abstract class Base extends EventEmitter {
    * ProtoBuf: [ header: [EMsg, header length, CMsgProtoBufHeader], body: proto] ]
    * NonProtoBuf: [ header: [EMsg, header length, ExtendedHeader], body: raw bytes] ]
    */
-  protected decodeData(data: Buffer) {
+  protected decodeData(data: Buffer): void {
     const packet = SmartBuffer.fromBuffer(data);
 
     const rawEMsg = packet.readUInt32LE();
@@ -130,15 +117,21 @@ export default abstract class Base extends EventEmitter {
 
     // package is gzipped, have to gunzip it first
     if (EMsgReceived === EMsg.Multi) {
-      return this.multi(packet.readBuffer());
+      this.multi(packet.readBuffer());
+      return;
     }
 
     if (!isProto) {
       // Extended header
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const headerSize = packet.readUInt8();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const headerVersion = packet.readUInt16LE();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const targetJobId = packet.readBigUInt64LE();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const sourceJobId = packet.readBigUInt64LE();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const canaray = packet.readUInt8();
       const steamId = Long.fromString(packet.readBigUInt64LE().toString(), true);
       this.session.steamId = !steamId.equals(Long.UZERO) ? steamId : this.session.steamId;
@@ -153,8 +146,8 @@ export default abstract class Base extends EventEmitter {
 
     const headerLength = packet.readUInt32LE();
     const proto = Protos.decode("CMsgProtoBufHeader", packet.readBuffer(headerLength)) as CMsgProtoBufHeader;
-    this.session.steamId = proto.steamid;
-    this.session.clientId = proto.clientSessionid;
+    this.session.steamId = proto.steamid!;
+    this.session.clientId = proto.clientSessionid!;
 
     // steam expects a response to this jobId
     if (proto.jobidSource && !this.JOB_NONE.equals(proto.jobidSource)) {
@@ -165,37 +158,39 @@ export default abstract class Base extends EventEmitter {
     }
 
     if (EMsgReceived === EMsg.ServiceMethodResponse) {
-      const serviceMethodCall = this.serviceMethodCalls.get(proto.jobidTarget.toString());
+      const serviceMethodCall = this.serviceMethodCalls.get(proto.jobidTarget!.toString());
       const message = Protos.decode(serviceMethodCall?.method + "_Response", packet.readBuffer());
-      this.serviceMethodCalls.delete(proto.jobidTarget.toString());
-      return serviceMethodCall?.promiseResolve({ EResult: proto.eresult, ...message });
+      this.serviceMethodCalls.delete(proto.jobidTarget!.toString());
+      return serviceMethodCall?.promiseResolve({
+        EResult: proto.eresult,
+        ...message,
+      });
     }
 
     // decode body and emit message
     try {
       const EMsgKey = Language.EMsgMap.get(EMsgReceived);
       const body = Protos.decode("CMsg" + EMsgKey, packet.readBuffer());
-
-      // emit message 
+      // emit message
       this.emit(EMsgKey!, body);
 
       // response to sendProtoPromise
-      const promiseResolve = this.protoResponses.get(EMsgKey!);
+      const promiseResolve = this.protoResponses.get(EMsgReceived!);
       if (promiseResolve) {
-        this.protoResponses.delete(EMsgKey!);
+        this.protoResponses.delete(EMsgReceived);
+        console.log(body);
         promiseResolve(body);
       }
 
       // start heartbeat if logged in successfully
-      if (EMsgReceived === EMsg.ClientLogonResponse) {
-        const res = body as ClientLogonResponse;
+      if (EMsgReceived === EMsg.ClientLogOnResponse) {
+        const res = body as CMsgClientLogOnResponse;
         if (res.eresult === 1) {
-          this.startHeartBeat(res.heartbeatSeconds);
+          this.startHeartBeat(res.heartbeatSeconds!);
         }
       }
     } catch (error) {
-      // console.error("Proto decode failed.");
-      // console.log(Language.EMsgMap.get(EMsgReceived))
+      console.error(`Proto decode failed: ${Language.EMsgMap.get(EMsgReceived)}`);
     }
   }
 
@@ -254,7 +249,7 @@ export default abstract class Base extends EventEmitter {
 
   private async multi(payload: Buffer): Promise<void> {
     const message = Protos.decode("CMsgMulti", payload) as CMsgMulti;
-    payload = message.messageBody;
+    payload = message.messageBody!;
 
     // message is gzipped
     if (message.sizeUnzipped) {

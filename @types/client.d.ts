@@ -1,16 +1,9 @@
-import { ConnectionOptions } from "./connection.js";
-import Steam, { LoginOptions } from "./steam.js";
-import { EPersonaState } from "./enums/commons.js"
-import { Item } from "./services/Econ.js";
-import { SteamClientError } from "./common.js";
-
-// expose constants
-import { EResult as EResultType } from "./enums/EResult.js";
-import { EMsg as EMsgType } from "./enums/enums_clientserver.proto.js";
-import { ClientPlayingSessionState, Friend } from "./protos/client.protos.js";
-declare const EResult: EResultType;
-declare const EMsg: EMsgType;
-export { EResult, EMsg, SteamClientError }
+import type { ConnectionOptions } from "./connection.js";
+import type Steam, { LoginOptions } from "./steam.js";
+import type { EPersonaState } from "./enums/commons.js";
+import type { Item } from "./services/econ.js";
+import type { SteamClientError } from "./common.js";
+import type { IterableElement } from "type-fest";
 
 export type LoginOptions = {
   accountName?: string;
@@ -18,7 +11,7 @@ export type LoginOptions = {
   refreshToken?: string;
   machineName?: string;
   machineId?: Buffer;
-}
+};
 
 export interface AccountAuth {
   machineName: string;
@@ -30,36 +23,31 @@ export interface AccountData {
   vac: boolean;
   communityBanned: boolean;
   locked: boolean;
-  games: Game[];
+  games: CPlayer_GetOwnedGames_Response["games"];
   emailOrDomain: string;
   isEmailVerified: boolean;
   credentialChangeRequiresCode: boolean;
   personaState: Friend;
-  playingState: ClientPlayingSessionState;
+  playingState: CMsgClientPlayingSessionState;
   inventory: {
     steam: Item[];
   };
 }
 
-export interface Game {
-  name: string;
-  gameid: number;
-  icon: string;
-  playtime: number;
-}
+export type Friend = IterableElement<CMsgClientPersonaState["friends"]> & { avatarString?: string };
 
 declare class Client extends Steam {
   on(event: "ClientPersonaState", listener: (state: Friend) => void): this;
   once(event: "ClientPersonaState", listener: (state: Friend) => void): this;
-  on(event: "ClientPlayingSessionState", listener: (state: ClientPlayingSessionState) => void): this;
-  once(event: "ClientPlayingSessionState", listener: (state: ClientPlayingSessionState) => void): this;
+  on(event: "ClientPlayingSessionState", listener: (state: CMsgClientPlayingSessionState) => void): this;
+  once(event: "ClientPlayingSessionState", listener: (state: CMsgClientPlayingSessionState) => void): this;
   on(event: "disconnected", listener: (error: SteamClientError) => void): this;
   once(event: "disconnected", listener: (error: SteamClientError) => void): this;
 
   constructor(options: ConnectionOptions);
   /**
- * login to steam via credentials or refresh_token
- */
+   * login to steam via credentials or refresh_token
+   */
   login(options: LoginOptions): Promise<{
     auth: AccountAuth;
     data: AccountData;
@@ -77,17 +65,11 @@ declare class Client extends Steam {
    * Empty array stops idling
    * forcePlay truthy kicks another playing session
    */
-  gamesPlayed(gameIds: number[], options?: {
-    forcePlay?: boolean;
-  }): Promise<void>;
-  /**
-   * Activate cdkey
-   */
-  registerKey(cdkey: string): Promise<Game[]>;
+  gamesPlayed(gameIds: number[], options?: { forcePlay?: boolean }): Promise<void>;
   /**
    * Activate free games
    */
-  requestFreeLicense(appids: number[]): Promise<Game[]>;
+  requestFreeLicense(appids: number[]): Promise<CPlayer_GetOwnedGames_Response["games"]>;
   /**
    * Whether playing is blocked by another session
    */
@@ -96,7 +78,7 @@ declare class Client extends Steam {
    * Whether account is playing a game
    */
   get isPlayingGame(): boolean;
-  get playingSessionState(): ClientPlayingSessionState;
+  get playingSessionState(): CMsgClientPlayingSessionState;
 }
 
 export default Client;

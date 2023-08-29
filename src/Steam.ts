@@ -6,18 +6,14 @@ import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
 import Player from "./services/Player.js";
 import Econ from "./services/Econ.js";
+import Store from "./services/Store.js";
 import { Language } from "./modules/language.js";
-import { SteamClientError } from "./modules/common.js";
-import Long from "long";
-import { EResult } from "./language/EResult.js";
 import TCPConnection from "./connections/TCPConn.js";
 import EventEmitter from "events";
 import WebSocketConnection from "./connections/WebsocketConn.js";
-import { ConnectionOptions } from "../@types/connections/Base.js";
 import { randomBytes } from "crypto";
-import http from "http"
-
-export { SteamClientError, EResult };
+import http from "http";
+import type { ConnectionOptions } from "../@types/connections/Base.js";
 
 export default abstract class Steam extends EventEmitter {
   readonly service: {
@@ -25,11 +21,12 @@ export default abstract class Steam extends EventEmitter {
     credentials: Credentials;
     player: Player;
     econ: Econ;
+    store: Store;
   };
 
   readonly machineName: string;
   readonly machineId: Buffer;
-  readonly conn!: WebSocketConnection | TCPConnection
+  readonly conn!: WebSocketConnection | TCPConnection;
   protected loggedIn!: boolean;
   protected personaName!: string;
   private _obfustucatedIp!: number;
@@ -50,6 +47,7 @@ export default abstract class Steam extends EventEmitter {
       credentials: new Credentials(this),
       player: new Player(this),
       econ: new Econ(this),
+      store: new Store(this),
     };
 
     // create machine identity
@@ -70,24 +68,24 @@ export default abstract class Steam extends EventEmitter {
     return this.conn.isLoggedIn();
   }
 
-  public get steamId(): Long {
+  public get steamId() {
     return this.conn.steamid;
   }
 
   /**
- * Access obfustucated Ip
- */
+   * Access obfustucated Ip
+   */
   public get obfustucatedIp() {
-    return this._obfustucatedIp
+    return this._obfustucatedIp;
   }
 
   /**
    * Generate obfustucated Ip
    */
   protected async obfustucateIp(): Promise<number> {
-    if (this._obfustucatedIp) return this._obfustucatedIp
+    if (this._obfustucatedIp) return this._obfustucatedIp;
 
-    const mask = 0x163D3530;
+    const mask = 0x163d3530;
     let ip: string;
 
     // get ip
@@ -97,11 +95,9 @@ export default abstract class Steam extends EventEmitter {
       // get public ip
       ip = await new Promise((resolve) => {
         try {
-          http.get({ host: "api.ipify.org", port: 80, path: "/" }, (res) =>
-            res.on("data", (data) => resolve(data.toString()))
-          );
+          http.get({ host: "api.ipify.org", port: 80, path: "/" }, (res) => res.on("data", (data) => resolve(data.toString())));
         } catch (error) {
-          resolve("")
+          resolve("");
         }
       });
     }
@@ -114,7 +110,7 @@ export default abstract class Steam extends EventEmitter {
         return (ipInt << 8) + parseInt(octet, 10);
       }, 0) >>> 0;
 
-    this._obfustucatedIp = ipInt ^ mask
+    this._obfustucatedIp = ipInt ^ mask;
     return this._obfustucatedIp;
   }
 
@@ -131,9 +127,6 @@ export default abstract class Steam extends EventEmitter {
     const hexBB3 = Buffer.from(randomBytes(20).toString("hex")).toString("hex");
     const hexFF2 = Buffer.from(randomBytes(20).toString("hex")).toString("hex");
     const hex3B3 = Buffer.from(randomBytes(20).toString("hex")).toString("hex");
-    return Buffer.from(
-      `004D6573736167654F626A656374000142423300${hexBB3}000146463200${hexFF2}000133423300${hex3B3}000808`,
-      "hex"
-    )
+    return Buffer.from(`004D6573736167654F626A656374000142423300${hexBB3}000146463200${hexFF2}000133423300${hex3B3}000808`, "hex");
   }
 }

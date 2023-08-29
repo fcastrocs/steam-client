@@ -1,13 +1,18 @@
-import Long from "long";
-import { AccessToken_GenerateForApp_Response, PollAuthSessionStatus_Response } from "../protos/auth.protos";
-import { ValueOf } from "type-fest";
-import { EAuthSessionGuardType } from "../enums/steammessages_auth.steamclient.proto";
+import type Long from "long";
+import type { ValueOf } from "type-fest";
+import type Steam from "../steam.js";
 
-declare class Auth {
+export interface Confirmation {
+  qrCode?: { image: string; terminal: string };
+  allowedConfirmations?: CAuthentication_BeginAuthSessionViaQR_Response["allowedConfirmations"];
+  timeout: number;
+}
+
+export default class Auth extends EventEmitter {
   on(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
   once(event: "waitingForConfirmation", listener: (confirmation: Confirmation) => void): this;
-  on(event: "authTokens", listener: (authTokens: PollAuthSessionStatus_Response) => void): this;
-  once(event: "authTokens", listener: (authTokens: PollAuthSessionStatus_Response) => void): this;
+  on(event: "authTokens", listener: (authTokens: CAuthentication_PollAuthSessionStatus_Response) => void): this;
+  once(event: "authTokens", listener: (authTokens: CAuthentication_PollAuthSessionStatus_Response) => void): this;
   on(event: "getAuthTokensTimeout", listener: () => void): this;
   once(event: "getAuthTokensTimeout", listener: () => void): this;
 
@@ -28,9 +33,8 @@ declare class Auth {
    * Submit Steam Guard Code to auth session
    * @throws EResult, NotWaitingForConfirmation
    */
-  updateWithSteamGuardCode(guardCode: string, guardType: ValueOf<EAuthSessionGuardType>): Promise<void>;
-
-  accessTokenGenerateForApp(refreshToken: string): Promise<AccessToken_GenerateForApp_Response>
+  updateWithSteamGuardCode(guardCode: string, guardType: typeof EAuthSessionGuardType): Promise<void>;
+  accessTokenGenerateForApp(refreshToken: string): Promise<CAuthentication_AccessToken_GenerateForApp_Response>;
 }
 
 export default Auth;

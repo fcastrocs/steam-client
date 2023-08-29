@@ -1,23 +1,15 @@
-import { EventEmitter } from "events";
-import Long from "long";
-import { SteamClientError, T } from "../common.js";
-import { EventEmitter } from "events";
-import Long from "long";
-import { SocksClientOptions } from "socks";
-import { EMsg } from "../enums/enums_clientserver.proto.js";
-
-export type PromiseResolve = (value: T) => void;
-export type JobidTargets = Map<number, Long>;
-export type ProtoResponses = Map<keyof EMsg, PromiseResolve>;
+import type { EventEmitter } from "events";
+import type Long from "long";
+import type { SteamClientError, T } from "../common.js";
+import type { EventEmitter } from "events";
+import type Long from "long";
+import type { SocksClientOptions } from "socks";
+import type { EMsg } from "../enums/enums_clientserver.proto.js";
+import type { ValueOf } from "type-fest";
 
 export interface SessionKey {
   plain: Buffer;
   encrypted: Buffer;
-}
-
-export interface Session {
-  clientId: number;
-  steamId: Long;
 }
 
 export interface ServiceMethodCall {
@@ -41,25 +33,18 @@ export interface ConnectionOptions {
 }
 
 declare abstract class Base extends EventEmitter {
-  on(event: "sendData", listener: (data: Buffer) => void): this;
-  once(event: "sendData", listener: (data: Buffer) => void): this;
-  on(event: "disconnected", listener: (error: SteamClientError) => void): this;
-  once(event: "disconnected", listener: (error: SteamClientError) => void): this;
-
-  protected options: ConnectionOptions;
   protected readonly MAGIC = "VT01";
   protected readonly PROTO_MASK = 2147483648;
   protected readonly timeout: number;
-
   constructor(protected options: ConnectionOptions);
   /**
    * Send proto message
    */
-  sendProto(EMsg: number, payload: UnknownRecord): void;
+  sendProto(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord): void;
   /**
    * Send proto message and wait for response
    */
-  sendProtoPromise(EMsg: number, payload: UnknownRecord, resEMsg?: number): Promise<UnknownRecord>;
+  sendProtoPromise(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord, resEMsg: ValueOf<typeof EMsg>): Promise<UnknownRecord>;
   /**
    * Send service method call
    */
@@ -73,7 +58,7 @@ declare abstract class Base extends EventEmitter {
    * ProtoBuf: [ header: [EMsg, header length, CMsgProtoBufHeader], body: proto] ]
    * NonProtoBuf: [ header: [EMsg, header length, ExtendedHeader], body: raw bytes] ]
    */
-  protected decodeData(data: Buffer): void | Promise<void>;
+  protected decodeData(data: Buffer): void;
   /**
    * Destroy connection to Steam and do some cleanup
    * disconnected is emmitted when error is passed

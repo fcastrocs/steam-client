@@ -1,4 +1,7 @@
-//Auto-generated
+/**
+ * Auto-generated file
+ * Tue Aug 29 2023 17:49:38 GMT-0400 (Eastern Daylight Time)
+ */
 
 export const EUniverse = {
 	Invalid: 0,
@@ -177,18 +180,6 @@ export const EAppUsageEvent = {
 
 export const ELicenseFlags = {
 	None: 0,
-	Renew: 0x01,
-	RenewalFailed: 0x02,
-	Pending: 0x04,
-	Expired: 0x08,
-	CancelledByUser: 0x10,
-	CancelledByAdmin: 0x20,
-	LowViolenceContent: 0x40,
-	ImportedFromSteam2: 0x80,
-	ForceRunRestriction: 0x100,
-	RegionRestrictionExpired: 0x200,
-	CancelledByFriendlyFraudLock: 0x400,
-	NotActivated: 0x800,
 };
 
 export const ELicenseType = {
@@ -550,92 +541,6 @@ export const EPlatformType = {
 };
 
 export const EOSType = {
-	Unknown: -1,
-	Web: -700,
-	IOSUnknown: -600,
-	IOS1: -599,
-	IOS2: -598,
-	IOS3: -597,
-	IOS4: -596,
-	IOS5: -595,
-	IOS6: -594,
-	IOS6_1: -593,
-	IOS7: -592,
-	IOS7_1: -591,
-	IOS8: -590,
-	IOS8_1: -589,
-	IOS8_2: -588,
-	IOS8_3: -587,
-	IOS8_4: -586,
-	IOS9: -585,
-	IOS9_1: -584,
-	IOS9_2: -583,
-	IOS9_3: -582,
-	IOS10: -581,
-	IOS10_1: -580,
-	IOS10_2: -579,
-	IOS10_3: -578,
-	IOS11: -577,
-	IOS11_1: -576,
-	IOS11_2: -575,
-	IOS11_3: -574,
-	IOS11_4: -573,
-	IOS12: -572,
-	IOS12_1: -571,
-	AndroidUnknown: -500,
-	Android6: -499,
-	Android7: -498,
-	Android8: -497,
-	Android9: -496,
-	UMQ: -400,
-	PS3: -300,
-	MacOSUnknown: -102,
-	MacOS104: -101,
-	MacOS105: -100,
-	MacOS1058: -99,
-	MacOS106: -95,
-	MacOS1063: -94,
-	MacOS1064_slgu: -93,
-	MacOS1067: -92,
-	MacOS107: -90,
-	MacOS108: -89,
-	MacOS109: -88,
-	MacOS1010: -87,
-	MacOS1011: -86,
-	MacOS1012: -85,
-	Macos1013: -84,
-	Macos1014: -83,
-	Macos1015: -82,
-	MacOS1016: -81,
-	MacOS11: -80,
-	MacOS111: -79,
-	MacOS1017: -78,
-	MacOS12: -77,
-	MacOS13: -76,
-	MacOSMax: -1,
-	LinuxUnknown: -203,
-	Linux22: -202,
-	Linux24: -201,
-	Linux26: -200,
-	Linux32: -199,
-	Linux35: -198,
-	Linux36: -197,
-	Linux310: -196,
-	Linux316: -195,
-	Linux318: -194,
-	Linux3x: -193,
-	Linux4x: -192,
-	Linux41: -191,
-	Linux44: -190,
-	Linux49: -189,
-	Linux414: -188,
-	Linux419: -187,
-	Linux5x: -186,
-	Linux54: -185,
-	Linux6x: -184,
-	Linux7x: -183,
-	Linux510: -182,
-	LinuxMax: -101,
 	WinUnknown: 0,
 	Win311: 1,
 	Win95: 2,
@@ -661,11 +566,6 @@ export const EOSType = {
 };
 
 export const EServerType = {
-	Util: -2,
-	Client: -3,
-	CServer: -4,
-	CEconBase: -5,
-	Invalid: -1,
 	First: 0,
 	Shell: 0,
 	GM: 1,
@@ -829,24 +729,9 @@ export const EActivationCodeClass = {
 };
 
 export const EChatMemberStateChange = {
-	Entered: 0x01,
-	Left: 0x02,
-	Disconnected: 0x04,
-	Kicked: 0x08,
-	Banned: 0x10,
-	VoiceSpeaking: 0x1000,
-	VoiceDoneSpeaking: 0x2000,
 };
 
 export const ERegionCode = {
-	USEast: 0x00,
-	USWest: 0x01,
-	SouthAmerica: 0x02,
-	Europe: 0x03,
-	Asia: 0x04,
-	Australia: 0x05,
-	MiddleEast: 0x06,
-	Africa: 0x07,
 };
 
 export const ECurrencyCode = {
@@ -1029,7 +914,6 @@ export const ERemoteStoragePlatform = {
 	Switch: 16,
 	Android: 32,
 	IPhoneOS: 64,
-	All: -1,
 };
 
 export const EDRMBlobDownloadType = {
@@ -1099,6 +983,7 @@ export const ELeaderboardSortMethod = {
 };
 
 export const ELeaderboardDisplayType = {
+	None: 0,
 	Numeric: 1,
 	TimeSeconds: 2,
 	TimeMilliSeconds: 3,
@@ -1111,7 +996,6 @@ export const ELeaderboardUploadScoreMethod = {
 };
 
 export const EUCMFilePrivacyState = {
-	Invalid: -1,
 	Private: 2,
 	FriendsOnly: 4,
 	Public: 8,
@@ -1341,34 +1225,32 @@ export const ELobbyFilterType = {
 };
 
 export const ELobbyComparison = {
-	EqualToOrLessThan: -2,
-	LessThan: -1,
 	Equal: 0,
 	GreaterThan: 1,
 	EqualToOrGreaterThan: 2,
 	NotEqual: 3,
 };
 
-export const ELobbyDistanceFilter = {
+export const  ELobbyDistanceFilter = {
 	Close: 0,
 	Default: 1,
 	Far: 2,
 	Worldwide: 3,
 };
 
-export const ESteamIPv6ConnectivityProtocol = {
+export const  ESteamIPv6ConnectivityProtocol = {
 	Invalid: 0,
 	Http: 1,
 	Udp: 2,
 };
 
-export const ESteamIPv6ConnectivityState = {
+export const  ESteamIPv6ConnectivityState = {
 	Unknown: 0,
 	Good: 1,
 	Bad: 2,
 };
 
-export const ESteamRealm = {
+export const  ESteamRealm = {
 	Unknown: 0,
 	SteamGlobal: 1,
 	SteamChina: 2,
@@ -1384,4 +1266,5 @@ export const ELauncherType = {
 	Headless: 6,
 	SteamChina: 7,
 	SingleApp: 8,
-};
+}
+

@@ -1,77 +1,74 @@
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const BinaryKVParser = require("binarykvparser");
 import { Language } from "./modules/language.js";
 import Steam from "./Steam.js";
-import { SteamClientError, getKeyByValue } from "./modules/common.js";
-import { EOSType, EPersonaState, EPurchaseResultDetail } from "./language/commons.js";
-import { EMsg } from "./language/enums_clientserver.proto.js";
-import { EResult } from "./language/EResult.js"
-import { AccountAuth, AccountData, Game, LoginOptions } from "../@types/client.js";
-import { ConnectionOptions } from "../@types/connections/Base.js";
-import { CMsgClientGamesPlayed, CMsgClientLogon_Request, ClientAccountInfo, ClientChangeStatus, ClientPlayingSessionState, ClientEmailAddrInfo, ClientIsLimitedAccount, ClientLogonResponse, ClientPICSProductInfoResponse, ClientPersonaState, ClientPurchaseRes, ClientRequestFreeLicenseRes, Friend, PackageBuffer, PurchaseReceiptInfo } from "../@types/protos/client.protos.js";
-export { EMsg, EResult, SteamClientError }
+import { SteamClientError } from "./modules/common.js";
+import { EResult } from "./language/EResult.js";
+import { EMsg } from "./language/enums_clientserver.js";
+import { EOSType, EPersonaState } from "./language/enums.steamd.js";
+import Long from "long";
+import type { AccountAuth, AccountData, Friend, LoginOptions } from "../@types/client.js";
+import type { ConnectionOptions } from "../@types/connections/Base.js";
+
+export { EMsg, EResult, SteamClientError };
 
 export default class Client extends Steam {
   private personaState!: Friend;
-  private _playingSessionState = {} as ClientPlayingSessionState;
+  private _playingSessionState = {} as CMsgClientPlayingSessionState;
 
   constructor(options: ConnectionOptions) {
     super(options);
 
     // catch changes to personaState, playerName or avatar
-    this.conn.on("ClientPersonaState", (body: ClientPersonaState) => {
+    this.conn.on("ClientPersonaState", (body: CMsgClientPersonaState) => {
+      const me = body.friends![0];
+
       // have never received status
       if (!this.personaState) {
         // state does not belong to this account
-        if (this.personaName !== body.friends[0].playerName) return;
-        this.personaState = body.friends[0];
+        if (this.personaName !== me.playerName) return;
+        this.personaState = me;
         this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
         this.emit("ClientPersonaState", this.personaState);
         return;
       }
 
-      const state = body.friends[0];
-
       // state does not belong to this account
-      if (state.friendid.notEquals(this.personaState.friendid)) return;
+      if (me.friendid!.notEquals(this.personaState.friendid!)) return;
 
       // check if playerName, personaState or avatar changed
       let somethingChanged = false;
       if (
-        state.avatarHash.toString("hex") !== this.personaState.avatarHash.toString("hex") ||
-        state.personaState !== this.personaState.personaState ||
-        state.playerName !== this.personaState.playerName ||
-        state.gamePlayedAppId !== this.personaState.gamePlayedAppId
+        me.avatarHash!.toString("hex") !== this.personaState.avatarHash!.toString("hex") ||
+        me.personaState !== this.personaState.personaState ||
+        me.playerName !== this.personaState.playerName ||
+        me.gamePlayedAppId !== this.personaState.gamePlayedAppId
       ) {
         somethingChanged = true;
       }
 
       if (somethingChanged) {
-        this.personaState = state;
-        this.personaName = this.personaState.playerName;
+        this.personaState = me;
+        this.personaName = this.personaState.playerName!;
         this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
         this.emit("ClientPersonaState", this.personaState);
       }
     });
 
     // emitted after ClientGamesPlayed
-    this.conn.on("ClientPlayingSessionState", (body: ClientPlayingSessionState) => {
+    this.conn.on("ClientPlayingSessionState", (body: CMsgClientPlayingSessionState) => {
       this._playingSessionState = body;
-      this.emit("ClientPlayingSessionState", body)
+      this.emit("ClientPlayingSessionState", body);
     });
-    this.conn.on("ClientConcurrentSessionsBase", (body: ClientPlayingSessionState) => {
+    this.conn.on("ClientConcurrentSessionsBase", (body: CMsgClientPlayingSessionState) => {
       this._playingSessionState = body;
-      this.emit("ClientPlayingSessionState", body)
+      this.emit("ClientPlayingSessionState", body);
     });
-    this.conn.on("disconnected", (err) => this.emit("disconnected", (err)))
+    this.conn.on("disconnected", (err) => this.emit("disconnected", err));
   }
 
   /**
- * login to steam via credentials or refresh_token
- */
+   * login to steam via credentials or refresh_token
+   */
   public async login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
-
     // verify refresh token
     if (options.refreshToken) {
       this.verifyRefreshToken(options.refreshToken);
@@ -87,8 +84,8 @@ export default class Client extends Steam {
       shouldRememberPassword: true,
       obfuscatedPrivateIp: {
         ip: {
-          v4: await this.obfustucateIp()
-        }
+          v4: await this.obfustucateIp(),
+        },
       },
       qosLevel: 2,
       machineId: options.machineId || this.machineId,
@@ -96,7 +93,7 @@ export default class Client extends Steam {
       supportsRateLimitResponse: true,
       priorityReason: 11,
       accessToken: options.refreshToken,
-    } as CMsgClientLogon_Request;
+    } as CMsgClientLogon;
 
     delete options.refreshToken;
 
@@ -113,23 +110,23 @@ export default class Client extends Steam {
       responses = responses.filter((item) => item !== response);
     };
 
-    this.conn.once("ClientAccountInfo", async (body: ClientAccountInfo) => {
-      this.personaName = body.personaName;
+    this.conn.once("ClientAccountInfo", async (body: CMsgClientAccountInfo) => {
+      this.personaName = body.personaName!;
       accountData.personaState = await this.setPersonaState("Online");
       receivedResponse("ClientAccountInfo");
     });
 
-    this.conn.once("ClientEmailAddrInfo", (body: ClientEmailAddrInfo) => {
-      accountData.isEmailVerified = body.emailIsValidated;
-      accountData.emailOrDomain = body.emailAddress;
-      accountData.credentialChangeRequiresCode = body.credentialChangeRequiresCode;
+    this.conn.once("ClientEmailAddrInfo", (body: CMsgClientEmailAddrInfo) => {
+      accountData.isEmailVerified = body.emailIsValidated!;
+      accountData.emailOrDomain = body.emailAddress!;
+      accountData.credentialChangeRequiresCode = body.credentialChangeRequiresCode!;
       receivedResponse("ClientEmailAddrInfo");
     });
 
-    this.conn.once("ClientIsLimitedAccount", (body: ClientIsLimitedAccount) => {
-      accountData.limited = body.bisLimitedAccount;
-      accountData.communityBanned = body.bisCommunityBanned;
-      accountData.locked = body.bisLockedAccount;
+    this.conn.once("ClientIsLimitedAccount", (body: CMsgClientIsLimitedAccount) => {
+      accountData.limited = body.bisLimitedAccount!;
+      accountData.communityBanned = body.bisCommunityBanned!;
+      accountData.locked = body.bisLockedAccount!;
       receivedResponse("ClientIsLimitedAccount");
     });
 
@@ -139,15 +136,14 @@ export default class Client extends Steam {
     });
 
     // send login request to steam
-    const res = (await this.conn.sendProtoPromise(EMsg.ClientLogon, options)) as ClientLogonResponse;
-
+    const res: CMsgClientLogOnResponse = await this.conn.sendProtoPromise(EMsg.ClientLogon, options, EMsg.ClientLogOnResponse);
     if (res.eresult === EResult.OK) {
-      accountData.steamId = res.clientSuppliedSteamid.toString();
+      accountData.steamId = res.clientSuppliedSteamid!.toString();
       accountData.games = await this.service.player.getOwnedGames();
-      accountData.inventory.steam = await this.service.econ.getSteamContextItems();
+      accountData.inventory.steam = []; //await this.service.econ.getSteamContextItems();
     } else {
       this.disconnect();
-      throw new SteamClientError(Language.EResultMap.get(res.eresult)!);
+      throw new SteamClientError(Language.EResultMap.get(res.eresult!)!);
     }
 
     return new Promise((resolve, reject) => {
@@ -163,7 +159,7 @@ export default class Client extends Steam {
         if (responses.length) return;
         clearTimeout(timeout);
         clearInterval(interval);
-        resolve({ auth: accountAuth, data: { ...accountData, playingState: this.playingSessionState } });
+        resolve({ auth: accountAuth, data: { ...accountData, playingState: this._playingSessionState } });
       }, 1000);
     });
   }
@@ -207,58 +203,30 @@ export default class Client extends Steam {
 
     const body = {
       gamesPlayed: gameIds.map((id) => {
-        return { gameId: id };
+        return { gameId: Long.fromInt(id, true) };
       }),
       clientOsType: EOSType.Win11,
     } as CMsgClientGamesPlayed;
 
-    await this.conn.sendProtoPromise(
-      EMsg.ClientGamesPlayedWithDataBlob,
-      body,
-      EMsg.ClientConcurrentSessionsBase
-    );
-  }
-
-  /**
-   * Activate cdkey
-   */
-  public async registerKey(cdkey: string): Promise<Game[]> {
-    const res = (await this.conn.sendProtoPromise(
-      EMsg.ClientRegisterKey,
-      { key: cdkey },
-      EMsg.ClientPurchaseResponse
-    )) as ClientPurchaseRes;
-
-    // something went wrong
-    if (res.eresult !== EResult.OK) {
-      throw new SteamClientError(getKeyByValue(EPurchaseResultDetail, res.purchaseResultDetails));
-    }
-
-    const receipt = (BinaryKVParser.parse(res.purchaseReceiptInfo) as PurchaseReceiptInfo).MessageObject;
-    // get packgeIds
-    const packageIds = [];
-    for (const item of receipt.lineitems) {
-      const packageId = item.PackageID || item.packageID || item.packageid;
-      if (!packageId) continue;
-      packageIds.push(packageId);
-    }
-
-    const appIds = await this.getAppIds(packageIds);
-    return this.service.player.getOwnedGames({ appidsFilter: appIds });
+    await this.conn.sendProtoPromise(EMsg.ClientGamesPlayedWithDataBlob, body, EMsg.ClientConcurrentSessionsBase);
   }
 
   /**
    * Activate free games
    */
-  public async requestFreeLicense(appids: number[]): Promise<Game[]> {
+  public async requestFreeLicense(appids: number[]): Promise<CPlayer_GetOwnedGames_Response["games"]> {
     if (!appids.length) return [];
 
-    const res = (await this.conn.sendProtoPromise(EMsg.ClientRequestFreeLicense, {
-      appids,
-    })) as ClientRequestFreeLicenseRes;
+    const res: CMsgClientRequestFreeLicenseResponse = await this.conn.sendProtoPromise(
+      EMsg.ClientRequestFreeLicense,
+      {
+        appids,
+      } as CMsgClientRequestFreeLicense,
+      EMsg.ClientRequestFreeLicenseResponse
+    );
 
     if (res.eresult !== EResult.OK) {
-      throw new SteamClientError(Language.EResultMap.get(res.eresult)!);
+      throw new SteamClientError(Language.EResultMap.get(res.eresult!)!);
     }
 
     if (!res.grantedAppids || !res.grantedAppids.length) return [];
@@ -270,7 +238,7 @@ export default class Client extends Steam {
    * Whether playing is blocked by another session
    */
   public get isPlayingBlocked() {
-    return this._playingSessionState.playingBlocked;
+    return !!this._playingSessionState.playingBlocked;
   }
 
   /**
@@ -281,14 +249,14 @@ export default class Client extends Steam {
   }
 
   public get playingSessionState() {
-    return JSON.parse(JSON.stringify(this._playingSessionState)) as ClientPlayingSessionState;
+    return JSON.parse(JSON.stringify(this._playingSessionState)) as CMsgClientPlayingSessionState;
   }
 
   private getAvatar(hash: Friend["avatarHash"]): string {
     //default avatar
     const defaultHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
 
-    let hashHex = hash.toString("hex");
+    let hashHex = hash!.toString("hex");
 
     //default avatar
     if (hashHex === "0000000000000000000000000000000000000000") {
@@ -301,7 +269,7 @@ export default class Client extends Steam {
   /**
    * Change player name or persona state
    */
-  private async changeStatus(payload: ClientChangeStatus): Promise<Friend> {
+  private async changeStatus(payload: CMsgClientChangeStatus): Promise<Friend> {
     let somethingChanged = false;
 
     if (this.personaState) {
@@ -326,75 +294,30 @@ export default class Client extends Steam {
     });
   }
 
-  /**
-   * Get all appIds from packages
-   */
-  private getAppIds(packageIds: number[]): Promise<number[]> {
-    // don't include default steam package id === 0
-    packageIds = packageIds.filter((id) => id !== 0);
-
-    if (!packageIds.length) return Promise.resolve([]);
-
-    const packages = packageIds.map((id) => {
-      return { packageid: id };
-    });
-
-    // send packge info request to steam
-    this.conn.sendProto(EMsg.ClientPICSProductInfoRequest, { packages });
-
-    // wait for all(Multi response) packages info
-    return new Promise((resolve) => {
-      const appIds: number[] = [];
-
-      this.conn.on("ClientPICSProductInfoResponse", (res: ClientPICSProductInfoResponse) => {
-        if (res.packages) {
-          for (const pkg of res.packages) {
-            // package not fully received
-            if (pkg.missingToken) {
-              continue;
-            }
-            const packageBuffer: PackageBuffer = BinaryKVParser.parse(pkg.buffer);
-
-            for (const appid of packageBuffer[pkg.packageid].appids) {
-              appIds.push(appid);
-            }
-          }
-        }
-
-        // received all packages info
-        if (!res.responsePending) {
-          this.removeAllListeners("ClientPICSProductInfoResponse");
-          resolve([...new Set(appIds)]);
-        }
-      });
-    });
-  }
-
   private verifyRefreshToken(refreshToken: string) {
     try {
       const headerBase64 = refreshToken.split(".")[1];
       const header = JSON.parse(atob(headerBase64));
 
       if (header.iss !== "steam" || !header.aud.includes("renew")) {
-        throw new SteamClientError("This is not a steam refresh token.")
+        throw new SteamClientError("This is not a steam refresh token.");
       }
 
       if (!header.aud.includes("client")) {
-        throw new SteamClientError("This is not a client refresh token.")
+        throw new SteamClientError("This is not a client refresh token.");
       }
 
-      if (header.exp - (Math.floor(Date.now() / 1000)) < 30) {
+      if (header.exp - Math.floor(Date.now() / 1000) < 30) {
         throw new SteamClientError("RefreshTokenExpired");
       }
 
       // all good supply steamid to base connection
       this.conn.setSteamId(header.sub);
-
     } catch (error) {
       if (error instanceof SteamClientError) {
         throw error;
       }
-      throw new SteamClientError("Refresh token is bad.")
+      throw new SteamClientError("Refresh token is bad.");
     }
   }
 }

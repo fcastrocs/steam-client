@@ -1,4 +1,7 @@
-//Auto-generated
+/**
+ * Auto-generated file
+ * Tue Aug 29 2023 17:49:38 GMT-0400 (Eastern Daylight Time)
+ */
 
 export const EProfileCustomizationStyle = {
 	Default: 0,
@@ -7,23 +10,24 @@ export const EProfileCustomizationStyle = {
 	MostRecent: 3,
 	Random: 4,
 	HighestRated: 5,
-};
+}
 
 export const EAgreementType = {
 	Invalid: -1,
 	GlobalSSA: 0,
 	ChinaSSA: 1,
-};
+}
 
 export const ENotificationSetting = {
 	NotifyUseDefault: 0,
 	Always: 1,
 	Never: 2,
-};
+}
 
 export const ETextFilterSetting = {
 	SteamLabOptedOut: 0,
 	Enabled: 1,
 	EnabledAllowProfanity: 2,
 	Disabled: 3,
-};
+}
+

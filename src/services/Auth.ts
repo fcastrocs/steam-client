@@ -3,33 +3,22 @@ import QRCode from "qrcode";
 import Steam from "../Steam.js";
 import { Language } from "../modules/language.js";
 import { SteamClientError } from "../modules/common.js";
-import { EAuthSessionGuardType, EAuthTokenPlatformType, ETokenRenewalType } from "../language/steammessages_auth.steamclient.proto.js";
 import { EResult } from "../language/EResult.js";
 import EventEmitter from "events";
-import {
-  AccessToken_GenerateForApp_Request,
-  AccessToken_GenerateForApp_Response,
-  BeginAuthSessionViaCredentials_Request,
-  BeginAuthSessionViaCredentials_Response,
-  BeginAuthSessionViaQR_Request,
-  BeginAuthSessionViaQR_Response,
-  Confirmation,
-  GetPasswordRSAPublicKey_Request,
-  GetPasswordRSAPublicKey_Response,
-  PollAuthSessionStatus_Request,
-  PollAuthSessionStatus_Response,
-  UpdateAuthSessionWithSteamGuardCode_Request,
-  UpdateAuthSessionWithSteamGuardCode_Response
-} from "../../@types/protos/auth.protos.js";
-import { ESessionPersistence } from "../language/enums.proto.js";
-import { EOSType } from "../language/commons.js";
+import { EAuthSessionGuardType, EAuthTokenPlatformType, ETokenRenewalType } from "../language/steammessages_auth.steamclient.js";
+import { EOSType } from "../language/enums.steamd.js";
+import { ESessionPersistence } from "../language/enums.js";
+import { Confirmation } from "../../@types/services/auth.js";
+import { UnknownRecord, ValueOf } from "type-fest";
 
 export default class Auth extends EventEmitter {
   private waitingForConfirmation!: boolean;
-  private partialSession!: BeginAuthSessionViaCredentials_Response | BeginAuthSessionViaQR_Response;
+  private partialSession!: CAuthentication_BeginAuthSessionViaCredentials_Response | CAuthentication_BeginAuthSessionViaQR_Response;
   private readonly serviceName = "Authentication";
   private readonly timeout = 1 * 60 * 1000;
-  constructor(private steam: Steam) { super() }
+  constructor(private steam: Steam) {
+    super();
+  }
 
   /**
    * Obtain auth tokens via QR
@@ -40,16 +29,16 @@ export default class Auth extends EventEmitter {
     if (this.steam.isLoggedIn) throw new SteamClientError("AlreadyLoggedIn");
 
     // begin login by getting QR challenge URL
-    const res = (await this.steam.conn.sendServiceMethodCall(this.serviceName, "BeginAuthSessionViaQR", {
+    const res: CAuthentication_BeginAuthSessionViaQR_Response = await this.steam.conn.sendServiceMethodCall(this.serviceName, "BeginAuthSessionViaQR", {
       deviceDetails: {
         deviceFriendlyName: this.steam.machineName,
-        platformType: EAuthTokenPlatformType.SteamClient,
+        platformType: EAuthTokenPlatformType.SteamClient, //as unknown as typeof EAuthTokenPlatformType,
         osType: EOSType.Win11,
         gamingDeviceType: 1,
-        machineId: this.steam.machineId
+        machineId: this.steam.machineId,
       },
       websiteId: "Unknown",
-    } as BeginAuthSessionViaQR_Request)) as BeginAuthSessionViaQR_Response;
+    } as CAuthentication_BeginAuthSessionViaQR_Request);
 
     this.checkResult(res);
 
@@ -58,7 +47,7 @@ export default class Auth extends EventEmitter {
     this.pollAuthStatusInterval();
 
     this.emit("waitingForConfirmation", {
-      qrCode: await this.genQRCode(res.challengeUrl),
+      qrCode: await this.genQRCode(res.challengeUrl!),
       timeout: this.timeout,
     } as Confirmation);
   }
@@ -72,27 +61,23 @@ export default class Auth extends EventEmitter {
     if (this.steam.isLoggedIn) throw new SteamClientError("AlreadyLoggedIn");
 
     const rsa = (await this.steam.conn.sendServiceMethodCall(this.serviceName, "GetPasswordRSAPublicKey", {
-      accountName
-    } as GetPasswordRSAPublicKey_Request)) as GetPasswordRSAPublicKey_Response;
+      accountName,
+    } as CAuthentication_GetPasswordRSAPublicKey_Request)) as CAuthentication_GetPasswordRSAPublicKey_Response;
 
-    const res = (await this.steam.conn.sendServiceMethodCall(
-      this.serviceName,
-      "BeginAuthSessionViaCredentials",
-      {
-        deviceFriendlyName: this.steam.machineName,
-        accountName,
-        encryptedPassword: this.encryptPass(password, rsa.publickeyMod, rsa.publickeyExp),
-        encryptionTimestamp: rsa.timestamp,
-        platformType: EAuthTokenPlatformType.SteamClient,
-        persistence: ESessionPersistence.Persistent,
-        websiteId: "Client",
-      } as BeginAuthSessionViaCredentials_Request
-    )) as BeginAuthSessionViaCredentials_Response;
+    const res = (await this.steam.conn.sendServiceMethodCall(this.serviceName, "BeginAuthSessionViaCredentials", {
+      deviceFriendlyName: this.steam.machineName,
+      accountName,
+      encryptedPassword: this.encryptPass(password, rsa.publickeyMod!, rsa.publickeyExp!),
+      encryptionTimestamp: rsa.timestamp,
+      platformType: EAuthTokenPlatformType.SteamClient,
+      persistence: ESessionPersistence.Persistent,
+      websiteId: "Client",
+    } as CAuthentication_BeginAuthSessionViaCredentials_Request)) as CAuthentication_BeginAuthSessionViaCredentials_Response;
 
     this.checkResult(res);
 
     // confirmation type without auth tokens
-    for (const item of res.allowedConfirmations) {
+    for (const item of res.allowedConfirmations!) {
       if (item.confirmationType === EAuthSessionGuardType.Unknown) {
         throw new SteamClientError("SteamGuardIsUnknown");
       }
@@ -119,23 +104,22 @@ export default class Auth extends EventEmitter {
     if (!this.waitingForConfirmation) throw new SteamClientError("NotWaitingForConfirmation");
 
     // submit steam guard code
-    const res = await (this.steam.conn.sendServiceMethodCall(this.serviceName, "UpdateAuthSessionWithSteamGuardCode", {
+    const res = (await this.steam.conn.sendServiceMethodCall(this.serviceName, "UpdateAuthSessionWithSteamGuardCode", {
       clientId: this.partialSession.clientId,
-      steamid: (this.partialSession as BeginAuthSessionViaCredentials_Response).steamid,
+      steamid: (this.partialSession as CAuthentication_BeginAuthSessionViaCredentials_Response).steamid,
       code: guardCode,
       codeType: guardType as unknown as number,
-    } as UpdateAuthSessionWithSteamGuardCode_Request)) as UpdateAuthSessionWithSteamGuardCode_Response;
+    } as CAuthentication_UpdateAuthSessionWithSteamGuardCode_Request)) as CAuthentication_UpdateAuthSessionWithSteamGuardCode_Response;
 
     this.checkResult(res);
   }
 
   public async accessTokenGenerateForApp(refreshToken: string) {
-    const res = await this.steam.conn.sendServiceMethodCall(this.serviceName,
-      "AccessToken_GenerateForApp", {
-        refreshToken,
-        steamid: this.steam.steamId,
-        renewalType: ETokenRenewalType.None
-      } as AccessToken_GenerateForApp_Request) as AccessToken_GenerateForApp_Response;
+    const res = (await this.steam.conn.sendServiceMethodCall(this.serviceName, "AccessToken_GenerateForApp", {
+      refreshToken,
+      steamid: this.steam.steamId,
+      renewalType: ETokenRenewalType.None,
+    } as CAuthentication_AccessToken_GenerateForApp_Request)) as CAuthentication_AccessToken_GenerateForApp_Response;
 
     this.checkResult(res);
     return res;
@@ -149,20 +133,15 @@ export default class Auth extends EventEmitter {
     // timeout if did not respond to login attempt
     const timeoutId = setTimeout(() => {
       clearInterval(intervalId);
-      this.emit("getAuthTokensTimeout")
+      this.emit("getAuthTokensTimeout");
     }, this.timeout);
 
     // poll auth status until user responds to QR or timeouts
     const intervalId = setInterval(async () => {
-
-      const pollStatus = await this.steam.conn.sendServiceMethodCall(
-        this.serviceName,
-        "PollAuthSessionStatus",
-        {
-          clientId: this.partialSession.clientId,
-          requestId: this.partialSession.requestId,
-        } as PollAuthSessionStatus_Request
-      ) as PollAuthSessionStatus_Response;
+      const pollStatus = (await this.steam.conn.sendServiceMethodCall(this.serviceName, "PollAuthSessionStatus", {
+        clientId: this.partialSession.clientId,
+        requestId: this.partialSession.requestId,
+      } as CAuthentication_PollAuthSessionStatus_Request)) as CAuthentication_PollAuthSessionStatus_Response;
 
       this.checkResult(pollStatus);
 
@@ -191,17 +170,15 @@ export default class Auth extends EventEmitter {
       clearInterval(intervalId);
       clearTimeout(timeoutId);
 
-      this.emit("authTokens", pollStatus)
-
-    }, this.partialSession.interval * 1000);
-
+      this.emit("authTokens", pollStatus);
+    }, this.partialSession.interval! * 1000);
   }
 
   private async genQRCode(challengeUrl: string) {
     return {
       terminal: await QRCode.toString(challengeUrl, { type: "terminal", small: true, errorCorrectionLevel: "H" }),
-      image: await QRCode.toDataURL(challengeUrl, { type: "image/webp" })
-    }
+      image: await QRCode.toDataURL(challengeUrl, { type: "image/webp" }),
+    };
   }
 
   private encryptPass(password: string, publickeyMod: string, publickeyExp: string) {
@@ -226,9 +203,9 @@ export default class Auth extends EventEmitter {
     return key.encrypt(password, "base64");
   }
 
-  private checkResult(res: { EResult: number }) {
+  private checkResult(res: UnknownRecord) {
     if (res.EResult !== EResult.OK) {
-      throw new SteamClientError(Language.EResultMap.get(res.EResult)!);
+      throw new SteamClientError(Language.EResultMap.get(res.EResult as ValueOf<typeof EResult>)!);
     }
   }
 }

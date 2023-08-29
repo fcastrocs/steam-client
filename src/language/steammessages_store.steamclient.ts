@@ -1,4 +1,7 @@
-//Auto-generated
+/**
+ * Auto-generated file
+ * Tue Aug 29 2023 17:49:38 GMT-0400 (Eastern Daylight Time)
+ */
 
 export const EStoreDiscoveryQueueType = {
 	New: 0,
@@ -16,17 +19,25 @@ export const EStoreDiscoveryQueueType = {
 	DLCNewReleases: 13,
 	DLCTopSellers: 14,
 	MAX: 15,
-};
+}
 
 export const EPlaytestStatus = {
-	TesterStatusNone: 0,
-	TesterStatusPending: 1,
-	TesterStatusInvited: 2,
-	TesterStatusGranted: 3,
-};
+	ETesterStatusNone: 0,
+	ETesterStatusPending: 1,
+	ETesterStatusInvited: 2,
+	ETesterStatusGranted: 3,
+}
 
 export const EUserReviewScorePreference = {
 	Unset: 0,
 	IncludeAll: 1,
 	ExcludeBombs: 2,
-};
+}
+
+export const EPartnerLinkTrackingBackfillSource = {
+	None: 0,
+	Web: 1,
+	Mobile: 2,
+	Desktop: 3,
+}
+

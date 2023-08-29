@@ -88,7 +88,7 @@ message CMsgClientLogon {
 	optional bool is_tesla = 110;
 }
 
-message CMsgClientLogonResponse {
+message CMsgClientLogOnResponse {
 	optional int32 eresult = 1 [default = 2];
 	optional int32 legacy_out_of_game_heartbeat_seconds = 2;
 	optional int32 heartbeat_seconds = 3;

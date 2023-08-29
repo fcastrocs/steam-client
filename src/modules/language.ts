@@ -1,31 +1,26 @@
 /**
  * Load steam resources: protos and language
  */
-import { ValueOf } from "type-fest";
 import { EResult } from "../language/EResult.js";
-import { EMsg } from "../language/enums_clientserver.proto.js";
-
+import { EMsg } from "../language/enums_clientserver.js";
+import { ValueOf } from "type-fest";
 const Language = createEnumMaps();
-
 export { Language };
 
 function createEnumMaps() {
-  const maps: { [key: string]: Map<ValueOf<typeof EMsg>, keyof typeof EMsg> } = {};
-  const enumsToMap = { EMsg, EResult };
+  const enumsMap: Map<ValueOf<typeof EMsg>, keyof typeof EMsg> = new Map();
+  const EResultMap: Map<ValueOf<typeof EResult>, keyof typeof EResult> = new Map();
 
-  // enum maps for value:key instead of key:value
-  for (const enumName in enumsToMap) {
-    const constant = enumsToMap[enumName as keyof typeof enumsToMap];
+  for (const key in EMsg) {
+    enumsMap.set(EMsg[key as keyof typeof EMsg], key as keyof typeof EMsg);
+  }
 
-    const map = new Map();
-    for (const propertyName in constant) {
-      map.set(constant[propertyName as keyof typeof constant], propertyName);
-    }
-    maps[enumName + "Map"] = map;
+  for (const key in EResult) {
+    EResultMap.set(EResult[key as keyof typeof EResult], key as keyof typeof EResult);
   }
 
   return {
-    EMsgMap: maps.EMsgMap,
-    EResultMap: maps.EResultMap,
+    EMsgMap: enumsMap,
+    EResultMap: EResultMap,
   };
 }

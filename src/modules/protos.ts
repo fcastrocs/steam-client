@@ -7,6 +7,8 @@ import { UnknownRecord } from "type-fest";
 const rootDir = process.cwd() + "/";
 const Protos = await loadProtos();
 
+export { Protos as Root }
+
 export function decode(type: string, body: Buffer) {
   const proto = Protos.lookupType(type);
   const payload = proto.decode(body);

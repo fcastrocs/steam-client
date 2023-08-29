@@ -1,11 +1,14 @@
-//Auto-generated
+/**
+ * Auto-generated file
+ * Tue Aug 29 2023 17:49:38 GMT-0400 (Eastern Daylight Time)
+ */
 
 export const EAuthTokenPlatformType = {
 	Unknown: 0,
 	SteamClient: 1,
 	WebBrowser: 2,
 	MobileApp: 3,
-};
+}
 
 export const EAuthSessionGuardType = {
 	Unknown: 0,
@@ -16,29 +19,29 @@ export const EAuthSessionGuardType = {
 	EmailConfirmation: 5,
 	MachineToken: 6,
 	LegacyMachineAuth: 7,
-};
+}
 
 export const EAuthSessionSecurityHistory = {
 	Invalid: 0,
 	UsedPreviously: 1,
 	NoPriorHistory: 2,
-};
+}
 
 export const ETokenRenewalType = {
 	None: 0,
 	Allow: 1,
-};
+}
 
 export const EAuthTokenRevokeAction = {
-	Logout: 0,
-	Permanent: 1,
-	Replaced: 2,
-	Support: 3,
-	Consume: 4,
-	NonRememberedLogout: 5,
-	NonRememberedPermanent: 6,
-	utomatic: 7,
-};
+	EAuthTokenRevokeLogout: 0,
+	EAuthTokenRevokePermanent: 1,
+	EAuthTokenRevokeReplaced: 2,
+	EAuthTokenRevokeSupport: 3,
+	EAuthTokenRevokeConsume: 4,
+	EAuthTokenRevokeNonRememberedLogout: 5,
+	EAuthTokenRevokeNonRememberedPermanent: 6,
+	EAuthTokenRevokeAutomatic: 7,
+}
 
 export const EAuthTokenState = {
 	Invalid: 0,
@@ -49,4 +52,5 @@ export const EAuthTokenState = {
 	LoggedOut: 5,
 	Consumed: 6,
 	Revoked: 99,
-};
+}
+

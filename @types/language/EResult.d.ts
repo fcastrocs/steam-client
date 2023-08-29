@@ -3,7 +3,7 @@
  * Tue Aug 29 2023 17:49:38 GMT-0400 (Eastern Daylight Time)
  */
 
-export const EResult = {
+declare const EResult = {
 	Invalid: 0,
 	OK: 1,
 	Fail: 2,
