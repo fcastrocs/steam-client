@@ -1,27 +1,13 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Node 18",
-  "_version": "18.17.1",
-  "extends": "@tsconfig/node18/tsconfig.json",
-
-  "compilerOptions": {
-    "lib": ["ESNext"],
-    "module": "ESNext",
-    "target": "ESNext",
-    "moduleResolution": "Node",
-    "declaration": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": true,
-    "allowUnreachableCode": false,
-    "noImplicitReturns": true,
-    "outDir": "lib/",
-    "baseUrl": "src/"
-  },
-
-  "include": ["src/**/*", "@types"],
-  "exclude": ["src/__tests__/*"],
-  "compileOnSave": false
+    "extends": "@tsconfig/node16/tsconfig.json",
+    "compilerOptions": {
+        "declaration": true,
+        "noImplicitAny": true,
+        "allowUnreachableCode": false,
+        "noImplicitReturns": true,
+        "outDir": "dist/",
+        "skipLibCheck": false,
+        "lib": ["dom"]
+    },
+    "include": ["src/**/*", "@types", "./language"],
 }

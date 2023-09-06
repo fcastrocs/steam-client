@@ -1,115 +1,114 @@
 /**
  * Auto-generated file
- * Tue Aug 29 2023 17:49:38 GMT-0400 (Eastern Daylight Time)
+ * Wed Sep 06 2023 10:11:32 GMT-0400 (Eastern Daylight Time)
  */
 
-declare type Long = import("long");
-type ValueOf<T> = T[keyof T];
+import Long from "long";
 
-type CMsgClientAppInfoUpdate = {
-	lastChangenumber?: number;
-	sendChangelist?: boolean;
+export type CMsgClientAppInfoUpdate = {
+	lastChangenumber?: number
+	sendChangelist?: boolean
 }
 
-type CMsgClientAppInfoChanges = {
-	currentChangeNumber?: number;
-	forceFullUpdate?: boolean;
-	appIDs?: number[];
+export type CMsgClientAppInfoChanges = {
+	currentChangeNumber?: number
+	forceFullUpdate?: boolean
+	appIDs?: number[]
 }
 
-type CMsgClientAppInfoRequest = {
+export type CMsgClientAppInfoRequest = {
 	apps?: {
-		appId?: number;
-		sectionFlags?: number;
-		section_CRC?: number[];
-	}[];
-	supportsBatches?: boolean;
+		appId?: number
+		sectionFlags?: number
+		section_CRC?: number[]
+	}[]
+	supportsBatches?: boolean
 }
 
-type CMsgClientPICSChangesSinceRequest = {
-	sinceChangeNumber?: number;
-	sendAppInfoChanges?: boolean;
-	sendPackageInfoChanges?: boolean;
-	numAppInfoCached?: number;
-	numPackageInfoCached?: number;
+export type CMsgClientPICSChangesSinceRequest = {
+	sinceChangeNumber?: number
+	sendAppInfoChanges?: boolean
+	sendPackageInfoChanges?: boolean
+	numAppInfoCached?: number
+	numPackageInfoCached?: number
 }
 
-type CMsgClientPICSChangesSinceResponse = {
-	currentChangeNumber?: number;
-	sinceChangeNumber?: number;
-	forceFullUpdate?: boolean;
+export type CMsgClientPICSChangesSinceResponse = {
+	currentChangeNumber?: number
+	sinceChangeNumber?: number
+	forceFullUpdate?: boolean
 	packageChanges?: {
-		packageid?: number;
-		changeNumber?: number;
-		needsToken?: boolean;
-	}[];
+		packageid?: number
+		changeNumber?: number
+		needsToken?: boolean
+	}[]
 	appChanges?: {
-		appid?: number;
-		changeNumber?: number;
-		needsToken?: boolean;
-	}[];
-	forceFullAppUpdate?: boolean;
-	forceFullPackageUpdate?: boolean;
+		appid?: number
+		changeNumber?: number
+		needsToken?: boolean
+	}[]
+	forceFullAppUpdate?: boolean
+	forceFullPackageUpdate?: boolean
 }
 
-type CMsgClientPICSProductInfoRequest = {
+export type CMsgClientPICSProductInfoRequest = {
 	packages?: {
-		packageid?: number;
-		accessToken?: Long;
-	}[];
+		packageid?: number
+		accessToken?: Long
+	}[]
 	apps?: {
-		appid?: number;
-		accessToken?: Long;
-		onlyPublicObsolete?: boolean;
-	}[];
-	metaDataOnly?: boolean;
-	numPrevFailed?: number;
-	OBSOLETESupportsPackageTokens?: number;
-	sequenceNumber?: number;
-	singleResponse?: boolean;
+		appid?: number
+		accessToken?: Long
+		onlyPublicObsolete?: boolean
+	}[]
+	metaDataOnly?: boolean
+	numPrevFailed?: number
+	OBSOLETESupportsPackageTokens?: number
+	sequenceNumber?: number
+	singleResponse?: boolean
 }
 
-type CMsgClientPICSProductInfoResponse = {
+export type CMsgClientPICSProductInfoResponse = {
 	apps?: {
-		appid?: number;
-		changeNumber?: number;
-		missingToken?: boolean;
-		sha?: Buffer;
-		buffer?: Buffer;
-		onlyPublic?: boolean;
-		size?: number;
-	}[];
-	unknownAppids?: number[];
+		appid?: number
+		changeNumber?: number
+		missingToken?: boolean
+		sha?: Buffer
+		buffer?: Buffer
+		onlyPublic?: boolean
+		size?: number
+	}[]
+	unknownAppids?: number[]
 	packages?: {
-		packageid?: number;
-		changeNumber?: number;
-		missingToken?: boolean;
-		sha?: Buffer;
-		buffer?: Buffer;
-		size?: number;
-	}[];
-	unknownPackageids?: number[];
-	metaDataOnly?: boolean;
-	responsePending?: boolean;
-	httpMinSize?: number;
-	httpHost?: string;
+		packageid?: number
+		changeNumber?: number
+		missingToken?: boolean
+		sha?: Buffer
+		buffer?: Buffer
+		size?: number
+	}[]
+	unknownPackageids?: number[]
+	metaDataOnly?: boolean
+	responsePending?: boolean
+	httpMinSize?: number
+	httpHost?: string
 }
 
-type CMsgClientPICSAccessTokenRequest = {
-	packageids?: number[];
-	appids?: number[];
+export type CMsgClientPICSAccessTokenRequest = {
+	packageids?: number[]
+	appids?: number[]
 }
 
-type CMsgClientPICSAccessTokenResponse = {
+export type CMsgClientPICSAccessTokenResponse = {
 	packageAccessTokens?: {
-		packageid?: number;
-		accessToken?: Long;
-	}[];
-	packageDeniedTokens?: number[];
+		packageid?: number
+		accessToken?: Long
+	}[]
+	packageDeniedTokens?: number[]
 	appAccessTokens?: {
-		appid?: number;
-		accessToken?: Long;
-	}[];
-	appDeniedTokens?: number[];
+		appid?: number
+		accessToken?: Long
+	}[]
+	appDeniedTokens?: number[]
 }
 

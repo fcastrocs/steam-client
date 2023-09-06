@@ -1,8 +1,9 @@
-import type Steam from "../steam.js";
+import { CPlayer_GetOwnedGames_Response } from "../protos/steammessages_player.steamclient.js";
+import Steam from "../Steam.js";
 
-declare class Store {
-  constructor(private steam: Steam);
-  registerCDKey(activationCode: string): Promise<CPlayer_GetOwnedGames_Response["games"]>;
+declare class Credentials {
+    constructor(steam: Steam);
+    registerCDKey(activationCode: string): Promise<CPlayer_GetOwnedGames_Response["games"]>;
 }
 
-export default Store;
+export default Credentials;

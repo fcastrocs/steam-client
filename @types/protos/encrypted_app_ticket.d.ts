@@ -1,16 +1,15 @@
 /**
  * Auto-generated file
- * Tue Aug 29 2023 17:49:38 GMT-0400 (Eastern Daylight Time)
+ * Wed Sep 06 2023 10:11:32 GMT-0400 (Eastern Daylight Time)
  */
 
-declare type Long = import("long");
-type ValueOf<T> = T[keyof T];
+import Long from "long";
 
-type EncryptedAppTicket = {
-	ticketVersionNo?: number;
-	crcEncryptedticket?: number;
-	cbEncrypteduserdata?: number;
-	cbEncryptedAppownershipticket?: number;
-	encryptedTicket?: Buffer;
+export type EncryptedAppTicket = {
+	ticketVersionNo?: number
+	crcEncryptedticket?: number
+	cbEncrypteduserdata?: number
+	cbEncryptedAppownershipticket?: number
+	encryptedTicket?: Buffer
 }
 

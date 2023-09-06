@@ -1,11 +1,11 @@
-import type Base from "./Base.js";
-import type { ConnectionOptions } from "../../@types/connection.js";
-import type { SteamClientError } from "../common.js";
+import { SteamClientError } from "../index.js";
+import Base, { ConnectionOptions } from "./Base.js";
 
 declare class WebSocketConnection extends Base {
-  constructor(protected options: ConnectionOptions);
-  connect(): Promise<void>;
-  destroyConnection(error?: SteamClientError): void;
+    protected options: ConnectionOptions;
+    constructor(options: ConnectionOptions);
+    connect(): Promise<void>;
+    destroyConnection(error?: SteamClientError): void;
 }
 
 export default WebSocketConnection;

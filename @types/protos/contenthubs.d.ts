@@ -1,30 +1,29 @@
 /**
  * Auto-generated file
- * Tue Aug 29 2023 17:49:38 GMT-0400 (Eastern Daylight Time)
+ * Wed Sep 06 2023 10:11:32 GMT-0400 (Eastern Daylight Time)
  */
 
-declare type Long = import("long");
-type ValueOf<T> = T[keyof T];
+import Long from "long";
 
-type CStorePageFilter = {
+export type CStorePageFilter = {
 	saleFilter?: {
-		saleTagid?: number;
-	};
+		saleTagid?: number
+	}
 	contentHubFilter?: {
-		hubType?: string;
-		hubCategory?: string;
-		hubTagid?: number;
-		discountFilter?: ValueOf<typeof EContentHubDiscountFilterType>;
+		hubType?: string
+		hubCategory?: string
+		hubTagid?: number
+		discountFilter?: EContentHubDiscountFilterType
 		optin?: {
-			name?: string;
-			optinTagid?: number;
-			pruneTagid?: number;
-			optinOnly?: boolean;
-		};
-	};
+			name?: string
+			optinTagid?: number
+			pruneTagid?: number
+			optinOnly?: boolean
+		}
+	}
 	storeFilters?: {
-		filterJson?: string;
-		cacheKey?: string;
-	}[];
+		filterJson?: string
+		cacheKey?: string
+	}[]
 }
 
