@@ -1,5 +1,5 @@
-import { EPurchaseResultDetail } from "../../language/enums.steamd.js";
-import { EResult } from "../../language/EResult.js";
+import { EPurchaseResultDetail } from "../../resources/language/enums.steamd.js";
+import { EResult } from "../../resources/language/EResult.js";
 import Steam from "../Steam.js";
 import { SteamClientError, getKeyByValue } from "../modules/common.js";
 import type { UnknownRecord } from "type-fest";

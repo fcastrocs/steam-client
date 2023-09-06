@@ -5,8 +5,8 @@ import { IterableElement, Merge } from "type-fest";
 import { CMsgClientPersonaState } from "./protos/steammessages_clientserver_friends.js";
 import { CPlayer_GetOwnedGames_Response } from "./protos/steammessages_player.steamclient.js";
 import { SteamClientError } from "./index.js";
-import { EResult } from "../language/EResult.ts";
-import { EPersonaState } from "../language/enums.steamd.ts";
+import { EResult } from "../resources/language/EResult.ts";
+import { EPersonaState } from "../resources/language/enums.steamd.ts";
 import { CMsgClientPlayingSessionState } from "./protos/steammessages_clientserver_2.js";
 
 export type LoginOptions = {

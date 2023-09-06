@@ -9,5 +9,5 @@
         "skipLibCheck": false,
         "lib": ["dom"]
     },
-    "include": ["src/**/*", "@types", "./language"],
+    "include": ["src/**/*", "@types", "resources/language"],
 }

@@ -1,8 +1,8 @@
 /**
  * Load steam resources: protos and language
  */
-import { EResult } from "../../language/EResult.js";
-import { EMsg } from "../../language/enums_clientserver.js";
+import { EResult } from "../../resources/language/EResult.js";
+import { EMsg } from "../../resources/language/enums_clientserver.js";
 const { EMsgMap, EResultMap } = createEnumMaps();
 export { EMsgMap, EResultMap, EMsg, EResult };
 

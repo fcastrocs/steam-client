@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 import Long from "long";
 import { SocksClientOptions } from "socks";
 import { UnknownRecord } from "type-fest";
-import { EMsg } from "../../language/enums_clientserver.ts";
+import { EMsg } from "../../resources/language/enums_clientserver.ts";
 import { SteamClientError } from "../index.js";
 
 export interface SessionKey {

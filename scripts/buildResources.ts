@@ -5,7 +5,7 @@
 import fs from "fs";
 import buildEnums from "./buildEnumsAndProtoTypes.js";
 import fetchProtos from "./fetchProtos.js";
-const LANGUAGE_PATH = "./language/";
+const LANGUAGE_PATH = "./resources/language/";
 
 (async () => {
     await fetchProtos();

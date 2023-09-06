@@ -4,9 +4,9 @@ import Steam from "../Steam.js";
 import { EResultMap, EResult } from "../modules/language.js";
 import { SteamClientError } from "../modules/common.js";
 import EventEmitter from "events";
-import { EAuthSessionGuardType, EAuthTokenPlatformType, ETokenRenewalType } from "../../language/steammessages_auth.steamclient.js";
-import { EOSType } from "../../language/enums.steamd.js";
-import { ESessionPersistence } from "../../language/enums.js";
+import { EAuthSessionGuardType, EAuthTokenPlatformType, ETokenRenewalType } from "../../resources/language/steammessages_auth.steamclient.js";
+import { EOSType } from "../../resources/language/enums.steamd.js";
+import { ESessionPersistence } from "../../resources/language/enums.js";
 import { Confirmation } from "../../@types/services/Auth.js";
 import { UnknownRecord, ValueOf } from "type-fest";
 import type {

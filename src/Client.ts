@@ -1,7 +1,7 @@
 import Steam from "./Steam.js";
 import { EMsg, EResult, EResultMap } from "./modules/language.js";
 import { SteamClientError, isEmpty } from "./modules/common.js";
-import { EOSType, EPersonaState } from "../language/enums.steamd.js";
+import { EOSType, EPersonaState } from "../resources/language/enums.steamd.js";
 import Long from "long";
 import type { AccountAuth, AccountData, Friend, LoginOptions } from "../@types/Client.js";
 import type { ConnectionOptions } from "../@types/connections/Base.js";

@@ -4,7 +4,7 @@ import {
     CAuthentication_BeginAuthSessionViaQR_Response,
     CAuthentication_PollAuthSessionStatus_Response,
 } from "../protos/steammessages_auth.steamclient.js";
-import { EAuthSessionGuardType } from "../../language/steammessages_auth.steamclient.js";
+import { EAuthSessionGuardType } from "../../resources/language/steammessages_auth.steamclient.ts";
 import EventEmitter from "events";
 
 export interface Confirmation {
