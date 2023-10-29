@@ -7,7 +7,9 @@ import { CPlayer_GetOwnedGames_Response } from "./protos/steammessages_player.st
 import { SteamClientError } from "./index.js";
 import { EResult } from "../resources/language/EResult.ts";
 import { EPersonaState } from "../resources/language/enums.steamd.ts";
-import { CMsgClientPlayingSessionState } from "./protos/steammessages_clientserver_2.js";
+import { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from "./protos/steammessages_clientserver_2.js";
+import { CMsgClientAccountInfo } from "./protos/steammessages_clientserver_login.js";
+import { CMsgClientIsLimitedAccount } from "./protos/steammessages_clientserver.js";
 
 export type LoginOptions = {
     accountName?: string;
@@ -17,25 +19,20 @@ export type LoginOptions = {
     machineId?: Buffer;
 };
 
-export interface AccountAuth {
-    machineName: string;
-}
-
-export interface AccountData {
+export interface LoginRes {
+    clientAccountInfo: CMsgClientAccountInfo;
+    clientEmailAddrInfo: CMsgClientEmailAddrInfo;
+    clientIsLimitedAccount: CMsgClientIsLimitedAccount;
+    clientVACBanStatus: { numBans: number };
+    clientPersonaState: Friend;
+    clientPlayingSessionState: CMsgClientPlayingSessionState;
     steamId: string;
-    limited: boolean;
-    vac: boolean;
-    communityBanned: boolean;
-    locked: boolean;
     games: CPlayer_GetOwnedGames_Response["games"];
-    emailOrDomain: string;
-    isEmailVerified: boolean;
-    credentialChangeRequiresCode: boolean;
-    personaState: Friend;
-    playingState: CMsgClientPlayingSessionState;
     inventory: {
         steam: Item[];
     };
+    machineName: string;
+    machineId: Buffer;
 }
 
 export type Friend = Merge<IterableElement<CMsgClientPersonaState["friends"]>, { avatarString?: string }>;
@@ -55,10 +52,7 @@ declare class Client extends Steam {
     /**
      * login to steam via credentials or refresh_token
      */
-    login(options: LoginOptions): Promise<{
-        auth: AccountAuth;
-        data: AccountData;
-    }>;
+    login(options: LoginOptions): Promise<LoginRes>;
     /**
      * Change player nickname
      */

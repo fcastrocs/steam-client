@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Wed Sep 06 2023 10:11:32 GMT-0400 (Eastern Daylight Time)
+ * Sat Sep 09 2023 01:39:31 GMT-0400 (Eastern Daylight Time)
  */
 
 declare enum EPublishedFileQueryType {
@@ -113,10 +113,26 @@ declare enum ESDCardFormatStage {
 	Finalizing = 5,
 }
 
+declare enum EStorageFormatStage {
+	Invalid = 0,
+	NotRunning = 1,
+	Starting = 2,
+	Testing = 3,
+	Rescuing = 4,
+	Formatting = 5,
+	Finalizing = 6,
+}
+
 declare enum ESystemFanControlMode {
 	Invalid = 0,
 	Disabled = 1,
 	Default = 2,
+}
+
+declare enum EColorGamutLabelSet {
+	Default = 0,
+	Native = 1,
+	Boosted = 2,
 }
 
 declare enum EBluetoothDeviceType {

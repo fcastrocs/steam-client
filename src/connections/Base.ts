@@ -171,28 +171,35 @@ export default abstract class Base extends EventEmitter {
             return;
         }
 
+        // assign correct EMsg key and value
+        const eMsg = { key: EMsgReceivedKey, value: EMsgReceived };
+        if (EMsgReceived === EMsg.ClientGamesPlayedNoDataBlob || EMsgReceived === EMsg.ClientGamesPlayedWithDataBlob) {
+            eMsg.value = EMsg.ClientGamesPlayed;
+        }
+        eMsg.key = EMsgMap.get(eMsg.value);
+
         // decode body and emit message
         try {
-            const body = Protos.decode("CMsg" + EMsgReceivedKey, packet.readBuffer());
+            const body = Protos.decode("CMsg" + eMsg.key, packet.readBuffer());
             // emit message
-            this.emit(EMsgReceivedKey!, body);
+            this.emit(eMsg.key!, body);
 
             // response to sendProtoPromise
-            const promiseResolve = this.protoResponses.get(EMsgReceived!);
+            const promiseResolve = this.protoResponses.get(eMsg.value);
             if (promiseResolve) {
-                this.protoResponses.delete(EMsgReceived);
+                this.protoResponses.delete(eMsg.value);
                 promiseResolve(body);
             }
 
             // start heartbeat if logged in successfully
-            if (EMsgReceived === EMsg.ClientLogOnResponse) {
+            if (eMsg.value === EMsg.ClientLogOnResponse) {
                 const res: CMsgClientLogOnResponse = body;
                 if (res.eresult === 1) {
                     this.startHeartBeat(res.heartbeatSeconds!);
                 }
             }
         } catch (error) {
-            console.error(`Proto decode failed: ${EMsgReceivedKey}`);
+            console.error(`Proto decode failed: ${eMsg.key}`);
         }
     }
 

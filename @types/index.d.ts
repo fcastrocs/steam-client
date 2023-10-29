@@ -7,6 +7,7 @@ export type Language = {
     EResultMap: Map<EResult, keyof EResult>;
     EResult: EResult;
     EMsg: EMsg;
+    EPersonaState: EPersonaState;
 };
 
 export class SteamClientError extends Error {

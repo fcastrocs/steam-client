@@ -4,7 +4,7 @@
 import ProtoBuf from "protobufjs";
 import fs from "fs";
 import { UnknownRecord } from "type-fest";
-const rootDir = process.cwd() + "/";
+const rootDir = process.cwd() + "/resources/protos/";
 const Protos = await loadProtos();
 
 export { Protos as Root };
@@ -25,15 +25,15 @@ export function encode(type: string, body: UnknownRecord) {
 
 export async function loadProtos(): Promise<ProtoBuf.Root> {
     return new Promise((resolve, reject) => {
-        fs.readdir(rootDir + "protos/steam", (err, protoFileNames) => {
+        fs.readdir(rootDir + "steam", (err, protoFileNames) => {
             if (err) return reject(err);
             const root = new ProtoBuf.Root();
 
             root.resolvePath = (origin, target) => {
                 if (target.includes("google/protobuf")) {
-                    return rootDir + "protos/" + target;
+                    return rootDir + target;
                 } else {
-                    return rootDir + "protos/steam/" + target;
+                    return rootDir + "steam/" + target;
                 }
             };
 

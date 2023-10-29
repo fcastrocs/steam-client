@@ -3,7 +3,7 @@ import { EMsg, EResult, EResultMap } from "./modules/language.js";
 import { SteamClientError, isEmpty } from "./modules/common.js";
 import { EOSType, EPersonaState } from "../resources/language/enums.steamd.js";
 import Long from "long";
-import type { AccountAuth, AccountData, Friend, LoginOptions } from "../@types/Client.js";
+import type { Friend, LoginOptions, LoginRes } from "../@types/Client.js";
 import type { ConnectionOptions } from "../@types/connections/Base.js";
 import type { CMsgClientIsLimitedAccount, CMsgClientGamesPlayed } from "../@types/protos/steammessages_clientserver.js";
 import type {
@@ -12,7 +12,7 @@ import type {
     CMsgClientRequestFreeLicenseResponse,
     CMsgClientRequestFreeLicense,
 } from "../@types/protos/steammessages_clientserver_2.js";
-import type { CMsgClientPersonaState, CMsgClientChangeStatus } from "../@types/protos/steammessages_clientserver_friends.js";
+import type { CMsgClientPersonaState } from "../@types/protos/steammessages_clientserver_friends.js";
 import type { CMsgClientLogon, CMsgClientAccountInfo, CMsgClientLogOnResponse } from "../@types/protos/steammessages_clientserver_login.js";
 import type { CPlayer_GetOwnedGames_Response } from "../@types/protos/steammessages_player.steamclient.js";
 
@@ -60,7 +60,7 @@ export default class Client extends Steam {
     /**
      * login to steam via credentials or refresh_token
      */
-    public async login(options: LoginOptions): Promise<{ auth: AccountAuth; data: AccountData }> {
+    public async login(options: LoginOptions): Promise<LoginRes> {
         // verify refresh token
         if (options.refreshToken) {
             this.verifyRefreshToken(options.refreshToken);
@@ -88,42 +88,31 @@ export default class Client extends Steam {
         } as CMsgClientLogon;
 
         delete options.refreshToken;
-
-        const accountData = { inventory: {} } as AccountData;
-
-        const accountAuth: AccountAuth = {
-            machineName: options.machineName!,
-        };
-
+        const loginRes = { machineName: options.machineName, machineId: options.machineId } as LoginRes;
         let responses = ["ClientAccountInfo", "ClientEmailAddrInfo", "ClientIsLimitedAccount", "ClientVACBanStatus"];
 
-        const receivedResponse = (response: string) => {
-            // remove this response from array
-            responses = responses.filter((item) => item !== response);
-        };
+        // remove received responses
+        const receivedResponse = (response: string) => (responses = responses.filter((item) => item !== response));
 
         this.conn.once("ClientAccountInfo", async (body: CMsgClientAccountInfo) => {
+            loginRes.clientAccountInfo = body;
             this.firstPersonaName = body.personaName!;
-            accountData.personaState = await this.setPersonaState(EPersonaState.Online);
+            loginRes.clientPersonaState = await this.setPersonaState(EPersonaState.Online);
             receivedResponse("ClientAccountInfo");
         });
 
         this.conn.once("ClientEmailAddrInfo", (body: CMsgClientEmailAddrInfo) => {
-            accountData.isEmailVerified = body.emailIsValidated!;
-            accountData.emailOrDomain = body.emailAddress!;
-            accountData.credentialChangeRequiresCode = body.credentialChangeRequiresCode!;
+            loginRes.clientEmailAddrInfo = body;
             receivedResponse("ClientEmailAddrInfo");
         });
 
         this.conn.once("ClientIsLimitedAccount", (body: CMsgClientIsLimitedAccount) => {
-            accountData.limited = body.bisLimitedAccount!;
-            accountData.communityBanned = body.bisCommunityBanned!;
-            accountData.locked = body.bisLockedAccount!;
+            loginRes.clientIsLimitedAccount = body;
             receivedResponse("ClientIsLimitedAccount");
         });
 
         this.conn.once("ClientVACBanStatus", (body) => {
-            accountData.vac = body.vac;
+            loginRes.clientVACBanStatus = body;
             receivedResponse("ClientVACBanStatus");
         });
 
@@ -131,9 +120,9 @@ export default class Client extends Steam {
         const res: CMsgClientLogOnResponse = await this.conn.sendProtoPromise(EMsg.ClientLogon, options, EMsg.ClientLogOnResponse);
 
         if (res.eresult === EResult.OK) {
-            accountData.steamId = res.clientSuppliedSteamid!.toString();
-            accountData.games = await this.service.player.getOwnedGames();
-            accountData.inventory.steam = []; //await this.service.econ.getSteamContextItems();
+            loginRes.steamId = res.clientSuppliedSteamid!.toString();
+            loginRes.games = await this.service.player.getOwnedGames();
+            loginRes.inventory = { steam: await this.service.econ.getSteamContextItems() };
         } else {
             this.disconnect();
             throw new SteamClientError(EResultMap.get(res.eresult!)!);
@@ -152,7 +141,8 @@ export default class Client extends Steam {
                 if (responses.length) return;
                 clearTimeout(timeout);
                 clearInterval(interval);
-                resolve({ auth: accountAuth, data: { ...accountData, playingState: this._playingSessionState } });
+                loginRes.clientPlayingSessionState = this._playingSessionState;
+                resolve(loginRes);
             }, 1000);
         });
     }
@@ -262,29 +252,25 @@ export default class Client extends Steam {
     /**
      * Change player name or persona state
      */
-    private async changeStatus(payload: CMsgClientChangeStatus): Promise<Friend> {
+    private async changeStatus(body: { personaState?: EPersonaState; playerName?: string }): Promise<Friend> {
         let somethingChanged = false;
 
-        if (this.personaState) {
-            if (payload.personaState) {
+        if (!isEmpty(this.personaState)) {
+            if (body.personaState) {
                 // whether a change is being made
-                if (payload.personaState !== this.personaState.personaState) somethingChanged = true;
+                if (body.personaState !== this.personaState.personaState) somethingChanged = true;
             } else {
                 // whether a change is being made
-                if (payload.playerName !== this.personaState?.playerName) somethingChanged = true;
+                if (body.playerName !== this.personaState?.playerName) somethingChanged = true;
             }
 
             // nothing changed return old state
             if (!somethingChanged) return this.personaState;
         }
 
-        this.conn.sendProto(EMsg.ClientChangeStatus, payload);
-
-        return new Promise((resolve) => {
-            this.once("ClientPersonaState", (state: Friend) => {
-                return resolve(state);
-            });
-        });
+        const res = this.conn.sendProtoPromise(EMsg.ClientChangeStatus, body, EMsg.ClientPersonaState);
+        console.log(res);
+        return res;
     }
 
     private verifyRefreshToken(refreshToken: string) {

@@ -4,7 +4,7 @@
 
 import fs from "fs";
 import fetch from "node-fetch";
-const PROTOS_PATH = "./protos/";
+const PROTOS_PATH = "./resources/protos/";
 
 const PROTOS = [
     "contenthubs.proto",
