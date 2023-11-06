@@ -201,7 +201,7 @@ export default abstract class Base extends EventEmitter {
                 }
             }
         } catch (error) {
-            console.error(`Proto decode failed: ${eMsg.key}`);
+            //console.error(`Proto decode failed: ${eMsg.key}`);
         }
     }
 
