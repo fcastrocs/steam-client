@@ -1,9 +1,53 @@
 /**
  * Auto-generated file
- * Sat Sep 09 2023 01:39:31 GMT-0400 (Eastern Daylight Time)
+ * Sun Nov 05 2023 20:01:03 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
+
+export type CPlayer_GetPlayerLinkDetails_Request = {
+	steamids?: Long[]
+}
+
+export type CPlayer_GetPlayerLinkDetails_Response = {
+	accounts?: {
+		publicData?: {
+			steamid?: Long[]
+			visibilityState?: number
+			privacyState?: number
+			profileState?: number
+			banExpiresTime?: number
+			accountFlags?: number
+			shaDigestAvatar?: Buffer
+			personaName?: string
+			profileUrl?: string
+			contentCountryRestricted?: boolean
+		}
+		privateData?: {
+			personaState?: number
+			personaStateFlags?: number
+			timeCreated?: number
+			gameId?: Long
+			gameServerSteamId?: Long
+			gameServerIpAddress?: number
+			gameServerPort?: number
+			gameExtraInfo?: string
+			accountName?: string
+			lobbySteamId?: Long
+			richPresenceKv?: string
+			broadcastSessionId?: Long
+			watchingBroadcastAccountid?: number
+			watchingBroadcastAppid?: number
+			watchingBroadcastViewers?: number
+			watchingBroadcastTitle?: string
+			lastLogoffTime?: number
+			lastSeenOnline?: number
+			gameOsType?: number
+			gameDeviceType?: number
+			gameDeviceName?: string
+		}
+	}[]
+}
 
 export type CPlayer_GetMutualFriendsForIncomingInvites_Request = {
 }
@@ -1113,6 +1157,7 @@ export type CPlayer_RecordDisconnectedPlaytime_Request = {
 		sessionTimeStart?: number
 		seconds?: number
 		offline?: boolean
+		owner?: number
 	}[]
 }
 

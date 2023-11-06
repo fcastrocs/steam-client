@@ -1,10 +1,12 @@
 /**
- * Fetch Steam Protos and Language constants
+ * Fetch Steam Protos
+ * Build Steam Language (enums and proto types)
  */
 
 import fs from "fs";
-import buildEnums from "./buildEnumsAndProtoTypes.js";
+import buildEnums from "./buildEnumsAndProtoTypings.js";
 import fetchProtos from "./fetchProtos.js";
+
 const LANGUAGE_PATH = "./resources/language/";
 
 (async () => {

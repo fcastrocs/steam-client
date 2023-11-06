@@ -1,13 +1,20 @@
 {
-    "extends": "@tsconfig/node16/tsconfig.json",
     "compilerOptions": {
-        "declaration": true,
-        "noImplicitAny": true,
-        "allowUnreachableCode": false,
-        "noImplicitReturns": true,
-        "outDir": "dist/",
-        "skipLibCheck": false,
-        "lib": ["dom"]
+      "lib": ["ESNext"],
+      "module": "ESNext",
+      "target": "ESNext",
+      "moduleResolution": "Node",
+      "declaration": false,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "allowSyntheticDefaultImports": true,
+      "forceConsistentCasingInFileNames": true,
+      "noImplicitAny": true,
+      "allowUnreachableCode": false,
+      "noImplicitReturns": true,
+      "outDir": "dist/",
+      "baseUrl": "src/"
     },
     "include": ["src/**/*", "@types", "resources/language"],
-}
+    "compileOnSave": false
+  }

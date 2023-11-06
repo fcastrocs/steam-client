@@ -12,7 +12,7 @@ import Long from "long";
 import EventEmitter from "events";
 import Store from "./services/Store.js";
 
-declare abstract class Steam extends EventEmitter {
+export default abstract class Steam extends EventEmitter {
     readonly service: {
         auth: Auth;
         credentials: Credentials;
@@ -37,5 +37,3 @@ declare abstract class Steam extends EventEmitter {
      */
     protected obfustucateIp(): Promise<number>;
 }
-
-export default Steam;

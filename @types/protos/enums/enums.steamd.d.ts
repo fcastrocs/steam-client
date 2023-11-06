@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Sat Sep 09 2023 01:39:31 GMT-0400 (Eastern Daylight Time)
+ * Sun Nov 05 2023 20:01:03 GMT-0500 (Eastern Standard Time)
  */
 
 declare enum EUniverse {
@@ -90,7 +90,7 @@ declare enum EAccountFlags {
 	Lockdown = 8388608,
 	MasterAppEditor = 16777216,
 	BannedFromWebAPI = 33554432,
-	ClansOnlyFromFriends = 67108864,
+	PartnerMember = 67108864,
 	GlobalModerator = 134217728,
 	ParentalSettings = 268435456,
 	ThirdPartySupport = 536870912,
@@ -613,7 +613,7 @@ declare enum EServerType {
 	Steam2Emulator = 79,
 	PublicTest = 80,
 	SolrMgr = 81,
-	BroadcastRelay = 82,
+	BroadcastIngestor = 82,
 	BroadcastDirectory = 83,
 	VideoManager = 84,
 	TradeOffer = 85,
@@ -746,6 +746,12 @@ declare enum ECurrencyCode {
 	QAR = 39,
 	CRC = 40,
 	UYU = 41,
+	BGN = 42,
+	HRK = 43,
+	CZK = 44,
+	DKK = 45,
+	HUF = 46,
+	RON = 47,
 }
 
 declare enum EDepotFileFlag {
@@ -775,6 +781,7 @@ declare enum EPublishedFileVisibility {
 	Public = 0,
 	FriendsOnly = 1,
 	Private = 2,
+	Unlisted = 3,
 }
 
 declare enum EWorkshopFileType {
@@ -969,6 +976,7 @@ declare enum EUCMFilePrivacyState {
 	Private = 2,
 	FriendsOnly = 4,
 	Public = 8,
+	Unlisted = 16,
 }
 
 declare enum EDisplayStatus {
@@ -1004,6 +1012,11 @@ declare enum EDisplayStatus {
 	AvailToBorrow = 29,
 	AvailGuestPass = 30,
 	Purchase = 31,
+	Unavailable = 32,
+	NotLaunchable = 33,
+	CloudError = 34,
+	CloudOutOfDate = 35,
+	Terminating = 36,
 }
 
 declare enum EAppType {
@@ -1075,6 +1088,7 @@ declare enum EChatRoomGroupRank {
 	Moderator = 30,
 	Officer = 40,
 	Owner = 50,
+	TestInvalid = 99,
 }
 
 declare enum EChatRoomGroupPermissions {
@@ -1105,6 +1119,7 @@ declare enum EChatRoomJoinState {
 	Default = 0,
 	None = 1,
 	Joined = 2,
+	TestInvalid = 99,
 }
 
 declare enum EVoiceCallState {
@@ -1198,5 +1213,6 @@ declare enum ELauncherType {
 	Headless = 6,
 	SteamChina = 7,
 	SingleApp = 8,
+	GameServer = 9,
 }
 

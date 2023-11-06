@@ -15,10 +15,8 @@ export type Item = {
     marketTradableRestriction: number;
 };
 
-declare class Econ {
+export default class Econ {
     constructor(steam: Steam);
     getSteamContextItems(tradableOnly?: boolean): Promise<Item[]>;
     getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean): Promise<Item[]>;
 }
-
-export default Econ;

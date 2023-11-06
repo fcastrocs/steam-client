@@ -18,7 +18,6 @@ import type { CPlayer_GetOwnedGames_Response } from "../@types/protos/steammessa
 
 export default class Client extends Steam {
     private personaState: Friend = {};
-    private firstPersonaName: string = "";
     private _playingSessionState: CMsgClientPlayingSessionState = {};
 
     constructor(options: ConnectionOptions) {
@@ -26,19 +25,9 @@ export default class Client extends Steam {
 
         // catch changes to personaState, playerName or avatar
         this.conn.on("ClientPersonaState", (body: CMsgClientPersonaState) => {
-            let assignNewState = false;
-            const me = body.friends![0];
+            const me = body.friends[0];
 
-            // have never received status
-            if (isEmpty(this.personaState) && this.firstPersonaName === me.playerName) {
-                assignNewState = true;
-            }
-            // have received status before
-            else if (!isEmpty(this.personaState) && me.friendid!.equals(this.personaState.friendid!)) {
-                assignNewState = true;
-            }
-
-            if (assignNewState) {
+            if (me.friendid.equals(this.steamId)) {
                 this.personaState = me;
                 this.personaState.avatarString = this.getAvatar(this.personaState.avatarHash);
                 this.emit("ClientPersonaState", this.personaState);
@@ -50,10 +39,12 @@ export default class Client extends Steam {
             this._playingSessionState = body;
             this.emit("ClientPlayingSessionState", body);
         });
+
         this.conn.on("ClientConcurrentSessionsBase", (body: CMsgClientPlayingSessionState) => {
             this._playingSessionState = body;
             this.emit("ClientPlayingSessionState", body);
         });
+
         this.conn.on("disconnected", (err) => this.emit("disconnected", err));
     }
 
@@ -70,15 +61,16 @@ export default class Client extends Steam {
             ...options,
             protocolVersion: 65580,
             cellId: 4294967295,
-            clientPackageVersion: 1690583737,
+            clientPackageVersion: 1698777785,
             clientLanguage: "english",
             clientOsType: EOSType.Win11,
             shouldRememberPassword: true,
-            obfuscatedPrivateIp: {
+            // comment this out for now, it's not necessary
+            /*obfuscatedPrivateIp: {
                 ip: {
                     v4: await this.obfustucateIp(),
                 },
-            },
+            },*/
             qosLevel: 2,
             machineId: options.machineId || this.machineId,
             machineName: options.machineName || this.machineName,
@@ -89,6 +81,8 @@ export default class Client extends Steam {
 
         delete options.refreshToken;
         const loginRes = { machineName: options.machineName, machineId: options.machineId } as LoginRes;
+
+        loginRes.steamId;
         let responses = ["ClientAccountInfo", "ClientEmailAddrInfo", "ClientIsLimitedAccount", "ClientVACBanStatus"];
 
         // remove received responses
@@ -96,7 +90,6 @@ export default class Client extends Steam {
 
         this.conn.once("ClientAccountInfo", async (body: CMsgClientAccountInfo) => {
             loginRes.clientAccountInfo = body;
-            this.firstPersonaName = body.personaName!;
             loginRes.clientPersonaState = await this.setPersonaState(EPersonaState.Online);
             receivedResponse("ClientAccountInfo");
         });
@@ -120,12 +113,12 @@ export default class Client extends Steam {
         const res: CMsgClientLogOnResponse = await this.conn.sendProtoPromise(EMsg.ClientLogon, options, EMsg.ClientLogOnResponse);
 
         if (res.eresult === EResult.OK) {
-            loginRes.steamId = res.clientSuppliedSteamid!.toString();
+            loginRes.steamId = res.clientSuppliedSteamid.toString();
             loginRes.games = await this.service.player.getOwnedGames();
             loginRes.inventory = { steam: await this.service.econ.getSteamContextItems() };
         } else {
             this.disconnect();
-            throw new SteamClientError(EResultMap.get(res.eresult!)!);
+            throw new SteamClientError(EResultMap.get(res.eresult));
         }
 
         return new Promise((resolve, reject) => {
@@ -166,7 +159,7 @@ export default class Client extends Steam {
      * Empty array stops idling
      * forcePlay truthy kicks another playing session
      */
-    public async gamesPlayed(gameIds: number[], options?: { forcePlay?: boolean }) {
+    public async gamesPlayed(gameIds: number[], options?: { forcePlay?: boolean }): Promise<CMsgClientPlayingSessionState> {
         const playingBlocked = this.isPlayingBlocked;
         const playingGame = this.isPlayingGame;
 
@@ -181,7 +174,7 @@ export default class Client extends Steam {
 
         // not playing and trying to stop idle
         if (!playingGame && !gameIds.length) {
-            return;
+            throw new SteamClientError("CurrentlyNotPlaying");
         }
 
         const body: CMsgClientGamesPlayed = {
@@ -191,7 +184,9 @@ export default class Client extends Steam {
             clientOsType: EOSType.Win11,
         };
 
-        await this.conn.sendProtoPromise(EMsg.ClientGamesPlayedWithDataBlob, body, EMsg.ClientConcurrentSessionsBase);
+        const res = await this.conn.sendProtoPromise(EMsg.ClientGamesPlayed, body, EMsg.ClientPlayingSessionState);
+        this._playingSessionState = res;
+        return res;
     }
 
     /**
@@ -209,7 +204,7 @@ export default class Client extends Steam {
         );
 
         if (res.eresult !== EResult.OK) {
-            throw new SteamClientError(EResultMap.get(res.eresult!)!);
+            throw new SteamClientError(EResultMap.get(res.eresult));
         }
 
         if (!res.grantedAppids || !res.grantedAppids.length) return [];
@@ -239,7 +234,7 @@ export default class Client extends Steam {
         //default avatar
         const defaultHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
 
-        let hashHex = hash!.toString("hex");
+        let hashHex = hash.toString("hex");
 
         //default avatar
         if (hashHex === "0000000000000000000000000000000000000000") {
@@ -255,22 +250,31 @@ export default class Client extends Steam {
     private async changeStatus(body: { personaState?: EPersonaState; playerName?: string }): Promise<Friend> {
         let somethingChanged = false;
 
+        //  make sure something is actually changing
         if (!isEmpty(this.personaState)) {
             if (body.personaState) {
-                // whether a change is being made
                 if (body.personaState !== this.personaState.personaState) somethingChanged = true;
-            } else {
-                // whether a change is being made
-                if (body.playerName !== this.personaState?.playerName) somethingChanged = true;
+            }
+
+            if (body.playerName) {
+                if (body.playerName !== this.personaState.playerName) somethingChanged = true;
             }
 
             // nothing changed return old state
             if (!somethingChanged) return this.personaState;
         }
 
-        const res = this.conn.sendProtoPromise(EMsg.ClientChangeStatus, body, EMsg.ClientPersonaState);
-        console.log(res);
-        return res;
+        const res = await this.conn.sendProtoPromise(EMsg.ClientChangeStatus, body, EMsg.ClientPersonaState);
+        const friends = res.friends as Friend[];
+
+        // return the status for this account
+        for (const friend of friends) {
+            if (friend.friendid.equals(this.steamId)) {
+                return friend;
+            }
+        }
+
+        throw new SteamClientError("ClientPersonaState did not return friend status.");
     }
 
     private verifyRefreshToken(refreshToken: string) {
@@ -290,7 +294,7 @@ export default class Client extends Steam {
                 throw new SteamClientError("RefreshTokenExpired");
             }
 
-            // all good supply steamid to base connection
+            // supply steamid to base connection
             this.conn.setSteamId(header.sub);
         } catch (error) {
             if (error instanceof SteamClientError) {

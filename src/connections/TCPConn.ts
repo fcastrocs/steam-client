@@ -15,11 +15,11 @@ import { EMsg, EResult } from "../modules/language.js";
 
 export default class TCPConnection extends Base {
     public readonly timeout: number = 15000;
-    private socket!: Socket;
-    private encrypted!: boolean;
-    private incompletePacket!: boolean;
-    private packetSize!: number;
-    private encryptionKey!: SessionKey;
+    private socket: Socket;
+    private encrypted: boolean;
+    private incompletePacket: boolean;
+    private packetSize: number;
+    private encryptionKey: SessionKey;
 
     constructor(protected options: ConnectionOptions) {
         super(options);
@@ -91,7 +91,7 @@ export default class TCPConnection extends Base {
     private async proxyConnect(): Promise<Socket> {
         const { socket } = await SocksClient.createConnection({
             destination: this.options.steamCM,
-            proxy: this.options.proxy!,
+            proxy: this.options.proxy,
             command: "connect",
         });
         return socket;

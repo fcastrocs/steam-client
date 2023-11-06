@@ -1,3 +1,7 @@
+/**
+ * functions used by multiple modules
+ */
+
 import { UnknownRecord } from "type-fest";
 
 export class SteamClientError extends Error {

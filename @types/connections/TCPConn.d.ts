@@ -1,7 +1,7 @@
 import { SteamClientError } from "../index.js";
 import Base, { ConnectionOptions } from "./Base.js";
 
-declare class TCPConnection extends Base {
+export default class TCPConnection extends Base {
     protected options: ConnectionOptions;
     readonly timeout: number;
     constructor(options: ConnectionOptions);
@@ -11,5 +11,3 @@ declare class TCPConnection extends Base {
     connect(): Promise<void>;
     destroyConnection(error?: SteamClientError): void;
 }
-
-export default TCPConnection;

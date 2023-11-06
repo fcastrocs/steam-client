@@ -24,7 +24,7 @@ export interface ConnectionOptions {
     timeout?: number;
 }
 
-declare abstract class Base extends EventEmitter {
+export default abstract class Base extends EventEmitter {
     protected options: ConnectionOptions;
     protected readonly MAGIC = "VT01";
     protected readonly PROTO_MASK = 2147483648;
@@ -58,5 +58,3 @@ declare abstract class Base extends EventEmitter {
      */
     protected destroyConnection(error?: SteamClientError): void;
 }
-
-export default Base;

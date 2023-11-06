@@ -26,9 +26,9 @@ export default abstract class Steam extends EventEmitter {
 
     readonly machineName: string;
     readonly machineId: Buffer;
-    readonly conn!: WebSocketConnection | TCPConnection;
-    protected loggedIn!: boolean;
-    private _obfustucatedIp!: number;
+    readonly conn: WebSocketConnection | TCPConnection;
+    protected loggedIn: boolean;
+    private _obfustucatedIp: number;
 
     constructor(private options: ConnectionOptions) {
         super();
@@ -89,7 +89,7 @@ export default abstract class Steam extends EventEmitter {
 
         // get ip
         if (this.options.proxy) {
-            ip = this.options.proxy.host!;
+            ip = this.options.proxy.host;
         } else {
             // get public ip
             ip = await new Promise((resolve) => {

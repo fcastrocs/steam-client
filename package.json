@@ -7,7 +7,7 @@
     "scripts": {
         "prepare": "npm run build",
         "build": "tsc",
-        "buildResources": "ts-node --esm ./scripts/buildResources.ts",
+        "buildResources": "ts-node --esm ./scripts/index.ts",
         "test": "tsc && vitest"
     },
     "author": "Francisco Castro",

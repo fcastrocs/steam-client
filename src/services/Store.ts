@@ -17,13 +17,13 @@ export default class Credentials {
         } as CStore_RegisterCDKey_Request);
 
         if ((res as UnknownRecord).EResult !== EResult.OK || !res.purchaseReceiptInfo) {
-            throw new SteamClientError(getKeyByValue(EPurchaseResultDetail, res.purchaseResultDetails!));
+            throw new SteamClientError(getKeyByValue(EPurchaseResultDetail, res.purchaseResultDetails));
         }
 
         const appId: number[] = [];
 
-        for (const lineItem of res.purchaseReceiptInfo.lineItems!) {
-            appId.push(lineItem.appid!);
+        for (const lineItem of res.purchaseReceiptInfo.lineItems) {
+            appId.push(lineItem.appid);
         }
 
         return this.steam.service.player.getOwnedGames({ appidsFilter: appId });

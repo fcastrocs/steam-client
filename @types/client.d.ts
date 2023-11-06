@@ -5,8 +5,8 @@ import { IterableElement, Merge } from "type-fest";
 import { CMsgClientPersonaState } from "./protos/steammessages_clientserver_friends.js";
 import { CPlayer_GetOwnedGames_Response } from "./protos/steammessages_player.steamclient.js";
 import { SteamClientError } from "./index.js";
-import { EResult } from "../resources/language/EResult.ts";
-import { EPersonaState } from "../resources/language/enums.steamd.ts";
+import { EResult } from "../resources/language/EResult.js";
+import { EPersonaState } from "../resources/language/enums.steamd.js";
 import { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from "./protos/steammessages_clientserver_2.js";
 import { CMsgClientAccountInfo } from "./protos/steammessages_clientserver_login.js";
 import { CMsgClientIsLimitedAccount } from "./protos/steammessages_clientserver.js";
@@ -37,7 +37,7 @@ export interface LoginRes {
 
 export type Friend = Merge<IterableElement<CMsgClientPersonaState["friends"]>, { avatarString?: string }>;
 
-declare class Client extends Steam {
+export default class Client extends Steam {
     on(event: "ClientPersonaState", listener: (state: Friend) => void): this;
     once(event: "ClientPersonaState", listener: (state: Friend) => void): this;
     on(event: "ClientPlayingSessionState", listener: (state: CMsgClientPlayingSessionState) => void): this;
@@ -71,7 +71,7 @@ declare class Client extends Steam {
         options?: {
             forcePlay?: boolean;
         }
-    ): Promise<void>;
+    ): Promise<CMsgClientPlayingSessionState>;
     /**
      * Activate free games
      */

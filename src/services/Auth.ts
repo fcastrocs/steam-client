@@ -25,8 +25,8 @@ import type {
 } from "../../@types/protos/steammessages_auth.steamclient.js";
 
 export default class Auth extends EventEmitter {
-    private waitingForConfirmation!: boolean;
-    private partialSession!: CAuthentication_BeginAuthSessionViaCredentials_Response | CAuthentication_BeginAuthSessionViaQR_Response;
+    private waitingForConfirmation: boolean;
+    private partialSession: CAuthentication_BeginAuthSessionViaCredentials_Response | CAuthentication_BeginAuthSessionViaQR_Response;
     private readonly serviceName = "Authentication";
     private readonly timeout = 1 * 60 * 1000;
     constructor(private steam: Steam) {
@@ -60,7 +60,7 @@ export default class Auth extends EventEmitter {
         this.pollAuthStatusInterval();
 
         this.emit("waitingForConfirmation", {
-            qrCode: await this.genQRCode(res.challengeUrl!),
+            qrCode: await this.genQRCode(res.challengeUrl),
             timeout: this.timeout,
         } as Confirmation);
     }
@@ -80,7 +80,7 @@ export default class Auth extends EventEmitter {
         const res: CAuthentication_BeginAuthSessionViaCredentials_Response = await this.steam.conn.sendServiceMethodCall(this.serviceName, "BeginAuthSessionViaCredentials", {
             deviceFriendlyName: this.steam.machineName,
             accountName,
-            encryptedPassword: this.encryptPass(password, rsa.publickeyMod!, rsa.publickeyExp!),
+            encryptedPassword: this.encryptPass(password, rsa.publickeyMod, rsa.publickeyExp),
             encryptionTimestamp: rsa.timestamp,
             platformType: EAuthTokenPlatformType.SteamClient,
             persistence: ESessionPersistence.Persistent,
@@ -90,7 +90,7 @@ export default class Auth extends EventEmitter {
         this.checkResult(res);
 
         // confirmation type without auth tokens
-        for (const item of res.allowedConfirmations!) {
+        for (const item of res.allowedConfirmations) {
             if (item.confirmationType === EAuthSessionGuardType.Unknown) {
                 throw new SteamClientError("SteamGuardIsUnknown");
             }
@@ -188,7 +188,7 @@ export default class Auth extends EventEmitter {
             clearTimeout(timeoutId);
 
             this.emit("authTokens", pollStatus);
-        }, this.partialSession.interval! * 1000);
+        }, this.partialSession.interval * 1000);
     }
 
     private async genQRCode(challengeUrl: string) {
@@ -222,7 +222,7 @@ export default class Auth extends EventEmitter {
 
     private checkResult(res: UnknownRecord) {
         if (res.EResult !== EResult.OK) {
-            throw new SteamClientError(EResultMap.get(res.EResult as ValueOf<typeof EResult>)!);
+            throw new SteamClientError(EResultMap.get(res.EResult as ValueOf<typeof EResult>));
         }
     }
 }

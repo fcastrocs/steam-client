@@ -1,3 +1,8 @@
+/**
+ * Build steam enums
+ * Build proto typings
+ */
+
 import { loadProtos } from "../src/modules/protos.js";
 import { ReflectionObject } from "protobufjs";
 import fs, { createWriteStream } from "fs";
@@ -5,6 +10,7 @@ import path from "path";
 
 const LANGUAGE_PATH = "./resources/language/";
 const PROTOS_TYPES_PATH = "./@types/protos/";
+
 const writeStreams: Map<string, fs.WriteStream> = new Map();
 const processedEnums: Set<string> = new Set();
 const HEADER = `/**
@@ -12,8 +18,8 @@ const HEADER = `/**
  * ${new Date()}
  */`;
 
-export default async function buildEnumsAndProtoTypes() {
-    await extractEnumsAndProtoTypes();
+export default async function main() {
+    await extractEnumsAndProtoTypings();
     await fetchEnumsSteamd();
     await fetchEResult();
 }
@@ -21,7 +27,7 @@ export default async function buildEnumsAndProtoTypes() {
 /**
  * Extract enums and build proto types from proto files
  */
-async function extractEnumsAndProtoTypes() {
+async function extractEnumsAndProtoTypings() {
     const root = await loadProtos();
 
     for (const key in root.nested) {

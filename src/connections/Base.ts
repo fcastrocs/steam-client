@@ -17,7 +17,7 @@ import type { CMsgProtoBufHeader, CMsgMulti } from "../../@types/protos/steammes
 import type { CMsgClientLogOnResponse } from "../../@types/protos/steammessages_clientserver_login.js";
 
 export default abstract class Base extends EventEmitter {
-    private heartBeat!: NodeJS.Timeout;
+    private heartBeat: NodeJS.Timeout;
     protected readonly MAGIC = "VT01";
     protected readonly PROTO_MASK = 0x80000000;
     private JOB_NONE = Long.fromString("18446744073709551615", true);
@@ -146,8 +146,8 @@ export default abstract class Base extends EventEmitter {
 
         const headerLength = packet.readUInt32LE();
         const proto: CMsgProtoBufHeader = Protos.decode("CMsgProtoBufHeader", packet.readBuffer(headerLength));
-        this.session.steamId = proto.steamid!;
-        this.session.clientId = proto.clientSessionid!;
+        this.session.steamId = proto.steamid;
+        this.session.clientId = proto.clientSessionid;
 
         // steam expects a response to this jobId
         if (proto.jobidSource && !this.JOB_NONE.equals(proto.jobidSource)) {
@@ -159,15 +159,15 @@ export default abstract class Base extends EventEmitter {
 
         // service method
         if (EMsgReceived === EMsg.ServiceMethodResponse) {
-            const serviceMethodCall = this.serviceMethodCalls.get(proto.jobidTarget!.toString());
+            const serviceMethodCall = this.serviceMethodCalls.get(proto.jobidTarget.toString());
             const message = Protos.decode(serviceMethodCall?.method + "_Response", packet.readBuffer());
-            this.serviceMethodCalls.delete(proto.jobidTarget!.toString());
+            this.serviceMethodCalls.delete(proto.jobidTarget.toString());
             return serviceMethodCall?.promiseResolve({
                 EResult: proto.eresult,
                 ...message,
             });
         } else if (EMsgReceived === EMsg.ServiceMethod) {
-            console.debug(`unhandled service method: ${proto.targetJobName}`);
+            // console.debug(`unhandled service method: ${proto.targetJobName}`);
             return;
         }
 
@@ -182,7 +182,9 @@ export default abstract class Base extends EventEmitter {
         try {
             const body = Protos.decode("CMsg" + eMsg.key, packet.readBuffer());
             // emit message
-            this.emit(eMsg.key!, body);
+            this.emit(eMsg.key, body);
+
+            // console.debug(`EMsg: ${eMsg.key}`);
 
             // response to sendProtoPromise
             const promiseResolve = this.protoResponses.get(eMsg.value);
@@ -195,7 +197,7 @@ export default abstract class Base extends EventEmitter {
             if (eMsg.value === EMsg.ClientLogOnResponse) {
                 const res: CMsgClientLogOnResponse = body;
                 if (res.eresult === 1) {
-                    this.startHeartBeat(res.heartbeatSeconds!);
+                    this.startHeartBeat(res.heartbeatSeconds);
                 }
             }
         } catch (error) {
@@ -210,7 +212,7 @@ export default abstract class Base extends EventEmitter {
     protected destroyConnection(error?: SteamClientError) {
         // make sure method is called only once
         if (this.connectionDestroyed) return;
-        this.session = null!;
+        this.session = null;
         this.connectionDestroyed = true;
 
         // emmit if disconnect happened because of an error
@@ -258,7 +260,7 @@ export default abstract class Base extends EventEmitter {
 
     private async multi(payload: Buffer): Promise<void> {
         const message: CMsgMulti = Protos.decode("CMsgMulti", payload);
-        payload = message.messageBody!;
+        payload = message.messageBody;
 
         // message is gzipped
         if (message.sizeUnzipped) {

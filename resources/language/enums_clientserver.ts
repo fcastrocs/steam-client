@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Sat Sep 09 2023 01:39:31 GMT-0400 (Eastern Daylight Time)
+ * Sun Nov 05 2023 20:01:03 GMT-0500 (Eastern Standard Time)
  */
 
 export enum EMsg {
@@ -116,8 +116,6 @@ export enum EMsg {
 	AMCancelLicense = 511,
 	AMInitPurchase = 512,
 	AMPurchaseResponse = 513,
-	AMGetFinalPrice = 514,
-	AMGetFinalPriceResponse = 515,
 	AMGetLegacyGameKey = 516,
 	AMGetLegacyGameKeyResponse = 517,
 	AMFindHungTransactions = 518,
@@ -1400,7 +1398,6 @@ export enum EMsg {
 	SLCSharedLicensesLockStatus = 9402,
 	ClientSharedLibraryLockStatus = 9405,
 	ClientSharedLibraryStopPlaying = 9406,
-	SLCOwnerLibraryChanged = 9407,
 	SLCSharedLibraryChanged = 9408,
 	RemoteClientBase = 9500,
 	RemoteClientAppStatus = 9502,

@@ -13,7 +13,9 @@ export default class Player {
             includeAppinfo: true,
         } as CPlayer_GetOwnedGames_Request);
 
-        return res.games!.map((game) => {
+        if (!res.games) return [];
+
+        return res.games.map((game) => {
             return {
                 gameid: game.appid,
                 name: game.name,

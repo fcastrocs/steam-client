@@ -10,7 +10,7 @@ import { ConnectionOptions } from "../../@types/connections/Base.js";
 import { EMsg } from "../modules/language.js";
 
 export default class WebSocketConnection extends Base {
-    private ws!: WebSocket;
+    private ws: WebSocket;
 
     constructor(protected options: ConnectionOptions) {
         super(options);

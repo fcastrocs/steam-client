@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Sat Sep 09 2023 01:39:31 GMT-0400 (Eastern Daylight Time)
+ * Sun Nov 05 2023 20:01:03 GMT-0500 (Eastern Standard Time)
  */
 
 export enum EPublishedFileQueryType {
@@ -58,9 +58,9 @@ export enum EPersonaStateFlag {
 
 export enum EContentCheckProvider {
 	Invalid = 0,
-	Google = 1,
 	Amazon = 2,
 	Local = 3,
+	GoogleVertexAI = 4,
 }
 
 export enum EProfileCustomizationType {
@@ -230,6 +230,29 @@ export enum ESplitScalingScaler {
 	Fit = 3,
 	Fill = 4,
 	Stretch = 5,
+}
+
+export enum EGamescopeBlurMode {
+	Disabled = 0,
+	IfOccluded = 1,
+	Always = 2,
+}
+
+export enum ESLSHelper {
+	Invalid = 0,
+	Minidump = 1,
+	Kdump = 2,
+	Journal = 3,
+	Gpu = 4,
+	SystemInfo = 5,
+}
+
+export enum EHDRVisualization {
+	None = 0,
+	Heatmap = 1,
+	Analysis = 2,
+	HeatmapExtended = 3,
+	HeatmapClassic = 4,
 }
 
 export enum EHDRToneMapOperator {

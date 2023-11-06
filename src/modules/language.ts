@@ -1,10 +1,11 @@
 /**
- * Load steam resources: protos and language
+ * Load steam language
  */
 import { EResult } from "../../resources/language/EResult.js";
+import { EPersonaState } from "../../resources/language/enums.steamd.js";
 import { EMsg } from "../../resources/language/enums_clientserver.js";
 const { EMsgMap, EResultMap } = createEnumMaps();
-export { EMsgMap, EResultMap, EMsg, EResult };
+export { EMsgMap, EResultMap, EMsg, EResult, EPersonaState };
 
 function createEnumMaps() {
     const EnumsMap: Map<EMsg, keyof typeof EMsg> = new Map();
