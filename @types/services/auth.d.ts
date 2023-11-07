@@ -1,6 +1,7 @@
 import Steam from "../Steam.js";
 import {
     CAuthentication_AccessToken_GenerateForApp_Response,
+    CAuthentication_BeginAuthSessionViaCredentials_Response,
     CAuthentication_BeginAuthSessionViaQR_Response,
     CAuthentication_PollAuthSessionStatus_Response,
 } from "../protos/steammessages_auth.steamclient.js";
