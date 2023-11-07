@@ -1,9 +1,10 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
+import { ValueOf } from "type-fest";
 
 export type CPlayer_GetPlayerLinkDetails_Request = {
 	steamids?: Long[]
@@ -359,7 +360,7 @@ export type CPlayer_SetSteamDeckKeyboardSkin_Response = {
 
 export type CPlayer_GetProfileItemsOwned_Request = {
 	language?: string
-	filters?: ECommunityItemClass[]
+	filters?: typeof ECommunityItemClass[keyof typeof ECommunityItemClass][]
 }
 
 export type CPlayer_GetProfileItemsOwned_Response = {
@@ -754,12 +755,12 @@ export type ProfileCustomizationSlot = {
 	borderColor?: number
 	itemClassid?: Long
 	itemInstanceid?: Long
-	banCheckResult?: EBanContentCheckResult
+	banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
 	replayYear?: number
 }
 
 export type ProfileCustomization = {
-	customizationType?: EProfileCustomizationType
+	customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
 	large?: boolean
 	slots?: {
 		slot?: number
@@ -774,11 +775,11 @@ export type ProfileCustomization = {
 		borderColor?: number
 		itemClassid?: Long
 		itemInstanceid?: Long
-		banCheckResult?: EBanContentCheckResult
+		banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
 		replayYear?: number
 	}[]
 	active?: boolean
-	customizationStyle?: EProfileCustomizationStyle
+	customizationStyle?: typeof EProfileCustomizationStyle[keyof typeof EProfileCustomizationStyle]
 	purchaseid?: Long
 	level?: number
 }
@@ -794,7 +795,7 @@ export type ProfilePreferences = {
 
 export type CPlayer_GetProfileCustomization_Response = {
 	customizations?: {
-		customizationType?: EProfileCustomizationType
+		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
 		large?: boolean
 		slots?: {
 			slot?: number
@@ -809,11 +810,11 @@ export type CPlayer_GetProfileCustomization_Response = {
 			borderColor?: number
 			itemClassid?: Long
 			itemInstanceid?: Long
-			banCheckResult?: EBanContentCheckResult
+			banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
 			replayYear?: number
 		}[]
 		active?: boolean
-		customizationStyle?: EProfileCustomizationStyle
+		customizationStyle?: typeof EProfileCustomizationStyle[keyof typeof EProfileCustomizationStyle]
 		purchaseid?: Long
 		level?: number
 	}[]
@@ -824,7 +825,7 @@ export type CPlayer_GetProfileCustomization_Response = {
 	}
 	purchasedCustomizations?: {
 		purchaseid?: Long
-		customizationType?: EProfileCustomizationType
+		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
 		level?: number
 	}[]
 	profilePreferences?: {
@@ -839,7 +840,7 @@ export type CPlayer_GetPurchasedProfileCustomizations_Request = {
 export type CPlayer_GetPurchasedProfileCustomizations_Response = {
 	purchasedCustomizations?: {
 		purchaseid?: Long
-		customizationType?: EProfileCustomizationType
+		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
 	}[]
 }
 
@@ -849,11 +850,11 @@ export type CPlayer_GetPurchasedAndUpgradedProfileCustomizations_Request = {
 
 export type CPlayer_GetPurchasedAndUpgradedProfileCustomizations_Response = {
 	purchasedCustomizations?: {
-		customizationType?: EProfileCustomizationType
+		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
 		count?: number
 	}[]
 	upgradedCustomizations?: {
-		customizationType?: EProfileCustomizationType
+		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
 		level?: number
 	}[]
 }
@@ -946,7 +947,7 @@ export type CPlayer_GetTimeSSAAccepted_Response = {
 }
 
 export type CPlayer_AcceptSSA_Request = {
-	agreementType?: EAgreementType
+	agreementType?: typeof EAgreementType[keyof typeof EAgreementType]
 	timeSignedUtc?: number
 }
 
@@ -969,26 +970,26 @@ export type CPlayer_GetPerFriendPreferences_Request = {
 export type PerFriendPreferences = {
 	accountid?: number
 	nickname?: string
-	notificationsShowingame?: ENotificationSetting
-	notificationsShowonline?: ENotificationSetting
-	notificationsShowmessages?: ENotificationSetting
-	soundsShowingame?: ENotificationSetting
-	soundsShowonline?: ENotificationSetting
-	soundsShowmessages?: ENotificationSetting
-	notificationsSendmobile?: ENotificationSetting
+	notificationsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+	notificationsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+	notificationsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+	soundsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+	soundsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+	soundsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+	notificationsSendmobile?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
 }
 
 export type CPlayer_GetPerFriendPreferences_Response = {
 	preferences?: {
 		accountid?: number
 		nickname?: string
-		notificationsShowingame?: ENotificationSetting
-		notificationsShowonline?: ENotificationSetting
-		notificationsShowmessages?: ENotificationSetting
-		soundsShowingame?: ENotificationSetting
-		soundsShowonline?: ENotificationSetting
-		soundsShowmessages?: ENotificationSetting
-		notificationsSendmobile?: ENotificationSetting
+		notificationsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		notificationsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		notificationsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		soundsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		soundsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		soundsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		notificationsSendmobile?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
 	}[]
 }
 
@@ -996,13 +997,13 @@ export type CPlayer_SetPerFriendPreferences_Request = {
 	preferences?: {
 		accountid?: number
 		nickname?: string
-		notificationsShowingame?: ENotificationSetting
-		notificationsShowonline?: ENotificationSetting
-		notificationsShowmessages?: ENotificationSetting
-		soundsShowingame?: ENotificationSetting
-		soundsShowonline?: ENotificationSetting
-		soundsShowmessages?: ENotificationSetting
-		notificationsSendmobile?: ENotificationSetting
+		notificationsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		notificationsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		notificationsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		soundsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		soundsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		soundsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		notificationsSendmobile?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
 	}
 }
 
@@ -1041,7 +1042,7 @@ export type CPlayer_GetCommunityPreferences_Request = {
 
 export type CPlayer_CommunityPreferences = {
 	parenthesizeNicknames?: boolean
-	textFilterSetting?: ETextFilterSetting
+	textFilterSetting?: typeof ETextFilterSetting[keyof typeof ETextFilterSetting]
 	textFilterIgnoreFriends?: boolean
 	textFilterWordsRevision?: number
 	timestampUpdated?: number
@@ -1050,7 +1051,7 @@ export type CPlayer_CommunityPreferences = {
 export type CPlayer_GetCommunityPreferences_Response = {
 	preferences?: {
 		parenthesizeNicknames?: boolean
-		textFilterSetting?: ETextFilterSetting
+		textFilterSetting?: typeof ETextFilterSetting[keyof typeof ETextFilterSetting]
 		textFilterIgnoreFriends?: boolean
 		textFilterWordsRevision?: number
 		timestampUpdated?: number
@@ -1066,7 +1067,7 @@ export type CPlayer_GetCommunityPreferences_Response = {
 export type CPlayer_SetCommunityPreferences_Request = {
 	preferences?: {
 		parenthesizeNicknames?: boolean
-		textFilterSetting?: ETextFilterSetting
+		textFilterSetting?: typeof ETextFilterSetting[keyof typeof ETextFilterSetting]
 		textFilterIgnoreFriends?: boolean
 		textFilterWordsRevision?: number
 		timestampUpdated?: number
@@ -1098,7 +1099,7 @@ export type CPlayer_GetNewSteamAnnouncementState_Request = {
 }
 
 export type CPlayer_GetNewSteamAnnouncementState_Response = {
-	state?: ENewSteamAnnouncementState
+	state?: typeof ENewSteamAnnouncementState[keyof typeof ENewSteamAnnouncementState]
 	announcementHeadline?: string
 	announcementUrl?: string
 	timePosted?: number
@@ -1195,7 +1196,7 @@ export type CPlayer_FriendEquippedProfileItemsChanged_Notification = {
 }
 
 export type CPlayer_NewSteamAnnouncementState_Notification = {
-	state?: ENewSteamAnnouncementState
+	state?: typeof ENewSteamAnnouncementState[keyof typeof ENewSteamAnnouncementState]
 	announcementHeadline?: string
 	announcementUrl?: string
 	timePosted?: number
@@ -1205,7 +1206,7 @@ export type CPlayer_NewSteamAnnouncementState_Notification = {
 export type CPlayer_CommunityPreferencesChanged_Notification = {
 	preferences?: {
 		parenthesizeNicknames?: boolean
-		textFilterSetting?: ETextFilterSetting
+		textFilterSetting?: typeof ETextFilterSetting[keyof typeof ETextFilterSetting]
 		textFilterIgnoreFriends?: boolean
 		textFilterWordsRevision?: number
 		timestampUpdated?: number
@@ -1231,13 +1232,13 @@ export type CPlayer_PerFriendPreferencesChanged_Notification = {
 	preferences?: {
 		accountid?: number
 		nickname?: string
-		notificationsShowingame?: ENotificationSetting
-		notificationsShowonline?: ENotificationSetting
-		notificationsShowmessages?: ENotificationSetting
-		soundsShowingame?: ENotificationSetting
-		soundsShowonline?: ENotificationSetting
-		soundsShowmessages?: ENotificationSetting
-		notificationsSendmobile?: ENotificationSetting
+		notificationsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		notificationsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		notificationsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		soundsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		soundsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		soundsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+		notificationsSendmobile?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
 	}
 }
 

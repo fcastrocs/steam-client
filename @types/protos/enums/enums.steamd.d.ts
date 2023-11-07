@@ -1,17 +1,17 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
-declare enum EUniverse {
+declare const EUniverse = {
 	Invalid = 0,
 	Public = 1,
 	Beta = 2,
 	Internal = 3,
 	Dev = 4,
-}
+} as const;
 
-declare enum EChatEntryType {
+declare const EChatEntryType = {
 	Invalid = 0,
 	ChatMsg = 1,
 	Typing = 2,
@@ -25,9 +25,9 @@ declare enum EChatEntryType {
 	Reserved1 = 12,
 	Reserved2 = 13,
 	LinkBlocked = 14,
-}
+} as const;
 
-declare enum EPersonaState {
+declare const EPersonaState = {
 	Offline = 0,
 	Online = 1,
 	Busy = 2,
@@ -36,9 +36,9 @@ declare enum EPersonaState {
 	LookingToTrade = 5,
 	LookingToPlay = 6,
 	Invisible = 7,
-}
+} as const;
 
-declare enum EAccountType {
+declare const EAccountType = {
 	Invalid = 0,
 	Individual = 1,
 	Multiseat = 2,
@@ -50,9 +50,9 @@ declare enum EAccountType {
 	Chat = 8,
 	ConsoleUser = 9,
 	AnonUser = 10,
-}
+} as const;
 
-declare enum EFriendRelationship {
+declare const EFriendRelationship = {
 	None = 0,
 	Blocked = 1,
 	RequestRecipient = 2,
@@ -60,9 +60,9 @@ declare enum EFriendRelationship {
 	RequestInitiator = 4,
 	Ignored = 5,
 	IgnoredFriend = 6,
-}
+} as const;
 
-declare enum EAccountFlags {
+declare const EAccountFlags = {
 	NormalUser = 0,
 	PersonaNameSet = 1,
 	Unbannable = 2,
@@ -95,9 +95,9 @@ declare enum EAccountFlags {
 	ParentalSettings = 268435456,
 	ThirdPartySupport = 536870912,
 	NeedsSSANextSteamLogon = 1073741824,
-}
+} as const;
 
-declare enum EClanPermission {
+declare const EClanPermission = {
 	Nobody = 0,
 	Owner = 1,
 	Officer = 2,
@@ -106,9 +106,9 @@ declare enum EClanPermission {
 	Moderator = 8,
 	OGGGameOwner = 16,
 	NonMember = 128,
-}
+} as const;
 
-declare enum EChatPermission {
+declare const EChatPermission = {
 	Close = 1,
 	Invite = 2,
 	Talk = 8,
@@ -119,9 +119,9 @@ declare enum EChatPermission {
 	Ban = 256,
 	ChangeAccess = 512,
 	Mask = 1019,
-}
+} as const;
 
-declare enum EFriendFlags {
+declare const EFriendFlags = {
 	None = 0,
 	Blocked = 1,
 	FriendshipRequested = 2,
@@ -135,9 +135,9 @@ declare enum EFriendFlags {
 	Suggested = 2048,
 	ChatMember = 4096,
 	FlagAll = 65535,
-}
+} as const;
 
-declare enum EAppUsageEvent {
+declare const EAppUsageEvent = {
 	GameLaunch = 1,
 	GameLaunchTrial = 2,
 	Media = 3,
@@ -146,13 +146,13 @@ declare enum EAppUsageEvent {
 	MarketingMessageView = 6,
 	InGameAdViewed = 7,
 	GameLaunchFreeWeekend = 8,
-}
+} as const;
 
-declare enum ELicenseFlags {
+declare const ELicenseFlags = {
 	None = 0,
-}
+} as const;
 
-declare enum ELicenseType {
+declare const ELicenseType = {
 	NoLicense = 0,
 	SinglePurchase = 1,
 	SinglePurchaseLimitedUse = 2,
@@ -161,9 +161,9 @@ declare enum ELicenseType {
 	RecurringChargeLimitedUseWithOverages = 5,
 	RecurringOption = 6,
 	LimitedUseDelayedActivation = 7,
-}
+} as const;
 
-declare enum EPaymentMethod {
+declare const EPaymentMethod = {
 	None = 0,
 	ActivationCode = 1,
 	CreditCard = 2,
@@ -253,9 +253,9 @@ declare enum EPaymentMethod {
 	OEMTicket = 256,
 	Split = 512,
 	Complimentary = 1024,
-}
+} as const;
 
-declare enum EPurchaseResultDetail {
+declare const EPurchaseResultDetail = {
 	NoDetail = 0,
 	AVSFailure = 1,
 	InsufficientFunds = 2,
@@ -340,14 +340,14 @@ declare enum EPurchaseResultDetail {
 	BillingNameInvalidResemblesCreditCard = 81,
 	PaymentMethodTemporarilyUnavailable = 82,
 	PaymentMethodNotSupportedForProduct = 83,
-}
+} as const;
 
-declare enum EIntroducerRouting {
+declare const EIntroducerRouting = {
 	P2PVoiceChat = 1,
 	P2PNetworking = 2,
-}
+} as const;
 
-declare enum EServerFlags {
+declare const EServerFlags = {
 	None = 0,
 	Active = 1,
 	Secure = 2,
@@ -355,9 +355,9 @@ declare enum EServerFlags {
 	Linux = 8,
 	Passworded = 16,
 	Private = 32,
-}
+} as const;
 
-declare enum EDenyReason {
+declare const EDenyReason = {
 	InvalidVersion = 1,
 	Generic = 2,
 	NotLoggedOn = 3,
@@ -373,17 +373,17 @@ declare enum EDenyReason {
 	SteamResponseTimedOut = 13,
 	SteamValidationStalled = 14,
 	SteamOwnerLeftGuestUser = 15,
-}
+} as const;
 
-declare enum EClanRank {
+declare const EClanRank = {
 	None = 0,
 	Owner = 1,
 	Officer = 2,
 	Member = 3,
 	Moderator = 4,
-}
+} as const;
 
-declare enum EClanRelationship {
+declare const EClanRelationship = {
 	None = 0,
 	Blocked = 1,
 	Invited = 2,
@@ -392,9 +392,9 @@ declare enum EClanRelationship {
 	KickAcknowledged = 5,
 	PendingApproval = 6,
 	RequestDenied = 7,
-}
+} as const;
 
-declare enum EAuthSessionResponse {
+declare const EAuthSessionResponse = {
 	OK = 0,
 	UserNotConnectedToSteam = 1,
 	NoLicenseOrExpired = 2,
@@ -405,9 +405,9 @@ declare enum EAuthSessionResponse {
 	AuthTicketInvalidAlreadyUsed = 7,
 	AuthTicketInvalid = 8,
 	PublisherIssuedBan = 9,
-}
+} as const;
 
-declare enum EChatRoomEnterResponse {
+declare const EChatRoomEnterResponse = {
 	Success = 1,
 	DoesntExist = 2,
 	NotAllowed = 3,
@@ -419,21 +419,21 @@ declare enum EChatRoomEnterResponse {
 	CommunityBan = 9,
 	MemberBlockedYou = 10,
 	YouBlockedMember = 11,
-}
+} as const;
 
-declare enum EChatRoomType {
+declare const EChatRoomType = {
 	Friend = 1,
 	MUC = 2,
 	Lobby = 3,
-}
+} as const;
 
-declare enum EChatInfoType {
+declare const EChatInfoType = {
 	StateChange = 1,
 	InfoUpdate = 2,
 	MemberLimitChange = 3,
-}
+} as const;
 
-declare enum EChatAction {
+declare const EChatAction = {
 	InviteChat = 1,
 	Kick = 2,
 	Ban = 3,
@@ -450,9 +450,9 @@ declare enum EChatAction {
 	SetVisibleToFriends = 14,
 	SetModerated = 15,
 	SetUnmoderated = 16,
-}
+} as const;
 
-declare enum EChatActionResult {
+declare const EChatActionResult = {
 	Success = 1,
 	Error = 2,
 	NotPermitted = 3,
@@ -463,9 +463,9 @@ declare enum EChatActionResult {
 	ChatDoesntExist = 8,
 	ChatFull = 9,
 	VoiceSlotsFull = 10,
-}
+} as const;
 
-declare enum EAppInfoSection {
+declare const EAppInfoSection = {
 	Unknown = 0,
 	All = 1,
 	First = 2,
@@ -485,9 +485,9 @@ declare enum EAppInfoSection {
 	Broadcastgamedata = 18,
 	Computed = 19,
 	Albummetadata = 20,
-}
+} as const;
 
-declare enum EContentDownloadSourceType {
+declare const EContentDownloadSourceType = {
 	Invalid = 0,
 	CS = 1,
 	CDN = 2,
@@ -498,9 +498,9 @@ declare enum EContentDownloadSourceType {
 	SteamCache = 7,
 	OpenCache = 8,
 	LANCache = 9,
-}
+} as const;
 
-declare enum EPlatformType {
+declare const EPlatformType = {
 	Unknown = 0,
 	Win32 = 1,
 	Win64 = 2,
@@ -508,9 +508,9 @@ declare enum EPlatformType {
 	OSX = 4,
 	PS3 = 5,
 	Linux32 = 6,
-}
+} as const;
 
-declare enum EOSType {
+declare const EOSType = {
 	WinUnknown = 0,
 	Win311 = 1,
 	Win95 = 2,
@@ -533,9 +533,9 @@ declare enum EOSType {
 	Win2022 = 19,
 	Win11 = 20,
 	WinMAX = 21,
-}
+} as const;
 
-declare enum EServerType {
+declare const EServerType = {
 	First = 0,
 	Shell = 0,
 	GM = 1,
@@ -658,9 +658,9 @@ declare enum EServerType {
 	SteamAR = 124,
 	China = 125,
 	CrashDump = 126,
-}
+} as const;
 
-declare enum EBillingType {
+declare const EBillingType = {
 	NoCost = 0,
 	BillOnceOnly = 1,
 	BillMonthly = 2,
@@ -678,16 +678,16 @@ declare enum EBillingType {
 	CommercialLicense = 14,
 	FreeCommercialLicense = 15,
 	NumBillingTypes = 16,
-}
+} as const;
 
-declare enum EPackageStatus {
+declare const EPackageStatus = {
 	Available = 0,
 	Preorder = 1,
 	Unavailable = 2,
 	Invalid = 3,
-}
+} as const;
 
-declare enum EActivationCodeClass {
+declare const EActivationCodeClass = {
 	WonCDKey = 0,
 	ValveCDKey = 1,
 	Doom3CDKey = 2,
@@ -696,15 +696,15 @@ declare enum EActivationCodeClass {
 	Max = 5,
 	Test = 2147483647,
 	Invalid = 4294967295,
-}
+} as const;
 
-declare enum EChatMemberStateChange {
-}
+declare const EChatMemberStateChange = {
+} as const;
 
-declare enum ERegionCode {
-}
+declare const ERegionCode = {
+} as const;
 
-declare enum ECurrencyCode {
+declare const ECurrencyCode = {
 	Invalid = 0,
 	USD = 1,
 	GBP = 2,
@@ -752,9 +752,9 @@ declare enum ECurrencyCode {
 	DKK = 45,
 	HUF = 46,
 	RON = 47,
-}
+} as const;
 
-declare enum EDepotFileFlag {
+declare const EDepotFileFlag = {
 	UserConfig = 1,
 	VersionedUserConfig = 2,
 	Encrypted = 4,
@@ -765,9 +765,9 @@ declare enum EDepotFileFlag {
 	CustomExecutable = 128,
 	InstallScript = 256,
 	Symlink = 512,
-}
+} as const;
 
-declare enum EWorkshopEnumerationType {
+declare const EWorkshopEnumerationType = {
 	RankedByVote = 0,
 	Recent = 1,
 	Trending = 2,
@@ -775,16 +775,16 @@ declare enum EWorkshopEnumerationType {
 	VotedByFriends = 4,
 	ContentByFriends = 5,
 	RecentFromFollowedUsers = 6,
-}
+} as const;
 
-declare enum EPublishedFileVisibility {
+declare const EPublishedFileVisibility = {
 	Public = 0,
 	FriendsOnly = 1,
 	Private = 2,
 	Unlisted = 3,
-}
+} as const;
 
-declare enum EWorkshopFileType {
+declare const EWorkshopFileType = {
 	First = 0,
 	Community = 0,
 	Microtransaction = 1,
@@ -802,14 +802,14 @@ declare enum EWorkshopFileType {
 	SteamworksAccessInvite = 13,
 	SteamVideo = 14,
 	GameManagedItem = 15,
-}
+} as const;
 
-declare enum EWorkshopFileAction {
+declare const EWorkshopFileAction = {
 	Played = 0,
 	Completed = 1,
-}
+} as const;
 
-declare enum EEconTradeResponse {
+declare const EEconTradeResponse = {
 	Accepted = 0,
 	Declined = 1,
 	TradeBannedInitiator = 2,
@@ -844,25 +844,25 @@ declare enum EEconTradeResponse {
 	DisabledInRegion = 32,
 	DisabledInPartnerRegion = 33,
 	OKToDeliver = 50,
-}
+} as const;
 
-declare enum EMarketingMessageFlags {
+declare const EMarketingMessageFlags = {
 	None = 0,
 	HighPriority = 1,
 	PlatformWindows = 2,
 	PlatformMac = 4,
 	PlatformLinux = 8,
-}
+} as const;
 
-declare enum ENewsUpdateType {
+declare const ENewsUpdateType = {
 	AppNews = 0,
 	SteamAds = 1,
 	SteamNews = 2,
 	CDDBUpdate = 3,
 	ClientUpdate = 4,
-}
+} as const;
 
-declare enum ESystemIMType {
+declare const ESystemIMType = {
 	RawText = 0,
 	InvalidCard = 1,
 	RecurringPurchaseFailed = 2,
@@ -873,16 +873,16 @@ declare enum ESystemIMType {
 	GiftRevoked = 7,
 	SupportMessage = 8,
 	SupportMessageClearAlert = 9,
-}
+} as const;
 
-declare enum EChatFlags {
+declare const EChatFlags = {
 	Locked = 1,
 	InvisibleToFriends = 2,
 	Moderated = 4,
 	Unjoinable = 8,
-}
+} as const;
 
-declare enum ERemoteStoragePlatform {
+declare const ERemoteStoragePlatform = {
 	None = 0,
 	Windows = 1,
 	OSX = 2,
@@ -891,9 +891,9 @@ declare enum ERemoteStoragePlatform {
 	Switch = 16,
 	Android = 32,
 	IPhoneOS = 64,
-}
+} as const;
 
-declare enum EDRMBlobDownloadType {
+declare const EDRMBlobDownloadType = {
 	Error = 0,
 	File = 1,
 	Parts = 2,
@@ -903,9 +903,9 @@ declare enum EDRMBlobDownloadType {
 	HighPriority = 16,
 	AddTimestamp = 32,
 	LowPriority = 64,
-}
+} as const;
 
-declare enum EDRMBlobDownloadErrorDetail {
+declare const EDRMBlobDownloadErrorDetail = {
 	None = 0,
 	DownloadFailed = 1,
 	TargetLocked = 2,
@@ -929,57 +929,57 @@ declare enum EDRMBlobDownloadErrorDetail {
 	TargetLocked_Base = 65536,
 	TargetLocked_Max = 131071,
 	NextBase = 131072,
-}
+} as const;
 
-declare enum EClientStat {
+declare const EClientStat = {
 	P2PConnectionsUDP = 0,
 	P2PConnectionsRelay = 1,
 	P2PGameConnections = 2,
 	P2PVoiceConnections = 3,
 	BytesDownloaded = 4,
-}
+} as const;
 
-declare enum EClientStatAggregateMethod {
+declare const EClientStatAggregateMethod = {
 	LatestOnly = 0,
 	Sum = 1,
 	Event = 2,
 	Scalar = 3,
-}
+} as const;
 
-declare enum ELeaderboardDataRequest {
+declare const ELeaderboardDataRequest = {
 	Global = 0,
 	GlobalAroundUser = 1,
 	Friends = 2,
 	Users = 3,
-}
+} as const;
 
-declare enum ELeaderboardSortMethod {
+declare const ELeaderboardSortMethod = {
 	None = 0,
 	Ascending = 1,
 	Descending = 2,
-}
+} as const;
 
-declare enum ELeaderboardDisplayType {
+declare const ELeaderboardDisplayType = {
 	None = 0,
 	Numeric = 1,
 	TimeSeconds = 2,
 	TimeMilliSeconds = 3,
-}
+} as const;
 
-declare enum ELeaderboardUploadScoreMethod {
+declare const ELeaderboardUploadScoreMethod = {
 	None = 0,
 	KeepBest = 1,
 	ForceUpdate = 2,
-}
+} as const;
 
-declare enum EUCMFilePrivacyState {
+declare const EUCMFilePrivacyState = {
 	Private = 2,
 	FriendsOnly = 4,
 	Public = 8,
 	Unlisted = 16,
-}
+} as const;
 
-declare enum EDisplayStatus {
+declare const EDisplayStatus = {
 	Invalid = 0,
 	Launching = 1,
 	Uninstalling = 2,
@@ -1017,9 +1017,9 @@ declare enum EDisplayStatus {
 	CloudError = 34,
 	CloudOutOfDate = 35,
 	Terminating = 36,
-}
+} as const;
 
-declare enum EAppType {
+declare const EAppType = {
 	Invalid = 0,
 	Game = 1,
 	Application = 2,
@@ -1039,22 +1039,22 @@ declare enum EAppType {
 	Comic = 32768,
 	Beta = 65536,
 	Shortcut = 1073741824,
-}
+} as const;
 
-declare enum EChatRoomGroupType {
+declare const EChatRoomGroupType = {
 	Default = 0,
 	Unmoderated = 1,
-}
+} as const;
 
-declare enum EChatroomNotificationLevel {
+declare const EChatroomNotificationLevel = {
 	Invalid = 0,
 	None = 1,
 	MentionMe = 2,
 	MentionAll = 3,
 	AllMessages = 4,
-}
+} as const;
 
-declare enum EChatRoomMemberStateChange {
+declare const EChatRoomMemberStateChange = {
 	Invalid = 0,
 	Joined = 1,
 	Parted = 2,
@@ -1065,9 +1065,9 @@ declare enum EChatRoomMemberStateChange {
 	Muted = 9,
 	Banned = 10,
 	RolesChanged = 12,
-}
+} as const;
 
-declare enum EChatRoomServerMsg {
+declare const EChatRoomServerMsg = {
 	Invalid = 0,
 	RenameChatRoom = 1,
 	Joined = 2,
@@ -1078,9 +1078,9 @@ declare enum EChatRoomServerMsg {
 	ChatRoomTaglineChanged = 9,
 	ChatRoomAvatarChanged = 10,
 	AppCustom = 11,
-}
+} as const;
 
-declare enum EChatRoomGroupRank {
+declare const EChatRoomGroupRank = {
 	Default = 0,
 	Viewer = 10,
 	Guest = 15,
@@ -1089,18 +1089,18 @@ declare enum EChatRoomGroupRank {
 	Officer = 40,
 	Owner = 50,
 	TestInvalid = 99,
-}
+} as const;
 
-declare enum EChatRoomGroupPermissions {
+declare const EChatRoomGroupPermissions = {
 	Default = 0,
 	Valid = 1,
 	CanInvite = 2,
 	CanKick = 4,
 	CanBan = 8,
 	CanAdminChannel = 16,
-}
+} as const;
 
-declare enum EChatRoomGroupAction {
+declare const EChatRoomGroupAction = {
 	Default = 0,
 	CreateRenameDeleteChannel = 1,
 	Kick = 2,
@@ -1113,16 +1113,16 @@ declare enum EChatRoomGroupAction {
 	ChangeUserRoles = 9,
 	MentionAll = 10,
 	SetWatchingBroadcast = 11,
-}
+} as const;
 
-declare enum EChatRoomJoinState {
+declare const EChatRoomJoinState = {
 	Default = 0,
 	None = 1,
 	Joined = 2,
 	TestInvalid = 99,
-}
+} as const;
 
-declare enum EVoiceCallState {
+declare const EVoiceCallState = {
 	None = 0,
 	ScheduledInitiate = 1,
 	RequestedMicAccess = 2,
@@ -1133,9 +1133,9 @@ declare enum EVoiceCallState {
 	RequestedPermission = 7,
 	NotifyingVoiceChatOfWebRTCSession = 8,
 	Connected = 9,
-}
+} as const;
 
-declare enum ETradeOfferState {
+declare const ETradeOfferState = {
 	Invalid = 1,
 	Active = 2,
 	Accepted = 3,
@@ -1147,63 +1147,63 @@ declare enum ETradeOfferState {
 	CreatedNeedsConfirmation = 9,
 	CanceledBySecondFactor = 10,
 	InEscrow = 11,
-}
+} as const;
 
-declare enum ETradeOfferConfirmationMethod {
+declare const ETradeOfferConfirmationMethod = {
 	Invalid = 0,
 	Email = 1,
 	MobileApp = 2,
-}
+} as const;
 
-declare enum ELobbyType {
+declare const ELobbyType = {
 	Private = 0,
 	FriendsOnly = 1,
 	Public = 2,
 	Invisible = 3,
 	PrivateUnique = 4,
-}
+} as const;
 
-declare enum ELobbyFilterType {
+declare const ELobbyFilterType = {
 	String = 0,
 	Numerical = 1,
 	SlotsAvailable = 2,
 	NearValue = 3,
 	Distance = 4,
-}
+} as const;
 
-declare enum ELobbyComparison {
+declare const ELobbyComparison = {
 	Equal = 0,
 	GreaterThan = 1,
 	EqualToOrGreaterThan = 2,
 	NotEqual = 3,
-}
+} as const;
 
-declare enum ELobbyDistanceFilter {
+declare const ELobbyDistanceFilter = {
 	Close = 0,
 	Default = 1,
 	Far = 2,
 	Worldwide = 3,
-}
+} as const;
 
-declare enum ESteamIPv6ConnectivityProtocol {
+declare const ESteamIPv6ConnectivityProtocol = {
 	Invalid = 0,
 	Http = 1,
 	Udp = 2,
-}
+} as const;
 
-declare enum ESteamIPv6ConnectivityState {
+declare const ESteamIPv6ConnectivityState = {
 	Unknown = 0,
 	Good = 1,
 	Bad = 2,
-}
+} as const;
 
-declare enum ESteamRealm {
+declare const ESteamRealm = {
 	Unknown = 0,
 	SteamGlobal = 1,
 	SteamChina = 2,
-}
+} as const;
 
-declare enum ELauncherType {
+declare const ELauncherType = {
 	Default = 0,
 	PerfectWorld = 1,
 	Nexon = 2,
@@ -1214,5 +1214,5 @@ declare enum ELauncherType {
 	SteamChina = 7,
 	SingleApp = 8,
 	GameServer = 9,
-}
+} as const;
 

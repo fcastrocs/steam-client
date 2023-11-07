@@ -15,6 +15,6 @@
       "outDir": "dist/",
       "baseUrl": "src/"
     },
-    "include": ["src/**/*", "@types", "resources/language"],
+    "include": ["src/**/*", "@types", "resources/language", "scripts"],
     "compileOnSave": false
   }

@@ -1,16 +1,16 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
-declare enum EAuthTokenPlatformType {
+declare const EAuthTokenPlatformType = {
 	Unknown = 0,
 	SteamClient = 1,
 	WebBrowser = 2,
 	MobileApp = 3,
-}
+} as const;
 
-declare enum EAuthSessionGuardType {
+declare const EAuthSessionGuardType = {
 	Unknown = 0,
 	None = 1,
 	EmailCode = 2,
@@ -19,20 +19,20 @@ declare enum EAuthSessionGuardType {
 	EmailConfirmation = 5,
 	MachineToken = 6,
 	LegacyMachineAuth = 7,
-}
+} as const;
 
-declare enum EAuthSessionSecurityHistory {
+declare const EAuthSessionSecurityHistory = {
 	Invalid = 0,
 	UsedPreviously = 1,
 	NoPriorHistory = 2,
-}
+} as const;
 
-declare enum ETokenRenewalType {
+declare const ETokenRenewalType = {
 	None = 0,
 	Allow = 1,
-}
+} as const;
 
-declare enum EAuthTokenRevokeAction {
+declare const EAuthTokenRevokeAction = {
 	EAuthTokenRevokeLogout = 0,
 	EAuthTokenRevokePermanent = 1,
 	EAuthTokenRevokeReplaced = 2,
@@ -41,9 +41,9 @@ declare enum EAuthTokenRevokeAction {
 	EAuthTokenRevokeNonRememberedLogout = 5,
 	EAuthTokenRevokeNonRememberedPermanent = 6,
 	EAuthTokenRevokeAutomatic = 7,
-}
+} as const;
 
-declare enum EAuthTokenState {
+declare const EAuthTokenState = {
 	Invalid = 0,
 	New = 1,
 	Confirmed = 2,
@@ -52,5 +52,5 @@ declare enum EAuthTokenState {
 	LoggedOut = 5,
 	Consumed = 6,
 	Revoked = 99,
-}
+} as const;
 

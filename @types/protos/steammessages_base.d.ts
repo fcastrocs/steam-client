@@ -1,9 +1,10 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
+import { ValueOf } from "type-fest";
 
 export type CMsgIPAddress = {
 	v4?: number
@@ -55,7 +56,7 @@ export type CMsgProtoBufHeader = {
 		dstGcidQueue?: Long
 		dstGcDirIndex?: number
 	}
-	sessionDisposition?: ESessionDisposition
+	sessionDisposition?: typeof ESessionDisposition[keyof typeof ESessionDisposition]
 	wgToken?: string
 	webuiAuthKey?: string
 	ip?: number
@@ -190,7 +191,7 @@ export type CCommunity_ClanAnnouncementInfo = {
 	eventGid?: Long
 	voteupcount?: number
 	votedowncount?: number
-	banCheckResult?: EBanContentCheckResult
+	banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
 	banned?: boolean
 }
 
@@ -198,7 +199,7 @@ export type CClanEventData = {
 	gid?: Long
 	clanSteamid?: Long
 	eventName?: string
-	eventType?: EProtoClanEventType
+	eventType?: typeof EProtoClanEventType[keyof typeof EProtoClanEventType]
 	appid?: number
 	serverAddress?: string
 	serverPassword?: string
@@ -225,7 +226,7 @@ export type CClanEventData = {
 		eventGid?: Long
 		voteupcount?: number
 		votedowncount?: number
-		banCheckResult?: EBanContentCheckResult
+		banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
 		banned?: boolean
 	}
 	published?: boolean

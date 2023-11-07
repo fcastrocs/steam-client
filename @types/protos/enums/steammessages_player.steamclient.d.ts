@@ -1,33 +1,33 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
-declare enum EProfileCustomizationStyle {
+declare const EProfileCustomizationStyle = {
 	Default = 0,
 	Selected = 1,
 	Rarest = 2,
 	MostRecent = 3,
 	Random = 4,
 	HighestRated = 5,
-}
+} as const;
 
-declare enum EAgreementType {
+declare const EAgreementType = {
 	Invalid = -1,
 	GlobalSSA = 0,
 	ChinaSSA = 1,
-}
+} as const;
 
-declare enum ENotificationSetting {
+declare const ENotificationSetting = {
 	NotifyUseDefault = 0,
 	Always = 1,
 	Never = 2,
-}
+} as const;
 
-declare enum ETextFilterSetting {
+declare const ETextFilterSetting = {
 	SteamLabOptedOut = 0,
 	Enabled = 1,
 	EnabledAllowProfanity = 2,
 	Disabled = 3,
-}
+} as const;
 

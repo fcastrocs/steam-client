@@ -1,9 +1,10 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
+import { ValueOf } from "type-fest";
 
 export type CStorePageFilter = {
 	saleFilter?: {
@@ -13,7 +14,7 @@ export type CStorePageFilter = {
 		hubType?: string
 		hubCategory?: string
 		hubTagid?: number
-		discountFilter?: EContentHubDiscountFilterType
+		discountFilter?: typeof EContentHubDiscountFilterType[keyof typeof EContentHubDiscountFilterType]
 		optin?: {
 			name?: string
 			optinTagid?: number

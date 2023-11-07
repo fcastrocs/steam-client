@@ -1,9 +1,9 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
-declare enum EBanContentCheckResult {
+declare const EBanContentCheckResult = {
 	NotScanned = 0,
 	Reset = 1,
 	NeedsChecking = 2,
@@ -12,9 +12,9 @@ declare enum EBanContentCheckResult {
 	Possible = 50,
 	Likely = 75,
 	VeryLikely = 100,
-}
+} as const;
 
-declare enum EProtoClanEventType {
+declare const EProtoClanEventType = {
 	EClanOtherEvent = 1,
 	EClanGameEvent = 2,
 	EClanPartyEvent = 3,
@@ -50,17 +50,17 @@ declare enum EProtoClanEventType {
 	EClanSeasonUpdate = 33,
 	EClanCrosspostEvent = 34,
 	EClanInGameEventGeneral = 35,
-}
+} as const;
 
-declare enum PartnerEventNotificationType {
+declare const PartnerEventNotificationType = {
 	EEventStart = 0,
 	EEventBroadcastStart = 1,
 	EEventMatchStart = 2,
 	EEventPartnerMaxType = 3,
-}
+} as const;
 
-declare enum ESessionDisposition {
+declare const ESessionDisposition = {
 	Normal = 0,
 	Disconnect = 1,
-}
+} as const;
 

@@ -46,7 +46,8 @@ async function extractEnumsAndProtoTypings() {
             // add header and imports
             if (!stream.bytesWritten) {
                 stream.write(`${HEADER}\n\n`);
-                stream.write(`import Long from "long";\n\n`);
+                stream.write(`import Long from "long";\n`);
+                stream.write(`import { ValueOf } from "type-fest";\n\n`);
                 stream.bytesWritten += 1;
             }
 
@@ -197,10 +198,10 @@ function processProtoType(proto: ReflectionObject, indents: number): string {
             const name = nestedObj?.toString();
 
             if (name?.includes("Type .")) {
-                dataType = processProtoType(nestedObj!, indents + 1);
+                dataType = processProtoType(nestedObj, indents + 1);
             } else if (name?.includes("Enum .")) {
-                processEmum(nestedObj!);
-                dataType = nestedObj?.name!;
+                processEmum(nestedObj);
+                dataType = `typeof ${nestedObj.name}[keyof typeof ${nestedObj.name}]`;
             } else {
                 throw new Error(`Unknown proto datatype.${name}`);
             }

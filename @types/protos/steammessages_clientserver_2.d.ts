@@ -1,9 +1,10 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
+import { ValueOf } from "type-fest";
 
 export type CMsgClientUpdateUserGameInfo = {
 	steamidIdgs?: Long

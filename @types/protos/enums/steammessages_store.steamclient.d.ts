@@ -1,9 +1,9 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
-declare enum EStoreDiscoveryQueueType {
+declare const EStoreDiscoveryQueueType = {
 	New = 0,
 	ComingSoon = 1,
 	Recommended = 2,
@@ -19,25 +19,25 @@ declare enum EStoreDiscoveryQueueType {
 	DLCNewReleases = 13,
 	DLCTopSellers = 14,
 	MAX = 15,
-}
+} as const;
 
-declare enum EPlaytestStatus {
+declare const EPlaytestStatus = {
 	ETesterStatusNone = 0,
 	ETesterStatusPending = 1,
 	ETesterStatusInvited = 2,
 	ETesterStatusGranted = 3,
-}
+} as const;
 
-declare enum EUserReviewScorePreference {
+declare const EUserReviewScorePreference = {
 	Unset = 0,
 	IncludeAll = 1,
 	ExcludeBombs = 2,
-}
+} as const;
 
-declare enum EPartnerLinkTrackingBackfillSource {
+declare const EPartnerLinkTrackingBackfillSource = {
 	None = 0,
 	Web = 1,
 	Mobile = 2,
 	Desktop = 3,
-}
+} as const;
 

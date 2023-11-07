@@ -1,9 +1,9 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
-declare enum EResult {
+declare const EResult = {
 	Invalid = 0,
 	OK = 1,
 	Fail = 2,
@@ -131,5 +131,5 @@ declare enum EResult {
 	ChargerRequired = 125,
 	CachedCredentialInvalid = 126,
 	PhoneNumberIsVOIP = 127,
-}
+} as const;
 

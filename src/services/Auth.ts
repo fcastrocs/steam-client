@@ -4,25 +4,19 @@ import Steam from "../Steam.js";
 import { EResultMap, EResult } from "../modules/language.js";
 import { SteamClientError } from "../modules/common.js";
 import EventEmitter from "events";
-import { EAuthSessionGuardType, EAuthTokenPlatformType, ETokenRenewalType } from "../../resources/language/steammessages_auth.steamclient.js";
 import { EOSType } from "../../resources/language/enums.steamd.js";
-import { ESessionPersistence } from "../../resources/language/enums.js";
 import { Confirmation } from "../../@types/services/Auth.js";
 import { UnknownRecord, ValueOf } from "type-fest";
 import type {
     CAuthentication_BeginAuthSessionViaCredentials_Response,
     CAuthentication_BeginAuthSessionViaQR_Response,
-    CAuthentication_BeginAuthSessionViaQR_Request,
-    CAuthentication_GetPasswordRSAPublicKey_Request,
     CAuthentication_GetPasswordRSAPublicKey_Response,
-    CAuthentication_BeginAuthSessionViaCredentials_Request,
-    CAuthentication_UpdateAuthSessionWithSteamGuardCode_Request,
     CAuthentication_UpdateAuthSessionWithSteamGuardCode_Response,
-    CAuthentication_AccessToken_GenerateForApp_Request,
     CAuthentication_AccessToken_GenerateForApp_Response,
-    CAuthentication_PollAuthSessionStatus_Request,
     CAuthentication_PollAuthSessionStatus_Response,
 } from "../../@types/protos/steammessages_auth.steamclient.js";
+import { ESessionPersistence } from "../../resources/language/enums.js";
+import { EAuthTokenPlatformType, EAuthSessionGuardType, ETokenRenewalType } from "../../resources/language/steammessages_auth.steamclient.js";
 
 export default class Auth extends EventEmitter {
     private waitingForConfirmation: boolean;

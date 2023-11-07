@@ -1,9 +1,9 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
-declare enum EMsg {
+declare const EMsg = {
 	Invalid = 0,
 	Multi = 1,
 	ProtobufWrapped = 2,
@@ -1458,9 +1458,9 @@ declare enum EMsg {
 	WGConnectionValidateUserTokenResponse = 12202,
 	WGConnectionLegacyWGRequest = 12203,
 	WGConnectionLegacyWGResponse = 12204,
-}
+} as const;
 
-declare enum EClientPersonaStateFlag {
+declare const EClientPersonaStateFlag = {
 	Status = 1,
 	PlayerName = 2,
 	QueryPort = 4,
@@ -1475,17 +1475,17 @@ declare enum EClientPersonaStateFlag {
 	RichPresence = 4096,
 	Broadcast = 8192,
 	Watching = 16384,
-}
+} as const;
 
-declare enum EMsgClanAccountFlags {
+declare const EMsgClanAccountFlags = {
 	EMsgClanAccountFlagPublic = 1,
 	EMsgClanAccountFlagLarge = 2,
 	EMsgClanAccountFlagLocked = 4,
 	EMsgClanAccountFlagDisabled = 8,
 	EMsgClanAccountFlagOGG = 16,
-}
+} as const;
 
-declare enum ESteamReviewScore {
+declare const ESteamReviewScore = {
 	OverwhelminglyPositive = 9,
 	VeryPositive = 8,
 	Positive = 7,
@@ -1496,20 +1496,20 @@ declare enum ESteamReviewScore {
 	VeryNegative = 2,
 	OverwhelminglyNegative = 1,
 	None = 0,
-}
+} as const;
 
-declare enum ECodecUsagePlatform {
+declare const ECodecUsagePlatform = {
 	Unknown = 0,
 	Windows = 1,
 	MacOS = 2,
 	Linux = 3,
 	SteamDeck = 4,
-}
+} as const;
 
-declare enum ECodecUsageReason {
+declare const ECodecUsageReason = {
 	Unknown = 0,
 	RemotePlay = 1,
 	Broadcasting = 2,
 	GameVideo = 3,
-}
+} as const;
 

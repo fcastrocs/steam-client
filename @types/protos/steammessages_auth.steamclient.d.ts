@@ -1,9 +1,10 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
+import { ValueOf } from "type-fest";
 
 export type CAuthentication_GetPasswordRSAPublicKey_Request = {
 	accountName?: string
@@ -17,7 +18,7 @@ export type CAuthentication_GetPasswordRSAPublicKey_Response = {
 
 export type CAuthentication_DeviceDetails = {
 	deviceFriendlyName?: string
-	platformType?: EAuthTokenPlatformType
+	platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
 	osType?: number
 	gamingDeviceType?: number
 	clientCount?: number
@@ -26,10 +27,10 @@ export type CAuthentication_DeviceDetails = {
 
 export type CAuthentication_BeginAuthSessionViaQR_Request = {
 	deviceFriendlyName?: string
-	platformType?: EAuthTokenPlatformType
+	platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
 	deviceDetails?: {
 		deviceFriendlyName?: string
-		platformType?: EAuthTokenPlatformType
+		platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
 		osType?: number
 		gamingDeviceType?: number
 		clientCount?: number
@@ -39,7 +40,7 @@ export type CAuthentication_BeginAuthSessionViaQR_Request = {
 }
 
 export type CAuthentication_AllowedConfirmation = {
-	confirmationType?: EAuthSessionGuardType
+	confirmationType?: typeof EAuthSessionGuardType[keyof typeof EAuthSessionGuardType]
 	associatedMessage?: string
 }
 
@@ -49,7 +50,7 @@ export type CAuthentication_BeginAuthSessionViaQR_Response = {
 	requestId?: Buffer
 	interval?: number
 	allowedConfirmations?: {
-		confirmationType?: EAuthSessionGuardType
+		confirmationType?: typeof EAuthSessionGuardType[keyof typeof EAuthSessionGuardType]
 		associatedMessage?: string
 	}[]
 	version?: number
@@ -61,12 +62,12 @@ export type CAuthentication_BeginAuthSessionViaCredentials_Request = {
 	encryptedPassword?: string
 	encryptionTimestamp?: Long
 	rememberLogin?: boolean
-	platformType?: EAuthTokenPlatformType
-	persistence?: ESessionPersistence
+	platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
+	persistence?: typeof ESessionPersistence[keyof typeof ESessionPersistence]
 	websiteId?: string
 	deviceDetails?: {
 		deviceFriendlyName?: string
-		platformType?: EAuthTokenPlatformType
+		platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
 		osType?: number
 		gamingDeviceType?: number
 		clientCount?: number
@@ -82,7 +83,7 @@ export type CAuthentication_BeginAuthSessionViaCredentials_Response = {
 	requestId?: Buffer
 	interval?: number
 	allowedConfirmations?: {
-		confirmationType?: EAuthSessionGuardType
+		confirmationType?: typeof EAuthSessionGuardType[keyof typeof EAuthSessionGuardType]
 		associatedMessage?: string
 	}[]
 	steamid?: Long
@@ -118,13 +119,13 @@ export type CAuthentication_GetAuthSessionInfo_Response = {
 	city?: string
 	state?: string
 	country?: string
-	platformType?: EAuthTokenPlatformType
+	platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
 	deviceFriendlyName?: string
 	version?: number
-	loginHistory?: EAuthSessionSecurityHistory
+	loginHistory?: typeof EAuthSessionSecurityHistory[keyof typeof EAuthSessionSecurityHistory]
 	requestorLocationMismatch?: boolean
 	highUsageLogin?: boolean
-	requestedPersistence?: ESessionPersistence
+	requestedPersistence?: typeof ESessionPersistence[keyof typeof ESessionPersistence]
 }
 
 export type CAuthentication_UpdateAuthSessionWithMobileConfirmation_Request = {
@@ -133,7 +134,7 @@ export type CAuthentication_UpdateAuthSessionWithMobileConfirmation_Request = {
 	steamid?: Long
 	signature?: Buffer
 	confirm?: boolean
-	persistence?: ESessionPersistence
+	persistence?: typeof ESessionPersistence[keyof typeof ESessionPersistence]
 }
 
 export type CAuthentication_UpdateAuthSessionWithMobileConfirmation_Response = {
@@ -143,7 +144,7 @@ export type CAuthentication_UpdateAuthSessionWithSteamGuardCode_Request = {
 	clientId?: Long
 	steamid?: Long
 	code?: string
-	codeType?: EAuthSessionGuardType
+	codeType?: typeof EAuthSessionGuardType[keyof typeof EAuthSessionGuardType]
 }
 
 export type CAuthentication_UpdateAuthSessionWithSteamGuardCode_Response = {
@@ -153,7 +154,7 @@ export type CAuthentication_UpdateAuthSessionWithSteamGuardCode_Response = {
 export type CAuthentication_AccessToken_GenerateForApp_Request = {
 	refreshToken?: string
 	steamid?: Long
-	renewalType?: ETokenRenewalType
+	renewalType?: typeof ETokenRenewalType[keyof typeof ETokenRenewalType]
 }
 
 export type CAuthentication_AccessToken_GenerateForApp_Response = {
@@ -169,7 +170,7 @@ export type CAuthentication_RefreshToken_Enumerate_Response = {
 		tokenId?: Long
 		tokenDescription?: string
 		timeUpdated?: number
-		platformType?: EAuthTokenPlatformType
+		platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
 		loggedIn?: boolean
 		osPlatform?: number
 		authType?: number
@@ -221,7 +222,7 @@ export type CAuthentication_MigrateMobileSession_Response = {
 
 export type CAuthentication_Token_Revoke_Request = {
 	token?: string
-	revokeAction?: EAuthTokenRevokeAction
+	revokeAction?: typeof EAuthTokenRevokeAction[keyof typeof EAuthTokenRevokeAction]
 }
 
 export type CAuthentication_Token_Revoke_Response = {
@@ -230,7 +231,7 @@ export type CAuthentication_Token_Revoke_Response = {
 export type CAuthentication_RefreshToken_Revoke_Request = {
 	tokenId?: Long
 	steamid?: Long
-	revokeAction?: EAuthTokenRevokeAction
+	revokeAction?: typeof EAuthTokenRevokeAction[keyof typeof EAuthTokenRevokeAction]
 	signature?: Buffer
 }
 
@@ -246,8 +247,8 @@ export type CSupportRefreshTokenDescription = {
 	tokenId?: Long
 	tokenDescription?: string
 	timeUpdated?: number
-	platformType?: EAuthTokenPlatformType
-	tokenState?: EAuthTokenState
+	platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
+	tokenState?: typeof EAuthTokenState[keyof typeof EAuthTokenState]
 	ownerSteamid?: Long
 	osPlatform?: number
 	osType?: number
@@ -280,8 +281,8 @@ export type CAuthenticationSupport_QueryRefreshTokensByAccount_Response = {
 		tokenId?: Long
 		tokenDescription?: string
 		timeUpdated?: number
-		platformType?: EAuthTokenPlatformType
-		tokenState?: EAuthTokenState
+		platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
+		tokenState?: typeof EAuthTokenState[keyof typeof EAuthTokenState]
 		ownerSteamid?: Long
 		osPlatform?: number
 		osType?: number
@@ -320,8 +321,8 @@ export type CAuthenticationSupport_QueryRefreshTokenByID_Response = {
 		tokenId?: Long
 		tokenDescription?: string
 		timeUpdated?: number
-		platformType?: EAuthTokenPlatformType
-		tokenState?: EAuthTokenState
+		platformType?: typeof EAuthTokenPlatformType[keyof typeof EAuthTokenPlatformType]
+		tokenState?: typeof EAuthTokenState[keyof typeof EAuthTokenState]
 		ownerSteamid?: Long
 		osPlatform?: number
 		osType?: number

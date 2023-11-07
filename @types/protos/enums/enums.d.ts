@@ -1,9 +1,9 @@
 /**
  * Auto-generated file
- * Sun Nov 05 2023 23:46:33 GMT-0500 (Eastern Standard Time)
+ * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
  */
 
-declare enum EPublishedFileQueryType {
+declare const EPublishedFileQueryType = {
 	RankedByVote = 0,
 	RankedByPublicationDate = 1,
 	AcceptedForGameRankedByAcceptanceDate = 2,
@@ -26,24 +26,24 @@ declare enum EPublishedFileQueryType {
 	RankedByInappropriateContentRating = 19,
 	RankedByBanContentCheck = 20,
 	RankedByLastUpdatedDate = 21,
-}
+} as const;
 
-declare enum EPublishedFileInappropriateProvider {
+declare const EPublishedFileInappropriateProvider = {
 	Invalid = 0,
 	Google = 1,
 	Amazon = 2,
-}
+} as const;
 
-declare enum EPublishedFileInappropriateResult {
+declare const EPublishedFileInappropriateResult = {
 	NotScanned = 0,
 	VeryUnlikely = 1,
 	Unlikely = 30,
 	Possible = 50,
 	Likely = 75,
 	VeryLikely = 100,
-}
+} as const;
 
-declare enum EPersonaStateFlag {
+declare const EPersonaStateFlag = {
 	HasRichPresence = 1,
 	InJoinableGame = 2,
 	Golden = 4,
@@ -54,16 +54,16 @@ declare enum EPersonaStateFlag {
 	ClientTypeVR = 2048,
 	LaunchTypeGamepad = 4096,
 	LaunchTypeCompatTool = 8192,
-}
+} as const;
 
-declare enum EContentCheckProvider {
+declare const EContentCheckProvider = {
 	Invalid = 0,
 	Amazon = 2,
 	Local = 3,
 	GoogleVertexAI = 4,
-}
+} as const;
 
-declare enum EProfileCustomizationType {
+declare const EProfileCustomizationType = {
 	Invalid = 0,
 	RareAchievementShowcase = 1,
 	GameCollector = 2,
@@ -89,31 +89,31 @@ declare enum EProfileCustomizationType {
 	SingleArtworkShowcase = 22,
 	AchievementsCompletionist = 23,
 	Replay = 24,
-}
+} as const;
 
-declare enum EPublishedFileStorageSystem {
+declare const EPublishedFileStorageSystem = {
 	Invalid = 0,
 	LegacyCloud = 1,
 	Depot = 2,
 	UGCCloud = 3,
-}
+} as const;
 
-declare enum ECloudStoragePersistState {
+declare const ECloudStoragePersistState = {
 	Persisted = 0,
 	Forgotten = 1,
 	Deleted = 2,
-}
+} as const;
 
-declare enum ESDCardFormatStage {
+declare const ESDCardFormatStage = {
 	Invalid = 0,
 	Starting = 1,
 	Testing = 2,
 	Rescuing = 3,
 	Formatting = 4,
 	Finalizing = 5,
-}
+} as const;
 
-declare enum EStorageFormatStage {
+declare const EStorageFormatStage = {
 	Invalid = 0,
 	NotRunning = 1,
 	Starting = 2,
@@ -121,21 +121,21 @@ declare enum EStorageFormatStage {
 	Rescuing = 4,
 	Formatting = 5,
 	Finalizing = 6,
-}
+} as const;
 
-declare enum ESystemFanControlMode {
+declare const ESystemFanControlMode = {
 	Invalid = 0,
 	Disabled = 1,
 	Default = 2,
-}
+} as const;
 
-declare enum EColorGamutLabelSet {
+declare const EColorGamutLabelSet = {
 	Default = 0,
 	Native = 1,
 	Boosted = 2,
-}
+} as const;
 
-declare enum EBluetoothDeviceType {
+declare const EBluetoothDeviceType = {
 	Invalid = 0,
 	Unknown = 1,
 	Phone = 2,
@@ -148,15 +148,15 @@ declare enum EBluetoothDeviceType {
 	Joystick = 9,
 	Gamepad = 10,
 	Keyboard = 11,
-}
+} as const;
 
-declare enum ESystemAudioDirection {
+declare const ESystemAudioDirection = {
 	Invalid = 0,
 	Input = 1,
 	Output = 2,
-}
+} as const;
 
-declare enum ESystemAudioChannel {
+declare const ESystemAudioChannel = {
 	Invalid = 0,
 	Aggregated = 1,
 	FrontLeft = 2,
@@ -167,108 +167,108 @@ declare enum ESystemAudioChannel {
 	FrontCenter = 7,
 	Unknown = 8,
 	Mono = 9,
-}
+} as const;
 
-declare enum ESystemAudioPortType {
+declare const ESystemAudioPortType = {
 	Invalid = 0,
 	Unknown = 1,
 	Audio32f = 2,
 	Midi8b = 3,
 	Video32RGBA = 4,
-}
+} as const;
 
-declare enum ESystemAudioPortDirection {
+declare const ESystemAudioPortDirection = {
 	Invalid = 0,
 	Input = 1,
 	Output = 2,
-}
+} as const;
 
-declare enum ESystemServiceState {
+declare const ESystemServiceState = {
 	Unavailable = 0,
 	Disabled = 1,
 	Enabled = 2,
-}
+} as const;
 
-declare enum EGraphicsPerfOverlayLevel {
+declare const EGraphicsPerfOverlayLevel = {
 	Hidden = 0,
 	Basic = 1,
 	Medium = 2,
 	Full = 3,
 	Minimal = 4,
-}
+} as const;
 
-declare enum EGPUPerformanceLevel {
+declare const EGPUPerformanceLevel = {
 	Invalid = 0,
 	Auto = 1,
 	Manual = 2,
 	Low = 3,
 	High = 4,
 	Profiling = 5,
-}
+} as const;
 
-declare enum EScalingFilter {
+declare const EScalingFilter = {
 	Invalid = 0,
 	FSR = 1,
 	Nearest = 2,
 	Integer = 3,
 	Linear = 4,
 	NIS = 5,
-}
+} as const;
 
-declare enum ESplitScalingFilter {
+declare const ESplitScalingFilter = {
 	Invalid = 0,
 	Linear = 1,
 	Nearest = 2,
 	FSR = 3,
 	NIS = 4,
-}
+} as const;
 
-declare enum ESplitScalingScaler {
+declare const ESplitScalingScaler = {
 	Invalid = 0,
 	Auto = 1,
 	Integer = 2,
 	Fit = 3,
 	Fill = 4,
 	Stretch = 5,
-}
+} as const;
 
-declare enum EGamescopeBlurMode {
+declare const EGamescopeBlurMode = {
 	Disabled = 0,
 	IfOccluded = 1,
 	Always = 2,
-}
+} as const;
 
-declare enum ESLSHelper {
+declare const ESLSHelper = {
 	Invalid = 0,
 	Minidump = 1,
 	Kdump = 2,
 	Journal = 3,
 	Gpu = 4,
 	SystemInfo = 5,
-}
+} as const;
 
-declare enum EHDRVisualization {
+declare const EHDRVisualization = {
 	None = 0,
 	Heatmap = 1,
 	Analysis = 2,
 	HeatmapExtended = 3,
 	HeatmapClassic = 4,
-}
+} as const;
 
-declare enum EHDRToneMapOperator {
+declare const EHDRToneMapOperator = {
 	Invalid = 0,
 	Uncharted = 1,
 	Reinhard = 2,
-}
+} as const;
 
-declare enum ECPUGovernor {
+declare const ECPUGovernor = {
 	Invalid = 0,
 	Perf = 1,
 	Powersave = 2,
 	Manual = 3,
-}
+} as const;
 
-declare enum EUpdaterType {
+declare const EUpdaterType = {
 	Invalid = 0,
 	Client = 1,
 	OS = 2,
@@ -277,9 +277,9 @@ declare enum EUpdaterType {
 	Test1 = 5,
 	Test2 = 6,
 	Dummy = 7,
-}
+} as const;
 
-declare enum EUpdaterState {
+declare const EUpdaterState = {
 	Invalid = 0,
 	UpToDate = 2,
 	Checking = 3,
@@ -287,67 +287,67 @@ declare enum EUpdaterState {
 	Applying = 5,
 	ClientRestartPending = 6,
 	SystemRestartPending = 7,
-}
+} as const;
 
-declare enum EStorageBlockContentType {
+declare const EStorageBlockContentType = {
 	Invalid = 0,
 	Unknown = 1,
 	FileSystem = 2,
 	Crypto = 3,
 	Raid = 4,
-}
+} as const;
 
-declare enum EStorageBlockFileSystemType {
+declare const EStorageBlockFileSystemType = {
 	Invalid = 0,
 	Unknown = 1,
 	VFat = 2,
 	Ext4 = 3,
-}
+} as const;
 
-declare enum EStorageDriveMediaType {
+declare const EStorageDriveMediaType = {
 	Invalid = 0,
 	Unknown = 1,
 	HDD = 2,
 	SSD = 3,
 	Removable = 4,
-}
+} as const;
 
-declare enum ESystemDisplayCompatibilityMode {
+declare const ESystemDisplayCompatibilityMode = {
 	Invalid = 0,
 	None = 1,
 	MinimalBandwith = 2,
-}
+} as const;
 
-declare enum ESteamDeckCompatibilityCategory {
+declare const ESteamDeckCompatibilityCategory = {
 	Unknown = 0,
 	Unsupported = 1,
 	Playable = 2,
 	Verified = 3,
-}
+} as const;
 
-declare enum ESteamDeckCompatibilityResultDisplayType {
+declare const ESteamDeckCompatibilityResultDisplayType = {
 	Invisible = 0,
 	Informational = 1,
 	Unsupported = 2,
 	Playable = 3,
 	Verified = 4,
-}
+} as const;
 
-declare enum EACState {
+declare const EACState = {
 	Unknown = 0,
 	Disconnected = 1,
 	Connected = 2,
 	ConnectedSlow = 3,
-}
+} as const;
 
-declare enum EBatteryState {
+declare const EBatteryState = {
 	Unknown = 0,
 	Discharging = 1,
 	Charging = 2,
 	Full = 3,
-}
+} as const;
 
-declare enum EOSBranch {
+declare const EOSBranch = {
 	Unknown = 0,
 	Release = 1,
 	ReleaseCandidate = 2,
@@ -355,9 +355,9 @@ declare enum EOSBranch {
 	BetaCandidate = 4,
 	Main = 5,
 	Staging = 6,
-}
+} as const;
 
-declare enum ECommunityItemClass {
+declare const ECommunityItemClass = {
 	Invalid = 0,
 	Badge = 1,
 	GameCard = 2,
@@ -376,22 +376,22 @@ declare enum ECommunityItemClass {
 	AnimatedAvatar = 15,
 	SteamDeckKeyboardSkin = 16,
 	SteamDeckStartupMovie = 17,
-}
+} as const;
 
-declare enum ESteamDeckCompatibilityFeedback {
+declare const ESteamDeckCompatibilityFeedback = {
 	Unset = 0,
 	Agree = 1,
 	Disagree = 2,
 	Ignore = 3,
-}
+} as const;
 
-declare enum EProvideDeckFeedbackPreference {
+declare const EProvideDeckFeedbackPreference = {
 	Unset = 0,
 	Yes = 1,
 	No = 2,
-}
+} as const;
 
-declare enum ETouchGesture {
+declare const ETouchGesture = {
 	None = 0,
 	Touch = 1,
 	Tap = 2,
@@ -406,22 +406,22 @@ declare enum ETouchGesture {
 	PinchEnd = 11,
 	FlingStart = 12,
 	FlingCancelled = 13,
-}
+} as const;
 
-declare enum ESessionPersistence {
+declare const ESessionPersistence = {
 	Invalid = -1,
 	Ephemeral = 0,
 	Persistent = 1,
-}
+} as const;
 
-declare enum ENewSteamAnnouncementState {
+declare const ENewSteamAnnouncementState = {
 	Invalid = 0,
 	AllRead = 1,
 	NewAnnouncement = 2,
 	FeaturedAnnouncement = 3,
-}
+} as const;
 
-declare enum ECommentThreadType {
+declare const ECommentThreadType = {
 	Invalid = 0,
 	Developer = 2,
 	Public = 3,
@@ -440,24 +440,24 @@ declare enum ECommentThreadType {
 	ClanCuratedApp = 19,
 	QAndASession = 20,
 	Max = 21,
-}
+} as const;
 
-declare enum EBroadcastPermission {
+declare const EBroadcastPermission = {
 	Disabled = 0,
 	FriendsApprove = 1,
 	FriendsAllowed = 2,
 	Public = 3,
 	Subscribers = 4,
-}
+} as const;
 
-declare enum EBroadcastEncoderSetting {
+declare const EBroadcastEncoderSetting = {
 	EBroadcastEncoderBestQuality = 0,
 	EBroadcastEncoderBestPerformance = 1,
-}
+} as const;
 
-declare enum ECloudGamingPlatform {
+declare const ECloudGamingPlatform = {
 	None = 0,
 	Valve = 1,
 	NVIDIA = 2,
-}
+} as const;
 
