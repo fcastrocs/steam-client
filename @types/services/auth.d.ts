@@ -33,7 +33,7 @@ export default class Auth extends EventEmitter {
      * @emits "waitingForConfirmation" "authTokens" "getAuthTokensTimeout"
      * @throws EResult, SteamGuardIsUnknown, SteamGuardIsDisabled
      */
-    getAuthTokensViaCredentials(accountName: string, password: string): Promise<void>;
+    getAuthTokensViaCredentials(accountName: string, password: string, options?: { returnResponse: boolean }): Promise<CAuthentication_BeginAuthSessionViaCredentials_Response>;
     /**
      * Submit Steam Guard Code to auth session
      * @throws EResult, NotWaitingForConfirmation

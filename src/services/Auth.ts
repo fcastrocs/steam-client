@@ -51,7 +51,7 @@ export default class Auth extends EventEmitter {
                 machineId: this.steam.machineId,
             },
             websiteId: "Unknown",
-        } as CAuthentication_BeginAuthSessionViaQR_Request);
+        });
 
         this.checkResult(res);
 
@@ -70,12 +70,16 @@ export default class Auth extends EventEmitter {
      * @emits "waitingForConfirmation" "authTokens" "getAuthTokensTimeout"
      * @throws EResult, SteamGuardIsUnknown, SteamGuardIsDisabled
      */
-    public async getAuthTokensViaCredentials(accountName: string, password: string) {
+    public async getAuthTokensViaCredentials(
+        accountName: string,
+        password: string,
+        options?: { returnResponse: boolean }
+    ): Promise<CAuthentication_BeginAuthSessionViaCredentials_Response> {
         if (this.steam.isLoggedIn) throw new SteamClientError("AlreadyLoggedIn");
 
         const rsa: CAuthentication_GetPasswordRSAPublicKey_Response = await this.steam.conn.sendServiceMethodCall(this.serviceName, "GetPasswordRSAPublicKey", {
             accountName,
-        } as CAuthentication_GetPasswordRSAPublicKey_Request);
+        });
 
         const res: CAuthentication_BeginAuthSessionViaCredentials_Response = await this.steam.conn.sendServiceMethodCall(this.serviceName, "BeginAuthSessionViaCredentials", {
             deviceFriendlyName: this.steam.machineName,
@@ -85,7 +89,11 @@ export default class Auth extends EventEmitter {
             platformType: EAuthTokenPlatformType.SteamClient,
             persistence: ESessionPersistence.Persistent,
             websiteId: "Client",
-        } as CAuthentication_BeginAuthSessionViaCredentials_Request);
+        });
+
+        if (options && options.returnResponse) {
+            return res;
+        }
 
         this.checkResult(res);
 
@@ -107,6 +115,8 @@ export default class Auth extends EventEmitter {
             allowedConfirmations: res.allowedConfirmations,
             timeout: this.timeout,
         } as Confirmation);
+
+        return null;
     }
 
     /**
@@ -125,7 +135,7 @@ export default class Auth extends EventEmitter {
                 steamid: (this.partialSession as CAuthentication_BeginAuthSessionViaCredentials_Response).steamid,
                 code: guardCode,
                 codeType: guardType as unknown as number,
-            } as CAuthentication_UpdateAuthSessionWithSteamGuardCode_Request
+            }
         );
 
         this.checkResult(res);
@@ -136,7 +146,7 @@ export default class Auth extends EventEmitter {
             refreshToken,
             steamid: this.steam.steamId,
             renewalType: ETokenRenewalType.None,
-        } as CAuthentication_AccessToken_GenerateForApp_Request);
+        });
 
         this.checkResult(res);
         return res;
@@ -158,7 +168,7 @@ export default class Auth extends EventEmitter {
             const pollStatus: CAuthentication_PollAuthSessionStatus_Response = await this.steam.conn.sendServiceMethodCall(this.serviceName, "PollAuthSessionStatus", {
                 clientId: this.partialSession.clientId,
                 requestId: this.partialSession.requestId,
-            } as CAuthentication_PollAuthSessionStatus_Request);
+            });
 
             this.checkResult(pollStatus);
 
