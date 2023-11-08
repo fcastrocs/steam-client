@@ -11,7 +11,8 @@ import net from "net";
 import { SocksClient } from "socks";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
 import { SteamClientError } from "../modules/common.js";
-import { EMsg, EResult } from "../modules/language.js";
+import Language from "../modules/language.js";
+const { EMsg, EResult } = Language;
 
 export default class TCPConnection extends Base {
     public readonly timeout: number = 15000;

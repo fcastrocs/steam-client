@@ -1,7 +1,7 @@
 import Steam from "./Steam.js";
-import { EMsg, EResult, EResultMap } from "./modules/language.js";
+import Language from "./modules/language.js";
 import { SteamClientError, isEmpty } from "./modules/common.js";
-import { EOSType, EPersonaState } from "../resources/language/enums.steamd.js";
+import { EOSType } from "../resources/language/enums.steamd.js";
 import Long from "long";
 import type { Friend, LoginOptions, LoginRes } from "../@types/Client.js";
 import type { ConnectionOptions } from "../@types/connections/Base.js";
@@ -15,6 +15,8 @@ import type {
 import type { CMsgClientPersonaState } from "../@types/protos/steammessages_clientserver_friends.js";
 import type { CMsgClientLogon, CMsgClientAccountInfo, CMsgClientLogOnResponse } from "../@types/protos/steammessages_clientserver_login.js";
 import type { CPlayer_GetOwnedGames_Response } from "../@types/protos/steammessages_player.steamclient.js";
+import { ValueOf } from "type-fest";
+const { EMsg, EResult, EResultMap, EPersonaState } = Language;
 
 export default class Client extends Steam {
     private personaState: Friend = {};
@@ -150,7 +152,7 @@ export default class Client extends Steam {
     /**
      * Change player persona state
      */
-    public setPersonaState(personaState: EPersonaState): Promise<Friend> {
+    public setPersonaState(personaState: ValueOf<typeof EPersonaState>): Promise<Friend> {
         return this.changeStatus({ personaState: personaState });
     }
 
@@ -247,7 +249,7 @@ export default class Client extends Steam {
     /**
      * Change player name or persona state
      */
-    private async changeStatus(body: { personaState?: EPersonaState; playerName?: string }): Promise<Friend> {
+    private async changeStatus(body: { personaState?: ValueOf<typeof EPersonaState>; playerName?: string }): Promise<Friend> {
         let somethingChanged = false;
 
         //  make sure something is actually changing

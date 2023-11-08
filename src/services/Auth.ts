@@ -1,7 +1,7 @@
 import NodeRSA from "node-rsa";
 import QRCode from "qrcode";
 import Steam from "../Steam.js";
-import { EResultMap, EResult } from "../modules/language.js";
+import Language from "../modules/language.js";
 import { SteamClientError } from "../modules/common.js";
 import EventEmitter from "events";
 import { EOSType } from "../../resources/language/enums.steamd.js";
@@ -17,6 +17,7 @@ import type {
 } from "../../@types/protos/steammessages_auth.steamclient.js";
 import { ESessionPersistence } from "../../resources/language/enums.js";
 import { EAuthTokenPlatformType, EAuthSessionGuardType, ETokenRenewalType } from "../../resources/language/steammessages_auth.steamclient.js";
+const { EResultMap, EResult } = Language;
 
 export default class Auth extends EventEmitter {
     private waitingForConfirmation: boolean;

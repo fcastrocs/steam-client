@@ -7,14 +7,15 @@
 import { EventEmitter } from "events";
 import { SmartBuffer } from "smart-buffer";
 import Zip from "zlib";
-import { EMsgMap, EMsg } from "../modules/language.js";
+import Language from "../modules/language.js";
 import * as Protos from "../modules/protos.js";
 import Long from "long";
 import { SteamClientError } from "../modules/common.js";
 import { ConnectionOptions, ServiceMethodCall } from "../../@types/connections/Base.js";
-import { UnknownRecord } from "type-fest";
+import { UnknownRecord, ValueOf } from "type-fest";
 import type { CMsgProtoBufHeader, CMsgMulti } from "../../@types/protos/steammessages_base.js";
 import type { CMsgClientLogOnResponse } from "../../@types/protos/steammessages_clientserver_login.js";
+const { EMsgMap, EMsg } = Language;
 
 export default abstract class Base extends EventEmitter {
     private heartBeat: NodeJS.Timeout;
@@ -24,8 +25,8 @@ export default abstract class Base extends EventEmitter {
     private jobIdTimeout = 3 * 60 * 1000;
     private connectionDestroyed = false;
     private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
-    private readonly jobidTargets: Map<EMsg, Long> = new Map();
-    private readonly protoResponses: Map<EMsg, (value: UnknownRecord) => void> = new Map();
+    private readonly jobidTargets: Map<ValueOf<typeof EMsg>, Long> = new Map();
+    private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();
     protected readonly timeout: number = 10000;
     private DEFAULT_STEAMID = Long.fromString("76561197960265728", true);
     private session = {
@@ -42,7 +43,7 @@ export default abstract class Base extends EventEmitter {
     /**
      * Send proto message
      */
-    public sendProto(eMsg: EMsg, payload: UnknownRecord) {
+    public sendProto(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord) {
         const protoHeader = this.buildProtoHeader(eMsg);
         const body = Protos.encode(`CMsg${EMsgMap.get(eMsg)}`, payload);
         this.emit("sendData", Buffer.concat([protoHeader, body]));
@@ -51,7 +52,7 @@ export default abstract class Base extends EventEmitter {
     /**
      * Send proto message and wait for response
      */
-    public sendProtoPromise(eMsg: EMsg, payload: UnknownRecord, resEMsg: EMsg): Promise<UnknownRecord> {
+    public sendProtoPromise(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord, resEMsg: ValueOf<typeof EMsg>): Promise<UnknownRecord> {
         return new Promise((resolve) => {
             this.protoResponses.set(resEMsg, resolve);
             this.sendProto(eMsg, payload);
@@ -233,7 +234,7 @@ export default abstract class Base extends EventEmitter {
     /**
      * build header: [EMsg, CMsgProtoBufHeader length, CMsgProtoBufHeader]
      */
-    private buildProtoHeader(eMsg: EMsg, serviceMethodCall?: ServiceMethodCall): Buffer {
+    private buildProtoHeader(eMsg: ValueOf<typeof EMsg>, serviceMethodCall?: ServiceMethodCall): Buffer {
         const sBuffer = new SmartBuffer();
 
         // EMsg must be PROTO MASKED

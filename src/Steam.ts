@@ -7,13 +7,14 @@ import Credentials from "./services/Credentials.js";
 import Player from "./services/Player.js";
 import Econ from "./services/Econ.js";
 import Store from "./services/Store.js";
-import { EResultMap } from "./modules/language.js";
+import Language from "./modules/language.js";
 import TCPConnection from "./connections/TCPConn.js";
 import EventEmitter from "events";
 import WebSocketConnection from "./connections/WebsocketConn.js";
 import { randomBytes } from "crypto";
 import http from "http";
 import type { ConnectionOptions } from "../@types/connections/Base.js";
+const { EResultMap } = Language;
 
 export default abstract class Steam extends EventEmitter {
     readonly service: {

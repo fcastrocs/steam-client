@@ -7,7 +7,8 @@ import WebSocket from "ws";
 import { SteamClientError } from "../modules/common.js";
 import { SocksProxyAgent } from "socks-proxy-agent";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
-import { EMsg } from "../modules/language.js";
+import Language from "../modules/language.js";
+const { EMsg } = Language;
 
 export default class WebSocketConnection extends Base {
     private ws: WebSocket;
