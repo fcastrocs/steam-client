@@ -5,6 +5,8 @@ import { LanguageType } from "../../@types/index.js";
 import { EResult } from "../../resources/language/EResult.js";
 import { EPersonaState } from "../../resources/language/enums.steamd.js";
 import { EMsg } from "../../resources/language/enums_clientserver.js";
+import { EAuthSessionGuardType } from "../../resources/language/steammessages_auth.steamclient.js";
+
 const { EMsgMap, EResultMap } = createEnumMaps();
 
 const Language: LanguageType = {
@@ -13,6 +15,7 @@ const Language: LanguageType = {
     EMsg,
     EResult,
     EPersonaState,
+    EAuthSessionGuardType,
 } as const;
 
 export default Language;
