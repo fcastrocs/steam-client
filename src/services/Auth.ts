@@ -86,11 +86,11 @@ export default class Auth extends EventEmitter {
             websiteId: "Client",
         });
 
+        this.checkResult(res);
+
         if (options && options.returnResponse) {
             return res;
         }
-
-        this.checkResult(res);
 
         // confirmation type without auth tokens
         for (const item of res.allowedConfirmations) {
