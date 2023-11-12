@@ -133,15 +133,16 @@ describe.sequential("Steam-Client", () => {
 
 const connectToSteam = async (type: ConnectionOptions["type"]) => {
     let steamCM;
+    let proxy: ConnectionOptions["proxy"];
     const timeout = 15000;
 
     if (type === "tcp") {
         steamCM = { host: steamIP_tcp, port: steamPort_tcp };
     } else if (type === "ws") {
         steamCM = { host: steamIP_ws, port: steamPort_ws };
+        // proxy = { type: "", host: "", port: 0, user: "", pass: "" };
     }
-
-    const options: ConnectionOptions = { steamCM, timeout, type };
+    const options: ConnectionOptions = { steamCM, timeout, type, proxy };
     steam = new SteamClient(options);
     await steam.conn.connect();
 };

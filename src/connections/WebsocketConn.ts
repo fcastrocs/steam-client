@@ -8,6 +8,7 @@ import { SteamClientError } from "../modules/common.js";
 import { SocksProxyAgent } from "socks-proxy-agent";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
 import Language from "../modules/language.js";
+import { HttpsProxyAgent } from "https-proxy-agent";
 const { EMsg } = Language;
 
 export default class WebSocketConnection extends Base {
@@ -23,7 +24,11 @@ export default class WebSocketConnection extends Base {
     public async connect(): Promise<void> {
         // set proxy agent if proxy was specified
         const wsOptions = {
-            agent: this.options.proxy ? new SocksProxyAgent(`socks://username:password@${this.options.proxy.host}:${this.options.proxy.port}`) : undefined,
+            agent: !this.options.proxy
+                ? undefined
+                : this.options.proxy.type === "socks"
+                ? new SocksProxyAgent(`socks://${this.options.proxy.user}:${this.options.proxy.pass}@${this.options.proxy.host}:${this.options.proxy.port}`)
+                : new HttpsProxyAgent(`http://${this.options.proxy.user}:${this.options.proxy.pass}@${this.options.proxy.host}:${this.options.proxy.port}`),
         };
 
         const wsURL = "wss://" + `${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`;

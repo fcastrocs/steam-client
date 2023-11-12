@@ -92,7 +92,13 @@ export default class TCPConnection extends Base {
     private async proxyConnect(): Promise<Socket> {
         const { socket } = await SocksClient.createConnection({
             destination: this.options.steamCM,
-            proxy: this.options.proxy,
+            proxy: {
+                host: this.options.proxy.host,
+                port: this.options.proxy.port,
+                type: this.options.proxy.socksType,
+                userId: this.options.proxy.user,
+                password: this.options.proxy.pass,
+            },
             command: "connect",
         });
         return socket;
