@@ -37,6 +37,44 @@ export default class WebSocketConnection extends Base {
             this.decodeData(data as Buffer);
         });
 
+        return new Promise((resolve, reject) => {
+            // expect connection handshake before timeout. This will trigger "error" event
+            const timeoutId = setTimeout(() => {
+                clearTimeout(timeoutId);
+                this.destroyConnection();
+            }, this.timeout);
+
+            const errorListener = (error: Error) => {
+                clearTimeout(timeoutId);
+                this.destroyConnection();
+                reject(new SteamClientError(error.message));
+            };
+
+            this.ws.once("error", errorListener);
+
+            // successfully connected
+            this.ws.once("open", () => {
+                clearTimeout(timeoutId);
+                this.ws.removeListener("error", errorListener);
+                this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
+
+                // register needed events
+                this.registerEvents();
+
+                resolve();
+            });
+        });
+    }
+
+    public destroyConnection(error?: SteamClientError) {
+        super.destroyConnection(error);
+        if (this.ws) {
+            this.removeAllListeners();
+            this.ws.terminate();
+        }
+    }
+
+    private registerEvents() {
         this.ws.once("close", (code) => {
             if (!this.isLoggedIn()) return;
             // not normal close
@@ -49,37 +87,5 @@ export default class WebSocketConnection extends Base {
             if (!this.isLoggedIn()) return;
             this.destroyConnection(new SteamClientError(error.message));
         });
-
-        return new Promise((resolve, reject) => {
-            // expect connection handshake before timeout
-            const timeoutId = setTimeout(() => {
-                this.destroyConnection();
-                reject(new SteamClientError("Connecting to Steam timeout."));
-            }, this.timeout);
-
-            const errorListener = (error: Error) => {
-                clearTimeout(timeoutId);
-                this.destroyConnection();
-                reject(new SteamClientError(error.message));
-            };
-            this.ws.once("error", errorListener);
-
-            // connected
-            this.ws.once("open", () => {
-                clearTimeout(timeoutId);
-                this.ws.removeListener("error", errorListener);
-                this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
-                resolve();
-            });
-        });
-    }
-
-    public destroyConnection(error?: SteamClientError) {
-        super.destroyConnection(error);
-        if (this.ws) {
-            this.removeAllListeners();
-            this.ws.terminate();
-            this.ws.removeAllListeners();
-        }
     }
 }
