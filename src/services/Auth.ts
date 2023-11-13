@@ -14,6 +14,7 @@ import type {
     CAuthentication_UpdateAuthSessionWithSteamGuardCode_Response,
     CAuthentication_AccessToken_GenerateForApp_Response,
     CAuthentication_PollAuthSessionStatus_Response,
+    CAuthentication_BeginAuthSessionViaCredentials_Request,
 } from "../../@types/protos/steammessages_auth.steamclient.js";
 import { ESessionPersistence } from "../../resources/language/enums.js";
 import { EAuthTokenPlatformType, EAuthSessionGuardType, ETokenRenewalType } from "../../resources/language/steammessages_auth.steamclient.js";
@@ -77,14 +78,21 @@ export default class Auth extends EventEmitter {
         });
 
         const res: CAuthentication_BeginAuthSessionViaCredentials_Response = await this.steam.conn.sendServiceMethodCall(this.serviceName, "BeginAuthSessionViaCredentials", {
-            deviceFriendlyName: this.steam.machineName,
             accountName,
             encryptedPassword: this.encryptPass(password, rsa.publickeyMod, rsa.publickeyExp),
             encryptionTimestamp: rsa.timestamp,
-            platformType: EAuthTokenPlatformType.SteamClient,
+            rememberLogin: true,
             persistence: ESessionPersistence.Persistent,
-            websiteId: "Client",
-        });
+            websiteId: "Unknown",
+            language: 0,
+            deviceDetails: {
+                deviceFriendlyName: this.steam.machineName,
+                platformType: EAuthTokenPlatformType.SteamClient,
+                osType: EOSType.Win11,
+                gamingDeviceType: 1,
+                machineId: this.steam.machineId,
+            },
+        } as CAuthentication_BeginAuthSessionViaCredentials_Request);
 
         this.checkResult(res);
 

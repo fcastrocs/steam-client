@@ -263,7 +263,7 @@ const getAuthTokensViaCredentials = async () => {
     // auth was preloaded
 
     steam.service.auth.on("waitingForConfirmation", (res: Confirmation) => console.log(res));
-    steam.service.auth.getAuthTokensViaCredentials("sky111222333@hotmail.com", "Chivas10@");
+    steam.service.auth.getAuthTokensViaCredentials("", "");
 
     return new Promise((resolve, reject) => {
         steam.service.auth.on("authTokens", (authTokens) => {
