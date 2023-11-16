@@ -3,7 +3,7 @@
  */
 
 import Base from "./Base.js";
-import WebSocket from "ws";
+import WebSocket, { ClientOptions } from "ws";
 import { SteamClientError } from "../modules/common.js";
 import { SocksProxyAgent } from "socks-proxy-agent";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
@@ -23,7 +23,7 @@ export default class WebSocketConnection extends Base {
 
     public async connect(): Promise<void> {
         // set proxy agent if proxy was specified
-        const wsOptions = {
+        const wsOptions: ClientOptions = {
             agent: !this.options.proxy
                 ? undefined
                 : this.options.proxy.type === "socks"
@@ -46,12 +46,11 @@ export default class WebSocketConnection extends Base {
             // expect connection handshake before timeout. This will trigger "error" event
             const timeoutId = setTimeout(() => {
                 clearTimeout(timeoutId);
-                this.destroyConnection();
+                reject(new SteamClientError("Could not connect to Steam WS (timeout)"));
             }, this.timeout);
 
             const errorListener = (error: Error) => {
                 clearTimeout(timeoutId);
-                this.destroyConnection();
                 reject(new SteamClientError(error.message));
             };
 
@@ -62,10 +61,8 @@ export default class WebSocketConnection extends Base {
                 clearTimeout(timeoutId);
                 this.ws.removeListener("error", errorListener);
                 this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
-
                 // register needed events
                 this.registerEvents();
-
                 resolve();
             });
         });
