@@ -34,7 +34,7 @@
         "smart-buffer": "^4.2.0",
         "socks": "^2.7.1",
         "socks-proxy-agent": "^8.0.2",
-        "type-fest": "^4.7.1",
+        "type-fest": "^4.8.1",
         "ws": "^8.14.2"
     },
     "devDependencies": {
