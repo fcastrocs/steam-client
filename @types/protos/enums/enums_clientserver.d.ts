@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
+ * Mon Nov 27 2023 00:11:40 GMT-0500 (Eastern Standard Time)
  */
 
 declare const EMsg = {
@@ -474,9 +474,6 @@ declare const EMsg = {
 	BaseDP = 1600,
 	DPSetPublishingState = 1601,
 	DPUniquePlayersStat = 1603,
-	DPStreamingUniquePlayersStat = 1604,
-	DPBlockingStats = 1607,
-	DPNatTraversalStats = 1608,
 	DPCloudStats = 1612,
 	DPGetPlayerCount = 1615,
 	DPGetPlayerCountResponse = 1616,
@@ -678,7 +675,6 @@ declare const EMsg = {
 	AMSetUserNewsSubscriptions = 4149,
 	AMSendQueuedEmails = 4152,
 	AMSetLicenseFlags = 4153,
-	CommunityDeleteUserNews = 4155,
 	AMGetAccountStatus = 4158,
 	AMGetAccountStatusResponse = 4159,
 	AMEditBanReason = 4160,

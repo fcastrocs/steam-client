@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
+ * Mon Nov 27 2023 00:11:40 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
@@ -321,6 +321,15 @@ export type CStore_GetDiscoveryQueueSkippedApps_Response = {
 	appids?: number[]
 }
 
+export type CStore_ReportApp_Request = {
+	appid?: number
+	reportType?: typeof EAppReportType[keyof typeof EAppReportType]
+	report?: string
+}
+
+export type CStore_ReportApp_Response = {
+}
+
 export type CStore_GetStorePreferences_Request = {
 }
 
@@ -392,6 +401,58 @@ export type CStore_MigratePartnerLinkTracking_Notification = {
 	accountid?: number
 	browserid?: Long
 	backfillSource?: typeof EPartnerLinkTrackingBackfillSource[keyof typeof EPartnerLinkTrackingBackfillSource]
+}
+
+export type CReservationPositionMessage = {
+	edistributor?: number
+	productIdentifier?: string
+	startQueuePosition?: number
+	rtimeEstimatedNotification?: number
+	localizationToken?: string
+	accountid?: number
+	rtimeCreated?: number
+}
+
+export type CStore_SetReservationPositionMessage_Request = {
+	settings?: {
+		edistributor?: number
+		productIdentifier?: string
+		startQueuePosition?: number
+		rtimeEstimatedNotification?: number
+		localizationToken?: string
+		accountid?: number
+		rtimeCreated?: number
+	}[]
+}
+
+export type CStore_SetReservationPositionMessage_Response = {
+}
+
+export type CStore_DeleteReservationPositionMessage_Request = {
+	edistributor?: number
+	productIdentifier?: string
+	startQueuePosition?: number
+}
+
+export type CStore_DeleteReservationPositionMessage_Response = {
+}
+
+export type CStore_GetAllReservationPositionMessages_Request = {
+}
+
+export type CStore_GetAllReservationPositionMessages_Response = {
+	settings?: {
+		edistributor?: number
+		productIdentifier?: string
+		startQueuePosition?: number
+		rtimeEstimatedNotification?: number
+		localizationToken?: string
+		accountid?: number
+		rtimeCreated?: number
+	}[]
+}
+
+export type CStore_ReloadAllReservationPositionMessages_Notification = {
 }
 
 export type CSteamDeckCompatibility_SetFeedback_Request = {

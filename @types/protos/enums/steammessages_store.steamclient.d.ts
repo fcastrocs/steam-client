@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
+ * Mon Nov 27 2023 00:11:40 GMT-0500 (Eastern Standard Time)
  */
 
 declare const EStoreDiscoveryQueueType = {
@@ -26,6 +26,24 @@ declare const EPlaytestStatus = {
 	ETesterStatusPending = 1,
 	ETesterStatusInvited = 2,
 	ETesterStatusGranted = 3,
+} as const;
+
+declare const EAppReportType = {
+	Invalid = 0,
+	Scam = 1,
+	Malware = 2,
+	HateSpeech = 3,
+	Pornography = 4,
+	NonLabeledAdultContent = 5,
+	Libelous = 6,
+	Offensive = 7,
+	ExploitsChildren = 8,
+	MtxWithNonSteamWalletPaymentMethods = 9,
+	CopyrightViolation = 10,
+	ViolatesLaws = 11,
+	Other = 12,
+	Broken = 13,
+	AIContentReport = 14,
 } as const;
 
 declare const EUserReviewScorePreference = {

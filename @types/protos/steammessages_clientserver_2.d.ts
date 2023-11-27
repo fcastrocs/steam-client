@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
+ * Mon Nov 27 2023 00:11:40 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
@@ -715,6 +715,7 @@ export type CMsgClientStartPeerContentServerResponse = {
 	result?: number
 	serverPort?: number
 	installedDepots?: number[]
+	accessToken?: Long
 }
 
 export type CMsgClientGetPeerContentInfo = {

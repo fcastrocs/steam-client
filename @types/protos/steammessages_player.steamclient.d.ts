@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Tue Nov 07 2023 11:47:11 GMT-0500 (Eastern Standard Time)
+ * Mon Nov 27 2023 00:11:40 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
@@ -653,6 +653,18 @@ export type CPlayer_GetEmoticonList_Response = {
 		useCount?: number
 		timeReceived?: number
 		appid?: number
+	}[]
+}
+
+export type CPlayer_GetCommunityBadgeProgress_Request = {
+	steamid?: Long
+	badgeid?: number
+}
+
+export type CPlayer_GetCommunityBadgeProgress_Response = {
+	quests?: {
+		questid?: number
+		completed?: boolean
 	}[]
 }
 
