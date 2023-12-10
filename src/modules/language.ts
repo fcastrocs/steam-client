@@ -10,32 +10,32 @@ import { EAuthSessionGuardType } from "../../resources/language/steammessages_au
 const { EMsgMap, EResultMap } = createEnumMaps();
 
 const Language: LanguageType = {
-    EMsgMap,
-    EResultMap,
-    EMsg,
-    EResult,
-    EPersonaState,
-    EAuthSessionGuardType,
+  EMsgMap,
+  EResultMap,
+  EMsg,
+  EResult,
+  EPersonaState,
+  EAuthSessionGuardType,
 } as const;
 
 export default Language;
 
 function createEnumMaps() {
-    const EnumsMap: Map<EMsg, keyof typeof EMsg> = new Map();
-    const EResultMap: Map<EResult, keyof typeof EResult> = new Map();
+  const EnumsMap: Map<EMsg, keyof typeof EMsg> = new Map();
+  const EResultMap: Map<EResult, keyof typeof EResult> = new Map();
 
-    for (const key in EMsg) {
-        const value = EMsg[key as keyof typeof EMsg];
-        EnumsMap.set(value, key as keyof typeof EMsg);
-    }
+  for (const key in EMsg) {
+    const value = EMsg[key as keyof typeof EMsg];
+    EnumsMap.set(value, key as keyof typeof EMsg);
+  }
 
-    for (const key in EResult) {
-        const value = EResult[key as keyof typeof EResult];
-        EResultMap.set(value, key as keyof typeof EResult);
-    }
+  for (const key in EResult) {
+    const value = EResult[key as keyof typeof EResult];
+    EResultMap.set(value, key as keyof typeof EResult);
+  }
 
-    return {
-        EMsgMap: EnumsMap,
-        EResultMap: EResultMap,
-    };
+  return {
+    EMsgMap: EnumsMap,
+    EResultMap: EResultMap,
+  };
 }
