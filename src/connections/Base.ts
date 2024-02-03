@@ -23,7 +23,7 @@ export default abstract class Base extends EventEmitter {
   protected readonly PROTO_MASK = 0x80000000;
   private JOB_NONE = Long.fromString("18446744073709551615", true);
   private jobIdTimeout = 3 * 60 * 1000;
-  private connectionDestroyed = false;
+  protected connectionDestroyed = false;
   private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
   private readonly jobidTargets: Map<ValueOf<typeof EMsg>, Long> = new Map();
   private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();

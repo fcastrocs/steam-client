@@ -58,10 +58,20 @@ export default class TCPConnection extends Base {
         this.encrypted = true;
 
         // catch all transmission errors
-        this.socket.on("error", (err) => this.destroyConnection(new SteamClientError(err.message)));
-        this.socket.on("close", () => this.destroyConnection(new SteamClientError("Remote host closed connection.")));
-        this.socket.on("end", () => this.destroyConnection(new SteamClientError("Connection ended.")));
-        this.socket.on("timeout", () => this.destroyConnection(new SteamClientError("Connection timed out.")));
+        this.socket.on("error", (err) =>
+          this.destroyConnection(new SteamClientError(err.message))
+        );
+        this.socket.on("close", () =>
+          this.destroyConnection(
+            new SteamClientError("Remote host closed connection.")
+          )
+        );
+        this.socket.on("end", () =>
+          this.destroyConnection(new SteamClientError("Connection ended."))
+        );
+        this.socket.on("timeout", () =>
+          this.destroyConnection(new SteamClientError("Connection timed out."))
+        );
 
         this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
         resolve();
@@ -79,7 +89,8 @@ export default class TCPConnection extends Base {
     return new Promise((resolve, reject) => {
       const socket = net.createConnection(this.options.steamCM);
 
-      const errorListener = (error: Error) => reject(new SteamClientError(error.message));
+      const errorListener = (error: Error) =>
+        reject(new SteamClientError(error.message));
       socket.once("error", errorListener);
 
       socket.once("connect", () => {
@@ -185,15 +196,22 @@ export default class TCPConnection extends Base {
       if (EMsgReceived === EMsg.ChannelEncryptResult) {
         return this.ChannelEncryptResult(sbuffer);
       }
-    } else {
-      try {
-        packet = SteamCrypto.decrypt(packet, this.encryptionKey.plain);
-        this.decodeData(packet);
-      } catch (error) {
-        this.destroyConnection(new SteamClientError("Data Encryption failed."));
-        return;
-      }
+
+      return;
     }
+
+    try {
+      packet = SteamCrypto.decrypt(packet, this.encryptionKey.plain);
+    } catch (error) {
+      this.destroyConnection(new SteamClientError("Data Encryption failed."));
+      return;
+    }
+
+    if (this.connectionDestroyed) {
+      return;
+    }
+
+    this.decodeData(packet);
   }
 
   /**

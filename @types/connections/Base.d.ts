@@ -37,6 +37,7 @@ export default abstract class Base extends EventEmitter {
     protected options: ConnectionOptions;
     protected readonly MAGIC = "VT01";
     protected readonly PROTO_MASK = 2147483648;
+    protected connectionDestroyed: boolean;
     constructor(options: ConnectionOptions);
     /**
      * Send proto message
