@@ -207,10 +207,6 @@ export default class TCPConnection extends Base {
       return;
     }
 
-    if (this.connectionDestroyed) {
-      return;
-    }
-
     this.decodeData(packet);
   }
 

@@ -23,7 +23,7 @@ export default abstract class Base extends EventEmitter {
   protected readonly PROTO_MASK = 0x80000000;
   private JOB_NONE = Long.fromString("18446744073709551615", true);
   private jobIdTimeout = 3 * 60 * 1000;
-  protected connectionDestroyed = false;
+  private connectionDestroyed = false;
   private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
   private readonly jobidTargets: Map<ValueOf<typeof EMsg>, Long> = new Map();
   private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();
@@ -115,6 +115,8 @@ export default abstract class Base extends EventEmitter {
    * NonProtoBuf: [ header: [EMsg, header length, ExtendedHeader], body: raw bytes] ]
    */
   protected decodeData(data: Buffer): void {
+    if(this.connectionDestroyed) return;
+
     const packet = SmartBuffer.fromBuffer(data);
 
     const rawEMsg = packet.readUInt32LE();
@@ -219,8 +221,9 @@ export default abstract class Base extends EventEmitter {
   protected destroyConnection(error?: SteamClientError) {
     // make sure method is called only once
     if (this.connectionDestroyed) return;
-    this.session = null;
+
     this.connectionDestroyed = true;
+    this.session = null;
 
     // emmit if disconnect happened because of an error
     if (error) this.emit("disconnected", error);
