@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon Nov 27 2023 00:11:40 GMT-0500 (Eastern Standard Time)
+ * Fri Feb 02 2024 20:32:00 GMT-0500 (Eastern Standard Time)
  */
 
 import Long from "long";
@@ -727,5 +727,15 @@ export type CMsgClientGetPeerContentInfo = {
 export type CMsgClientGetPeerContentInfoResponse = {
 	result?: number
 	apps?: number[]
+}
+
+export type CMsgClientPendingGameLaunch = {
+	appId?: number
+}
+
+export type CMsgClientPendingGameLaunchResponse = {
+	eresult?: number
+	appId?: number
+	envkey?: string
 }
 

@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon Nov 27 2023 00:11:40 GMT-0500 (Eastern Standard Time)
+ * Fri Feb 02 2024 20:32:00 GMT-0500 (Eastern Standard Time)
  */
 
 export enum EMsg {
@@ -1301,15 +1301,6 @@ export enum EMsg {
 	ClientUGSGetGlobalStatsResponse = 7902,
 	StoreBase = 8000,
 	UMQBase = 8100,
-	UMQLogonRequest = 8100,
-	UMQLogonResponse = 8101,
-	UMQLogoffRequest = 8102,
-	UMQLogoffResponse = 8103,
-	UMQSendChatMessage = 8104,
-	UMQIncomingChatMessage = 8105,
-	UMQPoll = 8106,
-	UMQPollResults = 8107,
-	ClientMsgBatch = 8108,
 	WorkshopBase = 8200,
 	WebAPIBase = 8300,
 	WebAPIValidateOAuth2Token = 8300,
@@ -1454,6 +1445,8 @@ export enum EMsg {
 	WGConnectionValidateUserTokenResponse = 12202,
 	WGConnectionLegacyWGRequest = 12203,
 	WGConnectionLegacyWGResponse = 12204,
+	ClientPendingGameLaunch = 12300,
+	ClientPendingGameLaunchResponse = 12301,
 }
 
 export enum EClientPersonaStateFlag {

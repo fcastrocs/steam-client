@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon Nov 27 2023 00:11:40 GMT-0500 (Eastern Standard Time)
+ * Fri Feb 02 2024 20:32:00 GMT-0500 (Eastern Standard Time)
  */
 
 declare const EPublishedFileQueryType = {
@@ -337,6 +337,14 @@ declare const ESteamDeckCompatibilityResultDisplayType = {
 	Unsupported = 2,
 	Playable = 3,
 	Verified = 4,
+} as const;
+
+declare const ESteamDeckCompatibilityTestResult = {
+	Invalid = 0,
+	NotApplicable = 1,
+	Pass = 2,
+	Fail = 3,
+	FailMinor = 4,
 } as const;
 
 declare const EACState = {
