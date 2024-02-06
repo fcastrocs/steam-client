@@ -115,7 +115,7 @@ export default abstract class Base extends EventEmitter {
    * NonProtoBuf: [ header: [EMsg, header length, ExtendedHeader], body: raw bytes] ]
    */
   protected decodeData(data: Buffer): void {
-    if(this.connectionDestroyed) return;
+    if(!this.isConnected()) return;
 
     const packet = SmartBuffer.fromBuffer(data);
 
@@ -287,5 +287,9 @@ export default abstract class Base extends EventEmitter {
       this.decodeData(payload.subarray(4, 4 + subSize));
       payload = payload.subarray(4 + subSize);
     }
+  }
+
+  private isConnected(){
+    return !this.connectionDestroyed && !!this.session
   }
 }
