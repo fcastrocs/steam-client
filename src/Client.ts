@@ -23,7 +23,13 @@ import { ValueOf } from "type-fest";
 
 const { EMsg, EResult, EResultMap, EPersonaState } = Language;
 // responses that should be received before login is complete
-const LOGIN_RESPONSES = ["ClientAccountInfo", "ClientEmailAddrInfo", "ClientIsLimitedAccount", "ClientVACBanStatus"];
+const LOGIN_RESPONSES = [
+  "ClientAccountInfo",
+  "ClientEmailAddrInfo",
+  "ClientIsLimitedAccount",
+  "ClientVACBanStatus",
+  "SteamContextItems",
+];
 
 export default class Client extends Steam {
   private personaState: Friend = {};
@@ -98,43 +104,49 @@ export default class Client extends Steam {
 
     let responses = [...LOGIN_RESPONSES];
 
-    // remove received responses
-    const receivedResponse = (response: string) => (responses = responses.filter((res) => res !== response));
-
     return new Promise(async (resolve, reject) => {
       // expect responses to be received before timeout
       const timeout = setTimeout(() => {
-        clearInterval(interval);
         this.disconnect();
         reject(new SteamClientError("Did not receive responses: " + responses.toString()));
       }, this.conn.timeout);
 
+      const checkCanResolve = (receivedResponse: string) => {
+        // remove received response
+        responses = responses.filter((res) => res !== receivedResponse);
+        if (responses.length) {
+          return;
+        }
+        clearTimeout(timeout);
+        // set extra peroperties to loginRes here
+        loginRes.clientPlayingSessionState = this._playingSessionState;
+        resolve(loginRes);
+      };
+
       this.conn.once("ClientAccountInfo", async (body: CMsgClientAccountInfo) => {
         loginRes.clientAccountInfo = body;
-
         // it will eventually be caught by received responses
         try {
           loginRes.clientPersonaState = await this.setPersonaState(EPersonaState.Online);
         } catch (error) {
           return;
         }
-
-        receivedResponse("ClientAccountInfo");
+        checkCanResolve("ClientAccountInfo");
       });
 
       this.conn.once("ClientEmailAddrInfo", (body: CMsgClientEmailAddrInfo) => {
         loginRes.clientEmailAddrInfo = body;
-        receivedResponse("ClientEmailAddrInfo");
+        checkCanResolve("ClientEmailAddrInfo");
       });
 
       this.conn.once("ClientIsLimitedAccount", (body: CMsgClientIsLimitedAccount) => {
         loginRes.clientIsLimitedAccount = body;
-        receivedResponse("ClientIsLimitedAccount");
+        checkCanResolve("ClientIsLimitedAccount");
       });
 
       this.conn.once("ClientVACBanStatus", (body) => {
         loginRes.clientVACBanStatus = body;
-        receivedResponse("ClientVACBanStatus");
+        checkCanResolve("ClientVACBanStatus");
       });
 
       // send login request to steam
@@ -144,25 +156,21 @@ export default class Client extends Steam {
         EMsg.ClientLogOnResponse
       );
 
+      // good login
       if (res.eresult === EResult.OK) {
         loginRes.steamId = res.clientSuppliedSteamid.toString();
         loginRes.games = await this.service.player.getOwnedGames();
         loginRes.inventory = {
           steam: await this.service.econ.getSteamContextItems(),
         };
-      } else {
-        this.disconnect();
-        throw new SteamClientError(EResultMap.get(res.eresult));
-      }
 
-      // check whether user is logged in every second
-      const interval = setInterval(() => {
-        if (responses.length) return;
+        checkCanResolve("SteamContextItems");
+      } else {
+        // bad login
         clearTimeout(timeout);
-        clearInterval(interval);
-        loginRes.clientPlayingSessionState = this._playingSessionState;
-        resolve(loginRes);
-      }, 1000);
+        this.disconnect();
+        reject(new SteamClientError(EResultMap.get(res.eresult)));
+      }
     });
   }
 
