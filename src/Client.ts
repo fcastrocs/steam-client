@@ -20,7 +20,10 @@ import type {
 } from "../@types/protos/steammessages_clientserver_login.js";
 import type { CPlayer_GetOwnedGames_Response } from "../@types/protos/steammessages_player.steamclient.js";
 import { ValueOf } from "type-fest";
+
 const { EMsg, EResult, EResultMap, EPersonaState } = Language;
+// responses that should be received before login is complete
+const LOGIN_RESPONSES = ["ClientAccountInfo", "ClientEmailAddrInfo", "ClientIsLimitedAccount", "ClientVACBanStatus"];
 
 export default class Client extends Steam {
   private personaState: Friend = {};
@@ -63,6 +66,7 @@ export default class Client extends Steam {
       this.verifyRefreshToken(options.refreshToken);
     }
 
+    // configure options
     options = {
       ...options,
       protocolVersion: 65580,
@@ -84,60 +88,72 @@ export default class Client extends Steam {
       priorityReason: 11,
       accessToken: options.refreshToken,
     } as CMsgClientLogon;
-
     delete options.refreshToken;
-    const loginRes = { machineName: options.machineName, machineId: options.machineId } as LoginRes;
 
-    loginRes.steamId;
-    let responses = ["ClientAccountInfo", "ClientEmailAddrInfo", "ClientIsLimitedAccount", "ClientVACBanStatus"];
+    // setup response
+    const loginRes = {
+      machineName: options.machineName,
+      machineId: options.machineId,
+    } as LoginRes;
+
+    let responses = [...LOGIN_RESPONSES];
 
     // remove received responses
-    const receivedResponse = (response: string) => (responses = responses.filter((item) => item !== response));
+    const receivedResponse = (response: string) => (responses = responses.filter((res) => res !== response));
 
-    this.conn.once("ClientAccountInfo", async (body: CMsgClientAccountInfo) => {
-      loginRes.clientAccountInfo = body;
-      loginRes.clientPersonaState = await this.setPersonaState(EPersonaState.Online);
-      receivedResponse("ClientAccountInfo");
-    });
-
-    this.conn.once("ClientEmailAddrInfo", (body: CMsgClientEmailAddrInfo) => {
-      loginRes.clientEmailAddrInfo = body;
-      receivedResponse("ClientEmailAddrInfo");
-    });
-
-    this.conn.once("ClientIsLimitedAccount", (body: CMsgClientIsLimitedAccount) => {
-      loginRes.clientIsLimitedAccount = body;
-      receivedResponse("ClientIsLimitedAccount");
-    });
-
-    this.conn.once("ClientVACBanStatus", (body) => {
-      loginRes.clientVACBanStatus = body;
-      receivedResponse("ClientVACBanStatus");
-    });
-
-    // send login request to steam
-    const res: CMsgClientLogOnResponse = await this.conn.sendProtoPromise(
-      EMsg.ClientLogon,
-      options,
-      EMsg.ClientLogOnResponse
-    );
-
-    if (res.eresult === EResult.OK) {
-      loginRes.steamId = res.clientSuppliedSteamid.toString();
-      loginRes.games = await this.service.player.getOwnedGames();
-      loginRes.inventory = { steam: await this.service.econ.getSteamContextItems() };
-    } else {
-      this.disconnect();
-      throw new SteamClientError(EResultMap.get(res.eresult));
-    }
-
-    return new Promise((resolve, reject) => {
-      // expect responses to occur before timeout
+    return new Promise(async (resolve, reject) => {
+      // expect responses to be received before timeout
       const timeout = setTimeout(() => {
         clearInterval(interval);
         this.disconnect();
         reject(new SteamClientError("Did not receive responses: " + responses.toString()));
       }, this.conn.timeout);
+
+      this.conn.once("ClientAccountInfo", async (body: CMsgClientAccountInfo) => {
+        loginRes.clientAccountInfo = body;
+
+        // it will eventually be caught by received responses
+        try {
+          loginRes.clientPersonaState = await this.setPersonaState(EPersonaState.Online);
+        } catch (error) {
+          return;
+        }
+
+        receivedResponse("ClientAccountInfo");
+      });
+
+      this.conn.once("ClientEmailAddrInfo", (body: CMsgClientEmailAddrInfo) => {
+        loginRes.clientEmailAddrInfo = body;
+        receivedResponse("ClientEmailAddrInfo");
+      });
+
+      this.conn.once("ClientIsLimitedAccount", (body: CMsgClientIsLimitedAccount) => {
+        loginRes.clientIsLimitedAccount = body;
+        receivedResponse("ClientIsLimitedAccount");
+      });
+
+      this.conn.once("ClientVACBanStatus", (body) => {
+        loginRes.clientVACBanStatus = body;
+        receivedResponse("ClientVACBanStatus");
+      });
+
+      // send login request to steam
+      const res: CMsgClientLogOnResponse = await this.conn.sendProtoPromise(
+        EMsg.ClientLogon,
+        options,
+        EMsg.ClientLogOnResponse
+      );
+
+      if (res.eresult === EResult.OK) {
+        loginRes.steamId = res.clientSuppliedSteamid.toString();
+        loginRes.games = await this.service.player.getOwnedGames();
+        loginRes.inventory = {
+          steam: await this.service.econ.getSteamContextItems(),
+        };
+      } else {
+        this.disconnect();
+        throw new SteamClientError(EResultMap.get(res.eresult));
+      }
 
       // check whether user is logged in every second
       const interval = setInterval(() => {
@@ -182,7 +198,9 @@ export default class Client extends Steam {
 
     // kick another playing session before attemping to play in this session
     if (playingBlocked) {
-      this.conn.sendProto(EMsg.ClientKickPlayingSession, { onlyStopGame: true });
+      this.conn.sendProto(EMsg.ClientKickPlayingSession, {
+        onlyStopGame: true,
+      });
     }
 
     // not playing and trying to stop idle
@@ -222,7 +240,10 @@ export default class Client extends Steam {
 
     if (!res.grantedAppids || !res.grantedAppids.length) return [];
 
-    return this.service.player.getOwnedGames({ appidsFilter: res.grantedAppids, includePlayedFreeGames: true });
+    return this.service.player.getOwnedGames({
+      appidsFilter: res.grantedAppids,
+      includePlayedFreeGames: true,
+    });
   }
 
   /**
