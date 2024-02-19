@@ -187,6 +187,7 @@ const login = async () => {
     machineId: auth.machineId,
   });
 
+  // console.log(res.rawResponse);
   // console.log(res.clientAccountInfo);
   // console.log(res.clientEmailAddrInfo);
   // console.log(res.clientIsLimitedAccount);

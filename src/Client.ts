@@ -150,15 +150,11 @@ export default class Client extends Steam {
       });
 
       // send login request to steam
-      const res: CMsgClientLogOnResponse = await this.conn.sendProtoPromise(
-        EMsg.ClientLogon,
-        options,
-        EMsg.ClientLogOnResponse
-      );
+      loginRes.rawResponse = await this.conn.sendProtoPromise(EMsg.ClientLogon, options, EMsg.ClientLogOnResponse);
 
       // good login
-      if (res.eresult === EResult.OK) {
-        loginRes.steamId = res.clientSuppliedSteamid.toString();
+      if (loginRes.rawResponse.eresult === EResult.OK) {
+        loginRes.steamId = loginRes.rawResponse.clientSuppliedSteamid.toString();
         loginRes.games = await this.service.player.getOwnedGames();
         loginRes.inventory = {
           steam: await this.service.econ.getSteamContextItems(),
@@ -169,7 +165,7 @@ export default class Client extends Steam {
         // bad login
         clearTimeout(timeout);
         this.disconnect();
-        reject(new SteamClientError(EResultMap.get(res.eresult)));
+        reject(new SteamClientError(EResultMap.get(loginRes.rawResponse.eresult)));
       }
     });
   }
