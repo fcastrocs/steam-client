@@ -2,13 +2,14 @@
  * Handle websocket connection to steam
  */
 
-import Base from "./Base.js";
 import WebSocket, { ClientOptions } from "ws";
-import { SteamClientError } from "../modules/common.js";
 import { SocksProxyAgent } from "socks-proxy-agent";
+import { HttpsProxyAgent } from "https-proxy-agent";
+import Base from "./Base.js";
+import { SteamClientError } from "../modules/common.js";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
 import Language from "../modules/language.js";
-import { HttpsProxyAgent } from "https-proxy-agent";
+
 const { EMsg } = Language;
 
 export default class WebSocketConnection extends Base {

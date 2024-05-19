@@ -2,24 +2,30 @@
  * Handle TCP connection to steam
  */
 
-import Base from "./Base.js";
-import { Socket } from "net";
+import net, { Socket } from "net";
 import { SmartBuffer } from "smart-buffer";
 import crc32 from "buffer-crc32";
 import SteamCrypto, { SessionKey } from "@fcastrocs/steam-client-crypto";
-import net from "net";
+
 import { SocksClient } from "socks";
+import Base from "./Base.js";
 import { ConnectionOptions } from "../../@types/connections/Base.js";
 import { SteamClientError } from "../modules/common.js";
 import Language from "../modules/language.js";
+
 const { EMsg, EResult } = Language;
 
 export default class TCPConnection extends Base {
   public readonly timeout: number = 15000;
+
   private socket: Socket;
+
   private encrypted: boolean;
+
   private incompletePacket: boolean;
+
   private packetSize: number;
+
   private encryptionKey: SessionKey;
 
   constructor(protected options: ConnectionOptions) {
@@ -144,7 +150,7 @@ export default class TCPConnection extends Base {
     try {
       this.socket.write(packet.toBuffer());
     } catch (error) {
-      return;
+      
     }
   }
 
@@ -186,8 +192,8 @@ export default class TCPConnection extends Base {
       const rawEMsg = sbuffer.readUInt32LE();
       const EMsgReceived = rawEMsg & ~this.PROTO_MASK;
 
-      sbuffer.readBigUInt64LE(); //jobidTarget 18446744073709551615n
-      sbuffer.readBigUInt64LE(); //jobidSource 18446744073709551615n
+      sbuffer.readBigUInt64LE(); // jobidTarget 18446744073709551615n
+      sbuffer.readBigUInt64LE(); // jobidSource 18446744073709551615n
 
       if (EMsgReceived === EMsg.ChannelEncryptRequest) {
         return this.channelEncryptResponse(sbuffer);
@@ -224,8 +230,8 @@ export default class TCPConnection extends Base {
 
     const sBuffer = new SmartBuffer();
     sBuffer.writeUInt32LE(EMsg.ChannelEncryptResponse);
-    sBuffer.writeBigUInt64LE(18446744073709551615n); //tarjetjobid
-    sBuffer.writeBigUInt64LE(18446744073709551615n); //sourjobid
+    sBuffer.writeBigUInt64LE(18446744073709551615n); // tarjetjobid
+    sBuffer.writeBigUInt64LE(18446744073709551615n); // sourjobid
     sBuffer.writeUInt32LE(protocol);
     sBuffer.writeUInt32LE(this.encryptionKey.encrypted.length);
     sBuffer.writeBuffer(this.encryptionKey.encrypted);

@@ -7,28 +7,40 @@
 import { EventEmitter } from "events";
 import { SmartBuffer } from "smart-buffer";
 import Zip from "zlib";
+import Long from "long";
+import { UnknownRecord, ValueOf } from "type-fest";
 import Language from "../modules/language.js";
 import * as Protos from "../modules/protos.js";
-import Long from "long";
 import { SteamClientError } from "../modules/common.js";
 import { ConnectionOptions, ServiceMethodCall } from "../../@types/connections/Base.js";
-import { UnknownRecord, ValueOf } from "type-fest";
 import type { CMsgProtoBufHeader, CMsgMulti } from "../../@types/protos/steammessages_base.js";
 import type { CMsgClientLogOnResponse } from "../../@types/protos/steammessages_clientserver_login.js";
+
 const { EMsgMap, EMsg } = Language;
 
 export default abstract class Base extends EventEmitter {
   private heartBeat: NodeJS.Timeout;
+
   protected readonly MAGIC = "VT01";
+
   protected readonly PROTO_MASK = 0x80000000;
+
   private JOB_NONE = Long.fromString("18446744073709551615", true);
+
   private jobIdTimeout = 3 * 60 * 1000;
+
   private connectionDestroyed = false;
+
   private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
+
   private readonly jobidTargets: Map<ValueOf<typeof EMsg>, Long> = new Map();
+
   private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();
+
   public readonly timeout: number = 10000;
+
   private DEFAULT_STEAMID = Long.fromString("76561197960265728", true);
+
   private session = {
     clientId: 0,
     steamId: this.DEFAULT_STEAMID,
@@ -91,7 +103,7 @@ export default abstract class Base extends EventEmitter {
         : EMsg.ServiceMethodCallFromClient;
 
       const protoHeader = this.buildProtoHeader(serviceMethodEMsg, serviceMethodCall);
-      const buffer = Protos.encode(method + "_Request", body);
+      const buffer = Protos.encode(`${method  }_Request`, body);
       this.emit("sendData", Buffer.concat([protoHeader, buffer]));
     });
   }
@@ -160,7 +172,7 @@ export default abstract class Base extends EventEmitter {
 
     // steam expects a response to this jobId
     if (proto.jobidSource && !this.JOB_NONE.equals(proto.jobidSource)) {
-      const key = (EMsgReceivedKey + "Response") as keyof typeof EMsg;
+      const key = (`${EMsgReceivedKey  }Response`) as keyof typeof EMsg;
       this.jobidTargets.set(EMsg[key], proto.jobidSource);
       // we have this.jobIdTimeout ms to response to this jobId
       setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.jobIdTimeout);
@@ -169,13 +181,13 @@ export default abstract class Base extends EventEmitter {
     // service method
     if (EMsgReceived === EMsg.ServiceMethodResponse) {
       const serviceMethodCall = this.serviceMethodCalls.get(proto.jobidTarget.toString());
-      const message = Protos.decode(serviceMethodCall?.method + "_Response", packet.readBuffer());
+      const message = Protos.decode(`${serviceMethodCall?.method  }_Response`, packet.readBuffer());
       this.serviceMethodCalls.delete(proto.jobidTarget.toString());
       return serviceMethodCall?.promiseResolve({
         EResult: proto.eresult,
         ...message,
       });
-    } else if (EMsgReceived === EMsg.ServiceMethod) {
+    } if (EMsgReceived === EMsg.ServiceMethod) {
       // console.debug(`unhandled service method: ${proto.targetJobName}`);
       return;
     }
@@ -189,7 +201,7 @@ export default abstract class Base extends EventEmitter {
 
     // decode body and emit message
     try {
-      const body = Protos.decode("CMsg" + eMsg.key, packet.readBuffer());
+      const body = Protos.decode(`CMsg${  eMsg.key}`, packet.readBuffer());
       // emit message
       this.emit(eMsg.key, body);
 
@@ -210,7 +222,7 @@ export default abstract class Base extends EventEmitter {
         }
       }
     } catch (error) {
-      //console.error(`Proto decode failed: ${eMsg.key}`);
+      // console.error(`Proto decode failed: ${eMsg.key}`);
     }
   }
 
@@ -249,7 +261,7 @@ export default abstract class Base extends EventEmitter {
     // EMsg must be PROTO MASKED
     sBuffer.writeInt32LE(eMsg | this.PROTO_MASK);
 
-    //CMsgProtoBufHeader
+    // CMsgProtoBufHeader
     const message: CMsgProtoBufHeader = {
       steamid: this.session.steamId,
       clientSessionid: this.session.clientId,

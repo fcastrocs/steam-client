@@ -1,8 +1,9 @@
+import Long from "long";
+import { ValueOf } from "type-fest";
 import Steam from "./Steam.js";
 import Language from "./modules/language.js";
 import { SteamClientError, isEmpty } from "./modules/common.js";
 import { EOSType } from "../resources/language/enums.steamd.js";
-import Long from "long";
 import type { Friend, LoginOptions, LoginRes } from "../@types/Client.js";
 import type { ConnectionOptions } from "../@types/connections/Base.js";
 import type { CMsgClientIsLimitedAccount, CMsgClientGamesPlayed } from "../@types/protos/steammessages_clientserver.js";
@@ -19,7 +20,6 @@ import type {
   CMsgClientLogOnResponse,
 } from "../@types/protos/steammessages_clientserver_login.js";
 import type { CPlayer_GetOwnedGames_Response } from "../@types/protos/steammessages_player.steamclient.js";
-import { ValueOf } from "type-fest";
 
 const { EMsg, EResult, EResultMap, EPersonaState } = Language;
 // responses that should be received before login is complete
@@ -33,6 +33,7 @@ const LOGIN_RESPONSES = [
 
 export default class Client extends Steam {
   private personaState: Friend = {};
+
   private _playingSessionState: CMsgClientPlayingSessionState = {};
 
   constructor(options: ConnectionOptions) {
@@ -82,11 +83,11 @@ export default class Client extends Steam {
       clientOsType: EOSType.Win11,
       shouldRememberPassword: true,
       // comment this out for now, it's not necessary
-      /*obfuscatedPrivateIp: {
+      /* obfuscatedPrivateIp: {
                 ip: {
                     v4: await this.obfustucateIp(),
                 },
-            },*/
+            }, */
       qosLevel: 2,
       machineId: options.machineId || this.machineId,
       machineName: options.machineName || this.machineName,
@@ -108,7 +109,7 @@ export default class Client extends Steam {
       // expect responses to be received before timeout
       const timeout = setTimeout(() => {
         this.disconnect();
-        reject(new SteamClientError("Did not receive responses: " + responses.toString()));
+        reject(new SteamClientError(`Did not receive responses: ${  responses.toString()}`));
       }, this.conn.timeout);
 
       const checkCanResolve = (receivedResponse: string) => {
@@ -181,7 +182,7 @@ export default class Client extends Steam {
    * Change player persona state
    */
   public setPersonaState(personaState: ValueOf<typeof EPersonaState>): Promise<Friend> {
-    return this.changeStatus({ personaState: personaState });
+    return this.changeStatus({ personaState });
   }
 
   /**
@@ -213,9 +214,7 @@ export default class Client extends Steam {
     }
 
     const body: CMsgClientGamesPlayed = {
-      gamesPlayed: gameIds.map((id) => {
-        return { gameId: Long.fromInt(id, true) };
-      }),
+      gamesPlayed: gameIds.map((id) => ({ gameId: Long.fromInt(id, true) })),
       clientOsType: EOSType.Win11,
     };
 
@@ -269,12 +268,12 @@ export default class Client extends Steam {
   }
 
   private getAvatar(hash: Friend["avatarHash"]): string {
-    //default avatar
+    // default avatar
     const defaultHash = "fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb";
 
     let hashHex = hash.toString("hex");
 
-    //default avatar
+    // default avatar
     if (hashHex === "0000000000000000000000000000000000000000") {
       hashHex = defaultHash;
     }

@@ -36,6 +36,6 @@ function createEnumMaps() {
 
   return {
     EMsgMap: EnumsMap,
-    EResultMap: EResultMap,
+    EResultMap,
   };
 }

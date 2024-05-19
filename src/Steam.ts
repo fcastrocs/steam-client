@@ -2,6 +2,9 @@
  * Low-level Steam functionality
  */
 
+import EventEmitter from "events";
+import { randomBytes } from "crypto";
+import http from "http";
 import Auth from "./services/Auth.js";
 import Credentials from "./services/Credentials.js";
 import Player from "./services/Player.js";
@@ -9,11 +12,9 @@ import Econ from "./services/Econ.js";
 import Store from "./services/Store.js";
 import Language from "./modules/language.js";
 import TCPConnection from "./connections/TCPConn.js";
-import EventEmitter from "events";
 import WebSocketConnection from "./connections/WebsocketConn.js";
-import { randomBytes } from "crypto";
-import http from "http";
 import type { ConnectionOptions } from "../@types/connections/Base.js";
+
 const { EResultMap } = Language;
 
 export default abstract class Steam extends EventEmitter {
@@ -26,9 +27,13 @@ export default abstract class Steam extends EventEmitter {
   };
 
   readonly machineName: string;
+
   readonly machineId: Buffer;
+
   readonly conn: WebSocketConnection | TCPConnection;
+
   protected loggedIn: boolean;
+
   private _obfustucatedIp: number;
 
   constructor(private options: ConnectionOptions) {
@@ -124,9 +129,7 @@ export default abstract class Steam extends EventEmitter {
     if (!ip) return 0;
 
     const ipInt =
-      ip.split(".").reduce(function (ipInt, octet) {
-        return (ipInt << 8) + parseInt(octet, 10);
-      }, 0) >>> 0;
+      ip.split(".").reduce((ipInt, octet) => (ipInt << 8) + parseInt(octet, 10), 0) >>> 0;
 
     this._obfustucatedIp = ipInt ^ mask;
     return this._obfustucatedIp;
@@ -138,7 +141,7 @@ export default abstract class Steam extends EventEmitter {
       .replace(/[^a-z]+/g, "")
       .substring(0, 5)
       .toUpperCase();
-    return "DESKTOP-" + name + "-IDLE";
+    return `DESKTOP-${  name  }-IDLE`;
   }
 
   private createMachineId(): Buffer {

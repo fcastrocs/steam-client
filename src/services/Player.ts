@@ -6,6 +6,7 @@ import type {
 
 export default class Player {
   private readonly serviceName = "Player";
+
   constructor(private steam: Steam) {}
 
   async getOwnedGames(options?: {
@@ -25,13 +26,11 @@ export default class Player {
 
     if (!res.games) return [];
 
-    return res.games.map((game) => {
-      return {
+    return res.games.map((game) => ({
         gameid: game.appid,
         name: game.name,
         playtime: game.playtimeForever,
         icon: game.imgIconUrl,
-      };
-    });
+      }));
   }
 }

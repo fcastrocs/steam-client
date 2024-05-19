@@ -1,5 +1,5 @@
-import Steam from "../Steam.js";
 import Long from "long";
+import Steam from "../Steam.js";
 import type { Item } from "../../@types/services/Econ.js";
 import type {
   CEcon_GetInventoryItemsWithDescriptions_Response,
@@ -8,6 +8,7 @@ import type {
 
 export default class Econ {
   private readonly serviceName = "Econ";
+
   constructor(private steam: Steam) {}
 
   async getSteamContextItems(tradableOnly?: boolean) {

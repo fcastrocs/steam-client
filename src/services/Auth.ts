@@ -1,12 +1,12 @@
 import NodeRSA from "node-rsa";
 import QRCode from "qrcode";
+import EventEmitter from "events";
+import { UnknownRecord, ValueOf } from "type-fest";
 import Steam from "../Steam.js";
 import Language from "../modules/language.js";
 import { SteamClientError } from "../modules/common.js";
-import EventEmitter from "events";
 import { EOSType } from "../../resources/language/enums.steamd.js";
 import { Confirmation } from "../../@types/services/Auth.js";
-import { UnknownRecord, ValueOf } from "type-fest";
 import type {
   CAuthentication_BeginAuthSessionViaCredentials_Response,
   CAuthentication_BeginAuthSessionViaQR_Response,
@@ -22,15 +22,20 @@ import {
   EAuthSessionGuardType,
   ETokenRenewalType,
 } from "../../resources/language/steammessages_auth.steamclient.js";
+
 const { EResultMap, EResult } = Language;
 
 export default class Auth extends EventEmitter {
   private waitingForConfirmation: boolean;
+
   private partialSession:
     | CAuthentication_BeginAuthSessionViaCredentials_Response
     | CAuthentication_BeginAuthSessionViaQR_Response;
+
   private readonly serviceName = "Authentication";
+
   private readonly timeout = 1 * 60 * 1000;
+
   constructor(private steam: Steam) {
     super();
   }
@@ -50,7 +55,7 @@ export default class Auth extends EventEmitter {
       {
         deviceDetails: {
           deviceFriendlyName: this.steam.machineName,
-          platformType: EAuthTokenPlatformType.SteamClient, //as unknown as typeof EAuthTokenPlatformType,
+          platformType: EAuthTokenPlatformType.SteamClient, // as unknown as typeof EAuthTokenPlatformType,
           osType: EOSType.Win11,
           gamingDeviceType: 1,
           machineId: this.steam.machineId,
