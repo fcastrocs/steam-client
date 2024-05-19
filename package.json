@@ -9,12 +9,12 @@
         "build": "tsc",
         "buildResources": "node ./dist/scripts/index.js",
         "test": "tsc && vitest",
-        "lint": "eslint src/**/*.ts",
-        "lint:fix": "eslint --fix \"src/**/*.ts\"",
-        "format": "prettier --write 'src/**/*.ts'"
+        "lint": "eslint --ext .ts src",
+        "lint:fix": "eslint --fix --ext .ts src",
+        "format": "prettier --write *.{ts,json}"
     },
     "lint-staged": {
-        "src/**/*.{js,jsx,ts,tsx}": [
+        "*.{ts,json}": [
             "prettier --write"
         ]
     },
@@ -56,6 +56,7 @@
         "@typescript-eslint/parser": "^7.9.0",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
+        "prettier": "^3.2.5",
         "ts-node": "^10.9.2",
         "typescript": "^5.4.5",
         "vitest": "^1.6.0"
