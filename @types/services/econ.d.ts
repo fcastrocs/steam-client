@@ -1,4 +1,4 @@
-import Steam from "../Steam.js";
+import Steam from '../Steam.js';
 
 export type Item = {
     appid: number;
@@ -18,5 +18,9 @@ export type Item = {
 export default class Econ {
     constructor(steam: Steam);
     getSteamContextItems(tradableOnly?: boolean): Promise<Item[]>;
-    getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean): Promise<Item[]>;
+    getInventoryItems(
+        appid: number,
+        contextid: number,
+        tradableOnly?: boolean
+    ): Promise<Item[]>;
 }

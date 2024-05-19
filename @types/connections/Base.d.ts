@@ -1,8 +1,8 @@
-import { EventEmitter } from "events";
-import Long from "long";
-import { UnknownRecord } from "type-fest";
-import { EMsg } from "../../resources/language/enums_clientserver.ts";
-import { SteamClientError } from "../index.js";
+import { EventEmitter } from 'events';
+import Long from 'long';
+import { UnknownRecord } from 'type-fest';
+import { EMsg } from '../../resources/language/enums_clientserver.ts';
+import { SteamClientError } from '../index.js';
 
 export interface SessionKey {
     plain: Buffer;
@@ -17,13 +17,13 @@ export interface ServiceMethodCall {
 }
 
 export interface ConnectionOptions {
-    type: "ws" | "tcp";
+    type: 'ws' | 'tcp';
     steamCM: {
         host: string;
         port: number;
     };
     proxy?: {
-        type: "socks" | "https";
+        type: 'socks' | 'https';
         host: string;
         port: number;
         socksType?: 4 | 5;
@@ -35,7 +35,7 @@ export interface ConnectionOptions {
 
 export default abstract class Base extends EventEmitter {
     protected options: ConnectionOptions;
-    protected readonly MAGIC = "VT01";
+    protected readonly MAGIC = 'VT01';
     protected readonly PROTO_MASK = 2147483648;
     constructor(options: ConnectionOptions);
     /**
@@ -45,11 +45,19 @@ export default abstract class Base extends EventEmitter {
     /**
      * Send proto message and wait for response
      */
-    sendProtoPromise(eMsg: EMsg, payload: UnknownRecord, resEMsg: EMsg): Promise<UnknownRecord>;
+    sendProtoPromise(
+        eMsg: EMsg,
+        payload: UnknownRecord,
+        resEMsg: EMsg
+    ): Promise<UnknownRecord>;
     /**
      * Send service method call
      */
-    sendServiceMethodCall(serviceName: string, method: string, body: UnknownRecord): Promise<UnknownRecord>;
+    sendServiceMethodCall(
+        serviceName: string,
+        method: string,
+        body: UnknownRecord
+    ): Promise<UnknownRecord>;
     isLoggedIn(): boolean;
     get steamid(): Long;
     setSteamId(steamId: string): void;

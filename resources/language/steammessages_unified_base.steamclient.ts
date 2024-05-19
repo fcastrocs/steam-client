@@ -4,7 +4,6 @@
  */
 
 export enum EProtoExecutionSite {
-	Unknown = 0,
-	SteamClient = 2,
+    Unknown = 0,
+    SteamClient = 2
 }
-

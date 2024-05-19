@@ -4,8 +4,7 @@
  */
 
 declare const EContentHubDiscountFilterType = {
-	None = 0,
-	DiscountsOnly = 1,
-	PrioritizeDiscounts = 2,
+    None = 0,
+    DiscountsOnly = 1,
+    PrioritizeDiscounts = 2
 } as const;
-

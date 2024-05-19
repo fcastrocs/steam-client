@@ -4,7 +4,6 @@
  */
 
 declare const EProtoExecutionSite = {
-	Unknown = 0,
-	SteamClient = 2,
+    Unknown = 0,
+    SteamClient = 2
 } as const;
-

@@ -1,10 +1,10 @@
-import { EMsg } from "../resources/language/enums_clientserver.ts";
-import { EPersonaState } from "../resources/language/enums.steamd.js";
+import { EMsg } from '../resources/language/enums_clientserver.ts';
+import { EPersonaState } from '../resources/language/enums.steamd.js';
 
-import Client from "./Client.js";
-import { SteamClientError } from "./modules/common.js";
-import { EResult } from "../resources/language/EResult.js";
-import { EAuthSessionGuardType } from "../resources/language/steammessages_auth.steamclient.js";
+import Client from './Client.js';
+import { SteamClientError } from './modules/common.js';
+import { EResult } from '../resources/language/EResult.js';
+import { EAuthSessionGuardType } from '../resources/language/steammessages_auth.steamclient.js';
 
 export interface LanguageType {
     EMsgMap: Map<EMsg, keyof typeof EMsg>;

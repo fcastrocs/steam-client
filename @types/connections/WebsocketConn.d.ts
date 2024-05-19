@@ -1,5 +1,5 @@
-import { SteamClientError } from "../index.js";
-import Base, { ConnectionOptions } from "./Base.js";
+import { SteamClientError } from '../index.js';
+import Base, { ConnectionOptions } from './Base.js';
 
 export default class WebSocketConnection extends Base {
     protected options: ConnectionOptions;
