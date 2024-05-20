@@ -6,6 +6,8 @@ import fs from 'fs';
 import fetch from 'node-fetch';
 
 const PROTOS_PATH = './resources/protos/';
+const PROTOS_URL =
+    'https://raw.githubusercontent.com/SteamDatabase/Protobufs/master/';
 
 const PROTOS = [
     'contenthubs.proto',
@@ -32,10 +34,7 @@ const PROTOS = [
  * Fetch Protos
  */
 export default async function fetchProtos() {
-    const PROTOS_URL =
-        'https://raw.githubusercontent.com/SteamDatabase/Protobufs/master/';
     // fetch steam protos
-
     PROTOS.forEach(async (proto) => {
         let text = await fetch(`${PROTOS_URL}steam/${proto}`).then((res) =>
             res.text()
