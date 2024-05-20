@@ -4,6 +4,7 @@
 
 import fs from 'fs';
 import fetch from 'node-fetch';
+
 const PROTOS_PATH = './resources/protos/';
 
 const PROTOS = [
@@ -35,7 +36,7 @@ export default async function fetchProtos() {
         'https://raw.githubusercontent.com/SteamDatabase/Protobufs/master/';
     // fetch steam protos
     for (const proto of PROTOS) {
-        let text = await fetch(PROTOS_URL + 'steam/' + proto).then((res) =>
+        let text = await fetch(`${PROTOS_URL}steam/${proto}`).then((res) =>
             res.text()
         );
 
@@ -47,12 +48,12 @@ export default async function fetchProtos() {
             );
         }
 
-        if (!text) throw new Error('Failed to fetch proto ' + proto);
-        fs.writeFileSync(PROTOS_PATH + 'steam/' + proto, text);
+        if (!text) throw new Error(`Failed to fetch proto ${proto}`);
+        fs.writeFileSync(`${PROTOS_PATH}steam/${proto}`, text);
     }
     // fetch descriptor proto
     const text = await fetch(
-        PROTOS_URL + 'google/protobuf/descriptor.proto'
+        `${PROTOS_URL}google/protobuf/descriptor.proto`
     ).then((res) => res.text());
-    fs.writeFileSync(PROTOS_PATH + 'google/protobuf/descriptor.proto', text);
+    fs.writeFileSync(`${PROTOS_PATH}google/protobuf/descriptor.proto`, text);
 }

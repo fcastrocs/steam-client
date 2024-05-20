@@ -3,6 +3,7 @@ import Base, { ConnectionOptions } from './Base.js';
 
 export default class TCPConnection extends Base {
     protected options: ConnectionOptions;
+
     readonly timeout: number;
     constructor(options: ConnectionOptions);
     /**

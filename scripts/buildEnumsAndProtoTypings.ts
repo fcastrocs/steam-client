@@ -3,10 +3,10 @@
  * Build proto typings
  */
 
-import { loadProtos } from '../src/modules/protos.js';
 import { ReflectionObject } from 'protobufjs';
 import fs, { createWriteStream } from 'fs';
 import path from 'path';
+import { loadProtos } from '../src/modules/protos.js';
 
 const LANGUAGE_PATH = './resources/language/';
 const PROTOS_TYPES_PATH = './@types/protos/';
@@ -60,7 +60,7 @@ async function extractEnumsAndProtoTypings() {
     }
 
     const promises: PromiseLike<void>[] = [];
-    for (let key of writeStreams.keys()) {
+    for (const key of writeStreams.keys()) {
         promises.push(
             new Promise((resolve) => {
                 writeStreams.get(key)?.close(() => {
@@ -79,8 +79,8 @@ async function fetchEnumsSteamd() {
     const enumsSteamd = (await fetch(url).then((res) => res.text())).split(
         /\r?\n/
     );
-    const stream = createWriteStream(LANGUAGE_PATH + 'enums.steamd.ts');
-    stream.write(HEADER + '\n\n');
+    const stream = createWriteStream(`${LANGUAGE_PATH}enums.steamd.ts`);
+    stream.write(`${HEADER}\n\n`);
 
     let skipEnum = false;
 
@@ -88,12 +88,11 @@ async function fetchEnumsSteamd() {
         if (line.match(/^enum /) || line.match('public enum')) {
             if (skipEnum) skipEnum = false;
 
-            line =
-                line
-                    .replace(/^public /, '')
-                    .replace('enum ', 'export enum ')
-                    .replace(/ flags$/, '')
-                    .replace(/<.+>/, '') + ' {\n';
+            line = `${line
+                .replace(/^public /, '')
+                .replace('enum ', 'export enum ')
+                .replace(/ flags$/, '')
+                .replace(/<.+>/, '')} {\n`;
 
             // skip enum if it was already written in another file
             if (
@@ -140,8 +139,8 @@ async function fetchEResult() {
     const url =
         'https://raw.githubusercontent.com/SteamRE/SteamKit/master/Resources/SteamLanguage/eresult.steamd';
     const EResult = (await fetch(url).then((res) => res.text())).split(/\r?\n/);
-    const stream = createWriteStream(LANGUAGE_PATH + 'EResult.ts');
-    stream.write(HEADER + '\n\n');
+    const stream = createWriteStream(`${LANGUAGE_PATH}EResult.ts`);
+    stream.write(`${HEADER}\n\n`);
 
     for (let line of EResult) {
         if (line.match(/^enum /)) {
@@ -178,7 +177,7 @@ function processEmum(enumType: ReflectionObject) {
         .basename(enumType.filename as string)
         .replace('.proto', '.ts');
     const stream = getWriteStream(file, LANGUAGE_PATH);
-    const values = enumType.toJSON().values;
+    const { values } = enumType.toJSON();
 
     // add header
     if (!stream.bytesWritten) {
@@ -196,7 +195,7 @@ function processEmum(enumType: ReflectionObject) {
         if (uniqueKeys.has(modifiedKey)) continue;
         uniqueKeys.add(modifiedKey);
 
-        const keyValue = modifiedKey + ` = ${values[key]},`;
+        const keyValue = `${modifiedKey} = ${values[key]},`;
         stream.write(`\t${keyValue}\n`);
     }
     stream.write('}\n\n');
@@ -208,7 +207,7 @@ function processEmum(enumType: ReflectionObject) {
  */
 function processProtoType(proto: ReflectionObject, indents: number): string {
     const protoJson = proto.toJSON();
-    const root = proto.root;
+    const { root } = proto;
 
     let protoType = '{\n';
     for (const item of Object.keys(protoJson.fields)) {
@@ -232,7 +231,7 @@ function processProtoType(proto: ReflectionObject, indents: number): string {
             }
         }
 
-        //add indents
+        // add indents
         for (let i = 0; i < indents; i++) {
             protoType += '\t';
         }

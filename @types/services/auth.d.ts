@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import Steam from '../Steam.js';
 import {
     CAuthentication_AccessToken_GenerateForApp_Response,
@@ -6,7 +7,6 @@ import {
     CAuthentication_PollAuthSessionStatus_Response
 } from '../protos/steammessages_auth.steamclient.js';
 import { EAuthSessionGuardType } from '../../resources/language/steammessages_auth.steamclient.js';
-import EventEmitter from 'events';
 
 export interface Confirmation {
     qrCode?: { image: string; terminal: string };

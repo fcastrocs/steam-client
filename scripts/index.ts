@@ -26,7 +26,7 @@ function declareEnumTypes() {
         file = file.replace(/}/g, '} as const;');
         // file = file.replace(/ = /g, " = ");
         fs.writeFileSync(
-            PROTOS_TYPES_PATH + 'enums/' + filename.replace('.ts', '.d.ts'),
+            `${PROTOS_TYPES_PATH}enums/${filename.replace('.ts', '.d.ts')}`,
             file
         );
     }
