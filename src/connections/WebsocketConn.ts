@@ -5,10 +5,10 @@
 import WebSocket, { ClientOptions } from 'ws';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import Base from './Base.js';
-import { SteamClientError } from '../modules/common.js';
-import { ConnectionOptions } from '../../@types/connections/Base.js';
-import Language from '../modules/language.js';
+import Base from './Base';
+import { SteamClientError } from '../modules/common';
+import { ConnectionOptions } from '../../@types/connections/Base';
+import Language from '../modules/language';
 
 const { EMsg } = Language;
 

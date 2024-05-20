@@ -1,4 +1,4 @@
-import Steam from '../Steam.js';
+import Steam from '../Steam';
 import type { CCredentials_GetSteamGuardDetails_Response } from '../../@types/protos/steammessages_credentials.steamclient.js';
 
 export default class Credentials {

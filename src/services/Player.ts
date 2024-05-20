@@ -1,8 +1,8 @@
-import Steam from '../Steam.js';
+import Steam from '../Steam';
 import type {
     CPlayer_GetOwnedGames_Response,
     CPlayer_GetOwnedGames_Request
-} from '../../@types/protos/steammessages_player.steamclient.js';
+} from '../../@types/protos/steammessages_player.steamclient';
 
 export default class Player {
     private readonly serviceName = 'Player';

@@ -1,4 +1,4 @@
-import { EMsg } from '../resources/language/enums_clientserver.ts';
+import { EMsg } from '../resources/language/enums_clientserver';
 import { EPersonaState } from '../resources/language/enums.steamd.js';
 
 import Client from './Client.js';

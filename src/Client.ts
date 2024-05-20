@@ -1,27 +1,27 @@
 import Long from 'long';
 import { ValueOf } from 'type-fest';
-import Steam from './Steam.js';
-import Language from './modules/language.js';
-import { SteamClientError, isEmpty } from './modules/common.js';
-import { EOSType } from '../resources/language/enums.steamd.js';
-import type { Friend, LoginOptions, LoginRes } from '../@types/Client.js';
-import type { ConnectionOptions } from '../@types/connections/Base.js';
+import Steam from './Steam';
+import Language from './modules/language';
+import { SteamClientError, isEmpty } from './modules/common';
+import { EOSType } from '../resources/language/enums.steamd';
+import type { Friend, LoginOptions, LoginRes } from '../@types/Client';
+import type { ConnectionOptions } from '../@types/connections/Base';
 import type {
     CMsgClientIsLimitedAccount,
     CMsgClientGamesPlayed
-} from '../@types/protos/steammessages_clientserver.js';
+} from '../@types/protos/steammessages_clientserver';
 import type {
     CMsgClientPlayingSessionState,
     CMsgClientEmailAddrInfo,
     CMsgClientRequestFreeLicenseResponse,
     CMsgClientRequestFreeLicense
-} from '../@types/protos/steammessages_clientserver_2.js';
-import type { CMsgClientPersonaState } from '../@types/protos/steammessages_clientserver_friends.js';
+} from '../@types/protos/steammessages_clientserver_2';
+import type { CMsgClientPersonaState } from '../@types/protos/steammessages_clientserver_friends';
 import type {
     CMsgClientLogon,
     CMsgClientAccountInfo
-} from '../@types/protos/steammessages_clientserver_login.js';
-import type { CPlayer_GetOwnedGames_Response } from '../@types/protos/steammessages_player.steamclient.js';
+} from '../@types/protos/steammessages_clientserver_login';
+import type { CPlayer_GetOwnedGames_Response } from '../@types/protos/steammessages_player.steamclient';
 
 const { EMsg, EResult, EResultMap, EPersonaState } = Language;
 // responses that should be received before login is complete

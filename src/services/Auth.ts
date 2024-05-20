@@ -2,11 +2,11 @@ import NodeRSA from 'node-rsa';
 import QRCode from 'qrcode';
 import EventEmitter from 'events';
 import { UnknownRecord, ValueOf } from 'type-fest';
-import Steam from '../Steam.js';
-import Language from '../modules/language.js';
-import { SteamClientError } from '../modules/common.js';
-import { EOSType } from '../../resources/language/enums.steamd.js';
-import { Confirmation } from '../../@types/services/Auth.js';
+import Steam from '../Steam';
+import Language from '../modules/language';
+import { SteamClientError } from '../modules/common';
+import { EOSType } from '../../resources/language/enums.steamd';
+import { Confirmation } from '../../@types/services/Auth';
 import type {
     CAuthentication_BeginAuthSessionViaCredentials_Response,
     CAuthentication_BeginAuthSessionViaQR_Response,
@@ -15,13 +15,13 @@ import type {
     CAuthentication_AccessToken_GenerateForApp_Response,
     CAuthentication_PollAuthSessionStatus_Response,
     CAuthentication_BeginAuthSessionViaCredentials_Request
-} from '../../@types/protos/steammessages_auth.steamclient.js';
-import { ESessionPersistence } from '../../resources/language/enums.js';
+} from '../../@types/protos/steammessages_auth.steamclient';
+import { ESessionPersistence } from '../../resources/language/enums';
 import {
     EAuthTokenPlatformType,
     EAuthSessionGuardType,
     ETokenRenewalType
-} from '../../resources/language/steammessages_auth.steamclient.js';
+} from '../../resources/language/steammessages_auth.steamclient';
 
 const { EResultMap, EResult } = Language;
 

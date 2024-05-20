@@ -10,7 +10,7 @@
         "buildResources": "node ./dist/scripts/index.js",
         "test": "tsc && vitest",
         "lint": "eslint --ext .ts src",
-        "lint:fix": "eslint --fix --ext .ts src",
+        "lint:fix": "eslint --fix --ext .ts .",
         "format": "prettier . --write"
     },
     "lint-staged": {

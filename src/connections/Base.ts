@@ -10,18 +10,18 @@ import { SmartBuffer } from 'smart-buffer';
 import Zip from 'zlib';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
-import Language from '../modules/language.js';
-import * as Protos from '../modules/protos.js';
-import { SteamClientError } from '../modules/common.js';
+import Language from '../modules/language';
+import * as Protos from '../modules/protos';
+import { SteamClientError } from '../modules/common';
 import {
     ConnectionOptions,
     ServiceMethodCall
-} from '../../@types/connections/Base.js';
+} from '../../@types/connections/Base';
 import type {
     CMsgProtoBufHeader,
     CMsgMulti
-} from '../../@types/protos/steammessages_base.js';
-import type { CMsgClientLogOnResponse } from '../../@types/protos/steammessages_clientserver_login.js';
+} from '../../@types/protos/steammessages_base';
+import type { CMsgClientLogOnResponse } from '../../@types/protos/steammessages_clientserver_login';
 
 const { EMsgMap, EMsg } = Language;
 
