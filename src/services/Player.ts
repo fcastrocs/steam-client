@@ -1,4 +1,4 @@
-import Steam from '../Steam';
+import type Steam from '../Steam';
 import type {
     CPlayer_GetOwnedGames_Response,
     CPlayer_GetOwnedGames_Request

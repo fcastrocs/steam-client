@@ -1,5 +1,5 @@
 import Long from 'long';
-import Steam from '../Steam';
+import type Steam from '../Steam';
 import type { Item } from '../../@types/services/Econ';
 import type {
     CEcon_GetInventoryItemsWithDescriptions_Response,

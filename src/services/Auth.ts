@@ -2,7 +2,7 @@ import NodeRSA from 'node-rsa';
 import QRCode from 'qrcode';
 import EventEmitter from 'events';
 import { UnknownRecord, ValueOf } from 'type-fest';
-import Steam from '../Steam';
+import type Steam from '../Steam';
 import Language from '../modules/language';
 import { SteamClientError } from '../modules/common';
 import { EOSType } from '../../resources/language/enums.steamd';

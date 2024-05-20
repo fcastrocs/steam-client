@@ -1,7 +1,7 @@
 import type { UnknownRecord } from 'type-fest';
 import { EPurchaseResultDetail } from '../../resources/language/enums.steamd';
 import { EResult } from '../../resources/language/EResult';
-import Steam from '../Steam';
+import type Steam from '../Steam';
 import { SteamClientError, getKeyByValue } from '../modules/common';
 import type { CPlayer_GetOwnedGames_Response } from '../../@types/protos/steammessages_player.steamclient';
 import type {
