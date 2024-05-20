@@ -30,13 +30,13 @@ export default async function main() {
 async function extractEnumsAndProtoTypings() {
     const root = await loadProtos();
 
-    for (const key in root.nested) {
+    Object.keys(root.nested).forEach((key) => {
         const reflectionObj = root.nested[key];
         const name = reflectionObj.toString();
 
         if (name.includes('Enum .')) {
             processEmum(reflectionObj);
-            continue;
+            return;
         }
 
         if (name.includes('Type .')) {
@@ -57,18 +57,17 @@ async function extractEnumsAndProtoTypings() {
             const typing = processProtoType(reflectionObj, 0);
             stream.write(`${typing}\n\n`);
         }
-    }
+    });
 
     const promises: PromiseLike<void>[] = [];
-    for (const key of writeStreams.keys()) {
+
+    writeStreams.forEach((value) => {
         promises.push(
             new Promise((resolve) => {
-                writeStreams.get(key)?.close(() => {
-                    resolve();
-                });
+                value.close(() => resolve());
             })
         );
-    }
+    });
 
     await Promise.all(promises);
 }
@@ -84,11 +83,13 @@ async function fetchEnumsSteamd() {
 
     let skipEnum = false;
 
-    for (let line of enumsSteamd) {
-        if (line.match(/^enum /) || line.match('public enum')) {
+    enumsSteamd.forEach((line) => {
+        let newLine = line;
+
+        if (newLine.match(/^enum /) || newLine.match('public enum')) {
             if (skipEnum) skipEnum = false;
 
-            line = `${line
+            newLine = `${newLine
                 .replace(/^public /, '')
                 .replace('enum ', 'export enum ')
                 .replace(/ flags$/, '')
@@ -97,36 +98,36 @@ async function fetchEnumsSteamd() {
             // skip enum if it was already written in another file
             if (
                 processedEnums.has(
-                    line.replace('export enum', '').replace('{', '').trim()
+                    newLine.replace('export enum', '').replace('{', '').trim()
                 )
             ) {
                 skipEnum = true;
-                continue;
+                return;
             }
 
-            stream.write(line);
-            continue;
+            stream.write(newLine);
+            return;
         }
 
-        if (skipEnum) continue;
+        if (skipEnum) return;
 
         if (
-            line.includes('=') &&
-            !line.includes('; removed') &&
-            !line.includes('; obsolete') &&
-            !line.match(/deprecated/i) &&
-            !line.includes('|') &&
-            line.match(/=\s\d+;/)
+            newLine.includes('=') &&
+            !newLine.includes('; removed') &&
+            !newLine.includes('; obsolete') &&
+            !newLine.match(/deprecated/i) &&
+            !newLine.includes('|') &&
+            newLine.match(/=\s\d+;/)
         ) {
-            line = line
+            newLine = newLine
                 .replace(/\s/g, '')
                 .replace('=', ' = ')
                 .replace(';', ',');
-            stream.write(`\t${line}\n`);
+            stream.write(`\t${newLine}\n`);
         }
 
-        if (line.includes('}')) stream.write(`}\n\n`);
-    }
+        if (newLine.includes('}')) stream.write(`}\n\n`);
+    });
 
     return new Promise((resolve) => {
         stream.close(() => {
@@ -142,22 +143,24 @@ async function fetchEResult() {
     const stream = createWriteStream(`${LANGUAGE_PATH}EResult.ts`);
     stream.write(`${HEADER}\n\n`);
 
-    for (let line of EResult) {
-        if (line.match(/^enum /)) {
-            stream.write(`export ${line} {\n`);
-            continue;
+    EResult.forEach((line) => {
+        let newLine = line;
+
+        if (newLine.match(/^enum /)) {
+            stream.write(`export ${newLine} {\n`);
+            return;
         }
 
-        if (line.includes('=') && !line.includes('; removed')) {
-            line = line
+        if (newLine.includes('=') && !newLine.includes('; removed')) {
+            newLine = newLine
                 .replace(/\s/g, '')
                 .replace('=', ' = ')
                 .replace(';', ',');
-            stream.write(`\t${line}\n`);
+            stream.write(`\t${newLine}\n`);
         }
 
-        if (line.includes('}')) stream.write(`}\n\n`);
-    }
+        if (newLine.includes('}')) stream.write(`}\n\n`);
+    });
 
     return new Promise((resolve) => {
         stream.close(() => {
@@ -188,16 +191,17 @@ function processEmum(enumType: ReflectionObject) {
     stream.write(`export enum ${enumName} {\n`);
     const uniqueKeys = new Set();
 
-    for (const key of Object.keys(values)) {
-        if (key.match(/deprecated/i) || key.match(/obsolete/i)) continue;
+    Object.keys(values).forEach((key) => {
+        if (key.match(/deprecated/i) || key.match(/obsolete/i)) return;
 
         const modifiedKey = key.replace(`k_${enumName}`, '').replace(/.*_/, '');
-        if (uniqueKeys.has(modifiedKey)) continue;
+        if (uniqueKeys.has(modifiedKey)) return;
         uniqueKeys.add(modifiedKey);
 
         const keyValue = `${modifiedKey} = ${values[key]},`;
         stream.write(`\t${keyValue}\n`);
-    }
+    });
+
     stream.write('}\n\n');
     processedEnums.add(enumName);
 }
@@ -210,9 +214,10 @@ function processProtoType(proto: ReflectionObject, indents: number): string {
     const { root } = proto;
 
     let protoType = '{\n';
-    for (const item of Object.keys(protoJson.fields)) {
+
+    Object.keys(protoJson.fields).forEach((item) => {
         // fix infinity loop "contained_item" in CEconItem_Description
-        if (item === 'options' || item === 'containedItem') continue;
+        if (item === 'options' || item === 'containedItem') return;
         let dataType = convertDataType(protoJson.fields[item].type);
         const isArray = protoJson.fields[item].rule ? '[]' : '';
 
@@ -232,22 +237,23 @@ function processProtoType(proto: ReflectionObject, indents: number): string {
         }
 
         // add indents
-        for (let i = 0; i < indents; i++) {
+        for (let i = 0; i < indents; i += 1) {
             protoType += '\t';
         }
 
         protoType += `\t${item}?: ${dataType}${isArray}\n`;
-    }
-    for (let i = 0; i < indents; i++) protoType += '\t';
+    });
+
+    for (let i = 0; i < indents; i += 1) protoType += '\t';
     protoType += '}';
 
     return protoType;
 }
 
-function getWriteStream(file: string, path: string) {
+function getWriteStream(file: string, filePath: string) {
     const stream: fs.WriteStream =
-        writeStreams.get(file + path) || createWriteStream(path + file);
-    writeStreams.set(file + path, stream);
+        writeStreams.get(file + filePath) || createWriteStream(filePath + file);
+    writeStreams.set(file + filePath, stream);
     return stream;
 }
 

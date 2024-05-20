@@ -35,7 +35,8 @@ export default async function fetchProtos() {
     const PROTOS_URL =
         'https://raw.githubusercontent.com/SteamDatabase/Protobufs/master/';
     // fetch steam protos
-    for (const proto of PROTOS) {
+
+    PROTOS.forEach(async (proto) => {
         let text = await fetch(`${PROTOS_URL}steam/${proto}`).then((res) =>
             res.text()
         );
@@ -50,7 +51,8 @@ export default async function fetchProtos() {
 
         if (!text) throw new Error(`Failed to fetch proto ${proto}`);
         fs.writeFileSync(`${PROTOS_PATH}steam/${proto}`, text);
-    }
+    });
+
     // fetch descriptor proto
     const text = await fetch(
         `${PROTOS_URL}google/protobuf/descriptor.proto`

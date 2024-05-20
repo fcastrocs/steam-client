@@ -19,7 +19,7 @@ const PROTOS_TYPES_PATH = './@types/protos/';
 function declareEnumTypes() {
     const filenames = fs.readdirSync(LANGUAGE_PATH);
 
-    for (const filename of filenames) {
+    filenames.forEach((filename) => {
         let file = fs.readFileSync(LANGUAGE_PATH + filename).toString();
         file = file.replace(/export enum/g, 'declare const');
         file = file.replace(/ {/g, ' = {');
@@ -29,5 +29,5 @@ function declareEnumTypes() {
             `${PROTOS_TYPES_PATH}enums/${filename.replace('.ts', '.d.ts')}`,
             file
         );
-    }
+    });
 }
