@@ -6,10 +6,10 @@
 import { ReflectionObject } from 'protobufjs';
 import fs, { createWriteStream } from 'fs';
 import path from 'path';
-import { loadProtos } from '../src/modules/protos.js';
+import { loadProtos } from '../modules/protos.js';
 
-const LANGUAGE_PATH = './resources/language/';
-const PROTOS_TYPES_PATH = './@types/protos/';
+const LANGUAGE_PATH = '../resources/language/';
+const PROTOS_TYPES_PATH = '../@types/protos/';
 
 const writeStreams: Map<string, fs.WriteStream> = new Map();
 const processedEnums: Set<string> = new Set();
