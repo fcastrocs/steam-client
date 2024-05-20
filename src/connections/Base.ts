@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 /**
  * Handle low-level communication to steam.
  * Emits 'disconnected' if connection is lost
@@ -101,7 +102,9 @@ export default abstract class Base extends EventEmitter {
             'AccessToken_GenerateForApp',
             'GenerateAccessTokenForApp'
         );
-        method = `C${serviceName}_${method}`;
+
+        const newMethod = `C${serviceName}_${method}`;
+
         const jobidSource = Long.fromInt(
             Math.floor(Date.now() + Math.random()),
             true
@@ -109,7 +112,7 @@ export default abstract class Base extends EventEmitter {
 
         return new Promise((resolve) => {
             const serviceMethodCall: ServiceMethodCall = {
-                method,
+                method: newMethod,
                 promiseResolve: resolve,
                 targetJobName,
                 jobidSource
@@ -137,7 +140,7 @@ export default abstract class Base extends EventEmitter {
                 serviceMethodEMsg,
                 serviceMethodCall
             );
-            const buffer = Protos.encode(`${method}_Request`, body);
+            const buffer = Protos.encode(`${newMethod}_Request`, body);
             this.emit('sendData', Buffer.concat([protoHeader, buffer]));
         });
     }
@@ -239,11 +242,13 @@ export default abstract class Base extends EventEmitter {
                 packet.readBuffer()
             );
             this.serviceMethodCalls.delete(proto.jobidTarget.toString());
-            return serviceMethodCall?.promiseResolve({
+            serviceMethodCall?.promiseResolve({
                 EResult: proto.eresult,
                 ...message
             });
+            return;
         }
+
         if (EMsgReceived === EMsg.ServiceMethod) {
             // console.debug(`unhandled service method: ${proto.targetJobName}`);
             return;
@@ -345,22 +350,22 @@ export default abstract class Base extends EventEmitter {
 
     private async multi(payload: Buffer): Promise<void> {
         const message: CMsgMulti = Protos.decode('CMsgMulti', payload);
-        payload = message.messageBody;
+        let body = message.messageBody;
 
         // message is gzipped
         if (message.sizeUnzipped) {
-            payload = await new Promise((resolve) => {
-                Zip.gunzip(payload, (err, unzipped) => {
+            body = await new Promise((resolve) => {
+                Zip.gunzip(body, (err, unzipped) => {
                     if (err) throw new SteamClientError(err.message);
                     resolve(unzipped);
                 });
             });
         }
 
-        while (payload.length) {
-            const subSize = payload.readUInt32LE(0);
-            this.decodeData(payload.subarray(4, 4 + subSize));
-            payload = payload.subarray(4 + subSize);
+        while (body.length) {
+            const subSize = body.readUInt32LE(0);
+            this.decodeData(body.subarray(4, 4 + subSize));
+            body = body.subarray(4 + subSize);
         }
     }
 

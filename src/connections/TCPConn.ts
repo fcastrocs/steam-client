@@ -139,21 +139,28 @@ export default class TCPConnection extends Base {
      * [message.length, MAGIC, message: [steam proto | channelEncryptResponse]]
      */
     private send(message: Buffer) {
+        let encryptedMsg = message;
+
         // encrypt message
         if (this.encrypted) {
-            message = SteamCrypto.encrypt(message, this.encryptionKey.plain);
+            encryptedMsg = SteamCrypto.encrypt(
+                message,
+                this.encryptionKey.plain
+            );
         }
 
         const packet = new SmartBuffer();
 
-        packet.writeUInt32LE(message.length);
+        packet.writeUInt32LE(encryptedMsg.length);
         packet.writeString(this.MAGIC);
-        packet.writeBuffer(message);
+        packet.writeBuffer(encryptedMsg);
 
         // do not let this fail
         try {
             this.socket.write(packet.toBuffer());
-        } catch (error) {}
+        } catch (error) {
+            /* empty */
+        }
     }
 
     /**
@@ -168,7 +175,7 @@ export default class TCPConnection extends Base {
 
             this.packetSize = header.readUInt32LE(0);
 
-            if (header.subarray(4).toString('ascii') != this.MAGIC) {
+            if (header.subarray(4).toString('ascii') !== this.MAGIC) {
                 this.destroyConnection(
                     new SteamClientError('Steam sent bad data.')
                 );
@@ -194,17 +201,20 @@ export default class TCPConnection extends Base {
             const sbuffer = SmartBuffer.fromBuffer(packet);
 
             const rawEMsg = sbuffer.readUInt32LE();
+            // eslint-disable-next-line no-bitwise
             const EMsgReceived = rawEMsg & ~this.PROTO_MASK;
 
             sbuffer.readBigUInt64LE(); // jobidTarget 18446744073709551615n
             sbuffer.readBigUInt64LE(); // jobidSource 18446744073709551615n
 
             if (EMsgReceived === EMsg.ChannelEncryptRequest) {
-                return this.channelEncryptResponse(sbuffer);
+                this.channelEncryptResponse(sbuffer);
+                return;
             }
 
             if (EMsgReceived === EMsg.ChannelEncryptResult) {
-                return this.ChannelEncryptResult(sbuffer);
+                this.ChannelEncryptResult(sbuffer);
+                return;
             }
 
             return;

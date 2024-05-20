@@ -4,7 +4,7 @@
 
 import EventEmitter from 'events';
 import { randomBytes } from 'crypto';
-import http from 'http';
+// import http from 'http';
 import Auth from './services/Auth.js';
 import Credentials from './services/Credentials.js';
 import Player from './services/Player.js';
@@ -34,7 +34,7 @@ export default abstract class Steam extends EventEmitter {
 
     protected loggedIn: boolean;
 
-    private _obfustucatedIp: number;
+    private obfustucatedIp: number;
 
     constructor(private options: ConnectionOptions) {
         super();
@@ -56,8 +56,8 @@ export default abstract class Steam extends EventEmitter {
         };
 
         // create machine identity
-        this.machineName = this.createMachineName();
-        this.machineId = this.createMachineId();
+        this.machineName = createMachineName();
+        this.machineId = createMachineId();
 
         this.conn.once('ClientLoggedOff', (body) => {
             this.disconnect();
@@ -80,15 +80,15 @@ export default abstract class Steam extends EventEmitter {
     /**
      * Access obfustucated Ip
      */
-    public get obfustucatedIp() {
-        return this._obfustucatedIp;
+    public getObfustucatedIp() {
+        return this.obfustucatedIp;
     }
 
     /**
      * Generate obfustucated Ip
      */
-    protected async obfustucateIp(): Promise<number> {
-        if (this._obfustucatedIp) return this._obfustucatedIp;
+    /* protected async obfustucateIp(): Promise<number> {
+        if (this.obfustucatedIp) return this.obfustucatedIp;
 
         const mask = 0x163d3530;
         let ip: string;
@@ -129,39 +129,31 @@ export default abstract class Steam extends EventEmitter {
         if (!ip) return 0;
 
         const ipInt =
-            ip
-                .split('.')
-                .reduce(
-                    (ipInt, octet) => (ipInt << 8) + parseInt(octet, 10),
-                    0
-                ) >>> 0;
+            ip.split('.').reduce(
+                (ipInt, octet) => (ipInt << 8) + parseInt(octet, 10),
+                0
+            ) >>> 0;
 
-        this._obfustucatedIp = ipInt ^ mask;
-        return this._obfustucatedIp;
-    }
+        this.obfustucatedIp = ipInt ^ mask;
+        return this.obfustucatedIp;
+    } */
+}
 
-    private createMachineName(): string {
-        const name = Math.random()
-            .toString(36)
-            .replace(/[^a-z]+/g, '')
-            .substring(0, 5)
-            .toUpperCase();
-        return `DESKTOP-${name}-IDLE`;
-    }
+function createMachineName() {
+    const name = Math.random()
+        .toString(36)
+        .replace(/[^a-z]+/g, '')
+        .substring(0, 5)
+        .toUpperCase();
+    return `DESKTOP-${name}-IDLE`;
+}
 
-    private createMachineId(): Buffer {
-        const hexBB3 = Buffer.from(randomBytes(20).toString('hex')).toString(
-            'hex'
-        );
-        const hexFF2 = Buffer.from(randomBytes(20).toString('hex')).toString(
-            'hex'
-        );
-        const hex3B3 = Buffer.from(randomBytes(20).toString('hex')).toString(
-            'hex'
-        );
-        return Buffer.from(
-            `004D6573736167654F626A656374000142423300${hexBB3}000146463200${hexFF2}000133423300${hex3B3}000808`,
-            'hex'
-        );
-    }
+function createMachineId() {
+    const hexBB3 = Buffer.from(randomBytes(20).toString('hex')).toString('hex');
+    const hexFF2 = Buffer.from(randomBytes(20).toString('hex')).toString('hex');
+    const hex3B3 = Buffer.from(randomBytes(20).toString('hex')).toString('hex');
+    return Buffer.from(
+        `004D6573736167654F626A656374000142423300${hexBB3}000146463200${hexFF2}000133423300${hex3B3}000808`,
+        'hex'
+    );
 }

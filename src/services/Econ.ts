@@ -40,7 +40,7 @@ export default class Econ {
         }
 
         return res.assets.map((item) => {
-            const d_index = res.descriptions.findIndex(
+            const dIndex = res.descriptions.findIndex(
                 (des) =>
                     item.instanceid.toString() === des.instanceid.toString()
             );
@@ -51,13 +51,13 @@ export default class Econ {
                 assetid: item.assetid.toString(),
                 classid: item.classid.toString(),
                 instanceid: item.instanceid.toString(),
-                iconUrl: res.descriptions[d_index].iconUrl,
-                marketName: res.descriptions[d_index].marketName,
-                type: res.descriptions[d_index].type,
-                tradable: res.descriptions[d_index].tradable,
-                marketable: res.descriptions[d_index].marketable,
+                iconUrl: res.descriptions[dIndex].iconUrl,
+                marketName: res.descriptions[dIndex].marketName,
+                type: res.descriptions[dIndex].type,
+                tradable: res.descriptions[dIndex].tradable,
+                marketable: res.descriptions[dIndex].marketable,
                 marketTradableRestriction:
-                    res.descriptions[d_index].marketTradableRestriction
+                    res.descriptions[dIndex].marketTradableRestriction
             } as Item;
         });
     }

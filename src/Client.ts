@@ -19,8 +19,7 @@ import type {
 import type { CMsgClientPersonaState } from '../@types/protos/steammessages_clientserver_friends.js';
 import type {
     CMsgClientLogon,
-    CMsgClientAccountInfo,
-    CMsgClientLogOnResponse
+    CMsgClientAccountInfo
 } from '../@types/protos/steammessages_clientserver_login.js';
 import type { CPlayer_GetOwnedGames_Response } from '../@types/protos/steammessages_player.steamclient.js';
 
@@ -37,7 +36,7 @@ const LOGIN_RESPONSES = [
 export default class Client extends Steam {
     private personaState: Friend = {};
 
-    private _playingSessionState: CMsgClientPlayingSessionState = {};
+    private playingSessionState: CMsgClientPlayingSessionState = {};
 
     constructor(options: ConnectionOptions) {
         super(options);
@@ -48,7 +47,7 @@ export default class Client extends Steam {
 
             if (me.friendid.equals(this.steamId)) {
                 this.personaState = me;
-                this.personaState.avatarString = this.getAvatar(
+                this.personaState.avatarString = getAvatar(
                     this.personaState.avatarHash
                 );
                 this.emit('ClientPersonaState', this.personaState);
@@ -59,7 +58,7 @@ export default class Client extends Steam {
         this.conn.on(
             'ClientPlayingSessionState',
             (body: CMsgClientPlayingSessionState) => {
-                this._playingSessionState = body;
+                this.playingSessionState = body;
                 this.emit('ClientPlayingSessionState', body);
             }
         );
@@ -67,7 +66,7 @@ export default class Client extends Steam {
         this.conn.on(
             'ClientConcurrentSessionsBase',
             (body: CMsgClientPlayingSessionState) => {
-                this._playingSessionState = body;
+                this.playingSessionState = body;
                 this.emit('ClientPlayingSessionState', body);
             }
         );
@@ -85,7 +84,7 @@ export default class Client extends Steam {
         }
 
         // configure options
-        options = {
+        const logonOptions = {
             ...options,
             protocolVersion: 65580,
             cellId: 4294967295,
@@ -106,16 +105,16 @@ export default class Client extends Steam {
             priorityReason: 11,
             accessToken: options.refreshToken
         } as CMsgClientLogon;
-        delete options.refreshToken;
 
         // setup response
         const loginRes = {
-            machineName: options.machineName,
-            machineId: options.machineId
+            machineName: logonOptions.machineName,
+            machineId: logonOptions.machineId
         } as LoginRes;
 
         let responses = [...LOGIN_RESPONSES];
 
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             // expect responses to be received before timeout
             const timeout = setTimeout(() => {
@@ -133,9 +132,11 @@ export default class Client extends Steam {
                 if (responses.length) {
                     return;
                 }
+
+                // can resolve
                 clearTimeout(timeout);
                 // set extra peroperties to loginRes here
-                loginRes.clientPlayingSessionState = this._playingSessionState;
+                loginRes.clientPlayingSessionState = this.playingSessionState;
                 resolve(loginRes);
             };
 
@@ -178,7 +179,7 @@ export default class Client extends Steam {
             // send login request to steam
             loginRes.rawResponse = await this.conn.sendProtoPromise(
                 EMsg.ClientLogon,
-                options,
+                logonOptions,
                 EMsg.ClientLogOnResponse
             );
 
@@ -261,7 +262,7 @@ export default class Client extends Steam {
             body,
             EMsg.ClientPlayingSessionState
         );
-        this._playingSessionState = res;
+        this.playingSessionState = res;
         return res;
     }
 
@@ -298,34 +299,18 @@ export default class Client extends Steam {
      * Whether playing is blocked by another session
      */
     public get isPlayingBlocked() {
-        return !!this._playingSessionState.playingBlocked;
+        return !!this.playingSessionState.playingBlocked;
     }
 
     /**
      * Whether account is playing a game
      */
     public get isPlayingGame() {
-        return !!this._playingSessionState.playingApp;
+        return !!this.playingSessionState.playingApp;
     }
 
-    public get playingSessionState() {
-        return JSON.parse(
-            JSON.stringify(this._playingSessionState)
-        ) as CMsgClientPlayingSessionState;
-    }
-
-    private getAvatar(hash: Friend['avatarHash']): string {
-        // default avatar
-        const defaultHash = 'fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb';
-
-        let hashHex = hash.toString('hex');
-
-        // default avatar
-        if (hashHex === '0000000000000000000000000000000000000000') {
-            hashHex = defaultHash;
-        }
-
-        return `https://avatars.akamai.steamstatic.com/${hashHex}_full.jpg`;
+    public getPlayingSessionState() {
+        return { ...this.playingSessionState };
     }
 
     /**
@@ -361,10 +346,15 @@ export default class Client extends Steam {
         const friends = res.friends as Friend[];
 
         // return the status for this account
-        for (const friend of friends) {
+        const me = friends.find((friend) => {
             if (friend.friendid.equals(this.steamId)) {
                 return friend;
             }
+            return null;
+        });
+
+        if (me) {
+            return me;
         }
 
         throw new SteamClientError(
@@ -402,4 +392,18 @@ export default class Client extends Steam {
             throw new SteamClientError('Refresh token is bad.');
         }
     }
+}
+
+function getAvatar(hash: Friend['avatarHash']): string {
+    // default avatar
+    const defaultHash = 'fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb';
+
+    let hashHex = hash.toString('hex');
+
+    // default avatar
+    if (hashHex === '0000000000000000000000000000000000000000') {
+        hashHex = defaultHash;
+    }
+
+    return `https://avatars.akamai.steamstatic.com/${hashHex}_full.jpg`;
 }

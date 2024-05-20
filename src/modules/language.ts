@@ -7,6 +7,24 @@ import { EPersonaState } from '../../resources/language/enums.steamd.js';
 import { EMsg } from '../../resources/language/enums_clientserver.js';
 import { EAuthSessionGuardType } from '../../resources/language/steammessages_auth.steamclient.js';
 
+function createEnumMaps() {
+    const EnumsMap: Map<EMsg, keyof typeof EMsg> = new Map();
+    const EResultMap: Map<EResult, keyof typeof EResult> = new Map();
+
+    Object.entries(EMsg).forEach(([key, value]) => {
+        EnumsMap.set(value as EMsg, key as keyof typeof EMsg);
+    });
+
+    Object.entries(EResult).forEach(([key, value]) => {
+        EResultMap.set(value as EResult, key as keyof typeof EResult);
+    });
+
+    return {
+        EMsgMap: EnumsMap,
+        EResultMap
+    };
+}
+
 const { EMsgMap, EResultMap } = createEnumMaps();
 
 const Language: LanguageType = {
@@ -19,23 +37,3 @@ const Language: LanguageType = {
 } as const;
 
 export default Language;
-
-function createEnumMaps() {
-    const EnumsMap: Map<EMsg, keyof typeof EMsg> = new Map();
-    const EResultMap: Map<EResult, keyof typeof EResult> = new Map();
-
-    for (const key in EMsg) {
-        const value = EMsg[key as keyof typeof EMsg];
-        EnumsMap.set(value, key as keyof typeof EMsg);
-    }
-
-    for (const key in EResult) {
-        const value = EResult[key as keyof typeof EResult];
-        EResultMap.set(value, key as keyof typeof EResult);
-    }
-
-    return {
-        EMsgMap: EnumsMap,
-        EResultMap
-    };
-}

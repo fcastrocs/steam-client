@@ -66,14 +66,14 @@ export default class Auth extends EventEmitter {
                 }
             );
 
-        this.checkResult(res);
+        checkResult(res);
 
         this.waitingForConfirmation = true;
         this.partialSession = res;
         this.pollAuthStatusInterval();
 
         this.emit('waitingForConfirmation', {
-            qrCode: await this.genQRCode(res.challengeUrl),
+            qrCode: await genQRCode(res.challengeUrl),
             timeout: this.timeout
         } as Confirmation);
     }
@@ -106,7 +106,7 @@ export default class Auth extends EventEmitter {
                 'BeginAuthSessionViaCredentials',
                 {
                     accountName,
-                    encryptedPassword: this.encryptPass(
+                    encryptedPassword: encryptPass(
                         password,
                         rsa.publickeyMod,
                         rsa.publickeyExp
@@ -126,21 +126,21 @@ export default class Auth extends EventEmitter {
                 } as CAuthentication_BeginAuthSessionViaCredentials_Request
             );
 
-        this.checkResult(res);
+        checkResult(res);
 
         if (options && options.returnResponse) {
             return res;
         }
 
         // confirmation type without auth tokens
-        for (const item of res.allowedConfirmations) {
+        res.allowedConfirmations.forEach((item) => {
             if (item.confirmationType === EAuthSessionGuardType.Unknown) {
                 throw new SteamClientError('SteamGuardIsUnknown');
             }
             if (item.confirmationType === EAuthSessionGuardType.None) {
                 throw new SteamClientError('SteamGuardIsDisabled');
             }
-        }
+        });
 
         this.waitingForConfirmation = true;
         this.partialSession = res;
@@ -181,7 +181,7 @@ export default class Auth extends EventEmitter {
                 }
             );
 
-        this.checkResult(res);
+        checkResult(res);
     }
 
     public async accessTokenGenerateForApp(refreshToken: string) {
@@ -196,7 +196,7 @@ export default class Auth extends EventEmitter {
                 }
             );
 
-        this.checkResult(res);
+        checkResult(res);
         return res;
     }
 
@@ -205,6 +205,8 @@ export default class Auth extends EventEmitter {
      * @emits "authTokens" "getAuthTokensTimeout"
      */
     private pollAuthStatusInterval() {
+        let intervalId: NodeJS.Timeout;
+
         // timeout if did not respond to login attempt
         const timeoutId = setTimeout(() => {
             clearInterval(intervalId);
@@ -212,7 +214,7 @@ export default class Auth extends EventEmitter {
         }, this.timeout);
 
         // poll auth status until user responds to QR or timeouts
-        const intervalId = setInterval(async () => {
+        intervalId = setInterval(async () => {
             const pollStatus: CAuthentication_PollAuthSessionStatus_Response =
                 await this.steam.conn.sendServiceMethodCall(
                     this.serviceName,
@@ -223,11 +225,11 @@ export default class Auth extends EventEmitter {
                     }
                 );
 
-            this.checkResult(pollStatus);
+            checkResult(pollStatus);
 
             // got new qr Code
             if (pollStatus.newChallengeUrl) {
-                const qrCode = await this.genQRCode(pollStatus.newChallengeUrl);
+                const qrCode = await genQRCode(pollStatus.newChallengeUrl);
 
                 this.emit('waitingForConfirmation', {
                     qrCode
@@ -253,49 +255,49 @@ export default class Auth extends EventEmitter {
             this.emit('authTokens', pollStatus);
         }, this.partialSession.interval * 1000);
     }
+}
 
-    private async genQRCode(challengeUrl: string) {
-        return {
-            terminal: await QRCode.toString(challengeUrl, {
-                type: 'terminal',
-                small: true,
-                errorCorrectionLevel: 'H'
-            }),
-            image: await QRCode.toDataURL(challengeUrl, { type: 'image/webp' })
-        };
-    }
+async function genQRCode(challengeUrl: string) {
+    return {
+        terminal: await QRCode.toString(challengeUrl, {
+            type: 'terminal',
+            small: true,
+            errorCorrectionLevel: 'H'
+        }),
+        image: await QRCode.toDataURL(challengeUrl, { type: 'image/webp' })
+    };
+}
 
-    private encryptPass(
-        password: string,
-        publickeyMod: string,
-        publickeyExp: string
-    ) {
-        const key = new NodeRSA();
-
-        key.setOptions({
-            encryptionScheme: 'pkcs1',
-            signingScheme: 'pkcs1-sha256'
-        });
-
-        const mod2 = Buffer.from(publickeyMod, 'hex');
-        const exp2 = Buffer.from(publickeyExp, 'hex');
-
-        key.importKey(
-            {
-                n: mod2,
-                e: exp2
-            },
-            'components-public'
+async function checkResult(res: UnknownRecord) {
+    if (res.EResult !== EResult.OK) {
+        throw new SteamClientError(
+            EResultMap.get(res.EResult as ValueOf<typeof EResult>)
         );
-
-        return key.encrypt(password, 'base64');
     }
+}
 
-    private checkResult(res: UnknownRecord) {
-        if (res.EResult !== EResult.OK) {
-            throw new SteamClientError(
-                EResultMap.get(res.EResult as ValueOf<typeof EResult>)
-            );
-        }
-    }
+function encryptPass(
+    password: string,
+    publickeyMod: string,
+    publickeyExp: string
+) {
+    const key = new NodeRSA();
+
+    key.setOptions({
+        encryptionScheme: 'pkcs1',
+        signingScheme: 'pkcs1-sha256'
+    });
+
+    const mod2 = Buffer.from(publickeyMod, 'hex');
+    const exp2 = Buffer.from(publickeyExp, 'hex');
+
+    key.importKey(
+        {
+            n: mod2,
+            e: exp2
+        },
+        'components-public'
+    );
+
+    return key.encrypt(password, 'base64');
 }

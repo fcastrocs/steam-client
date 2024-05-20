@@ -24,16 +24,22 @@ export default class WebSocketConnection extends Base {
 
     public async connect(): Promise<void> {
         // set proxy agent if proxy was specified
+        let agent;
+
+        if (this.options.proxy) {
+            if (this.options.proxy.type === 'socks') {
+                agent = new SocksProxyAgent(
+                    `socks://${this.options.proxy.user}:${this.options.proxy.pass}@${this.options.proxy.host}:${this.options.proxy.port}`
+                );
+            } else {
+                agent = new HttpsProxyAgent(
+                    `http://${this.options.proxy.user}:${this.options.proxy.pass}@${this.options.proxy.host}:${this.options.proxy.port}`
+                );
+            }
+        }
+
         const wsOptions: ClientOptions = {
-            agent: !this.options.proxy
-                ? undefined
-                : this.options.proxy.type === 'socks'
-                  ? new SocksProxyAgent(
-                        `socks://${this.options.proxy.user}:${this.options.proxy.pass}@${this.options.proxy.host}:${this.options.proxy.port}`
-                    )
-                  : new HttpsProxyAgent(
-                        `http://${this.options.proxy.user}:${this.options.proxy.pass}@${this.options.proxy.host}:${this.options.proxy.port}`
-                    )
+            agent
         };
 
         const wsURL =
@@ -44,12 +50,12 @@ export default class WebSocketConnection extends Base {
         // received data from steam
         this.ws.on('message', (data, isBinary) => {
             if (!isBinary) {
-                return this.destroyConnection(
+                this.destroyConnection(
                     new SteamClientError('Data received was not binary.')
                 );
+            } else {
+                this.decodeData(data as Buffer);
             }
-
-            this.decodeData(data as Buffer);
         });
 
         return new Promise((resolve, reject) => {

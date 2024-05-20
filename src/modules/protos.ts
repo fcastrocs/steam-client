@@ -1,3 +1,6 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable @typescript-eslint/naming-convention */
+
 /**
  * Proto encode and decoder
  */
@@ -31,20 +34,24 @@ export function encode(type: string, body: UnknownRecord) {
 export async function loadProtos(): Promise<ProtoBuf.Root> {
     return new Promise((resolve, reject) => {
         fs.readdir(`${rootDir}steam`, (err, protoFileNames) => {
-            if (err) return reject(err);
+            if (err) {
+                reject(err);
+                return;
+            }
+
             const root = new ProtoBuf.Root();
 
-            root.resolvePath = (origin, target) => {
+            root.resolvePath = (_origin, target) => {
                 if (target.includes('google/protobuf')) {
                     return rootDir + target;
                 }
                 return `${rootDir}steam/${target}`;
             };
 
-            root.load(protoFileNames, (err, root) => {
-                if (err) return reject(err);
-                if (!root) throw new Error('Could not load protos.');
-                resolve(root);
+            root.load(protoFileNames, (loadErr, newRoot) => {
+                if (loadErr) return reject(loadErr);
+                if (!newRoot) throw new Error('Could not load protos.');
+                return resolve(newRoot);
             });
         });
     });

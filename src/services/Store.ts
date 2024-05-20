@@ -38,9 +38,9 @@ export default class Credentials {
 
         const appId: number[] = [];
 
-        for (const lineItem of res.purchaseReceiptInfo.lineItems) {
-            appId.push(lineItem.appid);
-        }
+        res.purchaseReceiptInfo.lineItems.forEach((lineItem) =>
+            appId.push(lineItem.appid)
+        );
 
         return this.steam.service.player.getOwnedGames({ appidsFilter: appId });
     }

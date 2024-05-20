@@ -1,7 +1,7 @@
+import { IterableElement, Merge } from 'type-fest';
 import { ConnectionOptions } from './connections/Base.js';
 import Steam from './Steam.js';
 import { Item } from './services/Econ.js';
-import { IterableElement, Merge } from 'type-fest';
 import { CMsgClientPersonaState } from './protos/steammessages_clientserver_friends.js';
 import { CPlayer_GetOwnedGames_Response } from './protos/steammessages_player.steamclient.js';
 import { SteamClientError } from './index.js';
@@ -108,7 +108,5 @@ export default class Client extends Steam {
      * Whether account is playing a game
      */
     get isPlayingGame(): boolean;
-    get playingSessionState(): CMsgClientPlayingSessionState;
+    getPlayingSessionState(): CMsgClientPlayingSessionState;
 }
-
-export default Client;

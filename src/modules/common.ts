@@ -12,7 +12,7 @@ export class SteamClientError extends Error {
 }
 
 export function getKeyByValue(object: UnknownRecord, value: number) {
-    const key = Object.keys(object).find((key) => object[key] === value);
+    const key = Object.keys(object).find((k) => object[k] === value);
     if (!key)
         throw new SteamClientError(
             `Could not find key from value ${value} of ${object}`
