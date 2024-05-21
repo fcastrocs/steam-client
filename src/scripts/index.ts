@@ -4,8 +4,8 @@
  */
 
 import fs from 'fs';
-import buildEnums from './buildEnumsAndProtoTypings.js';
-import fetchProtos from './fetchProtos.js';
+import buildEnums from './buildEnumsAndProtoTypings';
+import fetchProtos from './fetchProtos';
 
 const LANGUAGE_PATH = './resources/language/';
 const PROTOS_TYPES_PATH = './@types/protos/';
