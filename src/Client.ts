@@ -3,7 +3,7 @@ import { ValueOf } from 'type-fest';
 import Steam from './Steam';
 import Language from './modules/language';
 import { SteamClientError, isEmpty } from './modules/common';
-import { EOSType } from '../resources/language/enums.steamd';
+import { EOSType } from './resources/language/enums.steamd';
 import type { Friend, LoginOptions, LoginRes } from '../@types/Client';
 import type { ConnectionOptions } from '../@types/connections/Base';
 import type {

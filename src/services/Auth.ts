@@ -5,7 +5,7 @@ import { UnknownRecord, ValueOf } from 'type-fest';
 import type Steam from '../Steam';
 import Language from '../modules/language';
 import { SteamClientError } from '../modules/common';
-import { EOSType } from '../../resources/language/enums.steamd';
+import { EOSType } from '../resources/language/enums.steamd';
 import { Confirmation } from '../../@types/services/Auth';
 import type {
     CAuthentication_BeginAuthSessionViaCredentials_Response,
@@ -16,12 +16,12 @@ import type {
     CAuthentication_PollAuthSessionStatus_Response,
     CAuthentication_BeginAuthSessionViaCredentials_Request
 } from '../../@types/protos/steammessages_auth.steamclient';
-import { ESessionPersistence } from '../../resources/language/enums';
+import { ESessionPersistence } from '../resources/language/enums';
 import {
     EAuthTokenPlatformType,
     EAuthSessionGuardType,
     ETokenRenewalType
-} from '../../resources/language/steammessages_auth.steamclient';
+} from '../resources/language/steammessages_auth.steamclient';
 
 const { EResultMap, EResult } = Language;
 
