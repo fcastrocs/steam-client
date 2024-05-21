@@ -150,7 +150,7 @@ async function fetchEResult() {
         let newLine = line;
 
         if (newLine.match(/^enum /)) {
-            stream.write(`export ${newLine} {\n`);
+            stream.write(`${newLine} {\n`);
             return;
         }
 
@@ -162,7 +162,7 @@ async function fetchEResult() {
             stream.write(`\t${newLine}\n`);
         }
 
-        if (newLine.includes('}')) stream.write(`}\n\n`);
+        if (newLine.includes('}')) stream.write(`}\n\n export default EResult`);
     });
 
     return new Promise((resolve) => {
