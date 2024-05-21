@@ -18,7 +18,6 @@
             "@/*": ["./src/*"]
         }
     },
-    "exclude": ["scripts"],
-    "include": ["src/**/*", "@types", "resources/language"],
+    "include": ["./src/**/*"],
     "compileOnSave": false
 }
