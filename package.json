@@ -7,7 +7,7 @@
     "scripts": {
         "prepare": "husky",
         "build": "tsc",
-        "buildResources": "node ./dist/scripts/index.js",
+        "buildResources": "npx tsx ./scripts/index.ts",
         "test": "tsc && vitest",
         "lint": "eslint --ext .ts src",
         "lint:fix": "eslint --fix --ext .ts .",
