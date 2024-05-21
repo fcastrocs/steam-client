@@ -12,7 +12,7 @@ const PROTOS_TYPES_PATH = '@types/protos/';
 
 (async () => {
     await fetchProtos();
-    // await buildEnums();
+    await buildEnums();
     // declareEnumTypes();
 })();
 

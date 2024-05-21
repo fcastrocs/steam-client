@@ -8,8 +8,8 @@ import fs, { createWriteStream } from 'fs';
 import path from 'path';
 import { loadProtos } from '../src/modules/protos';
 
-const LANGUAGE_PATH = '../src/resources/language/';
-const PROTOS_TYPES_PATH = '../@types/protos/';
+const LANGUAGE_PATH = './src/resources/language/';
+const PROTOS_TYPES_PATH = '@types/protos/';
 
 const writeStreams: Map<string, fs.WriteStream> = new Map();
 const processedEnums: Set<string> = new Set();
@@ -29,8 +29,11 @@ export default async function main() {
  */
 async function extractEnumsAndProtoTypings() {
     const root = await loadProtos();
+    if (!root.nested) return;
 
     Object.keys(root.nested).forEach((key) => {
+        if (!root.nested) return;
+
         const reflectionObj = root.nested[key];
         const name = reflectionObj.toString();
 
