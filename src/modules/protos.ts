@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 
 const FILENAME = fileURLToPath(import.meta.url);
 const DIRNAME = path.dirname(FILENAME);
-const rootDir = path.join(DIRNAME, '../../../resources/protos/');
+const rootDir = path.join(DIRNAME, '../resources/protos/');
 const Protos = await loadProtos();
 
 export { Protos as Root };

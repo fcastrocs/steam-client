@@ -6,10 +6,10 @@
 import { ReflectionObject } from 'protobufjs';
 import fs, { createWriteStream } from 'fs';
 import path from 'path';
-import { loadProtos } from '../modules/protos';
+import { loadProtos } from '../src/modules/protos';
 
-const LANGUAGE_PATH = './resources/language/';
-const PROTOS_TYPES_PATH = './@types/protos/';
+const LANGUAGE_PATH = '../src/resources/language/';
+const PROTOS_TYPES_PATH = '../@types/protos/';
 
 const writeStreams: Map<string, fs.WriteStream> = new Map();
 const processedEnums: Set<string> = new Set();
@@ -224,9 +224,10 @@ function processProtoType(proto: ReflectionObject, indents: number): string {
         // nested data type
         if (dataType[0] === '.') {
             const nestedObj = root.lookup(dataType);
+            if (!nestedObj) return;
             const name = nestedObj?.toString();
 
-            if (name?.includes('Type .')) {
+            if (name.includes('Type .')) {
                 dataType = processProtoType(nestedObj, indents + 1);
             } else if (name?.includes('Enum .')) {
                 processEmum(nestedObj);

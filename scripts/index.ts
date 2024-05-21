@@ -4,16 +4,16 @@
  */
 
 import fs from 'fs';
-import buildEnums from './buildEnumsAndProtoTypings';
 import fetchProtos from './fetchProtos';
+import buildEnums from './buildEnumsAndProtoTypings';
 
-const LANGUAGE_PATH = './resources/language/';
-const PROTOS_TYPES_PATH = './@types/protos/';
+const LANGUAGE_PATH = 'src/resources/language/';
+const PROTOS_TYPES_PATH = '@types/protos/';
 
 (async () => {
     await fetchProtos();
-    await buildEnums();
-    declareEnumTypes();
+    // await buildEnums();
+    // declareEnumTypes();
 })();
 
 function declareEnumTypes() {

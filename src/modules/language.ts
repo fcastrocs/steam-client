@@ -2,10 +2,10 @@
  * Load steam language
  */
 import { LanguageType } from '../../@types/index';
-import { EResult } from '../../resources/language/EResult';
-import { EPersonaState } from '../../resources/language/enums.steamd';
-import { EMsg } from '../../resources/language/enums_clientserver';
-import { EAuthSessionGuardType } from '../../resources/language/steammessages_auth.steamclient';
+import { EResult } from '../resources/language/EResult';
+import { EPersonaState } from '../resources/language/enums.steamd';
+import { EMsg } from '../resources/language/enums_clientserver';
+import { EAuthSessionGuardType } from '../resources/language/steammessages_auth.steamclient';
 
 function createEnumMaps() {
     const EnumsMap: Map<EMsg, keyof typeof EMsg> = new Map();
