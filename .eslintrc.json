@@ -3,7 +3,7 @@
         "es2021": true,
         "node": true
     },
-    "ignorePatterns": ["scripts"],
+    "ignorePatterns": ["scripts", "tests"],
     "extends": ["airbnb-base", "airbnb-typescript/base", "prettier"],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
