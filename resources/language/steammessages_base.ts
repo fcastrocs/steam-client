@@ -1,6 +1,7 @@
+/* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
 
 export enum EBanContentCheckResult {
@@ -57,10 +58,5 @@ export enum PartnerEventNotificationType {
 	EEventBroadcastStart = 1,
 	EEventMatchStart = 2,
 	EEventPartnerMaxType = 3,
-}
-
-export enum ESessionDisposition {
-	Normal = 0,
-	Disconnect = 1,
 }
 

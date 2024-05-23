@@ -1,13 +1,8 @@
+/* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
-
-export enum ESessionPersistence {
-	Invalid = -1,
-	Ephemeral = 0,
-	Persistent = 1,
-}
 
 export enum EPublishedFileQueryType {
 	RankedByVote = 0,
@@ -426,6 +421,12 @@ export enum ETouchGesture {
 	PinchEnd = 11,
 	FlingStart = 12,
 	FlingCancelled = 13,
+}
+
+export enum ESessionPersistence {
+	Invalid = -1,
+	Ephemeral = 0,
+	Persistent = 1,
 }
 
 export enum ENewSteamAnnouncementState {

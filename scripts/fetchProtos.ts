@@ -5,9 +5,8 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
 
-const PROTOS_PATH = './src/resources/protos/';
-const PROTOS_URL =
-    'https://raw.githubusercontent.com/SteamDatabase/Protobufs/master/';
+const PROTOS_PATH = 'resources/protos/';
+const PROTOS_URL = 'https://raw.githubusercontent.com/SteamDatabase/Protobufs/master/';
 
 const PROTOS = [
     'contenthubs.proto',
@@ -36,16 +35,11 @@ const PROTOS = [
 export default async function fetchProtos() {
     // fetch steam protos
     PROTOS.forEach(async (proto) => {
-        let text = await fetch(`${PROTOS_URL}steam/${proto}`).then((res) =>
-            res.text()
-        );
+        let text = await fetch(`${PROTOS_URL}steam/${proto}`).then((res) => res.text());
 
         // bug fix, incorrectly named proto
         if (proto === 'steammessages_clientserver_login.proto') {
-            text = text.replace(
-                'CMsgClientLogonResponse',
-                'CMsgClientLogOnResponse'
-            );
+            text = text.replace('CMsgClientLogonResponse', 'CMsgClientLogOnResponse');
         }
 
         if (!text) throw new Error(`Failed to fetch proto ${proto}`);
@@ -53,8 +47,6 @@ export default async function fetchProtos() {
     });
 
     // fetch descriptor proto
-    const text = await fetch(
-        `${PROTOS_URL}google/protobuf/descriptor.proto`
-    ).then((res) => res.text());
+    const text = await fetch(`${PROTOS_URL}google/protobuf/descriptor.proto`).then((res) => res.text());
     fs.writeFileSync(`${PROTOS_PATH}google/protobuf/descriptor.proto`, text);
 }

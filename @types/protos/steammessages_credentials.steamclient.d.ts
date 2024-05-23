@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -20,10 +20,7 @@ export type CCredentials_GetSteamGuardDetails_Request = {
 	webcookie?: string
 	timestampMinimumWanted?: number
 	deprecatedIpaddress?: number
-	ipAddress?: {
-		v4?: number
-		v6?: Buffer
-	}
+	ipAddress?: .CMsgIPAddress
 }
 
 export type CCredentials_GetSteamGuardDetails_Response = {
@@ -33,15 +30,7 @@ export type CCredentials_GetSteamGuardDetails_Response = {
 	deprecatedTimestampMachineSteamguardEnabled?: number
 	deprecatedAuthenticationExistsFromGeolocBeforeMintime?: boolean
 	deprecatedMachineId?: Long
-	sessionData?: {
-		machineId?: Long
-		machineNameUserchosen?: string
-		timestampMachineSteamguardEnabled?: number
-		authenticationExistsFromGeolocBeforeMintime?: boolean
-		authenticationExistsFromSameIpBeforeMintime?: boolean
-		publicIpv4?: number
-		publicIpAddress?: string
-	}[]
+	sessionData?: .CCredentials_GetSteamGuardDetails_Response.SessionData[]
 	isTwofactorEnabled?: boolean
 	timestampTwofactorEnabled?: number
 	isPhoneVerified?: boolean

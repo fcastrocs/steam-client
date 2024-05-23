@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -51,15 +51,7 @@ export type CInventory_AddItem_Request = {
 export type CInventory_ModifyItems_Request = {
 	appid?: number
 	steamid?: Long
-	updates?: {
-		itemid?: Long
-		removeProperty?: boolean
-		propertyName?: string
-		propertyValueBool?: boolean
-		propertyValueInt?: Long
-		propertyValueString?: string
-		propertyValueFloat?: number
-	}[]
+	updates?: .CInventory_ModifyItems_Request.ItemPropertyUpdate[]
 	timestamp?: number
 }
 
@@ -117,10 +109,7 @@ export type CInventory_GetUserPurchaseInfo_Response = {
 export type CInventory_PurchaseInit_Request = {
 	appid?: number
 	language?: number
-	lineItems?: {
-		itemdefid?: Long
-		quantity?: number
-	}[]
+	lineItems?: .CInventory_PurchaseInit_Request.LineItem[]
 }
 
 export type CInventory_PurchaseInit_Response = {
@@ -142,13 +131,6 @@ export type CInventory_InspectItem_Request = {
 
 export type CInventoryClient_NewItems_Notification = {
 	appid?: number
-	inventoryResponse?: {
-		etag?: string
-		removeditemids?: Long[]
-		itemJson?: string
-		itemdefJson?: string
-		ticket?: Buffer
-		replayed?: boolean
-	}
+	inventoryResponse?: .CInventory_Response
 }
 

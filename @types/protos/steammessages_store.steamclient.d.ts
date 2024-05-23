@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -30,39 +30,12 @@ export type CStore_PurchaseReceiptInfo = {
 	errorLinkText?: string
 	errorLinkUrl?: string
 	errorAppid?: number
-	lineItems?: {
-		packageid?: number
-		appid?: number
-		lineItemDescription?: string
-	}[]
+	lineItems?: .CStore_PurchaseReceiptInfo.LineItem[]
 }
 
 export type CStore_RegisterCDKey_Response = {
 	purchaseResultDetails?: number
-	purchaseReceiptInfo?: {
-		transactionid?: Long
-		packageid?: number
-		purchaseStatus?: number
-		resultDetail?: number
-		transactionTime?: number
-		paymentMethod?: number
-		basePrice?: Long
-		totalDiscount?: Long
-		tax?: Long
-		shipping?: Long
-		currencyCode?: number
-		countryCode?: string
-		errorHeadline?: string
-		errorString?: string
-		errorLinkText?: string
-		errorLinkUrl?: string
-		errorAppid?: number
-		lineItems?: {
-			packageid?: number
-			appid?: number
-			lineItemDescription?: string
-		}[]
-	}
+	purchaseReceiptInfo?: .CStore_PurchaseReceiptInfo
 }
 
 export type CStore_GetMostPopularTags_Request = {
@@ -70,10 +43,7 @@ export type CStore_GetMostPopularTags_Request = {
 }
 
 export type CStore_GetMostPopularTags_Response = {
-	tags?: {
-		tagid?: number
-		name?: string
-	}[]
+	tags?: .CStore_GetMostPopularTags_Response.Tag[]
 }
 
 export type CStore_GetLocalizedNameForTags_Request = {
@@ -82,12 +52,7 @@ export type CStore_GetLocalizedNameForTags_Request = {
 }
 
 export type CStore_GetLocalizedNameForTags_Response = {
-	tags?: {
-		tagid?: number
-		englishName?: string
-		name?: string
-		normalizedName?: string
-	}[]
+	tags?: .CStore_GetLocalizedNameForTags_Response.Tag[]
 }
 
 export type CStore_GetTagList_Request = {
@@ -97,10 +62,7 @@ export type CStore_GetTagList_Request = {
 
 export type CStore_GetTagList_Response = {
 	versionHash?: string
-	tags?: {
-		tagid?: number
-		name?: string
-	}[]
+	tags?: .CStore_GetTagList_Response.Tag[]
 }
 
 export type CStoreDiscoveryQueueSettings = {
@@ -120,71 +82,23 @@ export type CStoreDiscoveryQueueSettings = {
 }
 
 export type CStore_GetDiscoveryQueue_Request = {
-	queueType?: typeof EStoreDiscoveryQueueType[keyof typeof EStoreDiscoveryQueueType]
+	queueType?: .EStoreDiscoveryQueueType
 	countryCode?: string
 	rebuildQueue?: boolean
 	settingsChanged?: boolean
-	settings?: {
-		osWin?: boolean
-		osMac?: boolean
-		osLinux?: boolean
-		fullControllerSupport?: boolean
-		nativeSteamController?: boolean
-		includeComingSoon?: boolean
-		excludedTagids?: number[]
-		excludeEarlyAccess?: boolean
-		excludeVideos?: boolean
-		excludeSoftware?: boolean
-		excludeDlc?: boolean
-		excludeSoundtracks?: boolean
-		featuredTagids?: number[]
-	}
+	settings?: .CStoreDiscoveryQueueSettings
 	rebuildQueueIfStale?: boolean
 	ignoreUserPreferences?: boolean
 	noExperimentalResults?: boolean
 	experimentalCohort?: number
 	debugGetSolrQuery?: boolean
-	storePageFilter?: {
-		saleFilter?: {
-			saleTagid?: number
-		}
-		contentHubFilter?: {
-			hubType?: string
-			hubCategory?: string
-			hubTagid?: number
-			discountFilter?: typeof EContentHubDiscountFilterType[keyof typeof EContentHubDiscountFilterType]
-			optin?: {
-				name?: string
-				optinTagid?: number
-				pruneTagid?: number
-				optinOnly?: boolean
-			}
-		}
-		storeFilters?: {
-			filterJson?: string
-			cacheKey?: string
-		}[]
-	}
+	storePageFilter?: .CStorePageFilter
 }
 
 export type CStore_GetDiscoveryQueue_Response = {
 	appids?: number[]
 	countryCode?: string
-	settings?: {
-		osWin?: boolean
-		osMac?: boolean
-		osLinux?: boolean
-		fullControllerSupport?: boolean
-		nativeSteamController?: boolean
-		includeComingSoon?: boolean
-		excludedTagids?: number[]
-		excludeEarlyAccess?: boolean
-		excludeVideos?: boolean
-		excludeSoftware?: boolean
-		excludeDlc?: boolean
-		excludeSoundtracks?: boolean
-		featuredTagids?: number[]
-	}
+	settings?: .CStoreDiscoveryQueueSettings
 	skipped?: number
 	exhausted?: boolean
 	experimentalCohort?: number
@@ -192,73 +106,19 @@ export type CStore_GetDiscoveryQueue_Response = {
 }
 
 export type CStore_GetDiscoveryQueueSettings_Request = {
-	queueType?: typeof EStoreDiscoveryQueueType[keyof typeof EStoreDiscoveryQueueType]
-	storePageFilter?: {
-		saleFilter?: {
-			saleTagid?: number
-		}
-		contentHubFilter?: {
-			hubType?: string
-			hubCategory?: string
-			hubTagid?: number
-			discountFilter?: typeof EContentHubDiscountFilterType[keyof typeof EContentHubDiscountFilterType]
-			optin?: {
-				name?: string
-				optinTagid?: number
-				pruneTagid?: number
-				optinOnly?: boolean
-			}
-		}
-		storeFilters?: {
-			filterJson?: string
-			cacheKey?: string
-		}[]
-	}
+	queueType?: .EStoreDiscoveryQueueType
+	storePageFilter?: .CStorePageFilter
 }
 
 export type CStore_GetDiscoveryQueueSettings_Response = {
 	countryCode?: string
-	settings?: {
-		osWin?: boolean
-		osMac?: boolean
-		osLinux?: boolean
-		fullControllerSupport?: boolean
-		nativeSteamController?: boolean
-		includeComingSoon?: boolean
-		excludedTagids?: number[]
-		excludeEarlyAccess?: boolean
-		excludeVideos?: boolean
-		excludeSoftware?: boolean
-		excludeDlc?: boolean
-		excludeSoundtracks?: boolean
-		featuredTagids?: number[]
-	}
+	settings?: .CStoreDiscoveryQueueSettings
 }
 
 export type CStore_SkipDiscoveryQueueItem_Request = {
-	queueType?: typeof EStoreDiscoveryQueueType[keyof typeof EStoreDiscoveryQueueType]
+	queueType?: .EStoreDiscoveryQueueType
 	appid?: number
-	storePageFilter?: {
-		saleFilter?: {
-			saleTagid?: number
-		}
-		contentHubFilter?: {
-			hubType?: string
-			hubCategory?: string
-			hubTagid?: number
-			discountFilter?: typeof EContentHubDiscountFilterType[keyof typeof EContentHubDiscountFilterType]
-			optin?: {
-				name?: string
-				optinTagid?: number
-				pruneTagid?: number
-				optinOnly?: boolean
-			}
-		}
-		storeFilters?: {
-			filterJson?: string
-			cacheKey?: string
-		}[]
-	}
+	storePageFilter?: .CStorePageFilter
 }
 
 export type CStore_SkipDiscoveryQueueItem_Response = {
@@ -275,46 +135,20 @@ export type CStore_GetUserGameInterestState_Response = {
 	wishlist?: boolean
 	ignored?: boolean
 	following?: boolean
-	inQueues?: typeof EStoreDiscoveryQueueType[keyof typeof EStoreDiscoveryQueueType][]
-	queuesWithSkip?: typeof EStoreDiscoveryQueueType[keyof typeof EStoreDiscoveryQueueType][]
+	inQueues?: .EStoreDiscoveryQueueType[]
+	queuesWithSkip?: .EStoreDiscoveryQueueType[]
 	queueItemsRemaining?: number[]
 	queueItemsNextAppid?: number[]
 	temporarilyOwned?: boolean
-	queues?: {
-		type?: typeof EStoreDiscoveryQueueType[keyof typeof EStoreDiscoveryQueueType]
-		skipped?: boolean
-		itemsRemaining?: number
-		nextAppid?: number
-		experimentalCohort?: number
-	}[]
+	queues?: .CStore_GetUserGameInterestState_Response.InQueue[]
 	ignoredReason?: number
-	betaStatus?: typeof EPlaytestStatus[keyof typeof EPlaytestStatus]
+	betaStatus?: .EPlaytestStatus
 }
 
 export type CStore_GetDiscoveryQueueSkippedApps_Request = {
 	steamid?: Long
-	queueType?: typeof EStoreDiscoveryQueueType[keyof typeof EStoreDiscoveryQueueType]
-	storePageFilter?: {
-		saleFilter?: {
-			saleTagid?: number
-		}
-		contentHubFilter?: {
-			hubType?: string
-			hubCategory?: string
-			hubTagid?: number
-			discountFilter?: typeof EContentHubDiscountFilterType[keyof typeof EContentHubDiscountFilterType]
-			optin?: {
-				name?: string
-				optinTagid?: number
-				pruneTagid?: number
-				optinOnly?: boolean
-			}
-		}
-		storeFilters?: {
-			filterJson?: string
-			cacheKey?: string
-		}[]
-	}
+	queueType?: .EStoreDiscoveryQueueType
+	storePageFilter?: .CStorePageFilter
 }
 
 export type CStore_GetDiscoveryQueueSkippedApps_Response = {
@@ -323,7 +157,7 @@ export type CStore_GetDiscoveryQueueSkippedApps_Response = {
 
 export type CStore_ReportApp_Request = {
 	appid?: number
-	reportType?: typeof EAppReportType[keyof typeof EAppReportType]
+	reportType?: .EAppReportType
 	report?: string
 }
 
@@ -341,47 +175,20 @@ export type CStore_UserPreferences = {
 	platformLinux?: boolean
 	timestampUpdated?: number
 	hideStoreBroadcast?: boolean
-	reviewScorePreference?: typeof EUserReviewScorePreference[keyof typeof EUserReviewScorePreference]
+	reviewScorePreference?: .EUserReviewScorePreference
 	timestampContentDescriptorPreferencesUpdated?: number
-	provideDeckFeedback?: typeof EProvideDeckFeedbackPreference[keyof typeof EProvideDeckFeedbackPreference]
+	provideDeckFeedback?: .EProvideDeckFeedbackPreference
 	additionalLanguages?: string
 }
 
 export type CStore_UserTagPreferences = {
-	tagsToExclude?: {
-		tagid?: number
-		name?: string
-		timestampAdded?: number
-	}[]
+	tagsToExclude?: .CStore_UserTagPreferences.Tag[]
 }
 
 export type CStore_GetStorePreferences_Response = {
-	preferences?: {
-		primaryLanguage?: number
-		secondaryLanguages?: number
-		platformWindows?: boolean
-		platformMac?: boolean
-		platformLinux?: boolean
-		timestampUpdated?: number
-		hideStoreBroadcast?: boolean
-		reviewScorePreference?: typeof EUserReviewScorePreference[keyof typeof EUserReviewScorePreference]
-		timestampContentDescriptorPreferencesUpdated?: number
-		provideDeckFeedback?: typeof EProvideDeckFeedbackPreference[keyof typeof EProvideDeckFeedbackPreference]
-		additionalLanguages?: string
-	}
-	tagPreferences?: {
-		tagsToExclude?: {
-			tagid?: number
-			name?: string
-			timestampAdded?: number
-		}[]
-	}
-	contentDescriptorPreferences?: {
-		contentDescriptorsToExclude?: {
-			contentDescriptorid?: number
-			timestampAdded?: number
-		}[]
-	}
+	preferences?: .CStore_UserPreferences
+	tagPreferences?: .CStore_UserTagPreferences
+	contentDescriptorPreferences?: .UserContentDescriptorPreferences
 }
 
 export type CStore_GetTrendingAppsAmongFriends_Request = {
@@ -390,17 +197,13 @@ export type CStore_GetTrendingAppsAmongFriends_Request = {
 }
 
 export type CStore_GetTrendingAppsAmongFriends_Response = {
-	trendingApps?: {
-		appid?: number
-		steamidsTopFriends?: Long[]
-		totalFriends?: number
-	}[]
+	trendingApps?: .CStore_GetTrendingAppsAmongFriends_Response.TrendingAppData[]
 }
 
 export type CStore_MigratePartnerLinkTracking_Notification = {
 	accountid?: number
 	browserid?: Long
-	backfillSource?: typeof EPartnerLinkTrackingBackfillSource[keyof typeof EPartnerLinkTrackingBackfillSource]
+	backfillSource?: .EPartnerLinkTrackingBackfillSource
 }
 
 export type CStore_UpdatePackageReservations_Request = {
@@ -410,18 +213,7 @@ export type CStore_UpdatePackageReservations_Request = {
 }
 
 export type CStore_UpdatePackageReservations_Response = {
-	reservationStatus?: {
-		packageid?: number
-		reservationState?: number
-		queuePosition?: number
-		totalQueueSize?: number
-		reservationCountryCode?: string
-		expired?: boolean
-		timeExpires?: number
-		timeReserved?: number
-		rtimeEstimatedNotification?: number
-		notificatonToken?: string
-	}[]
+	reservationStatus?: .CPackageReservationStatus[]
 }
 
 export type CReservationPositionMessage = {
@@ -435,15 +227,7 @@ export type CReservationPositionMessage = {
 }
 
 export type CStore_SetReservationPositionMessage_Request = {
-	settings?: {
-		edistributor?: number
-		productIdentifier?: string
-		startQueuePosition?: number
-		rtimeEstimatedNotification?: number
-		localizationToken?: string
-		accountid?: number
-		rtimeCreated?: number
-	}[]
+	settings?: .CReservationPositionMessage[]
 }
 
 export type CStore_SetReservationPositionMessage_Response = {
@@ -462,15 +246,7 @@ export type CStore_GetAllReservationPositionMessages_Request = {
 }
 
 export type CStore_GetAllReservationPositionMessages_Response = {
-	settings?: {
-		edistributor?: number
-		productIdentifier?: string
-		startQueuePosition?: number
-		rtimeEstimatedNotification?: number
-		localizationToken?: string
-		accountid?: number
-		rtimeCreated?: number
-	}[]
+	settings?: .CReservationPositionMessage[]
 }
 
 export type CStore_ReloadAllReservationPositionMessages_Notification = {
@@ -478,7 +254,7 @@ export type CStore_ReloadAllReservationPositionMessages_Notification = {
 
 export type CSteamDeckCompatibility_SetFeedback_Request = {
 	appid?: number
-	feedback?: typeof ESteamDeckCompatibilityFeedback[keyof typeof ESteamDeckCompatibilityFeedback]
+	feedback?: .ESteamDeckCompatibilityFeedback
 }
 
 export type CSteamDeckCompatibility_SetFeedback_Response = {
@@ -491,35 +267,12 @@ export type CSteamDeckCompatibility_ShouldPrompt_Request = {
 export type CSteamDeckCompatibility_ShouldPrompt_Response = {
 	prompt?: boolean
 	feedbackEligible?: boolean
-	existingFeedback?: typeof ESteamDeckCompatibilityFeedback[keyof typeof ESteamDeckCompatibilityFeedback]
+	existingFeedback?: .ESteamDeckCompatibilityFeedback
 }
 
 export type CStore_StorePreferencesChanged_Notification = {
-	preferences?: {
-		primaryLanguage?: number
-		secondaryLanguages?: number
-		platformWindows?: boolean
-		platformMac?: boolean
-		platformLinux?: boolean
-		timestampUpdated?: number
-		hideStoreBroadcast?: boolean
-		reviewScorePreference?: typeof EUserReviewScorePreference[keyof typeof EUserReviewScorePreference]
-		timestampContentDescriptorPreferencesUpdated?: number
-		provideDeckFeedback?: typeof EProvideDeckFeedbackPreference[keyof typeof EProvideDeckFeedbackPreference]
-		additionalLanguages?: string
-	}
-	tagPreferences?: {
-		tagsToExclude?: {
-			tagid?: number
-			name?: string
-			timestampAdded?: number
-		}[]
-	}
-	contentDescriptorPreferences?: {
-		contentDescriptorsToExclude?: {
-			contentDescriptorid?: number
-			timestampAdded?: number
-		}[]
-	}
+	preferences?: .CStore_UserPreferences
+	tagPreferences?: .CStore_UserTagPreferences
+	contentDescriptorPreferences?: .UserContentDescriptorPreferences
 }
 

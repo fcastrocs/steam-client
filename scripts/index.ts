@@ -7,7 +7,7 @@ import fs from 'fs';
 import fetchProtos from './fetchProtos';
 import buildEnums from './buildEnumsAndProtoTypings';
 
-const LANGUAGE_PATH = './src/resources/language/';
+const LANGUAGE_PATH = 'resources/language/';
 const PROTOS_TYPES_PATH = '@types/protos/';
 
 (async () => {
@@ -25,9 +25,6 @@ function declareEnumTypes() {
         file = file.replace(/ {/g, ' = {');
         file = file.replace(/}/g, '} as const;');
         // file = file.replace(/ = /g, " = ");
-        fs.writeFileSync(
-            `${PROTOS_TYPES_PATH}enums/${filename.replace('.ts', '.d.ts')}`,
-            file
-        );
+        fs.writeFileSync(`${PROTOS_TYPES_PATH}enums/${filename.replace('.ts', '.d.ts')}`, file);
     });
 }

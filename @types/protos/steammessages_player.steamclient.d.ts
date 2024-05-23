@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -11,13 +11,7 @@ export type CPlayer_GetRecentPlaytimeSessionsForChild_Request = {
 }
 
 export type CPlayer_GetRecentPlaytimeSessionsForChild_Response = {
-	sessions?: {
-		timeStart?: number
-		timeEnd?: number
-		appid?: number
-		deviceType?: number
-		disconnected?: boolean
-	}[]
+	sessions?: .CPlayer_GetRecentPlaytimeSessionsForChild_Response.PlaytimeSession[]
 }
 
 export type CPlayer_GetPlayerLinkDetails_Request = {
@@ -25,44 +19,7 @@ export type CPlayer_GetPlayerLinkDetails_Request = {
 }
 
 export type CPlayer_GetPlayerLinkDetails_Response = {
-	accounts?: {
-		publicData?: {
-			steamid?: Long[]
-			visibilityState?: number
-			privacyState?: number
-			profileState?: number
-			banExpiresTime?: number
-			accountFlags?: number
-			shaDigestAvatar?: Buffer
-			personaName?: string
-			profileUrl?: string
-			contentCountryRestricted?: boolean
-		}
-		privateData?: {
-			personaState?: number
-			personaStateFlags?: number
-			timeCreated?: number
-			gameId?: Long
-			gameServerSteamId?: Long
-			gameServerIpAddress?: number
-			gameServerPort?: number
-			gameExtraInfo?: string
-			accountName?: string
-			lobbySteamId?: Long
-			richPresenceKv?: string
-			broadcastSessionId?: Long
-			watchingBroadcastAccountid?: number
-			watchingBroadcastAppid?: number
-			watchingBroadcastViewers?: number
-			watchingBroadcastTitle?: string
-			lastLogoffTime?: number
-			lastSeenOnline?: number
-			gameOsType?: number
-			gameDeviceType?: number
-			gameDeviceName?: string
-			gameIsPrivate?: boolean
-		}
-	}[]
+	accounts?: .CPlayer_GetPlayerLinkDetails_Response.PlayerLinkDetails[]
 }
 
 export type CPlayer_GetMutualFriendsForIncomingInvites_Request = {
@@ -74,10 +31,7 @@ export type CPlayer_IncomingInviteMutualFriendList = {
 }
 
 export type CPlayer_GetMutualFriendsForIncomingInvites_Response = {
-	incomingInviteMutualFriendsLists?: {
-		steamid?: Long
-		mutualFriendAccountIds?: number[]
-	}[]
+	incomingInviteMutualFriendsLists?: .CPlayer_IncomingInviteMutualFriendList[]
 }
 
 export type CPlayer_GetOwnedGames_Request = {
@@ -93,26 +47,7 @@ export type CPlayer_GetOwnedGames_Request = {
 
 export type CPlayer_GetOwnedGames_Response = {
 	gameCount?: number
-	games?: {
-		appid?: number
-		name?: string
-		playtime_2weeks?: number
-		playtimeForever?: number
-		imgIconUrl?: string
-		hasCommunityVisibleStats?: boolean
-		playtimeWindowsForever?: number
-		playtimeMacForever?: number
-		playtimeLinuxForever?: number
-		rtimeLastPlayed?: number
-		capsuleFilename?: string
-		sortAs?: string
-		hasWorkshop?: boolean
-		hasMarket?: boolean
-		hasDlc?: boolean
-		hasLeaderboards?: boolean
-		contentDescriptorids?: number[]
-		playtimeDisconnected?: number
-	}[]
+	games?: .CPlayer_GetOwnedGames_Response.Game[]
 }
 
 export type CPlayer_GetPlayNext_Request = {
@@ -130,38 +65,12 @@ export type CPlayer_GetFriendsGameplayInfo_Request = {
 }
 
 export type CPlayer_GetFriendsGameplayInfo_Response = {
-	yourInfo?: {
-		steamid?: Long
-		minutesPlayed?: number
-		minutesPlayedForever?: number
-		inWishlist?: boolean
-		owned?: boolean
-	}
-	inGame?: {
-		steamid?: Long
-		minutesPlayed?: number
-		minutesPlayedForever?: number
-	}[]
-	playedRecently?: {
-		steamid?: Long
-		minutesPlayed?: number
-		minutesPlayedForever?: number
-	}[]
-	playedEver?: {
-		steamid?: Long
-		minutesPlayed?: number
-		minutesPlayedForever?: number
-	}[]
-	owns?: {
-		steamid?: Long
-		minutesPlayed?: number
-		minutesPlayedForever?: number
-	}[]
-	inWishlist?: {
-		steamid?: Long
-		minutesPlayed?: number
-		minutesPlayedForever?: number
-	}[]
+	yourInfo?: .CPlayer_GetFriendsGameplayInfo_Response.OwnGameplayInfo
+	inGame?: .CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo[]
+	playedRecently?: .CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo[]
+	playedEver?: .CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo[]
+	owns?: .CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo[]
+	inWishlist?: .CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo[]
 }
 
 export type CPlayer_GetGameBadgeLevels_Request = {
@@ -170,11 +79,7 @@ export type CPlayer_GetGameBadgeLevels_Request = {
 
 export type CPlayer_GetGameBadgeLevels_Response = {
 	playerLevel?: number
-	badges?: {
-		level?: number
-		series?: number
-		borderColor?: number
-	}[]
+	badges?: .CPlayer_GetGameBadgeLevels_Response.Badge[]
 }
 
 export type CPlayer_GetProfileBackground_Request = {
@@ -197,33 +102,11 @@ export type ProfileItem = {
 	movieWebmSmall?: string
 	movieMp4Small?: string
 	equippedFlags?: number
-	profileColors?: {
-		styleName?: string
-		color?: string
-	}[]
+	profileColors?: .ProfileItem.ProfileColor[]
 }
 
 export type CPlayer_GetProfileBackground_Response = {
-	profileBackground?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
+	profileBackground?: .ProfileItem
 }
 
 export type CPlayer_SetProfileBackground_Request = {
@@ -239,26 +122,7 @@ export type CPlayer_GetMiniProfileBackground_Request = {
 }
 
 export type CPlayer_GetMiniProfileBackground_Response = {
-	profileBackground?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
+	profileBackground?: .ProfileItem
 }
 
 export type CPlayer_SetMiniProfileBackground_Request = {
@@ -274,26 +138,7 @@ export type CPlayer_GetAvatarFrame_Request = {
 }
 
 export type CPlayer_GetAvatarFrame_Response = {
-	avatarFrame?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
+	avatarFrame?: .ProfileItem
 }
 
 export type CPlayer_SetAvatarFrame_Request = {
@@ -309,26 +154,7 @@ export type CPlayer_GetAnimatedAvatar_Request = {
 }
 
 export type CPlayer_GetAnimatedAvatar_Response = {
-	avatar?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
+	avatar?: .ProfileItem
 }
 
 export type CPlayer_SetAnimatedAvatar_Request = {
@@ -344,26 +170,7 @@ export type CPlayer_GetSteamDeckKeyboardSkin_Request = {
 }
 
 export type CPlayer_GetSteamDeckKeyboardSkin_Response = {
-	steamDeckKeyboardSkin?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
+	steamDeckKeyboardSkin?: .ProfileItem
 }
 
 export type CPlayer_SetSteamDeckKeyboardSkin_Request = {
@@ -375,150 +182,17 @@ export type CPlayer_SetSteamDeckKeyboardSkin_Response = {
 
 export type CPlayer_GetProfileItemsOwned_Request = {
 	language?: string
-	filters?: typeof ECommunityItemClass[keyof typeof ECommunityItemClass][]
+	filters?: .ECommunityItemClass[]
 }
 
 export type CPlayer_GetProfileItemsOwned_Response = {
-	profileBackgrounds?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}[]
-	miniProfileBackgrounds?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}[]
-	avatarFrames?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}[]
-	animatedAvatars?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}[]
-	profileModifiers?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}[]
-	steamDeckKeyboardSkins?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}[]
-	steamDeckStartupMovies?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}[]
+	profileBackgrounds?: .ProfileItem[]
+	miniProfileBackgrounds?: .ProfileItem[]
+	avatarFrames?: .ProfileItem[]
+	animatedAvatars?: .ProfileItem[]
+	profileModifiers?: .ProfileItem[]
+	steamDeckKeyboardSkins?: .ProfileItem[]
+	steamDeckStartupMovies?: .ProfileItem[]
 }
 
 export type CPlayer_GetProfileItemsEquipped_Request = {
@@ -527,126 +201,12 @@ export type CPlayer_GetProfileItemsEquipped_Request = {
 }
 
 export type CPlayer_GetProfileItemsEquipped_Response = {
-	profileBackground?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
-	miniProfileBackground?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
-	avatarFrame?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
-	animatedAvatar?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
-	profileModifier?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
-	steamDeckKeyboardSkin?: {
-		communityitemid?: Long
-		imageSmall?: string
-		imageLarge?: string
-		name?: string
-		itemTitle?: string
-		itemDescription?: string
-		appid?: number
-		itemType?: number
-		itemClass?: number
-		movieWebm?: string
-		movieMp4?: string
-		movieWebmSmall?: string
-		movieMp4Small?: string
-		equippedFlags?: number
-		profileColors?: {
-			styleName?: string
-			color?: string
-		}[]
-	}
+	profileBackground?: .ProfileItem
+	miniProfileBackground?: .ProfileItem
+	avatarFrame?: .ProfileItem
+	animatedAvatar?: .ProfileItem
+	profileModifier?: .ProfileItem
+	steamDeckKeyboardSkin?: .ProfileItem
 }
 
 export type CPlayer_SetEquippedProfileItemFlags_Request = {
@@ -661,14 +221,7 @@ export type CPlayer_GetEmoticonList_Request = {
 }
 
 export type CPlayer_GetEmoticonList_Response = {
-	emoticons?: {
-		name?: string
-		count?: number
-		timeLastUsed?: number
-		useCount?: number
-		timeReceived?: number
-		appid?: number
-	}[]
+	emoticons?: .CPlayer_GetEmoticonList_Response.Emoticon[]
 }
 
 export type CPlayer_GetCommunityBadgeProgress_Request = {
@@ -677,10 +230,7 @@ export type CPlayer_GetCommunityBadgeProgress_Request = {
 }
 
 export type CPlayer_GetCommunityBadgeProgress_Response = {
-	quests?: {
-		questid?: number
-		completed?: boolean
-	}[]
+	quests?: .CPlayer_GetCommunityBadgeProgress_Response.Quest[]
 }
 
 export type CPlayer_GetTopAchievementsForGames_Request = {
@@ -691,20 +241,7 @@ export type CPlayer_GetTopAchievementsForGames_Request = {
 }
 
 export type CPlayer_GetTopAchievementsForGames_Response = {
-	games?: {
-		appid?: number
-		totalAchievements?: number
-		achievements?: {
-			statid?: number
-			bit?: number
-			name?: string
-			desc?: string
-			icon?: string
-			iconGray?: string
-			hidden?: boolean
-			playerPercentUnlocked?: string
-		}[]
-	}[]
+	games?: .CPlayer_GetTopAchievementsForGames_Response.Game[]
 }
 
 export type CPlayer_GetAchievementsProgress_Request = {
@@ -714,14 +251,7 @@ export type CPlayer_GetAchievementsProgress_Request = {
 }
 
 export type CPlayer_GetAchievementsProgress_Response = {
-	achievementProgress?: {
-		appid?: number
-		unlocked?: number
-		total?: number
-		percentage?: number
-		allUnlocked?: boolean
-		cacheTime?: number
-	}[]
+	achievementProgress?: .CPlayer_GetAchievementsProgress_Response.AchievementProgress[]
 }
 
 export type CPlayer_GetGameAchievements_Request = {
@@ -730,15 +260,7 @@ export type CPlayer_GetGameAchievements_Request = {
 }
 
 export type CPlayer_GetGameAchievements_Response = {
-	achievements?: {
-		internalName?: string
-		localizedName?: string
-		localizedDesc?: string
-		icon?: string
-		iconGray?: string
-		hidden?: boolean
-		playerPercentUnlocked?: string
-	}[]
+	achievements?: .CPlayer_GetGameAchievements_Response.Achievement[]
 }
 
 export type CPlayer_GetFavoriteBadge_Request = {
@@ -782,31 +304,16 @@ export type ProfileCustomizationSlot = {
 	borderColor?: number
 	itemClassid?: Long
 	itemInstanceid?: Long
-	banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
+	banCheckResult?: .EBanContentCheckResult
 	replayYear?: number
 }
 
 export type ProfileCustomization = {
-	customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
+	customizationType?: .EProfileCustomizationType
 	large?: boolean
-	slots?: {
-		slot?: number
-		appid?: number
-		publishedfileid?: Long
-		itemAssetid?: Long
-		itemContextid?: Long
-		notes?: string
-		title?: string
-		accountid?: number
-		badgeid?: number
-		borderColor?: number
-		itemClassid?: Long
-		itemInstanceid?: Long
-		banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
-		replayYear?: number
-	}[]
+	slots?: .ProfileCustomizationSlot[]
 	active?: boolean
-	customizationStyle?: typeof EProfileCustomizationStyle[keyof typeof EProfileCustomizationStyle]
+	customizationStyle?: .EProfileCustomizationStyle
 	purchaseid?: Long
 	level?: number
 }
@@ -821,43 +328,11 @@ export type ProfilePreferences = {
 }
 
 export type CPlayer_GetProfileCustomization_Response = {
-	customizations?: {
-		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
-		large?: boolean
-		slots?: {
-			slot?: number
-			appid?: number
-			publishedfileid?: Long
-			itemAssetid?: Long
-			itemContextid?: Long
-			notes?: string
-			title?: string
-			accountid?: number
-			badgeid?: number
-			borderColor?: number
-			itemClassid?: Long
-			itemInstanceid?: Long
-			banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
-			replayYear?: number
-		}[]
-		active?: boolean
-		customizationStyle?: typeof EProfileCustomizationStyle[keyof typeof EProfileCustomizationStyle]
-		purchaseid?: Long
-		level?: number
-	}[]
+	customizations?: .ProfileCustomization[]
 	slotsAvailable?: number
-	profileTheme?: {
-		themeId?: string
-		title?: string
-	}
-	purchasedCustomizations?: {
-		purchaseid?: Long
-		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
-		level?: number
-	}[]
-	profilePreferences?: {
-		hideProfileAwards?: boolean
-	}
+	profileTheme?: .ProfileTheme
+	purchasedCustomizations?: .CPlayer_GetProfileCustomization_Response.PurchasedCustomization[]
+	profilePreferences?: .ProfilePreferences
 }
 
 export type CPlayer_GetPurchasedProfileCustomizations_Request = {
@@ -865,10 +340,7 @@ export type CPlayer_GetPurchasedProfileCustomizations_Request = {
 }
 
 export type CPlayer_GetPurchasedProfileCustomizations_Response = {
-	purchasedCustomizations?: {
-		purchaseid?: Long
-		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
-	}[]
+	purchasedCustomizations?: .CPlayer_GetPurchasedProfileCustomizations_Response.PurchasedCustomization[]
 }
 
 export type CPlayer_GetPurchasedAndUpgradedProfileCustomizations_Request = {
@@ -876,24 +348,15 @@ export type CPlayer_GetPurchasedAndUpgradedProfileCustomizations_Request = {
 }
 
 export type CPlayer_GetPurchasedAndUpgradedProfileCustomizations_Response = {
-	purchasedCustomizations?: {
-		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
-		count?: number
-	}[]
-	upgradedCustomizations?: {
-		customizationType?: typeof EProfileCustomizationType[keyof typeof EProfileCustomizationType]
-		level?: number
-	}[]
+	purchasedCustomizations?: .CPlayer_GetPurchasedAndUpgradedProfileCustomizations_Response.PurchasedCustomization[]
+	upgradedCustomizations?: .CPlayer_GetPurchasedAndUpgradedProfileCustomizations_Response.UpgradedCustomization[]
 }
 
 export type CPlayer_GetProfileThemesAvailable_Request = {
 }
 
 export type CPlayer_GetProfileThemesAvailable_Response = {
-	profileThemes?: {
-		themeId?: string
-		title?: string
-	}[]
+	profileThemes?: .ProfileTheme[]
 }
 
 export type CPlayer_SetProfileTheme_Request = {
@@ -904,9 +367,7 @@ export type CPlayer_SetProfileTheme_Response = {
 }
 
 export type CPlayer_SetProfilePreferences_Request = {
-	profilePreferences?: {
-		hideProfileAwards?: boolean
-	}
+	profilePreferences?: .ProfilePreferences
 }
 
 export type CPlayer_SetProfilePreferences_Response = {
@@ -945,23 +406,7 @@ export type CPlayer_GetLastPlayedTimes_Request = {
 }
 
 export type CPlayer_GetLastPlayedTimes_Response = {
-	games?: {
-		appid?: number
-		lastPlaytime?: number
-		playtime_2weeks?: number
-		playtimeForever?: number
-		firstPlaytime?: number
-		playtimeWindowsForever?: number
-		playtimeMacForever?: number
-		playtimeLinuxForever?: number
-		firstWindowsPlaytime?: number
-		firstMacPlaytime?: number
-		firstLinuxPlaytime?: number
-		lastWindowsPlaytime?: number
-		lastMacPlaytime?: number
-		lastLinuxPlaytime?: number
-		playtimeDisconnected?: number
-	}[]
+	games?: .CPlayer_GetLastPlayedTimes_Response.Game[]
 }
 
 export type CPlayer_GetTimeSSAAccepted_Request = {
@@ -974,7 +419,7 @@ export type CPlayer_GetTimeSSAAccepted_Response = {
 }
 
 export type CPlayer_AcceptSSA_Request = {
-	agreementType?: typeof EAgreementType[keyof typeof EAgreementType]
+	agreementType?: .EAgreementType
 	timeSignedUtc?: number
 }
 
@@ -985,10 +430,7 @@ export type CPlayer_GetNicknameList_Request = {
 }
 
 export type CPlayer_GetNicknameList_Response = {
-	nicknames?: {
-		accountid?: number
-		nickname?: string
-	}[]
+	nicknames?: .CPlayer_GetNicknameList_Response.PlayerNickname[]
 }
 
 export type CPlayer_GetPerFriendPreferences_Request = {
@@ -997,41 +439,21 @@ export type CPlayer_GetPerFriendPreferences_Request = {
 export type PerFriendPreferences = {
 	accountid?: number
 	nickname?: string
-	notificationsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-	notificationsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-	notificationsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-	soundsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-	soundsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-	soundsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-	notificationsSendmobile?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
+	notificationsShowingame?: .ENotificationSetting
+	notificationsShowonline?: .ENotificationSetting
+	notificationsShowmessages?: .ENotificationSetting
+	soundsShowingame?: .ENotificationSetting
+	soundsShowonline?: .ENotificationSetting
+	soundsShowmessages?: .ENotificationSetting
+	notificationsSendmobile?: .ENotificationSetting
 }
 
 export type CPlayer_GetPerFriendPreferences_Response = {
-	preferences?: {
-		accountid?: number
-		nickname?: string
-		notificationsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		notificationsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		notificationsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		soundsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		soundsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		soundsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		notificationsSendmobile?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-	}[]
+	preferences?: .PerFriendPreferences[]
 }
 
 export type CPlayer_SetPerFriendPreferences_Request = {
-	preferences?: {
-		accountid?: number
-		nickname?: string
-		notificationsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		notificationsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		notificationsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		soundsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		soundsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		soundsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		notificationsSendmobile?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-	}
+	preferences?: .PerFriendPreferences
 }
 
 export type CPlayer_SetPerFriendPreferences_Response = {
@@ -1069,36 +491,19 @@ export type CPlayer_GetCommunityPreferences_Request = {
 
 export type CPlayer_CommunityPreferences = {
 	parenthesizeNicknames?: boolean
-	textFilterSetting?: typeof ETextFilterSetting[keyof typeof ETextFilterSetting]
+	textFilterSetting?: .ETextFilterSetting
 	textFilterIgnoreFriends?: boolean
 	textFilterWordsRevision?: number
 	timestampUpdated?: number
 }
 
 export type CPlayer_GetCommunityPreferences_Response = {
-	preferences?: {
-		parenthesizeNicknames?: boolean
-		textFilterSetting?: typeof ETextFilterSetting[keyof typeof ETextFilterSetting]
-		textFilterIgnoreFriends?: boolean
-		textFilterWordsRevision?: number
-		timestampUpdated?: number
-	}
-	contentDescriptorPreferences?: {
-		contentDescriptorsToExclude?: {
-			contentDescriptorid?: number
-			timestampAdded?: number
-		}[]
-	}
+	preferences?: .CPlayer_CommunityPreferences
+	contentDescriptorPreferences?: .UserContentDescriptorPreferences
 }
 
 export type CPlayer_SetCommunityPreferences_Request = {
-	preferences?: {
-		parenthesizeNicknames?: boolean
-		textFilterSetting?: typeof ETextFilterSetting[keyof typeof ETextFilterSetting]
-		textFilterIgnoreFriends?: boolean
-		textFilterWordsRevision?: number
-		timestampUpdated?: number
-	}
+	preferences?: .CPlayer_CommunityPreferences
 }
 
 export type CPlayer_SetCommunityPreferences_Response = {
@@ -1114,11 +519,7 @@ export type CPlayer_TextFilterWords = {
 }
 
 export type CPlayer_GetTextFilterWords_Response = {
-	words?: {
-		textFilterCustomBannedWords?: string[]
-		textFilterCustomCleanWords?: string[]
-		textFilterWordsRevision?: number
-	}
+	words?: .CPlayer_TextFilterWords
 }
 
 export type CPlayer_GetNewSteamAnnouncementState_Request = {
@@ -1126,7 +527,7 @@ export type CPlayer_GetNewSteamAnnouncementState_Request = {
 }
 
 export type CPlayer_GetNewSteamAnnouncementState_Response = {
-	state?: typeof ENewSteamAnnouncementState[keyof typeof ENewSteamAnnouncementState]
+	state?: .ENewSteamAnnouncementState
 	announcementHeadline?: string
 	announcementUrl?: string
 	timePosted?: number
@@ -1154,14 +555,7 @@ export type CPrivacySettings = {
 }
 
 export type CPlayer_GetPrivacySettings_Response = {
-	privacySettings?: {
-		privacyState?: number
-		privacyStateInventory?: number
-		privacyStateGifts?: number
-		privacyStateOwnedgames?: number
-		privacyStatePlaytime?: number
-		privacyStateFriendslist?: number
-	}
+	privacySettings?: .CPrivacySettings
 }
 
 export type CPlayer_GetDurationControl_Request = {
@@ -1180,36 +574,14 @@ export type CPlayer_GetDurationControl_Response = {
 }
 
 export type CPlayer_RecordDisconnectedPlaytime_Request = {
-	playSessions?: {
-		appid?: number
-		sessionTimeStart?: number
-		seconds?: number
-		offline?: boolean
-		owner?: number
-	}[]
+	playSessions?: .CPlayer_RecordDisconnectedPlaytime_Request.PlayHistory[]
 }
 
 export type CPlayer_RecordDisconnectedPlaytime_Response = {
 }
 
 export type CPlayer_LastPlayedTimes_Notification = {
-	games?: {
-		appid?: number
-		lastPlaytime?: number
-		playtime_2weeks?: number
-		playtimeForever?: number
-		firstPlaytime?: number
-		playtimeWindowsForever?: number
-		playtimeMacForever?: number
-		playtimeLinuxForever?: number
-		firstWindowsPlaytime?: number
-		firstMacPlaytime?: number
-		firstLinuxPlaytime?: number
-		lastWindowsPlaytime?: number
-		lastMacPlaytime?: number
-		lastLinuxPlaytime?: number
-		playtimeDisconnected?: number
-	}[]
+	games?: .CPlayer_GetLastPlayedTimes_Response.Game[]
 }
 
 export type CPlayer_FriendNicknameChanged_Notification = {
@@ -1223,7 +595,7 @@ export type CPlayer_FriendEquippedProfileItemsChanged_Notification = {
 }
 
 export type CPlayer_NewSteamAnnouncementState_Notification = {
-	state?: typeof ENewSteamAnnouncementState[keyof typeof ENewSteamAnnouncementState]
+	state?: .ENewSteamAnnouncementState
 	announcementHeadline?: string
 	announcementUrl?: string
 	timePosted?: number
@@ -1231,52 +603,20 @@ export type CPlayer_NewSteamAnnouncementState_Notification = {
 }
 
 export type CPlayer_CommunityPreferencesChanged_Notification = {
-	preferences?: {
-		parenthesizeNicknames?: boolean
-		textFilterSetting?: typeof ETextFilterSetting[keyof typeof ETextFilterSetting]
-		textFilterIgnoreFriends?: boolean
-		textFilterWordsRevision?: number
-		timestampUpdated?: number
-	}
-	contentDescriptorPreferences?: {
-		contentDescriptorsToExclude?: {
-			contentDescriptorid?: number
-			timestampAdded?: number
-		}[]
-	}
+	preferences?: .CPlayer_CommunityPreferences
+	contentDescriptorPreferences?: .UserContentDescriptorPreferences
 }
 
 export type CPlayer_TextFilterWordsChanged_Notification = {
-	words?: {
-		textFilterCustomBannedWords?: string[]
-		textFilterCustomCleanWords?: string[]
-		textFilterWordsRevision?: number
-	}
+	words?: .CPlayer_TextFilterWords
 }
 
 export type CPlayer_PerFriendPreferencesChanged_Notification = {
 	accountid?: number
-	preferences?: {
-		accountid?: number
-		nickname?: string
-		notificationsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		notificationsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		notificationsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		soundsShowingame?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		soundsShowonline?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		soundsShowmessages?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-		notificationsSendmobile?: typeof ENotificationSetting[keyof typeof ENotificationSetting]
-	}
+	preferences?: .PerFriendPreferences
 }
 
 export type CPlayer_PrivacySettingsChanged_Notification = {
-	privacySettings?: {
-		privacyState?: number
-		privacyStateInventory?: number
-		privacyStateGifts?: number
-		privacyStateOwnedgames?: number
-		privacyStatePlaytime?: number
-		privacyStateFriendslist?: number
-	}
+	privacySettings?: .CPrivacySettings
 }
 

@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -18,11 +18,7 @@ export type CMsgClientAppInfoChanges = {
 }
 
 export type CMsgClientAppInfoRequest = {
-	apps?: {
-		appId?: number
-		sectionFlags?: number
-		section_CRC?: number[]
-	}[]
+	apps?: .CMsgClientAppInfoRequest.App[]
 	supportsBatches?: boolean
 }
 
@@ -38,30 +34,15 @@ export type CMsgClientPICSChangesSinceResponse = {
 	currentChangeNumber?: number
 	sinceChangeNumber?: number
 	forceFullUpdate?: boolean
-	packageChanges?: {
-		packageid?: number
-		changeNumber?: number
-		needsToken?: boolean
-	}[]
-	appChanges?: {
-		appid?: number
-		changeNumber?: number
-		needsToken?: boolean
-	}[]
+	packageChanges?: .CMsgClientPICSChangesSinceResponse.PackageChange[]
+	appChanges?: .CMsgClientPICSChangesSinceResponse.AppChange[]
 	forceFullAppUpdate?: boolean
 	forceFullPackageUpdate?: boolean
 }
 
 export type CMsgClientPICSProductInfoRequest = {
-	packages?: {
-		packageid?: number
-		accessToken?: Long
-	}[]
-	apps?: {
-		appid?: number
-		accessToken?: Long
-		onlyPublicObsolete?: boolean
-	}[]
+	packages?: .CMsgClientPICSProductInfoRequest.PackageInfo[]
+	apps?: .CMsgClientPICSProductInfoRequest.AppInfo[]
 	metaDataOnly?: boolean
 	numPrevFailed?: number
 	OBSOLETESupportsPackageTokens?: number
@@ -70,24 +51,9 @@ export type CMsgClientPICSProductInfoRequest = {
 }
 
 export type CMsgClientPICSProductInfoResponse = {
-	apps?: {
-		appid?: number
-		changeNumber?: number
-		missingToken?: boolean
-		sha?: Buffer
-		buffer?: Buffer
-		onlyPublic?: boolean
-		size?: number
-	}[]
+	apps?: .CMsgClientPICSProductInfoResponse.AppInfo[]
 	unknownAppids?: number[]
-	packages?: {
-		packageid?: number
-		changeNumber?: number
-		missingToken?: boolean
-		sha?: Buffer
-		buffer?: Buffer
-		size?: number
-	}[]
+	packages?: .CMsgClientPICSProductInfoResponse.PackageInfo[]
 	unknownPackageids?: number[]
 	metaDataOnly?: boolean
 	responsePending?: boolean
@@ -101,15 +67,9 @@ export type CMsgClientPICSAccessTokenRequest = {
 }
 
 export type CMsgClientPICSAccessTokenResponse = {
-	packageAccessTokens?: {
-		packageid?: number
-		accessToken?: Long
-	}[]
+	packageAccessTokens?: .CMsgClientPICSAccessTokenResponse.PackageToken[]
 	packageDeniedTokens?: number[]
-	appAccessTokens?: {
-		appid?: number
-		accessToken?: Long
-	}[]
+	appAccessTokens?: .CMsgClientPICSAccessTokenResponse.AppToken[]
 	appDeniedTokens?: number[]
 }
 

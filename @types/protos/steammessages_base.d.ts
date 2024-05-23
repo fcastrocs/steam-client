@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -12,10 +12,7 @@ export type CMsgIPAddress = {
 }
 
 export type CMsgIPAddressBucket = {
-	originalIpAddress?: {
-		v4?: number
-		v6?: Buffer
-	}
+	originalIpAddress?: .CMsgIPAddress
 	bucket?: Long
 }
 
@@ -52,11 +49,8 @@ export type CMsgProtoBufHeader = {
 	debugSource?: string
 	debugSourceStringIndex?: number
 	tokenId?: Long
-	routingGc?: {
-		dstGcidQueue?: Long
-		dstGcDirIndex?: number
-	}
-	sessionDisposition?: typeof ESessionDisposition[keyof typeof ESessionDisposition]
+	routingGc?: .CMsgGCRoutingProtoBufHeader
+	sessionDisposition?: .CMsgProtoBufHeader.ESessionDisposition
 	wgToken?: string
 	webuiAuthKey?: string
 	excludeClientSessionids?: number[]
@@ -162,18 +156,7 @@ export type CClanMatchEventByRange = {
 	rtimeBefore?: number
 	rtimeAfter?: number
 	qualified?: number
-	events?: {
-		clanid?: number
-		eventGid?: Long
-		announcementGid?: Long
-		rtimeStart?: number
-		rtimeEnd?: number
-		priorityScore?: number
-		type?: number
-		clampRangeSlot?: number
-		appid?: number
-		rtime32LastModified?: number
-	}[]
+	events?: .CClanEventUserNewsTuple[]
 }
 
 export type CCommunity_ClanAnnouncementInfo = {
@@ -192,7 +175,7 @@ export type CCommunity_ClanAnnouncementInfo = {
 	eventGid?: Long
 	voteupcount?: number
 	votedowncount?: number
-	banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
+	banCheckResult?: .EBanContentCheckResult
 	banned?: boolean
 }
 
@@ -200,7 +183,7 @@ export type CClanEventData = {
 	gid?: Long
 	clanSteamid?: Long
 	eventName?: string
-	eventType?: typeof EProtoClanEventType[keyof typeof EProtoClanEventType]
+	eventType?: .EProtoClanEventType
 	appid?: number
 	serverAddress?: string
 	serverPassword?: string
@@ -211,25 +194,7 @@ export type CClanEventData = {
 	lastUpdateSteamid?: Long
 	eventNotes?: string
 	jsondata?: string
-	announcementBody?: {
-		gid?: Long
-		clanid?: Long
-		posterid?: Long
-		headline?: string
-		posttime?: number
-		updatetime?: number
-		body?: string
-		commentcount?: number
-		tags?: string[]
-		language?: number
-		hidden?: boolean
-		forumTopicId?: Long
-		eventGid?: Long
-		voteupcount?: number
-		votedowncount?: number
-		banCheckResult?: typeof EBanContentCheckResult[keyof typeof EBanContentCheckResult]
-		banned?: boolean
-	}
+	announcementBody?: .CCommunity_ClanAnnouncementInfo
 	published?: boolean
 	hidden?: boolean
 	rtime32VisibilityStart?: number
@@ -279,16 +244,10 @@ export type CMsgKeyValuePair = {
 }
 
 export type CMsgKeyValueSet = {
-	pairs?: {
-		name?: string
-		value?: string
-	}[]
+	pairs?: .CMsgKeyValuePair[]
 }
 
 export type UserContentDescriptorPreferences = {
-	contentDescriptorsToExclude?: {
-		contentDescriptorid?: number
-		timestampAdded?: number
-	}[]
+	contentDescriptorsToExclude?: .UserContentDescriptorPreferences.ContentDescriptor[]
 }
 

@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -42,17 +42,11 @@ export type CMsgClientLogon = {
 	shouldRememberPassword?: boolean
 	wineVersion?: string
 	deprecated_10?: number
-	obfuscatedPrivateIp?: {
-		v4?: number
-		v6?: Buffer
-	}
+	obfuscatedPrivateIp?: .CMsgIPAddress
 	deprecatedPublicIp?: number
 	qosLevel?: number
 	clientSuppliedSteamId?: Long
-	publicIp?: {
-		v4?: number
-		v6?: Buffer
-	}
+	publicIp?: .CMsgIPAddress
 	machineId?: Buffer
 	launcherType?: number
 	uiMode?: number
@@ -89,13 +83,7 @@ export type CMsgClientLogon = {
 	supportsRateLimitResponse?: boolean
 	webLogonNonce?: string
 	priorityReason?: number
-	embeddedClientSecret?: {
-		version?: number
-		appid?: number
-		deviceid?: number
-		nonce?: Long
-		hmac?: Buffer
-	}
+	embeddedClientSecret?: .CMsgClientSecret
 	disablePartnerAutogrants?: boolean
 	isSteamDeck?: boolean
 	accessToken?: string
@@ -117,10 +105,7 @@ export type CMsgClientLogOnResponse = {
 	cellIdPingThreshold?: number
 	deprecatedUsePics?: boolean
 	vanityUrl?: string
-	publicIp?: {
-		v4?: number
-		v6?: Buffer
-	}
+	publicIp?: .CMsgIPAddress
 	userCountry?: string
 	clientSuppliedSteamid?: Long
 	ipCountryCode?: string

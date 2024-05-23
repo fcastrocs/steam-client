@@ -1,6 +1,6 @@
 /**
  * Auto-generated file
- * Mon May 20 2024 23:27:32 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -13,12 +13,7 @@ export type CEcon_GetInventoryItemsWithDescriptions_Request = {
 	getDescriptions?: boolean
 	forTradeOfferVerification?: boolean
 	language?: string
-	filters?: {
-		assetids?: Long[]
-		currencyids?: number[]
-		tradableOnly?: boolean
-		marketableOnly?: boolean
-	}
+	filters?: .CEcon_GetInventoryItemsWithDescriptions_Request.FilterOptions
 	startAssetid?: Long
 	count?: number
 }
@@ -55,27 +50,11 @@ export type CEconItem_Description = {
 	backgroundColor?: string
 	iconUrl?: string
 	iconUrlLarge?: string
-	descriptions?: {
-		type?: string
-		value?: string
-		color?: string
-		label?: string
-	}[]
+	descriptions?: .CEconItem_DescriptionLine[]
 	tradable?: boolean
-	actions?: {
-		link?: string
-		name?: string
-	}[]
-	ownerDescriptions?: {
-		type?: string
-		value?: string
-		color?: string
-		label?: string
-	}[]
-	ownerActions?: {
-		link?: string
-		name?: string
-	}[]
+	actions?: .CEconItem_Action[]
+	ownerDescriptions?: .CEconItem_DescriptionLine[]
+	ownerActions?: .CEconItem_Action[]
 	fraudwarnings?: string[]
 	name?: string
 	nameColor?: string
@@ -84,22 +63,12 @@ export type CEconItem_Description = {
 	marketHashName?: string
 	marketFee?: string
 	marketFeeApp?: number
-	marketActions?: {
-		link?: string
-		name?: string
-	}[]
+	marketActions?: .CEconItem_Action[]
 	commodity?: boolean
 	marketTradableRestriction?: number
 	marketMarketableRestriction?: number
 	marketable?: boolean
-	tags?: {
-		appid?: number
-		category?: string
-		internalName?: string
-		localizedCategoryName?: string
-		localizedTagName?: string
-		color?: string
-	}[]
+	tags?: .CEconItem_Tag[]
 	itemExpiration?: string
 	marketBuyCountryRestriction?: string
 	marketSellCountryRestriction?: string
@@ -115,85 +84,9 @@ export type CEconItem_Tag = {
 }
 
 export type CEcon_GetInventoryItemsWithDescriptions_Response = {
-	assets?: {
-		appid?: number
-		contextid?: Long
-		assetid?: Long
-		classid?: Long
-		instanceid?: Long
-		currencyid?: number
-		amount?: Long
-		missing?: boolean
-		estUsd?: Long
-	}[]
-	descriptions?: {
-		appid?: number
-		classid?: Long
-		instanceid?: Long
-		currency?: boolean
-		backgroundColor?: string
-		iconUrl?: string
-		iconUrlLarge?: string
-		descriptions?: {
-			type?: string
-			value?: string
-			color?: string
-			label?: string
-		}[]
-		tradable?: boolean
-		actions?: {
-			link?: string
-			name?: string
-		}[]
-		ownerDescriptions?: {
-			type?: string
-			value?: string
-			color?: string
-			label?: string
-		}[]
-		ownerActions?: {
-			link?: string
-			name?: string
-		}[]
-		fraudwarnings?: string[]
-		name?: string
-		nameColor?: string
-		type?: string
-		marketName?: string
-		marketHashName?: string
-		marketFee?: string
-		marketFeeApp?: number
-		marketActions?: {
-			link?: string
-			name?: string
-		}[]
-		commodity?: boolean
-		marketTradableRestriction?: number
-		marketMarketableRestriction?: number
-		marketable?: boolean
-		tags?: {
-			appid?: number
-			category?: string
-			internalName?: string
-			localizedCategoryName?: string
-			localizedTagName?: string
-			color?: string
-		}[]
-		itemExpiration?: string
-		marketBuyCountryRestriction?: string
-		marketSellCountryRestriction?: string
-	}[]
-	missingAssets?: {
-		appid?: number
-		contextid?: Long
-		assetid?: Long
-		classid?: Long
-		instanceid?: Long
-		currencyid?: number
-		amount?: Long
-		missing?: boolean
-		estUsd?: Long
-	}[]
+	assets?: .CEcon_Asset[]
+	descriptions?: .CEconItem_Description[]
+	missingAssets?: .CEcon_Asset[]
 	moreItems?: boolean
 	lastAssetid?: Long
 	totalInventoryCount?: number
@@ -218,70 +111,11 @@ export type CEcon_ClientGetItemShopOverlayAuthURL_Response = {
 export type CEcon_GetAssetClassInfo_Request = {
 	language?: string
 	appid?: number
-	classes?: {
-		classid?: Long
-		instanceid?: Long
-	}[]
+	classes?: .CEcon_GetAssetClassInfo_Request.Class[]
 	highPri?: boolean
 }
 
 export type CEcon_GetAssetClassInfo_Response = {
-	descriptions?: {
-		appid?: number
-		classid?: Long
-		instanceid?: Long
-		currency?: boolean
-		backgroundColor?: string
-		iconUrl?: string
-		iconUrlLarge?: string
-		descriptions?: {
-			type?: string
-			value?: string
-			color?: string
-			label?: string
-		}[]
-		tradable?: boolean
-		actions?: {
-			link?: string
-			name?: string
-		}[]
-		ownerDescriptions?: {
-			type?: string
-			value?: string
-			color?: string
-			label?: string
-		}[]
-		ownerActions?: {
-			link?: string
-			name?: string
-		}[]
-		fraudwarnings?: string[]
-		name?: string
-		nameColor?: string
-		type?: string
-		marketName?: string
-		marketHashName?: string
-		marketFee?: string
-		marketFeeApp?: number
-		marketActions?: {
-			link?: string
-			name?: string
-		}[]
-		commodity?: boolean
-		marketTradableRestriction?: number
-		marketMarketableRestriction?: number
-		marketable?: boolean
-		tags?: {
-			appid?: number
-			category?: string
-			internalName?: string
-			localizedCategoryName?: string
-			localizedTagName?: string
-			color?: string
-		}[]
-		itemExpiration?: string
-		marketBuyCountryRestriction?: string
-		marketSellCountryRestriction?: string
-	}[]
+	descriptions?: .CEconItem_Description[]
 }
 

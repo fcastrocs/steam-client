@@ -8,18 +8,19 @@ import fs, { createWriteStream } from 'fs';
 import path from 'path';
 import { loadProtos } from '../src/modules/protos';
 
-const LANGUAGE_PATH = './src/resources/language/';
+const LANGUAGE_PATH = 'resources/language/';
 const PROTOS_TYPES_PATH = '@types/protos/';
 
 const writeStreams: Map<string, fs.WriteStream> = new Map();
 const processedEnums: Set<string> = new Set();
+
 const HEADER = `/**
  * Auto-generated file
  * ${new Date()}
  */`;
 
 export default async function main() {
-    await extractEnumsAndProtoTypings();
+    await extractEnumsAndProtoTypes();
     await fetchEnumsSteamd();
     await fetchEResult();
 }
@@ -27,25 +28,22 @@ export default async function main() {
 /**
  * Extract enums and build proto types from proto files
  */
-async function extractEnumsAndProtoTypings() {
+async function extractEnumsAndProtoTypes() {
     const root = await loadProtos();
     if (!root.nested) return;
+    const nested = root.nested;
 
-    Object.keys(root.nested).forEach((key) => {
-        if (!root.nested) return;
-
-        const reflectionObj = root.nested[key];
-        const name = reflectionObj.toString();
+    Object.keys(nested).forEach((key) => {
+        const item = nested[key];
+        const name = item.toString();
 
         if (name.includes('Enum .')) {
-            processEmum(reflectionObj);
+            processProtoEmum(item);
             return;
         }
 
         if (name.includes('Type .')) {
-            const file = path
-                .basename(reflectionObj.filename as string)
-                .replace('.proto', '.d.ts');
+            const file = path.basename(item.filename as string).replace('.proto', '.d.ts');
             const stream = getWriteStream(file, PROTOS_TYPES_PATH);
 
             // add header and imports
@@ -56,8 +54,8 @@ async function extractEnumsAndProtoTypings() {
                 stream.bytesWritten += 1;
             }
 
-            stream.write(`export type ${reflectionObj.name} = `);
-            const typing = processProtoType(reflectionObj, 0);
+            stream.write(`export type ${item.name} = `);
+            const typing = processProtoType({ proto: item });
             stream.write(`${typing}\n\n`);
         }
     });
@@ -75,118 +73,61 @@ async function extractEnumsAndProtoTypings() {
     await Promise.all(promises);
 }
 
-async function fetchEnumsSteamd() {
-    const url =
-        'https://raw.githubusercontent.com/SteamRE/SteamKit/master/Resources/SteamLanguage/enums.steamd';
-    const enumsSteamd = (await fetch(url).then((res) => res.text())).split(
-        /\r?\n/
-    );
-    const stream = createWriteStream(`${LANGUAGE_PATH}enums.steamd.ts`);
-    stream.write(`${HEADER}\n\n`);
+/**
+ * Convert proto to a TS Type. Recursively converts nested protos and Enums
+ */
+function processProtoType({ proto, indents = 0 }: { proto: ReflectionObject; indents?: number }): string {
+    const protoJson = proto.toJSON();
 
-    let skipEnum = false;
+    let protoType = '{\n';
 
-    enumsSteamd.forEach((line) => {
-        let newLine = line;
+    Object.keys(protoJson.fields).forEach((item) => {
+        // fix infinity loop "contained_item" in CEconItem_Description
+        if (item === 'options' || item === 'containedItem') return;
 
-        if (newLine.match(/^enum /) || newLine.match('public enum')) {
-            if (skipEnum) skipEnum = false;
+        let dataType = convertDataType(protoJson.fields[item].type);
+        const isArray = protoJson.fields[item].rule ? '[]' : '';
 
-            newLine = `${newLine
-                .replace(/^public /, '')
-                .replace('enum ', 'export enum ')
-                .replace(/ flags$/, '')
-                .replace(/<.+>/, '')} {\n`;
+        const nestedObj = proto.root.lookup(dataType) as ReflectionObject;
 
-            // skip enum if it was already written in another file
-            if (
-                processedEnums.has(
-                    newLine.replace('export enum', '').replace('{', '').trim()
-                )
-            ) {
-                skipEnum = true;
-                return;
-            }
-
-            stream.write(newLine);
-            return;
+        if (dataType[0] === 'Type .') {
+            dataType = processProtoType({
+                proto: nestedObj,
+                indents: indents + 1
+            });
+        } else if (dataType[0] === 'Enum .') {
+            processProtoEmum(nestedObj);
+            dataType = `typeof ${nestedObj.name}[keyof typeof ${nestedObj.name}]`;
         }
 
-        if (skipEnum) return;
-
-        if (
-            newLine.includes('=') &&
-            !newLine.includes('; removed') &&
-            !newLine.includes('; obsolete') &&
-            !newLine.match(/deprecated/i) &&
-            !newLine.includes('|') &&
-            newLine.match(/=\s\d+;/)
-        ) {
-            newLine = newLine
-                .replace(/\s/g, '')
-                .replace('=', ' = ')
-                .replace(';', ',');
-            stream.write(`\t${newLine}\n`);
+        // add indents
+        for (let i = 0; i < indents; i += 1) {
+            protoType += '\t';
         }
 
-        if (newLine.includes('}')) stream.write(`}\n\n`);
+        protoType += `\t${item}?: ${dataType}${isArray}\n`;
     });
 
-    return new Promise((resolve) => {
-        stream.close(() => {
-            resolve('closed');
-        });
-    });
-}
+    for (let i = 0; i < indents; i += 1) protoType += '\t';
+    protoType += '}';
 
-async function fetchEResult() {
-    const url =
-        'https://raw.githubusercontent.com/SteamRE/SteamKit/master/Resources/SteamLanguage/eresult.steamd';
-    const EResult = (await fetch(url).then((res) => res.text())).split(/\r?\n/);
-    const stream = createWriteStream(`${LANGUAGE_PATH}EResult.ts`);
-    stream.write(`${HEADER}\n\n`);
-
-    EResult.forEach((line) => {
-        let newLine = line;
-
-        if (newLine.match(/^enum /)) {
-            stream.write(`${newLine} {\n`);
-            return;
-        }
-
-        if (newLine.includes('=') && !newLine.includes('; removed')) {
-            newLine = newLine
-                .replace(/\s/g, '')
-                .replace('=', ' = ')
-                .replace(';', ',');
-            stream.write(`\t${newLine}\n`);
-        }
-
-        if (newLine.includes('}')) stream.write(`}\n\n export default EResult`);
-    });
-
-    return new Promise((resolve) => {
-        stream.close(() => {
-            resolve('closed');
-        });
-    });
+    return protoType;
 }
 
 /**
  * Convert enum to a TS type and write to file
  */
-function processEmum(enumType: ReflectionObject) {
+function processProtoEmum(enumType: ReflectionObject) {
     const enumName = enumType.name;
     if (processedEnums.has(enumName)) return;
 
-    const file = path
-        .basename(enumType.filename as string)
-        .replace('.proto', '.ts');
+    const file = path.basename(enumType.filename as string).replace('.proto', '.ts');
     const stream = getWriteStream(file, LANGUAGE_PATH);
     const { values } = enumType.toJSON();
 
     // add header
     if (!stream.bytesWritten) {
+        stream.write('/* eslint-disable import/prefer-default-export */\n');
         stream.write(`${HEADER}\n\n`);
         stream.bytesWritten += 1;
     }
@@ -209,54 +150,79 @@ function processEmum(enumType: ReflectionObject) {
     processedEnums.add(enumName);
 }
 
-/**
- * Convert proto to a TS Type. Recursively converts nested protos and Enums
- */
-function processProtoType(proto: ReflectionObject, indents: number): string {
-    const protoJson = proto.toJSON();
-    const { root } = proto;
+async function fetchEnumsSteamd() {
+    const url = 'https://raw.githubusercontent.com/SteamRE/SteamKit/master/Resources/SteamLanguage/enums.steamd';
+    const enumsSteamd = (await fetch(url).then((res) => res.text())).split(/\r?\n/);
 
-    let protoType = '{\n';
+    await enumToTypescript(enumsSteamd, 'enums.steamd');
+}
 
-    Object.keys(protoJson.fields).forEach((item) => {
-        // fix infinity loop "contained_item" in CEconItem_Description
-        if (item === 'options' || item === 'containedItem') return;
-        let dataType = convertDataType(protoJson.fields[item].type);
-        const isArray = protoJson.fields[item].rule ? '[]' : '';
+async function fetchEResult() {
+    const url = 'https://raw.githubusercontent.com/SteamRE/SteamKit/master/Resources/SteamLanguage/eresult.steamd';
+    const EResult = (await fetch(url).then((res) => res.text())).split(/\r?\n/);
 
-        // nested data type
-        if (dataType[0] === '.') {
-            const nestedObj = root.lookup(dataType);
-            if (!nestedObj) return;
-            const name = nestedObj?.toString();
+    await enumToTypescript(EResult, 'EResult');
+}
 
-            if (name.includes('Type .')) {
-                dataType = processProtoType(nestedObj, indents + 1);
-            } else if (name?.includes('Enum .')) {
-                processEmum(nestedObj);
-                dataType = `typeof ${nestedObj.name}[keyof typeof ${nestedObj.name}]`;
-            } else {
-                throw new Error(`Unknown proto datatype.${name}`);
+async function enumToTypescript(enumList: string[], fileName: string) {
+    const stream = createWriteStream(`${LANGUAGE_PATH}${fileName}.ts`);
+    stream.write(`/* eslint-disable import/prefer-default-export */\n`);
+    stream.write(`${HEADER}\n\n`);
+    let duplicateEnum = false;
+
+    // convert enum to typescript
+    enumList.forEach((line) => {
+        let newLine = line;
+
+        // write enum name
+        if (newLine.match(/^enum /) || newLine.match('public enum')) {
+            duplicateEnum = false;
+
+            // clean line, to just leave name of enum
+            newLine = `${newLine
+                .replace(/^public /, '')
+                .replace(/ flags$/, '')
+                .replace(/^enum /, 'export enum ')
+                .replace(/<.+>/, '')} {\n`;
+
+            // skip enum if it was already written in another file
+            if (processedEnums.has(newLine.replace('export enum', '').replace('{', '').trim())) {
+                duplicateEnum = true;
+                return;
             }
+
+            stream.write(newLine);
+            return;
         }
 
-        // add indents
-        for (let i = 0; i < indents; i += 1) {
-            protoType += '\t';
+        if (duplicateEnum) return;
+
+        // write enum properties
+        if (
+            newLine.includes('=') &&
+            !newLine.includes('; removed') &&
+            !newLine.includes('; obsolete') &&
+            !newLine.match(/deprecated/i) &&
+            !newLine.includes('|') &&
+            newLine.match(/=\s\d+;/)
+        ) {
+            newLine = newLine.replace(/\s/g, '').replace('=', ' = ').replace(';', ',');
+            stream.write(`\t${newLine}\n`);
         }
 
-        protoType += `\t${item}?: ${dataType}${isArray}\n`;
+        if (newLine.includes('}')) stream.write(`}\n\n`);
     });
 
-    for (let i = 0; i < indents; i += 1) protoType += '\t';
-    protoType += '}';
-
-    return protoType;
+    // wait for stream to close
+    return new Promise((resolve) => {
+        stream.close(() => {
+            resolve('closed');
+        });
+    });
 }
 
 function getWriteStream(file: string, filePath: string) {
-    const stream: fs.WriteStream =
-        writeStreams.get(file + filePath) || createWriteStream(filePath + file);
+    const stream: fs.WriteStream = writeStreams.get(file + filePath) || createWriteStream(filePath + file);
     writeStreams.set(file + filePath, stream);
     return stream;
 }
