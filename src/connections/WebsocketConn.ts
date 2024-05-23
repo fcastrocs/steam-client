@@ -42,7 +42,7 @@ export default class WebSocketConnection extends Base {
             agent
         };
 
-        const wsURL = 'wss://' + `${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`;
+        const wsURL = `wss://${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`;
         this.ws = new WebSocket(wsURL, { ...wsOptions });
 
         // received data from steam

@@ -1,8 +1,8 @@
-import type Steam from '../Steam';
-import type {
-    CPlayer_GetOwnedGames_Response,
-    CPlayer_GetOwnedGames_Request
+import {
+    CPlayerGetOwnedGamesResponse,
+    CPlayerGetOwnedGamesRequest
 } from '../../@types/protos/steammessages_player.steamclient';
+import type Steam from '../Steam';
 
 export default class Player {
     private readonly serviceName = 'Player';
@@ -12,8 +12,8 @@ export default class Player {
     async getOwnedGames(options?: {
         appidsFilter?: number[];
         includePlayedFreeGames?: boolean;
-    }): Promise<CPlayer_GetOwnedGames_Response['games']> {
-        const res: CPlayer_GetOwnedGames_Response = await this.steam.conn.sendServiceMethodCall(
+    }): Promise<CPlayerGetOwnedGamesResponse['games']> {
+        const res: CPlayerGetOwnedGamesResponse = await this.steam.conn.sendServiceMethodCall(
             this.serviceName,
             'GetOwnedGames',
             {
@@ -22,7 +22,7 @@ export default class Player {
                 includePlayedFreeGames:
                     options && options.includePlayedFreeGames ? options.includePlayedFreeGames : undefined,
                 includeAppinfo: true
-            } as CPlayer_GetOwnedGames_Request
+            } as CPlayerGetOwnedGamesRequest
         );
 
         if (!res.games) return [];

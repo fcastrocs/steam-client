@@ -5,23 +5,23 @@ import { UnknownRecord, ValueOf } from 'type-fest';
 import type Steam from '../Steam';
 import Language from '../modules/language';
 import { SteamClientError } from '../modules/common';
-import { EOSType } from '../resources/language/enums.steamd';
 import { Confirmation } from '../../@types/services/Auth';
-import type {
-    CAuthentication_BeginAuthSessionViaCredentials_Response,
-    CAuthentication_BeginAuthSessionViaQR_Response,
-    CAuthentication_GetPasswordRSAPublicKey_Response,
-    CAuthentication_UpdateAuthSessionWithSteamGuardCode_Response,
-    CAuthentication_AccessToken_GenerateForApp_Response,
-    CAuthentication_PollAuthSessionStatus_Response,
-    CAuthentication_BeginAuthSessionViaCredentials_Request
-} from '../../@types/protos/steammessages_auth.steamclient';
-import { ESessionPersistence } from '../resources/language/enums';
 import {
-    EAuthTokenPlatformType,
+    CAuthenticationAccessTokenGenerateForAppResponse,
+    CAuthenticationBeginAuthSessionViaCredentialsRequest,
+    CAuthenticationBeginAuthSessionViaCredentialsResponse,
+    CAuthenticationBeginAuthSessionViaQRResponse,
+    CAuthenticationGetPasswordRSAPublicKeyResponse,
+    CAuthenticationPollAuthSessionStatusResponse,
+    CAuthenticationUpdateAuthSessionWithSteamGuardCodeResponse
+} from '../../@types/protos/steammessages_auth.steamclient';
+import {
     EAuthSessionGuardType,
+    EAuthTokenPlatformType,
     ETokenRenewalType
-} from '../resources/language/steammessages_auth.steamclient';
+} from '../../resources/language/steammessages_auth.steamclient';
+import { EOSType } from '../../resources/language/enums.steamd';
+import { ESessionPersistence } from '../../resources/language/enums';
 
 const { EResultMap, EResult } = Language;
 
@@ -29,8 +29,8 @@ export default class Auth extends EventEmitter {
     private waitingForConfirmation: boolean;
 
     private partialSession:
-        | CAuthentication_BeginAuthSessionViaCredentials_Response
-        | CAuthentication_BeginAuthSessionViaQR_Response;
+        | CAuthenticationBeginAuthSessionViaCredentialsResponse
+        | CAuthenticationBeginAuthSessionViaQRResponse;
 
     private readonly serviceName = 'Authentication';
 
@@ -49,7 +49,7 @@ export default class Auth extends EventEmitter {
         if (this.steam.isLoggedIn) throw new SteamClientError('AlreadyLoggedIn');
 
         // begin login by getting QR challenge URL
-        const res: CAuthentication_BeginAuthSessionViaQR_Response = await this.steam.conn.sendServiceMethodCall(
+        const res: CAuthenticationBeginAuthSessionViaQRResponse = await this.steam.conn.sendServiceMethodCall(
             this.serviceName,
             'BeginAuthSessionViaQR',
             {
@@ -85,10 +85,10 @@ export default class Auth extends EventEmitter {
         accountName: string,
         password: string,
         options?: { returnResponse: boolean }
-    ): Promise<CAuthentication_BeginAuthSessionViaCredentials_Response> {
+    ): Promise<CAuthenticationBeginAuthSessionViaCredentialsResponse> {
         if (this.steam.isLoggedIn) throw new SteamClientError('AlreadyLoggedIn');
 
-        const rsa: CAuthentication_GetPasswordRSAPublicKey_Response = await this.steam.conn.sendServiceMethodCall(
+        const rsa: CAuthenticationGetPasswordRSAPublicKeyResponse = await this.steam.conn.sendServiceMethodCall(
             this.serviceName,
             'GetPasswordRSAPublicKey',
             {
@@ -96,8 +96,10 @@ export default class Auth extends EventEmitter {
             }
         );
 
-        const res: CAuthentication_BeginAuthSessionViaCredentials_Response =
-            await this.steam.conn.sendServiceMethodCall(this.serviceName, 'BeginAuthSessionViaCredentials', {
+        const res: CAuthenticationBeginAuthSessionViaCredentialsResponse = await this.steam.conn.sendServiceMethodCall(
+            this.serviceName,
+            'BeginAuthSessionViaCredentials',
+            {
                 accountName,
                 encryptedPassword: encryptPass(password, rsa.publickeyMod, rsa.publickeyExp),
                 encryptionTimestamp: rsa.timestamp,
@@ -112,7 +114,8 @@ export default class Auth extends EventEmitter {
                     gamingDeviceType: 1,
                     machineId: this.steam.machineId
                 }
-            } as CAuthentication_BeginAuthSessionViaCredentials_Request);
+            } as CAuthenticationBeginAuthSessionViaCredentialsRequest
+        );
 
         checkResult(res);
 
@@ -150,10 +153,10 @@ export default class Auth extends EventEmitter {
         if (!this.waitingForConfirmation) throw new SteamClientError('NotWaitingForConfirmation');
 
         // submit steam guard code
-        const res: CAuthentication_UpdateAuthSessionWithSteamGuardCode_Response =
+        const res: CAuthenticationUpdateAuthSessionWithSteamGuardCodeResponse =
             await this.steam.conn.sendServiceMethodCall(this.serviceName, 'UpdateAuthSessionWithSteamGuardCode', {
                 clientId: this.partialSession.clientId,
-                steamid: (this.partialSession as CAuthentication_BeginAuthSessionViaCredentials_Response).steamid,
+                steamid: (this.partialSession as CAuthenticationBeginAuthSessionViaCredentialsResponse).steamid,
                 code: guardCode,
                 codeType: guardType as unknown as number
             });
@@ -162,7 +165,7 @@ export default class Auth extends EventEmitter {
     }
 
     public async accessTokenGenerateForApp(refreshToken: string) {
-        const res: CAuthentication_AccessToken_GenerateForApp_Response = await this.steam.conn.sendServiceMethodCall(
+        const res: CAuthenticationAccessTokenGenerateForAppResponse = await this.steam.conn.sendServiceMethodCall(
             this.serviceName,
             'AccessToken_GenerateForApp',
             {
@@ -191,7 +194,7 @@ export default class Auth extends EventEmitter {
 
         // poll auth status until user responds to QR or timeouts
         intervalId = setInterval(async () => {
-            const pollStatus: CAuthentication_PollAuthSessionStatus_Response =
+            const pollStatus: CAuthenticationPollAuthSessionStatusResponse =
                 await this.steam.conn.sendServiceMethodCall(this.serviceName, 'PollAuthSessionStatus', {
                     clientId: this.partialSession.clientId,
                     requestId: this.partialSession.requestId

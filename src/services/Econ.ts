@@ -2,8 +2,8 @@ import Long from 'long';
 import type Steam from '../Steam';
 import type { Item } from '../../@types/services/Econ';
 import type {
-    CEcon_GetInventoryItemsWithDescriptions_Response,
-    CEcon_GetInventoryItemsWithDescriptions_Request
+    CEconGetInventoryItemsWithDescriptionsRequest,
+    CEconGetInventoryItemsWithDescriptionsResponse
 } from '../../@types/protos/steammessages_econ.steamclient';
 
 export default class Econ {
@@ -16,7 +16,7 @@ export default class Econ {
     }
 
     async getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean) {
-        const res: CEcon_GetInventoryItemsWithDescriptions_Response = await this.steam.conn.sendServiceMethodCall(
+        const res: CEconGetInventoryItemsWithDescriptionsResponse = await this.steam.conn.sendServiceMethodCall(
             this.serviceName,
             'GetInventoryItemsWithDescriptions',
             {
@@ -27,7 +27,7 @@ export default class Econ {
                 filters: {
                     tradableOnly: !!tradableOnly
                 }
-            } as CEcon_GetInventoryItemsWithDescriptions_Request
+            } as CEconGetInventoryItemsWithDescriptionsRequest
         );
 
         if (!res.assets) {
