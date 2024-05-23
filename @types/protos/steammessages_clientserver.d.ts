@@ -1,6 +1,8 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -88,7 +90,47 @@ export type CMsgClientGameConnectTokens = {
 }
 
 export type CMsgClientGamesPlayed = {
-	gamesPlayed?: .CMsgClientGamesPlayed.GamePlayed[]
+	gamesPlayed?: {
+		steamIdGs?: Long
+		gameId?: Long
+		deprecatedGameIpAddress?: number
+		gamePort?: number
+		isSecure?: boolean
+		token?: Buffer
+		gameExtraInfo?: string
+		gameDataBlob?: Buffer
+		processId?: number
+		streamingProviderId?: number
+		gameFlags?: number
+		ownerId?: number
+		vrHmdVendor?: string
+		vrHmdModel?: string
+		launchOptionType?: number
+		primaryControllerType?: number
+		primarySteamControllerSerial?: string
+		totalSteamControllerCount?: number
+		totalNonSteamControllerCount?: number
+		controllerWorkshopFileId?: Long
+		launchSource?: number
+		vrHmdRuntime?: number
+		gameIpAddress?: {
+			v4?: number
+			v6?: Buffer
+		}
+		controllerConnectionType?: number
+		gameOsPlatform?: number
+		gameBuildId?: number
+		compatToolId?: number
+		compatToolCmd?: string
+		compatToolBuildId?: number
+		betaName?: string
+		dlcContext?: number
+		processIdList?: {
+			processId?: number
+			processIdParent?: number
+			parentIsSteam?: boolean
+		}[]
+	}[]
 	clientOsType?: number
 	cloudGamingPlatform?: number
 	recentReauthentication?: boolean
@@ -114,7 +156,17 @@ export type CMsgClientAuthList = {
 	tokensLeft?: number
 	lastRequestSeq?: number
 	lastRequestSeqFromServer?: number
-	tickets?: .CMsgAuthTicket[]
+	tickets?: {
+		estate?: number
+		eresult?: number
+		steamid?: Long
+		gameid?: Long
+		hSteamPipe?: number
+		ticketCrc?: number
+		ticket?: Buffer
+		serverSecret?: Buffer
+		ticketType?: number
+	}[]
 	appIds?: number[]
 	messageSequence?: number
 	filtered?: boolean
@@ -128,7 +180,26 @@ export type CMsgClientAuthListAck = {
 
 export type CMsgClientLicenseList = {
 	eresult?: number
-	licenses?: .CMsgClientLicenseList.License[]
+	licenses?: {
+		packageId?: number
+		timeCreated?: number
+		timeNextProcess?: number
+		minuteLimit?: number
+		minutesUsed?: number
+		paymentMethod?: number
+		flags?: number
+		purchaseCountryCode?: string
+		licenseType?: number
+		territoryCode?: number
+		changeNumber?: number
+		ownerId?: number
+		initialPeriod?: number
+		initialTimeUnit?: number
+		renewalPeriod?: number
+		renewalTimeUnit?: number
+		accessToken?: Long
+		masterPackageId?: number
+	}[]
 }
 
 export type CMsgClientIsLimitedAccount = {
@@ -139,11 +210,21 @@ export type CMsgClientIsLimitedAccount = {
 }
 
 export type CMsgClientRequestedClientStats = {
-	statsToSend?: .CMsgClientRequestedClientStats.StatsToSend[]
+	statsToSend?: {
+		clientStat?: number
+		statAggregateMethod?: number
+	}[]
 }
 
 export type CMsgClientStat2 = {
-	statDetail?: .CMsgClientStat2.StatDetail[]
+	statDetail?: {
+		clientStat?: number
+		llValue?: Long
+		timeOfDay?: number
+		cellId?: number
+		depotId?: number
+		appId?: number
+	}[]
 }
 
 export type CMsgClientInviteToGame = {
@@ -164,12 +245,53 @@ export type CMsgClientChatInvite = {
 }
 
 export type CMsgClientConnectionStats = {
-	statsLogon?: .CMsgClientConnectionStats.Stats_Logon
-	statsVconn?: .CMsgClientConnectionStats.Stats_VConn
+	statsLogon?: {
+		connectAttempts?: number
+		connectSuccesses?: number
+		connectFailures?: number
+		connectionsDropped?: number
+		secondsRunning?: number
+		msecTologonthistime?: number
+		countBadCms?: number
+		noUdpConnectivity?: boolean
+		noTcpConnectivity?: boolean
+		noWebsocket_443Connectivity?: boolean
+		noWebsocketNon_443Connectivity?: boolean
+	}
+	statsVconn?: {
+		connectionsUdp?: number
+		connectionsTcp?: number
+		statsUdp?: {
+			pktsSent?: Long
+			bytesSent?: Long
+			pktsRecv?: Long
+			pktsProcessed?: Long
+			bytesRecv?: Long
+		}
+		pktsAbandoned?: Long
+		connReqReceived?: Long
+		pktsResent?: Long
+		msgsSent?: Long
+		msgsSentFailed?: Long
+		msgsRecv?: Long
+		datagramsSent?: Long
+		datagramsRecv?: Long
+		badPktsRecv?: Long
+		unknownConnPktsRecv?: Long
+		missedPktsRecv?: Long
+		dupPktsRecv?: Long
+		failedConnectChallenges?: Long
+		microSecAvgLatency?: number
+		microSecMinLatency?: number
+		microSecMaxLatency?: number
+	}
 }
 
 export type CMsgClientServersAvailable = {
-	serverTypesAvailable?: .CMsgClientServersAvailable.Server_Types_Available[]
+	serverTypesAvailable?: {
+		server?: number
+		changed?: boolean
+	}[]
 	serverTypeForAuthServices?: number
 }
 
@@ -185,7 +307,13 @@ export type CMsgClientRequestEncryptedAppTicket = {
 export type CMsgClientRequestEncryptedAppTicketResponse = {
 	appId?: number
 	eresult?: number
-	encryptedAppTicket?: .EncryptedAppTicket
+	encryptedAppTicket?: {
+		ticketVersionNo?: number
+		crcEncryptedticket?: number
+		cbEncrypteduserdata?: number
+		cbEncryptedAppownershipticket?: number
+		encryptedTicket?: Buffer
+	}
 }
 
 export type CMsgClientWalletInfoUpdate = {
@@ -210,11 +338,20 @@ export type CMsgClientAMGetClanOfficersResponse = {
 
 export type CMsgClientAMGetPersonaNameHistory = {
 	idCount?: number
-	Ids?: .CMsgClientAMGetPersonaNameHistory.IdInstance[]
+	Ids?: {
+		steamid?: Long
+	}[]
 }
 
 export type CMsgClientAMGetPersonaNameHistoryResponse = {
-	responses?: .CMsgClientAMGetPersonaNameHistoryResponse.NameTableInstance[]
+	responses?: {
+		eresult?: number
+		steamid?: Long
+		names?: {
+			nameSince?: number
+			name?: string
+		}[]
+	}[]
 }
 
 export type CMsgClientDeregisterWithServer = {
@@ -225,10 +362,31 @@ export type CMsgClientDeregisterWithServer = {
 export type CMsgClientClanState = {
 	steamidClan?: Long
 	clanAccountFlags?: number
-	nameInfo?: .CMsgClientClanState.NameInfo
-	userCounts?: .CMsgClientClanState.UserCounts
-	events?: .CMsgClientClanState.Event[]
-	announcements?: .CMsgClientClanState.Event[]
+	nameInfo?: {
+		clanName?: string
+		shaAvatar?: Buffer
+	}
+	userCounts?: {
+		members?: number
+		online?: number
+		chatting?: number
+		inGame?: number
+		chatRoomMembers?: number
+	}
+	events?: {
+		gid?: Long
+		eventTime?: number
+		headline?: string
+		gameId?: Long
+		justPosted?: boolean
+	}[]
+	announcements?: {
+		gid?: Long
+		eventTime?: number
+		headline?: string
+		gameId?: Long
+		justPosted?: boolean
+	}[]
 	chatRoomPrivate?: boolean
 }
 

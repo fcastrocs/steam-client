@@ -1,6 +1,8 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -18,7 +20,11 @@ export type CMsgClientAppInfoChanges = {
 }
 
 export type CMsgClientAppInfoRequest = {
-	apps?: .CMsgClientAppInfoRequest.App[]
+	apps?: {
+		appId?: number
+		sectionFlags?: number
+		section_CRC?: number[]
+	}[]
 	supportsBatches?: boolean
 }
 
@@ -34,15 +40,30 @@ export type CMsgClientPICSChangesSinceResponse = {
 	currentChangeNumber?: number
 	sinceChangeNumber?: number
 	forceFullUpdate?: boolean
-	packageChanges?: .CMsgClientPICSChangesSinceResponse.PackageChange[]
-	appChanges?: .CMsgClientPICSChangesSinceResponse.AppChange[]
+	packageChanges?: {
+		packageid?: number
+		changeNumber?: number
+		needsToken?: boolean
+	}[]
+	appChanges?: {
+		appid?: number
+		changeNumber?: number
+		needsToken?: boolean
+	}[]
 	forceFullAppUpdate?: boolean
 	forceFullPackageUpdate?: boolean
 }
 
 export type CMsgClientPICSProductInfoRequest = {
-	packages?: .CMsgClientPICSProductInfoRequest.PackageInfo[]
-	apps?: .CMsgClientPICSProductInfoRequest.AppInfo[]
+	packages?: {
+		packageid?: number
+		accessToken?: Long
+	}[]
+	apps?: {
+		appid?: number
+		accessToken?: Long
+		onlyPublicObsolete?: boolean
+	}[]
 	metaDataOnly?: boolean
 	numPrevFailed?: number
 	OBSOLETESupportsPackageTokens?: number
@@ -51,9 +72,24 @@ export type CMsgClientPICSProductInfoRequest = {
 }
 
 export type CMsgClientPICSProductInfoResponse = {
-	apps?: .CMsgClientPICSProductInfoResponse.AppInfo[]
+	apps?: {
+		appid?: number
+		changeNumber?: number
+		missingToken?: boolean
+		sha?: Buffer
+		buffer?: Buffer
+		onlyPublic?: boolean
+		size?: number
+	}[]
 	unknownAppids?: number[]
-	packages?: .CMsgClientPICSProductInfoResponse.PackageInfo[]
+	packages?: {
+		packageid?: number
+		changeNumber?: number
+		missingToken?: boolean
+		sha?: Buffer
+		buffer?: Buffer
+		size?: number
+	}[]
 	unknownPackageids?: number[]
 	metaDataOnly?: boolean
 	responsePending?: boolean
@@ -67,9 +103,15 @@ export type CMsgClientPICSAccessTokenRequest = {
 }
 
 export type CMsgClientPICSAccessTokenResponse = {
-	packageAccessTokens?: .CMsgClientPICSAccessTokenResponse.PackageToken[]
+	packageAccessTokens?: {
+		packageid?: number
+		accessToken?: Long
+	}[]
 	packageDeniedTokens?: number[]
-	appAccessTokens?: .CMsgClientPICSAccessTokenResponse.AppToken[]
+	appAccessTokens?: {
+		appid?: number
+		accessToken?: Long
+	}[]
 	appDeniedTokens?: number[]
 }
 

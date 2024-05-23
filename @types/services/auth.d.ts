@@ -15,26 +15,10 @@ export interface Confirmation {
 }
 
 export default class Auth extends EventEmitter {
-    on(
-        event: 'waitingForConfirmation',
-        listener: (confirmation: Confirmation) => void
-    ): this;
-    once(
-        event: 'waitingForConfirmation',
-        listener: (confirmation: Confirmation) => void
-    ): this;
-    on(
-        event: 'authTokens',
-        listener: (
-            authTokens: CAuthentication_PollAuthSessionStatus_Response
-        ) => void
-    ): this;
-    once(
-        event: 'authTokens',
-        listener: (
-            authTokens: CAuthentication_PollAuthSessionStatus_Response
-        ) => void
-    ): this;
+    on(event: 'waitingForConfirmation', listener: (confirmation: Confirmation) => void): this;
+    once(event: 'waitingForConfirmation', listener: (confirmation: Confirmation) => void): this;
+    on(event: 'authTokens', listener: (authTokens: CAuthentication_PollAuthSessionStatus_Response) => void): this;
+    once(event: 'authTokens', listener: (authTokens: CAuthentication_PollAuthSessionStatus_Response) => void): this;
     on(event: 'getAuthTokensTimeout', listener: () => void): this;
     once(event: 'getAuthTokensTimeout', listener: () => void): this;
 
@@ -59,11 +43,6 @@ export default class Auth extends EventEmitter {
      * Submit Steam Guard Code to auth session
      * @throws EResult, NotWaitingForConfirmation
      */
-    updateWithSteamGuardCode(
-        guardCode: string,
-        guardType: typeof EAuthSessionGuardType
-    ): Promise<void>;
-    accessTokenGenerateForApp(
-        refreshToken: string
-    ): Promise<CAuthentication_AccessToken_GenerateForApp_Response>;
+    updateWithSteamGuardCode(guardCode: string, guardType: typeof EAuthSessionGuardType): Promise<void>;
+    accessTokenGenerateForApp(refreshToken: string): Promise<CAuthentication_AccessToken_GenerateForApp_Response>;
 }

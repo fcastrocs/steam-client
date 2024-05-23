@@ -42,17 +42,13 @@ export default class WebSocketConnection extends Base {
             agent
         };
 
-        const wsURL =
-            'wss://' +
-            `${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`;
+        const wsURL = 'wss://' + `${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`;
         this.ws = new WebSocket(wsURL, { ...wsOptions });
 
         // received data from steam
         this.ws.on('message', (data, isBinary) => {
             if (!isBinary) {
-                this.destroyConnection(
-                    new SteamClientError('Data received was not binary.')
-                );
+                this.destroyConnection(new SteamClientError('Data received was not binary.'));
             } else {
                 this.decodeData(data as Buffer);
             }
@@ -62,11 +58,7 @@ export default class WebSocketConnection extends Base {
             // expect connection handshake before timeout. This will trigger "error" event
             const timeoutId = setTimeout(() => {
                 clearTimeout(timeoutId);
-                reject(
-                    new SteamClientError(
-                        'Could not connect to Steam WS (timeout)'
-                    )
-                );
+                reject(new SteamClientError('Could not connect to Steam WS (timeout)'));
             }, this.timeout);
 
             const errorListener = (error: Error) => {

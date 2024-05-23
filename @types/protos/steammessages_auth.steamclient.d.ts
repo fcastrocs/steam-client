@@ -1,84 +1,107 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
 import { ValueOf } from "type-fest";
+import * as enums from "../../resources/language/steammessages_auth.steamclient";
 
-export type CAuthentication_GetPasswordRSAPublicKey_Request = {
+export type CAuthenticationGetPasswordRSAPublicKeyRequest = {
 	accountName?: string
 }
 
-export type CAuthentication_GetPasswordRSAPublicKey_Response = {
+export type CAuthenticationGetPasswordRSAPublicKeyResponse = {
 	publickeyMod?: string
 	publickeyExp?: string
 	timestamp?: Long
 }
 
-export type CAuthentication_DeviceDetails = {
+export type CAuthenticationDeviceDetails = {
 	deviceFriendlyName?: string
-	platformType?: .EAuthTokenPlatformType
+	platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
 	osType?: number
 	gamingDeviceType?: number
 	clientCount?: number
 	machineId?: Buffer
 }
 
-export type CAuthentication_BeginAuthSessionViaQR_Request = {
+export type CAuthenticationBeginAuthSessionViaQRRequest = {
 	deviceFriendlyName?: string
-	platformType?: .EAuthTokenPlatformType
-	deviceDetails?: .CAuthentication_DeviceDetails
+	platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
+	deviceDetails?: {
+		deviceFriendlyName?: string
+		platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
+		osType?: number
+		gamingDeviceType?: number
+		clientCount?: number
+		machineId?: Buffer
+	}
 	websiteId?: string
 }
 
-export type CAuthentication_AllowedConfirmation = {
-	confirmationType?: .EAuthSessionGuardType
+export type CAuthenticationAllowedConfirmation = {
+	confirmationType?: typeof enums.EAuthSessionGuardType[keyof typeof enums.EAuthSessionGuardType]
 	associatedMessage?: string
 }
 
-export type CAuthentication_BeginAuthSessionViaQR_Response = {
+export type CAuthenticationBeginAuthSessionViaQRResponse = {
 	clientId?: Long
 	challengeUrl?: string
 	requestId?: Buffer
 	interval?: number
-	allowedConfirmations?: .CAuthentication_AllowedConfirmation[]
+	allowedConfirmations?: {
+		confirmationType?: typeof enums.EAuthSessionGuardType[keyof typeof enums.EAuthSessionGuardType]
+		associatedMessage?: string
+	}[]
 	version?: number
 }
 
-export type CAuthentication_BeginAuthSessionViaCredentials_Request = {
+export type CAuthenticationBeginAuthSessionViaCredentialsRequest = {
 	deviceFriendlyName?: string
 	accountName?: string
 	encryptedPassword?: string
 	encryptionTimestamp?: Long
 	rememberLogin?: boolean
-	platformType?: .EAuthTokenPlatformType
-	persistence?: .ESessionPersistence
+	platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
+	persistence?: typeof enums.ESessionPersistence[keyof typeof enums.ESessionPersistence]
 	websiteId?: string
-	deviceDetails?: .CAuthentication_DeviceDetails
+	deviceDetails?: {
+		deviceFriendlyName?: string
+		platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
+		osType?: number
+		gamingDeviceType?: number
+		clientCount?: number
+		machineId?: Buffer
+	}
 	guardData?: string
 	language?: number
 	qosLevel?: number
 }
 
-export type CAuthentication_BeginAuthSessionViaCredentials_Response = {
+export type CAuthenticationBeginAuthSessionViaCredentialsResponse = {
 	clientId?: Long
 	requestId?: Buffer
 	interval?: number
-	allowedConfirmations?: .CAuthentication_AllowedConfirmation[]
+	allowedConfirmations?: {
+		confirmationType?: typeof enums.EAuthSessionGuardType[keyof typeof enums.EAuthSessionGuardType]
+		associatedMessage?: string
+	}[]
 	steamid?: Long
 	weakToken?: string
 	agreementSessionUrl?: string
 	extendedErrorMessage?: string
 }
 
-export type CAuthentication_PollAuthSessionStatus_Request = {
+export type CAuthenticationPollAuthSessionStatusRequest = {
 	clientId?: Long
 	requestId?: Buffer
 	tokenToRevoke?: Long
 }
 
-export type CAuthentication_PollAuthSessionStatus_Response = {
+export type CAuthenticationPollAuthSessionStatusResponse = {
 	newClientId?: Long
 	newChallengeUrl?: string
 	refreshToken?: string
@@ -89,104 +112,136 @@ export type CAuthentication_PollAuthSessionStatus_Response = {
 	agreementSessionUrl?: string
 }
 
-export type CAuthentication_GetAuthSessionInfo_Request = {
+export type CAuthenticationGetAuthSessionInfoRequest = {
 	clientId?: Long
 }
 
-export type CAuthentication_GetAuthSessionInfo_Response = {
+export type CAuthenticationGetAuthSessionInfoResponse = {
 	ip?: string
 	geoloc?: string
 	city?: string
 	state?: string
 	country?: string
-	platformType?: .EAuthTokenPlatformType
+	platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
 	deviceFriendlyName?: string
 	version?: number
-	loginHistory?: .EAuthSessionSecurityHistory
+	loginHistory?: typeof enums.EAuthSessionSecurityHistory[keyof typeof enums.EAuthSessionSecurityHistory]
 	requestorLocationMismatch?: boolean
 	highUsageLogin?: boolean
-	requestedPersistence?: .ESessionPersistence
+	requestedPersistence?: typeof enums.ESessionPersistence[keyof typeof enums.ESessionPersistence]
 }
 
-export type CAuthentication_UpdateAuthSessionWithMobileConfirmation_Request = {
+export type CAuthenticationUpdateAuthSessionWithMobileConfirmationRequest = {
 	version?: number
 	clientId?: Long
 	steamid?: Long
 	signature?: Buffer
 	confirm?: boolean
-	persistence?: .ESessionPersistence
+	persistence?: typeof enums.ESessionPersistence[keyof typeof enums.ESessionPersistence]
 }
 
-export type CAuthentication_UpdateAuthSessionWithMobileConfirmation_Response = {
+export type CAuthenticationUpdateAuthSessionWithMobileConfirmationResponse = {
 }
 
-export type CAuthentication_UpdateAuthSessionWithSteamGuardCode_Request = {
+export type CAuthenticationUpdateAuthSessionWithSteamGuardCodeRequest = {
 	clientId?: Long
 	steamid?: Long
 	code?: string
-	codeType?: .EAuthSessionGuardType
+	codeType?: typeof enums.EAuthSessionGuardType[keyof typeof enums.EAuthSessionGuardType]
 }
 
-export type CAuthentication_UpdateAuthSessionWithSteamGuardCode_Response = {
+export type CAuthenticationUpdateAuthSessionWithSteamGuardCodeResponse = {
 	agreementSessionUrl?: string
 }
 
-export type CAuthentication_AccessToken_GenerateForApp_Request = {
+export type CAuthenticationAccessTokenGenerateForAppRequest = {
 	refreshToken?: string
 	steamid?: Long
-	renewalType?: .ETokenRenewalType
+	renewalType?: typeof enums.ETokenRenewalType[keyof typeof enums.ETokenRenewalType]
 }
 
-export type CAuthentication_AccessToken_GenerateForApp_Response = {
+export type CAuthenticationAccessTokenGenerateForAppResponse = {
 	accessToken?: string
 	refreshToken?: string
 }
 
-export type CAuthentication_RefreshToken_Enumerate_Request = {
+export type CAuthenticationRefreshTokenEnumerateRequest = {
 }
 
-export type CAuthentication_RefreshToken_Enumerate_Response = {
-	refreshTokens?: .CAuthentication_RefreshToken_Enumerate_Response.RefreshTokenDescription[]
+export type CAuthenticationRefreshTokenEnumerateResponse = {
+	refreshTokens?: {
+		tokenId?: Long
+		tokenDescription?: string
+		timeUpdated?: number
+		platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
+		loggedIn?: boolean
+		osPlatform?: number
+		authType?: number
+		gamingDeviceType?: number
+		firstSeen?: {
+			time?: number
+			ip?: {
+				v4?: number
+				v6?: Buffer
+			}
+			locale?: string
+			country?: string
+			state?: string
+			city?: string
+		}
+		lastSeen?: {
+			time?: number
+			ip?: {
+				v4?: number
+				v6?: Buffer
+			}
+			locale?: string
+			country?: string
+			state?: string
+			city?: string
+		}
+		osType?: number
+	}[]
 	requestingToken?: Long
 }
 
-export type CAuthentication_GetAuthSessionsForAccount_Request = {
+export type CAuthenticationGetAuthSessionsForAccountRequest = {
 }
 
-export type CAuthentication_GetAuthSessionsForAccount_Response = {
+export type CAuthenticationGetAuthSessionsForAccountResponse = {
 	clientIds?: Long[]
 }
 
-export type CAuthentication_MigrateMobileSession_Request = {
+export type CAuthenticationMigrateMobileSessionRequest = {
 	steamid?: Long
 	token?: string
 	signature?: string
 }
 
-export type CAuthentication_MigrateMobileSession_Response = {
+export type CAuthenticationMigrateMobileSessionResponse = {
 	refreshToken?: string
 	accessToken?: string
 }
 
-export type CAuthentication_Token_Revoke_Request = {
+export type CAuthenticationTokenRevokeRequest = {
 	token?: string
-	revokeAction?: .EAuthTokenRevokeAction
+	revokeAction?: typeof enums.EAuthTokenRevokeAction[keyof typeof enums.EAuthTokenRevokeAction]
 }
 
-export type CAuthentication_Token_Revoke_Response = {
+export type CAuthenticationTokenRevokeResponse = {
 }
 
-export type CAuthentication_RefreshToken_Revoke_Request = {
+export type CAuthenticationRefreshTokenRevokeRequest = {
 	tokenId?: Long
 	steamid?: Long
-	revokeAction?: .EAuthTokenRevokeAction
+	revokeAction?: typeof enums.EAuthTokenRevokeAction[keyof typeof enums.EAuthTokenRevokeAction]
 	signature?: Buffer
 }
 
-export type CAuthentication_RefreshToken_Revoke_Response = {
+export type CAuthenticationRefreshTokenRevokeResponse = {
 }
 
-export type CAuthenticationSupport_QueryRefreshTokensByAccount_Request = {
+export type CAuthenticationSupportQueryRefreshTokensByAccountRequest = {
 	steamid?: Long
 	includeRevokedTokens?: boolean
 }
@@ -195,74 +250,168 @@ export type CSupportRefreshTokenDescription = {
 	tokenId?: Long
 	tokenDescription?: string
 	timeUpdated?: number
-	platformType?: .EAuthTokenPlatformType
-	tokenState?: .EAuthTokenState
+	platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
+	tokenState?: typeof enums.EAuthTokenState[keyof typeof enums.EAuthTokenState]
 	ownerSteamid?: Long
 	osPlatform?: number
 	osType?: number
 	authType?: number
 	gamingDeviceType?: number
-	firstSeen?: .CSupportRefreshTokenDescription.TokenUsageEvent
-	lastSeen?: .CSupportRefreshTokenDescription.TokenUsageEvent
+	firstSeen?: {
+		time?: number
+		ip?: {
+			v4?: number
+			v6?: Buffer
+		}
+		country?: string
+		state?: string
+		city?: string
+	}
+	lastSeen?: {
+		time?: number
+		ip?: {
+			v4?: number
+			v6?: Buffer
+		}
+		country?: string
+		state?: string
+		city?: string
+	}
 }
 
-export type CAuthenticationSupport_QueryRefreshTokensByAccount_Response = {
-	refreshTokens?: .CSupportRefreshTokenDescription[]
+export type CAuthenticationSupportQueryRefreshTokensByAccountResponse = {
+	refreshTokens?: {
+		tokenId?: Long
+		tokenDescription?: string
+		timeUpdated?: number
+		platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
+		tokenState?: typeof enums.EAuthTokenState[keyof typeof enums.EAuthTokenState]
+		ownerSteamid?: Long
+		osPlatform?: number
+		osType?: number
+		authType?: number
+		gamingDeviceType?: number
+		firstSeen?: {
+			time?: number
+			ip?: {
+				v4?: number
+				v6?: Buffer
+			}
+			country?: string
+			state?: string
+			city?: string
+		}
+		lastSeen?: {
+			time?: number
+			ip?: {
+				v4?: number
+				v6?: Buffer
+			}
+			country?: string
+			state?: string
+			city?: string
+		}
+	}[]
 	lastTokenReset?: number
 }
 
-export type CAuthenticationSupport_QueryRefreshTokenByID_Request = {
+export type CAuthenticationSupportQueryRefreshTokenByIDRequest = {
 	tokenId?: Long
 }
 
-export type CAuthenticationSupport_QueryRefreshTokenByID_Response = {
-	refreshTokens?: .CSupportRefreshTokenDescription[]
+export type CAuthenticationSupportQueryRefreshTokenByIDResponse = {
+	refreshTokens?: {
+		tokenId?: Long
+		tokenDescription?: string
+		timeUpdated?: number
+		platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
+		tokenState?: typeof enums.EAuthTokenState[keyof typeof enums.EAuthTokenState]
+		ownerSteamid?: Long
+		osPlatform?: number
+		osType?: number
+		authType?: number
+		gamingDeviceType?: number
+		firstSeen?: {
+			time?: number
+			ip?: {
+				v4?: number
+				v6?: Buffer
+			}
+			country?: string
+			state?: string
+			city?: string
+		}
+		lastSeen?: {
+			time?: number
+			ip?: {
+				v4?: number
+				v6?: Buffer
+			}
+			country?: string
+			state?: string
+			city?: string
+		}
+	}[]
 }
 
-export type CAuthenticationSupport_RevokeToken_Request = {
+export type CAuthenticationSupportRevokeTokenRequest = {
 	tokenId?: Long
 	steamid?: Long
 }
 
-export type CAuthenticationSupport_RevokeToken_Response = {
+export type CAuthenticationSupportRevokeTokenResponse = {
 }
 
-export type CAuthenticationSupport_GetTokenHistory_Request = {
+export type CAuthenticationSupportGetTokenHistoryRequest = {
 	tokenId?: Long
 }
 
 export type CSupportRefreshTokenAudit = {
 	action?: number
 	time?: number
-	ip?: .CMsgIPAddress
+	ip?: {
+		v4?: number
+		v6?: Buffer
+	}
 	actor?: Long
 }
 
-export type CAuthenticationSupport_GetTokenHistory_Response = {
-	history?: .CSupportRefreshTokenAudit[]
+export type CAuthenticationSupportGetTokenHistoryResponse = {
+	history?: {
+		action?: number
+		time?: number
+		ip?: {
+			v4?: number
+			v6?: Buffer
+		}
+		actor?: Long
+	}[]
 }
 
-export type CCloudGaming_CreateNonce_Request = {
+export type CCloudGamingCreateNonceRequest = {
 	platform?: string
 	appid?: number
 }
 
-export type CCloudGaming_CreateNonce_Response = {
+export type CCloudGamingCreateNonceResponse = {
 	nonce?: string
 	expiry?: number
 }
 
-export type CCloudGaming_GetTimeRemaining_Request = {
+export type CCloudGamingGetTimeRemainingRequest = {
 	platform?: string
 	appidList?: number[]
 }
 
-export type CCloudGaming_TimeRemaining = {
+export type CCloudGamingTimeRemaining = {
 	appid?: number
 	minutesRemaining?: number
 }
 
-export type CCloudGaming_GetTimeRemaining_Response = {
-	entries?: .CCloudGaming_TimeRemaining[]
+export type CCloudGamingGetTimeRemainingResponse = {
+	entries?: {
+		appid?: number
+		minutesRemaining?: number
+	}[]
 }
 

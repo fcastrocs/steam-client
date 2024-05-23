@@ -46,25 +46,23 @@ export default class Auth extends EventEmitter {
      * @throws EResult
      */
     public async getAuthTokensViaQR() {
-        if (this.steam.isLoggedIn)
-            throw new SteamClientError('AlreadyLoggedIn');
+        if (this.steam.isLoggedIn) throw new SteamClientError('AlreadyLoggedIn');
 
         // begin login by getting QR challenge URL
-        const res: CAuthentication_BeginAuthSessionViaQR_Response =
-            await this.steam.conn.sendServiceMethodCall(
-                this.serviceName,
-                'BeginAuthSessionViaQR',
-                {
-                    deviceDetails: {
-                        deviceFriendlyName: this.steam.machineName,
-                        platformType: EAuthTokenPlatformType.SteamClient, // as unknown as typeof EAuthTokenPlatformType,
-                        osType: EOSType.Win11,
-                        gamingDeviceType: 1,
-                        machineId: this.steam.machineId
-                    },
-                    websiteId: 'Unknown'
-                }
-            );
+        const res: CAuthentication_BeginAuthSessionViaQR_Response = await this.steam.conn.sendServiceMethodCall(
+            this.serviceName,
+            'BeginAuthSessionViaQR',
+            {
+                deviceDetails: {
+                    deviceFriendlyName: this.steam.machineName,
+                    platformType: EAuthTokenPlatformType.SteamClient, // as unknown as typeof EAuthTokenPlatformType,
+                    osType: EOSType.Win11,
+                    gamingDeviceType: 1,
+                    machineId: this.steam.machineId
+                },
+                websiteId: 'Unknown'
+            }
+        );
 
         checkResult(res);
 
@@ -88,43 +86,33 @@ export default class Auth extends EventEmitter {
         password: string,
         options?: { returnResponse: boolean }
     ): Promise<CAuthentication_BeginAuthSessionViaCredentials_Response> {
-        if (this.steam.isLoggedIn)
-            throw new SteamClientError('AlreadyLoggedIn');
+        if (this.steam.isLoggedIn) throw new SteamClientError('AlreadyLoggedIn');
 
-        const rsa: CAuthentication_GetPasswordRSAPublicKey_Response =
-            await this.steam.conn.sendServiceMethodCall(
-                this.serviceName,
-                'GetPasswordRSAPublicKey',
-                {
-                    accountName
-                }
-            );
+        const rsa: CAuthentication_GetPasswordRSAPublicKey_Response = await this.steam.conn.sendServiceMethodCall(
+            this.serviceName,
+            'GetPasswordRSAPublicKey',
+            {
+                accountName
+            }
+        );
 
         const res: CAuthentication_BeginAuthSessionViaCredentials_Response =
-            await this.steam.conn.sendServiceMethodCall(
-                this.serviceName,
-                'BeginAuthSessionViaCredentials',
-                {
-                    accountName,
-                    encryptedPassword: encryptPass(
-                        password,
-                        rsa.publickeyMod,
-                        rsa.publickeyExp
-                    ),
-                    encryptionTimestamp: rsa.timestamp,
-                    rememberLogin: true,
-                    persistence: ESessionPersistence.Persistent,
-                    websiteId: 'Unknown',
-                    language: 0,
-                    deviceDetails: {
-                        deviceFriendlyName: this.steam.machineName,
-                        platformType: EAuthTokenPlatformType.SteamClient,
-                        osType: EOSType.Win11,
-                        gamingDeviceType: 1,
-                        machineId: this.steam.machineId
-                    }
-                } as CAuthentication_BeginAuthSessionViaCredentials_Request
-            );
+            await this.steam.conn.sendServiceMethodCall(this.serviceName, 'BeginAuthSessionViaCredentials', {
+                accountName,
+                encryptedPassword: encryptPass(password, rsa.publickeyMod, rsa.publickeyExp),
+                encryptionTimestamp: rsa.timestamp,
+                rememberLogin: true,
+                persistence: ESessionPersistence.Persistent,
+                websiteId: 'Unknown',
+                language: 0,
+                deviceDetails: {
+                    deviceFriendlyName: this.steam.machineName,
+                    platformType: EAuthTokenPlatformType.SteamClient,
+                    osType: EOSType.Win11,
+                    gamingDeviceType: 1,
+                    machineId: this.steam.machineId
+                }
+            } as CAuthentication_BeginAuthSessionViaCredentials_Request);
 
         checkResult(res);
 
@@ -158,43 +146,31 @@ export default class Auth extends EventEmitter {
      * Submit Steam Guard Code to auth session
      * @throws EResult, NotWaitingForConfirmation
      */
-    public async updateWithSteamGuardCode(
-        guardCode: string,
-        guardType: typeof EAuthSessionGuardType
-    ) {
-        if (!this.waitingForConfirmation)
-            throw new SteamClientError('NotWaitingForConfirmation');
+    public async updateWithSteamGuardCode(guardCode: string, guardType: typeof EAuthSessionGuardType) {
+        if (!this.waitingForConfirmation) throw new SteamClientError('NotWaitingForConfirmation');
 
         // submit steam guard code
         const res: CAuthentication_UpdateAuthSessionWithSteamGuardCode_Response =
-            await this.steam.conn.sendServiceMethodCall(
-                this.serviceName,
-                'UpdateAuthSessionWithSteamGuardCode',
-                {
-                    clientId: this.partialSession.clientId,
-                    steamid: (
-                        this
-                            .partialSession as CAuthentication_BeginAuthSessionViaCredentials_Response
-                    ).steamid,
-                    code: guardCode,
-                    codeType: guardType as unknown as number
-                }
-            );
+            await this.steam.conn.sendServiceMethodCall(this.serviceName, 'UpdateAuthSessionWithSteamGuardCode', {
+                clientId: this.partialSession.clientId,
+                steamid: (this.partialSession as CAuthentication_BeginAuthSessionViaCredentials_Response).steamid,
+                code: guardCode,
+                codeType: guardType as unknown as number
+            });
 
         checkResult(res);
     }
 
     public async accessTokenGenerateForApp(refreshToken: string) {
-        const res: CAuthentication_AccessToken_GenerateForApp_Response =
-            await this.steam.conn.sendServiceMethodCall(
-                this.serviceName,
-                'AccessToken_GenerateForApp',
-                {
-                    refreshToken,
-                    steamid: this.steam.steamId,
-                    renewalType: ETokenRenewalType.None
-                }
-            );
+        const res: CAuthentication_AccessToken_GenerateForApp_Response = await this.steam.conn.sendServiceMethodCall(
+            this.serviceName,
+            'AccessToken_GenerateForApp',
+            {
+                refreshToken,
+                steamid: this.steam.steamId,
+                renewalType: ETokenRenewalType.None
+            }
+        );
 
         checkResult(res);
         return res;
@@ -216,14 +192,10 @@ export default class Auth extends EventEmitter {
         // poll auth status until user responds to QR or timeouts
         intervalId = setInterval(async () => {
             const pollStatus: CAuthentication_PollAuthSessionStatus_Response =
-                await this.steam.conn.sendServiceMethodCall(
-                    this.serviceName,
-                    'PollAuthSessionStatus',
-                    {
-                        clientId: this.partialSession.clientId,
-                        requestId: this.partialSession.requestId
-                    }
-                );
+                await this.steam.conn.sendServiceMethodCall(this.serviceName, 'PollAuthSessionStatus', {
+                    clientId: this.partialSession.clientId,
+                    requestId: this.partialSession.requestId
+                });
 
             checkResult(pollStatus);
 
@@ -270,17 +242,11 @@ async function genQRCode(challengeUrl: string) {
 
 async function checkResult(res: UnknownRecord) {
     if (res.EResult !== EResult.OK) {
-        throw new SteamClientError(
-            EResultMap.get(res.EResult as ValueOf<typeof EResult>)
-        );
+        throw new SteamClientError(EResultMap.get(res.EResult as ValueOf<typeof EResult>));
     }
 }
 
-function encryptPass(
-    password: string,
-    publickeyMod: string,
-    publickeyExp: string
-) {
+function encryptPass(password: string, publickeyMod: string, publickeyExp: string) {
     const key = new NodeRSA();
 
     key.setOptions({

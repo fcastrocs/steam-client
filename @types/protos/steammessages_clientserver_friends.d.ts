@@ -1,6 +1,8 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -44,7 +46,10 @@ export type CMsgClientHideFriend = {
 
 export type CMsgClientFriendsList = {
 	bincremental?: boolean
-	friends?: .CMsgClientFriendsList.Friend[]
+	friends?: {
+		ulfriendid?: Long
+		efriendrelationship?: number
+	}[]
 	maxFriendCount?: number
 	activeFriendCount?: number
 	friendsLimitHit?: boolean
@@ -53,14 +58,23 @@ export type CMsgClientFriendsList = {
 export type CMsgClientFriendsGroupsList = {
 	bremoval?: boolean
 	bincremental?: boolean
-	friendGroups?: .CMsgClientFriendsGroupsList.FriendGroup[]
-	memberships?: .CMsgClientFriendsGroupsList.FriendGroupsMembership[]
+	friendGroups?: {
+		nGroupID?: number
+		strGroupName?: string
+	}[]
+	memberships?: {
+		ulSteamID?: Long
+		nGroupID?: number
+	}[]
 }
 
 export type CMsgClientPlayerNicknameList = {
 	removal?: boolean
 	incremental?: boolean
-	nicknames?: .CMsgClientPlayerNicknameList.PlayerNickname[]
+	nicknames?: {
+		steamid?: Long
+		nickname?: string
+	}[]
 }
 
 export type CMsgClientSetPlayerNickname = {
@@ -95,7 +109,45 @@ export type CMsgPersonaChangeResponse = {
 
 export type CMsgClientPersonaState = {
 	statusFlags?: number
-	friends?: .CMsgClientPersonaState.Friend[]
+	friends?: {
+		friendid?: Long
+		personaState?: number
+		gamePlayedAppId?: number
+		gameServerIp?: number
+		gameServerPort?: number
+		personaStateFlags?: number
+		onlineSessionInstances?: number
+		personaSetByUser?: boolean
+		playerName?: string
+		queryPort?: number
+		steamidSource?: Long
+		avatarHash?: Buffer
+		lastLogoff?: number
+		lastLogon?: number
+		lastSeenOnline?: number
+		clanRank?: number
+		gameName?: string
+		gameid?: Long
+		gameDataBlob?: Buffer
+		clanData?: {
+			oggAppId?: number
+			chatGroupId?: Long
+		}
+		clanTag?: string
+		richPresence?: {
+			key?: string
+			value?: string
+		}[]
+		broadcastId?: Long
+		gameLobbyId?: Long
+		watchingBroadcastAccountid?: number
+		watchingBroadcastAppid?: number
+		watchingBroadcastViewers?: number
+		watchingBroadcastTitle?: string
+		isCommunityBanned?: boolean
+		playerNamePendingReview?: boolean
+		avatarPendingReview?: boolean
+	}[]
 }
 
 export type CMsgClientFriendProfileInfo = {
@@ -167,8 +219,28 @@ export type CMsgClientGetEmoticonList = {
 }
 
 export type CMsgClientEmoticonList = {
-	emoticons?: .CMsgClientEmoticonList.Emoticon[]
-	stickers?: .CMsgClientEmoticonList.Sticker[]
-	effects?: .CMsgClientEmoticonList.Effect[]
+	emoticons?: {
+		name?: string
+		count?: number
+		timeLastUsed?: number
+		useCount?: number
+		timeReceived?: number
+		appid?: number
+	}[]
+	stickers?: {
+		name?: string
+		count?: number
+		timeReceived?: number
+		appid?: number
+		timeLastUsed?: number
+		useCount?: number
+	}[]
+	effects?: {
+		name?: string
+		count?: number
+		timeReceived?: number
+		infiniteUse?: boolean
+		appid?: number
+	}[]
 }
 

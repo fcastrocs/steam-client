@@ -1,6 +1,8 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -24,7 +26,10 @@ export type CMsgClientRichPresenceRequest = {
 }
 
 export type CMsgClientRichPresenceInfo = {
-	richPresence?: .CMsgClientRichPresenceInfo.RichPresence[]
+	richPresence?: {
+		steamidUser?: Long
+		richPresenceKv?: Buffer
+	}[]
 }
 
 export type CMsgClientCheckFileSignature = {
@@ -136,13 +141,13 @@ export type CMsgClientPurchaseWithMachineID = {
 	machineInfo?: Buffer
 }
 
-export type CMsgTrading_InitiateTradeRequest = {
+export type CMsgTradingInitiateTradeRequest = {
 	tradeRequestId?: number
 	otherSteamid?: Long
 	otherName?: string
 }
 
-export type CMsgTrading_InitiateTradeResponse = {
+export type CMsgTradingInitiateTradeResponse = {
 	response?: number
 	tradeRequestId?: number
 	otherSteamid?: Long
@@ -154,11 +159,11 @@ export type CMsgTrading_InitiateTradeResponse = {
 	emailChangeProbationDays?: number
 }
 
-export type CMsgTrading_CancelTradeRequest = {
+export type CMsgTradingCancelTradeRequest = {
 	otherSteamid?: Long
 }
 
-export type CMsgTrading_StartSession = {
+export type CMsgTradingStartSession = {
 	otherSteamid?: Long
 }
 
@@ -187,7 +192,11 @@ export type CMsgClientCheckAppBetaPassword = {
 
 export type CMsgClientCheckAppBetaPasswordResponse = {
 	eresult?: number
-	betapasswords?: .CMsgClientCheckAppBetaPasswordResponse.BetaPassword[]
+	betapasswords?: {
+		betaname?: string
+		betapassword?: string
+		betadescription?: string
+	}[]
 }
 
 export type CMsgClientGetCDNAuthTokenResponse = {
@@ -198,7 +207,16 @@ export type CMsgClientGetCDNAuthTokenResponse = {
 
 export type CMsgDownloadRateStatistics = {
 	cellId?: number
-	stats?: .CMsgDownloadRateStatistics.StatsInfo[]
+	stats?: {
+		sourceType?: number
+		sourceId?: number
+		seconds?: number
+		bytes?: Long
+		hostName?: string
+		microseconds?: Long
+		usedIpv6?: boolean
+		proxied?: boolean
+	}[]
 	throttlingKbps?: number
 	steamRealm?: number
 }
@@ -230,7 +248,13 @@ export type CMsgClientUGSGetGlobalStatsResponse = {
 	eresult?: number
 	timestamp?: number
 	dayCurrent?: number
-	days?: .CMsgClientUGSGetGlobalStatsResponse.Day[]
+	days?: {
+		dayId?: number
+		stats?: {
+			statId?: number
+			data?: Long
+		}[]
+	}[]
 }
 
 export type CMsgClientRedeemGuestPass = {
@@ -355,14 +379,24 @@ export type CMsgClientRequestForgottenPasswordEmailResponse = {
 
 export type CMsgClientItemAnnouncements = {
 	countNewItems?: number
-	unseenItems?: .CMsgClientItemAnnouncements.UnseenItem[]
+	unseenItems?: {
+		appid?: number
+		contextId?: Long
+		assetId?: Long
+		amount?: Long
+		rtime32Gained?: number
+		sourceAppid?: number
+	}[]
 }
 
 export type CMsgClientRequestItemAnnouncements = {
 }
 
 export type CMsgClientUserNotifications = {
-	notifications?: .CMsgClientUserNotifications.Notification[]
+	notifications?: {
+		userNotificationType?: number
+		count?: number
+	}[]
 }
 
 export type CMsgClientCommentNotifications = {
@@ -389,7 +423,12 @@ export type CMsgClientChatGetFriendMessageHistory = {
 export type CMsgClientChatGetFriendMessageHistoryResponse = {
 	steamid?: Long
 	success?: number
-	messages?: .CMsgClientChatGetFriendMessageHistoryResponse.FriendMessage[]
+	messages?: {
+		accountid?: number
+		timestamp?: number
+		message?: string
+		unread?: boolean
+	}[]
 }
 
 export type CMsgClientChatGetFriendMessageHistoryForOfflineMessages = {
@@ -400,7 +439,10 @@ export type CMsgClientFSGetFriendsSteamLevels = {
 }
 
 export type CMsgClientFSGetFriendsSteamLevelsResponse = {
-	friends?: .CMsgClientFSGetFriendsSteamLevelsResponse.Friend[]
+	friends?: {
+		accountid?: number
+		level?: number
+	}[]
 }
 
 export type CMsgClientEmailAddrInfo = {
@@ -412,12 +454,20 @@ export type CMsgClientEmailAddrInfo = {
 }
 
 export type CMsgCREItemVoteSummary = {
-	publishedFileIds?: .CMsgCREItemVoteSummary.PublishedFileId[]
+	publishedFileIds?: {
+		publishedFileId?: Long
+	}[]
 }
 
 export type CMsgCREItemVoteSummaryResponse = {
 	eresult?: number
-	itemVoteSummaries?: .CMsgCREItemVoteSummaryResponse.ItemVoteSummary[]
+	itemVoteSummaries?: {
+		publishedFileId?: Long
+		votesFor?: number
+		votesAgainst?: number
+		reports?: number
+		score?: number
+	}[]
 }
 
 export type CMsgCREUpdateUserPublishedItemVote = {
@@ -430,12 +480,17 @@ export type CMsgCREUpdateUserPublishedItemVoteResponse = {
 }
 
 export type CMsgCREGetUserPublishedItemVoteDetails = {
-	publishedFileIds?: .CMsgCREGetUserPublishedItemVoteDetails.PublishedFileId[]
+	publishedFileIds?: {
+		publishedFileId?: Long
+	}[]
 }
 
 export type CMsgCREGetUserPublishedItemVoteDetailsResponse = {
 	eresult?: number
-	userItemVoteDetails?: .CMsgCREGetUserPublishedItemVoteDetailsResponse.UserItemVoteDetail[]
+	userItemVoteDetails?: {
+		publishedFileId?: Long
+		vote?: number
+	}[]
 }
 
 export type CMsgFSGetFollowerCount = {
@@ -531,7 +586,10 @@ export type CMsgClientDeauthorizeDevice = {
 
 export type CMsgClientUseLocalDeviceAuthorizations = {
 	authorizationAccountId?: number[]
-	deviceTokens?: .CMsgClientUseLocalDeviceAuthorizations.DeviceToken[]
+	deviceTokens?: {
+		ownerAccountId?: number
+		tokenId?: Long
+	}[]
 }
 
 export type CMsgClientGetAuthorizedDevices = {
@@ -539,17 +597,30 @@ export type CMsgClientGetAuthorizedDevices = {
 
 export type CMsgClientGetAuthorizedDevicesResponse = {
 	eresult?: number
-	authorizedDevice?: .CMsgClientGetAuthorizedDevicesResponse.AuthorizedDevice[]
+	authorizedDevice?: {
+		authDeviceToken?: Long
+		deviceName?: string
+		lastAccessTime?: number
+		borrowerId?: number
+		isPending?: boolean
+		appPlayed?: number
+	}[]
 }
 
 export type CMsgClientSharedLibraryLockStatus = {
-	lockedLibrary?: .CMsgClientSharedLibraryLockStatus.LockedLibrary[]
+	lockedLibrary?: {
+		ownerId?: number
+		lockedBy?: number
+	}[]
 	ownLibraryLockedBy?: number
 }
 
 export type CMsgClientSharedLibraryStopPlaying = {
 	secondsLeft?: number
-	stopApps?: .CMsgClientSharedLibraryStopPlaying.StopApp[]
+	stopApps?: {
+		appId?: number
+		ownerId?: number
+	}[]
 }
 
 export type CMsgClientServiceCall = {

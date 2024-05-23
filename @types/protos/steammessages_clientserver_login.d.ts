@@ -1,6 +1,8 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -42,11 +44,17 @@ export type CMsgClientLogon = {
 	shouldRememberPassword?: boolean
 	wineVersion?: string
 	deprecated_10?: number
-	obfuscatedPrivateIp?: .CMsgIPAddress
+	obfuscatedPrivateIp?: {
+		v4?: number
+		v6?: Buffer
+	}
 	deprecatedPublicIp?: number
 	qosLevel?: number
 	clientSuppliedSteamId?: Long
-	publicIp?: .CMsgIPAddress
+	publicIp?: {
+		v4?: number
+		v6?: Buffer
+	}
 	machineId?: Buffer
 	launcherType?: number
 	uiMode?: number
@@ -83,7 +91,13 @@ export type CMsgClientLogon = {
 	supportsRateLimitResponse?: boolean
 	webLogonNonce?: string
 	priorityReason?: number
-	embeddedClientSecret?: .CMsgClientSecret
+	embeddedClientSecret?: {
+		version?: number
+		appid?: number
+		deviceid?: number
+		nonce?: Long
+		hmac?: Buffer
+	}
 	disablePartnerAutogrants?: boolean
 	isSteamDeck?: boolean
 	accessToken?: string
@@ -105,7 +119,10 @@ export type CMsgClientLogOnResponse = {
 	cellIdPingThreshold?: number
 	deprecatedUsePics?: boolean
 	vanityUrl?: string
-	publicIp?: .CMsgIPAddress
+	publicIp?: {
+		v4?: number
+		v6?: Buffer
+	}
 	userCountry?: string
 	clientSuppliedSteamid?: Long
 	ipCountryCode?: string

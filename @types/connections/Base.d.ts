@@ -47,19 +47,11 @@ export default abstract class Base extends EventEmitter {
     /**
      * Send proto message and wait for response
      */
-    sendProtoPromise(
-        eMsg: EMsg,
-        payload: UnknownRecord,
-        resEMsg: EMsg
-    ): Promise<UnknownRecord>;
+    sendProtoPromise(eMsg: EMsg, payload: UnknownRecord, resEMsg: EMsg): Promise<UnknownRecord>;
     /**
      * Send service method call
      */
-    sendServiceMethodCall(
-        serviceName: string,
-        method: string,
-        body: UnknownRecord
-    ): Promise<UnknownRecord>;
+    sendServiceMethodCall(serviceName: string, method: string, body: UnknownRecord): Promise<UnknownRecord>;
     isLoggedIn(): boolean;
     get steamid(): Long;
     setSteamId(steamId: string): void;

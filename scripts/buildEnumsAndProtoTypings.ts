@@ -48,13 +48,28 @@ async function extractEnumsAndProtoTypes() {
 
             // add header and imports
             if (!stream.bytesWritten) {
+                stream.write('/* eslint-disable import/extensions */\n');
+                stream.write('/* eslint-disable @typescript-eslint/no-unused-vars */\n');
                 stream.write(`${HEADER}\n\n`);
                 stream.write(`import Long from "long";\n`);
-                stream.write(`import { ValueOf } from "type-fest";\n\n`);
+                stream.write(`import { ValueOf } from "type-fest";\n`);
+
+                if (
+                    fs.existsSync(
+                        `./resources/language/${path.basename(item.filename as string).replace('.proto', '.ts')}`
+                    )
+                ) {
+                    stream.write(
+                        `import * as enums from "../../resources/language/${path.basename(item.filename as string).replace('.proto', '')}";\n\n`
+                    );
+                } else {
+                    stream.write('\n');
+                }
+
                 stream.bytesWritten += 1;
             }
 
-            stream.write(`export type ${item.name} = `);
+            stream.write(`export type ${item.name.replace(/_/g, '')} = `);
             const typing = processProtoType({ proto: item });
             stream.write(`${typing}\n\n`);
         }
@@ -90,14 +105,17 @@ function processProtoType({ proto, indents = 0 }: { proto: ReflectionObject; ind
 
         const nestedObj = proto.root.lookup(dataType) as ReflectionObject;
 
-        if (dataType[0] === 'Type .') {
-            dataType = processProtoType({
-                proto: nestedObj,
-                indents: indents + 1
-            });
-        } else if (dataType[0] === 'Enum .') {
-            processProtoEmum(nestedObj);
-            dataType = `typeof ${nestedObj.name}[keyof typeof ${nestedObj.name}]`;
+        if (dataType[0] === '.') {
+            const name = nestedObj.toString();
+            if (name.includes('Type .')) {
+                dataType = processProtoType({
+                    proto: nestedObj,
+                    indents: indents + 1
+                });
+            } else if (name.includes('Enum .')) {
+                processProtoEmum(nestedObj);
+                dataType = `typeof enums.${nestedObj.name}[keyof typeof enums.${nestedObj.name}]`;
+            }
         }
 
         // add indents

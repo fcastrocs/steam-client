@@ -1,10 +1,13 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
 import { ValueOf } from "type-fest";
+import * as enums from "../../resources/language/steammessages_base";
 
 export type CMsgIPAddress = {
 	v4?: number
@@ -12,7 +15,10 @@ export type CMsgIPAddress = {
 }
 
 export type CMsgIPAddressBucket = {
-	originalIpAddress?: .CMsgIPAddress
+	originalIpAddress?: {
+		v4?: number
+		v6?: Buffer
+	}
 	bucket?: Long
 }
 
@@ -49,8 +55,11 @@ export type CMsgProtoBufHeader = {
 	debugSource?: string
 	debugSourceStringIndex?: number
 	tokenId?: Long
-	routingGc?: .CMsgGCRoutingProtoBufHeader
-	sessionDisposition?: .CMsgProtoBufHeader.ESessionDisposition
+	routingGc?: {
+		dstGcidQueue?: Long
+		dstGcDirIndex?: number
+	}
+	sessionDisposition?: typeof enums.ESessionDisposition[keyof typeof enums.ESessionDisposition]
 	wgToken?: string
 	webuiAuthKey?: string
 	excludeClientSessionids?: number[]
@@ -156,10 +165,21 @@ export type CClanMatchEventByRange = {
 	rtimeBefore?: number
 	rtimeAfter?: number
 	qualified?: number
-	events?: .CClanEventUserNewsTuple[]
+	events?: {
+		clanid?: number
+		eventGid?: Long
+		announcementGid?: Long
+		rtimeStart?: number
+		rtimeEnd?: number
+		priorityScore?: number
+		type?: number
+		clampRangeSlot?: number
+		appid?: number
+		rtime32LastModified?: number
+	}[]
 }
 
-export type CCommunity_ClanAnnouncementInfo = {
+export type CCommunityClanAnnouncementInfo = {
 	gid?: Long
 	clanid?: Long
 	posterid?: Long
@@ -175,7 +195,7 @@ export type CCommunity_ClanAnnouncementInfo = {
 	eventGid?: Long
 	voteupcount?: number
 	votedowncount?: number
-	banCheckResult?: .EBanContentCheckResult
+	banCheckResult?: typeof enums.EBanContentCheckResult[keyof typeof enums.EBanContentCheckResult]
 	banned?: boolean
 }
 
@@ -183,7 +203,7 @@ export type CClanEventData = {
 	gid?: Long
 	clanSteamid?: Long
 	eventName?: string
-	eventType?: .EProtoClanEventType
+	eventType?: typeof enums.EProtoClanEventType[keyof typeof enums.EProtoClanEventType]
 	appid?: number
 	serverAddress?: string
 	serverPassword?: string
@@ -194,7 +214,25 @@ export type CClanEventData = {
 	lastUpdateSteamid?: Long
 	eventNotes?: string
 	jsondata?: string
-	announcementBody?: .CCommunity_ClanAnnouncementInfo
+	announcementBody?: {
+		gid?: Long
+		clanid?: Long
+		posterid?: Long
+		headline?: string
+		posttime?: number
+		updatetime?: number
+		body?: string
+		commentcount?: number
+		tags?: string[]
+		language?: number
+		hidden?: boolean
+		forumTopicId?: Long
+		eventGid?: Long
+		voteupcount?: number
+		votedowncount?: number
+		banCheckResult?: typeof enums.EBanContentCheckResult[keyof typeof enums.EBanContentCheckResult]
+		banned?: boolean
+	}
 	published?: boolean
 	hidden?: boolean
 	rtime32VisibilityStart?: number
@@ -212,7 +250,7 @@ export type CClanEventData = {
 	buildBranch?: string
 }
 
-export type CBilling_Address = {
+export type CBillingAddress = {
 	firstName?: string
 	lastName?: string
 	address1?: string
@@ -244,10 +282,16 @@ export type CMsgKeyValuePair = {
 }
 
 export type CMsgKeyValueSet = {
-	pairs?: .CMsgKeyValuePair[]
+	pairs?: {
+		name?: string
+		value?: string
+	}[]
 }
 
 export type UserContentDescriptorPreferences = {
-	contentDescriptorsToExclude?: .UserContentDescriptorPreferences.ContentDescriptor[]
+	contentDescriptorsToExclude?: {
+		contentDescriptorid?: number
+		timestampAdded?: number
+	}[]
 }
 

@@ -1,55 +1,68 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
 import { ValueOf } from "type-fest";
 
-export type CCredentials_TestAvailablePassword_Request = {
+export type CCredentialsTestAvailablePasswordRequest = {
 	password?: string
 	shaDigestPassword?: Buffer
 	accountName?: string
 }
 
-export type CCredentials_TestAvailablePassword_Response = {
+export type CCredentialsTestAvailablePasswordResponse = {
 	isValid?: boolean
 }
 
-export type CCredentials_GetSteamGuardDetails_Request = {
+export type CCredentialsGetSteamGuardDetailsRequest = {
 	webcookie?: string
 	timestampMinimumWanted?: number
 	deprecatedIpaddress?: number
-	ipAddress?: .CMsgIPAddress
+	ipAddress?: {
+		v4?: number
+		v6?: Buffer
+	}
 }
 
-export type CCredentials_GetSteamGuardDetails_Response = {
+export type CCredentialsGetSteamGuardDetailsResponse = {
 	isSteamguardEnabled?: boolean
 	timestampSteamguardEnabled?: number
 	deprecatedMachineNameUserchosen?: string
 	deprecatedTimestampMachineSteamguardEnabled?: number
 	deprecatedAuthenticationExistsFromGeolocBeforeMintime?: boolean
 	deprecatedMachineId?: Long
-	sessionData?: .CCredentials_GetSteamGuardDetails_Response.SessionData[]
+	sessionData?: {
+		machineId?: Long
+		machineNameUserchosen?: string
+		timestampMachineSteamguardEnabled?: number
+		authenticationExistsFromGeolocBeforeMintime?: boolean
+		authenticationExistsFromSameIpBeforeMintime?: boolean
+		publicIpv4?: number
+		publicIpAddress?: string
+	}[]
 	isTwofactorEnabled?: boolean
 	timestampTwofactorEnabled?: number
 	isPhoneVerified?: boolean
 }
 
-export type CCredentials_ValidateEmailAddress_Request = {
+export type CCredentialsValidateEmailAddressRequest = {
 	stoken?: string
 }
 
-export type CCredentials_ValidateEmailAddress_Response = {
+export type CCredentialsValidateEmailAddressResponse = {
 	wasValidated?: boolean
 }
 
-export type CCredentials_SteamGuardPhishingReport_Request = {
+export type CCredentialsSteamGuardPhishingReportRequest = {
 	paramString?: string
 	ipaddressActual?: string
 }
 
-export type CCredentials_SteamGuardPhishingReport_Response = {
+export type CCredentialsSteamGuardPhishingReportResponse = {
 	ipaddressLoginattempt?: string
 	countrynameLoginattempt?: string
 	statenameLoginattempt?: string
@@ -61,20 +74,20 @@ export type CCredentials_SteamGuardPhishingReport_Response = {
 	steamguardCode?: string
 }
 
-export type CCredentials_LastCredentialChangeTime_Request = {
+export type CCredentialsLastCredentialChangeTimeRequest = {
 	userChangesOnly?: boolean
 }
 
-export type CCredentials_LastCredentialChangeTime_Response = {
+export type CCredentialsLastCredentialChangeTimeResponse = {
 	timestampLastPasswordChange?: number
 	timestampLastEmailChange?: number
 	timestampLastPasswordReset?: number
 }
 
-export type CCredentials_GetAccountAuthSecret_Request = {
+export type CCredentialsGetAccountAuthSecretRequest = {
 }
 
-export type CCredentials_GetAccountAuthSecret_Response = {
+export type CCredentialsGetAccountAuthSecretResponse = {
 	secretId?: number
 	secret?: Buffer
 }

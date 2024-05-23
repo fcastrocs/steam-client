@@ -1,17 +1,19 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
 import { ValueOf } from "type-fest";
 
-export type CInventory_GetInventory_Request = {
+export type CInventoryGetInventoryRequest = {
 	appid?: number
 	steamid?: Long
 }
 
-export type CInventory_Response = {
+export type CInventoryResponse = {
 	etag?: string
 	removeditemids?: Long[]
 	itemJson?: string
@@ -20,7 +22,7 @@ export type CInventory_Response = {
 	replayed?: boolean
 }
 
-export type CInventory_ExchangeItem_Request = {
+export type CInventoryExchangeItemRequest = {
 	appid?: number
 	steamid?: Long
 	materialsitemid?: Long[]
@@ -28,16 +30,16 @@ export type CInventory_ExchangeItem_Request = {
 	outputitemdefid?: Long
 }
 
-export type CInventory_GetEligiblePromoItemDefIDs_Request = {
+export type CInventoryGetEligiblePromoItemDefIDsRequest = {
 	appid?: number
 	steamid?: Long
 }
 
-export type CInventory_GetEligiblePromoItemDefIDs_Response = {
+export type CInventoryGetEligiblePromoItemDefIDsResponse = {
 	itemdefids?: Long[]
 }
 
-export type CInventory_AddItem_Request = {
+export type CInventoryAddItemRequest = {
 	appid?: number
 	itemdefid?: Long[]
 	itempropsjson?: string[]
@@ -48,19 +50,27 @@ export type CInventory_AddItem_Request = {
 	isPurchase?: boolean
 }
 
-export type CInventory_ModifyItems_Request = {
+export type CInventoryModifyItemsRequest = {
 	appid?: number
 	steamid?: Long
-	updates?: .CInventory_ModifyItems_Request.ItemPropertyUpdate[]
+	updates?: {
+		itemid?: Long
+		removeProperty?: boolean
+		propertyName?: string
+		propertyValueBool?: boolean
+		propertyValueInt?: Long
+		propertyValueString?: string
+		propertyValueFloat?: number
+	}[]
 	timestamp?: number
 }
 
-export type CInventory_ConsumePlaytime_Request = {
+export type CInventoryConsumePlaytimeRequest = {
 	appid?: number
 	itemdefid?: Long
 }
 
-export type CInventory_ConsumeItem_Request = {
+export type CInventoryConsumeItemRequest = {
 	appid?: number
 	itemid?: Long
 	quantity?: number
@@ -69,20 +79,20 @@ export type CInventory_ConsumeItem_Request = {
 	requestid?: Long
 }
 
-export type CInventory_DevSetNextDrop_Request = {
+export type CInventoryDevSetNextDropRequest = {
 	appid?: number
 	itemdefid?: Long
 	droptime?: string
 }
 
-export type CInventory_SplitItemStack_Request = {
+export type CInventorySplitItemStackRequest = {
 	appid?: number
 	itemid?: Long
 	quantity?: number
 	steamid?: Long
 }
 
-export type CInventory_CombineItemStacks_Request = {
+export type CInventoryCombineItemStacksRequest = {
 	appid?: number
 	fromitemid?: Long
 	destitemid?: Long
@@ -90,47 +100,57 @@ export type CInventory_CombineItemStacks_Request = {
 	steamid?: Long
 }
 
-export type CInventory_GetItemDefMeta_Request = {
+export type CInventoryGetItemDefMetaRequest = {
 	appid?: number
 }
 
-export type CInventory_GetItemDefMeta_Response = {
+export type CInventoryGetItemDefMetaResponse = {
 	modified?: number
 	digest?: string
 }
 
-export type CInventory_GetUserPurchaseInfo_Request = {
+export type CInventoryGetUserPurchaseInfoRequest = {
 }
 
-export type CInventory_GetUserPurchaseInfo_Response = {
+export type CInventoryGetUserPurchaseInfoResponse = {
 	ecurrency?: number
 }
 
-export type CInventory_PurchaseInit_Request = {
+export type CInventoryPurchaseInitRequest = {
 	appid?: number
 	language?: number
-	lineItems?: .CInventory_PurchaseInit_Request.LineItem[]
+	lineItems?: {
+		itemdefid?: Long
+		quantity?: number
+	}[]
 }
 
-export type CInventory_PurchaseInit_Response = {
+export type CInventoryPurchaseInitResponse = {
 	orderid?: Long
 	transid?: Long
 }
 
-export type CInventory_PurchaseFinalize_Request = {
+export type CInventoryPurchaseFinalizeRequest = {
 	appid?: number
 	language?: number
 	orderid?: Long
 }
 
-export type CInventory_InspectItem_Request = {
+export type CInventoryInspectItemRequest = {
 	itemdefid?: Long
 	itemid?: Long
 	tags?: string
 }
 
-export type CInventoryClient_NewItems_Notification = {
+export type CInventoryClientNewItemsNotification = {
 	appid?: number
-	inventoryResponse?: .CInventory_Response
+	inventoryResponse?: {
+		etag?: string
+		removeditemids?: Long[]
+		itemJson?: string
+		itemdefJson?: string
+		ticket?: Buffer
+		replayed?: boolean
+	}
 }
 

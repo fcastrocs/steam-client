@@ -74,10 +74,7 @@ describe.sequential('Steam-Client', () => {
 
         it.concurrent('gamesPlayed', async () => await gamesPlayed());
 
-        it.concurrent(
-            'requestFreeLicense',
-            async () => await requestFreeLicense()
-        );
+        it.concurrent('requestFreeLicense', async () => await requestFreeLicense());
     });
 
     // describe.sequential("Steam Class", () => {
@@ -111,15 +108,13 @@ describe.sequential('Steam-Client', () => {
 
     describe.sequential('Credentials Service', () => {
         it('getSteamGuardDetails', async () => {
-            const details =
-                await steam.service.credentials.getSteamGuardDetails();
+            const details = await steam.service.credentials.getSteamGuardDetails();
             expect(details.isSteamguardEnabled).toBeTruthy();
         });
     });
 
     describe.sequential('Auth Service', async () => {
-        it('accessTokenGenerateForApp', async () =>
-            await accessTokenGenerateForApp());
+        it('accessTokenGenerateForApp', async () => await accessTokenGenerateForApp());
     });
 
     // describe.sequential("Client Class continued", () => {
@@ -232,9 +227,7 @@ const changePlayerName = async (playerName: string) => {
     expect(res.playerName).toBe(playerName);
 };
 
-const changePersonaState = async (
-    state: ValueOf<typeof Language.EPersonaState>
-) => {
+const changePersonaState = async (state: ValueOf<typeof Language.EPersonaState>) => {
     const res = await steam.setPersonaState(state);
     expect(res.personaState).toBe(state);
 };
@@ -279,9 +272,7 @@ const gamesPlayed = async () => {
 const getAuthTokensViaCredentials = async () => {
     // auth was preloaded
 
-    steam.service.auth.on('waitingForConfirmation', (res: Confirmation) =>
-        console.log(res)
-    );
+    steam.service.auth.on('waitingForConfirmation', (res: Confirmation) => console.log(res));
     steam.service.auth.getAuthTokensViaCredentials('', '');
 
     return new Promise((resolve, reject) => {
@@ -309,9 +300,7 @@ const requestFreeLicense = async () => {
 };
 
 const accessTokenGenerateForApp = async () => {
-    const res = await steam.service.auth.accessTokenGenerateForApp(
-        auth.refreshToken
-    );
+    const res = await steam.service.auth.accessTokenGenerateForApp(auth.refreshToken);
     expect(res.accessToken).toBeDefined();
     auth.accessToken = res.accessToken!;
     fs.writeFileSync('auth.json', JSON.stringify(auth));

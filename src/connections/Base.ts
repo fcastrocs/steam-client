@@ -13,14 +13,8 @@ import { UnknownRecord, ValueOf } from 'type-fest';
 import Language from '../modules/language';
 import * as Protos from '../modules/protos';
 import { SteamClientError } from '../modules/common';
-import {
-    ConnectionOptions,
-    ServiceMethodCall
-} from '../../@types/connections/Base';
-import type {
-    CMsgProtoBufHeader,
-    CMsgMulti
-} from '../../@types/protos/steammessages_base';
+import { ConnectionOptions, ServiceMethodCall } from '../../@types/connections/Base';
+import type { CMsgProtoBufHeader, CMsgMulti } from '../../@types/protos/steammessages_base';
 import type { CMsgClientLogOnResponse } from '../../@types/protos/steammessages_clientserver_login';
 
 const { EMsgMap, EMsg } = Language;
@@ -38,15 +32,11 @@ export default abstract class Base extends EventEmitter {
 
     private connectionDestroyed = false;
 
-    private readonly serviceMethodCalls: Map<string, ServiceMethodCall> =
-        new Map();
+    private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
 
     private readonly jobidTargets: Map<ValueOf<typeof EMsg>, Long> = new Map();
 
-    private readonly protoResponses: Map<
-        ValueOf<typeof EMsg>,
-        (value: UnknownRecord) => void
-    > = new Map();
+    private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();
 
     public readonly timeout: number = 10000;
 
@@ -60,10 +50,7 @@ export default abstract class Base extends EventEmitter {
     constructor(protected options: ConnectionOptions) {
         super();
         // set timeout only if greater than current value
-        this.timeout =
-            options.timeout && options.timeout > this.timeout
-                ? options.timeout
-                : this.timeout;
+        this.timeout = options.timeout && options.timeout > this.timeout ? options.timeout : this.timeout;
     }
 
     /**
@@ -92,23 +79,13 @@ export default abstract class Base extends EventEmitter {
     /**
      * Send service method call
      */
-    public sendServiceMethodCall(
-        serviceName: string,
-        method: string,
-        body: UnknownRecord
-    ): Promise<UnknownRecord> {
+    public sendServiceMethodCall(serviceName: string, method: string, body: UnknownRecord): Promise<UnknownRecord> {
         let targetJobName = `${serviceName}.${method}#1`;
-        targetJobName = targetJobName.replace(
-            'AccessToken_GenerateForApp',
-            'GenerateAccessTokenForApp'
-        );
+        targetJobName = targetJobName.replace('AccessToken_GenerateForApp', 'GenerateAccessTokenForApp');
 
         const newMethod = `C${serviceName}_${method}`;
 
-        const jobidSource = Long.fromInt(
-            Math.floor(Date.now() + Math.random()),
-            true
-        );
+        const jobidSource = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
 
         return new Promise((resolve) => {
             const serviceMethodCall: ServiceMethodCall = {
@@ -119,38 +96,23 @@ export default abstract class Base extends EventEmitter {
             };
 
             // save jobId that steam will send a response to
-            this.serviceMethodCalls.set(
-                jobidSource.toString(),
-                serviceMethodCall
-            );
+            this.serviceMethodCalls.set(jobidSource.toString(), serviceMethodCall);
 
             // steam has this.jobIdTimeout ms to response to this jobId
-            setTimeout(
-                () => this.serviceMethodCalls.delete(jobidSource.toString()),
-                this.jobIdTimeout
-            );
+            setTimeout(() => this.serviceMethodCalls.delete(jobidSource.toString()), this.jobIdTimeout);
 
-            const serviceMethodEMsg = this.session.steamId.equals(
-                this.DEFAULT_STEAMID
-            )
+            const serviceMethodEMsg = this.session.steamId.equals(this.DEFAULT_STEAMID)
                 ? EMsg.ServiceMethodCallFromClientNonAuthed
                 : EMsg.ServiceMethodCallFromClient;
 
-            const protoHeader = this.buildProtoHeader(
-                serviceMethodEMsg,
-                serviceMethodCall
-            );
+            const protoHeader = this.buildProtoHeader(serviceMethodEMsg, serviceMethodCall);
             const buffer = Protos.encode(`${newMethod}_Request`, body);
             this.emit('sendData', Buffer.concat([protoHeader, buffer]));
         });
     }
 
     public isLoggedIn() {
-        return (
-            !!this.session &&
-            this.session.steamId !== this.DEFAULT_STEAMID &&
-            this.session.clientId !== 0
-        );
+        return !!this.session && this.session.steamId !== this.DEFAULT_STEAMID && this.session.clientId !== 0;
     }
 
     public get steamid() {
@@ -195,13 +157,8 @@ export default abstract class Base extends EventEmitter {
             const sourceJobId = packet.readBigUInt64LE();
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const canaray = packet.readUInt8();
-            const steamId = Long.fromString(
-                packet.readBigUInt64LE().toString(),
-                true
-            );
-            this.session.steamId = !steamId.equals(Long.UZERO)
-                ? steamId
-                : this.session.steamId;
+            const steamId = Long.fromString(packet.readBigUInt64LE().toString(), true);
+            this.session.steamId = !steamId.equals(Long.UZERO) ? steamId : this.session.steamId;
             this.session.clientId = packet.readInt32LE();
 
             if (EMsgReceived === EMsg.ClientVACBanStatus) {
@@ -214,10 +171,7 @@ export default abstract class Base extends EventEmitter {
         }
 
         const headerLength = packet.readUInt32LE();
-        const proto: CMsgProtoBufHeader = Protos.decode(
-            'CMsgProtoBufHeader',
-            packet.readBuffer(headerLength)
-        );
+        const proto: CMsgProtoBufHeader = Protos.decode('CMsgProtoBufHeader', packet.readBuffer(headerLength));
         this.session.steamId = proto.steamid;
         this.session.clientId = proto.clientSessionid;
 
@@ -226,21 +180,13 @@ export default abstract class Base extends EventEmitter {
             const key = `${EMsgReceivedKey}Response` as keyof typeof EMsg;
             this.jobidTargets.set(EMsg[key], proto.jobidSource);
             // we have this.jobIdTimeout ms to response to this jobId
-            setTimeout(
-                () => this.jobidTargets.delete(EMsg[key]),
-                this.jobIdTimeout
-            );
+            setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.jobIdTimeout);
         }
 
         // service method
         if (EMsgReceived === EMsg.ServiceMethodResponse) {
-            const serviceMethodCall = this.serviceMethodCalls.get(
-                proto.jobidTarget.toString()
-            );
-            const message = Protos.decode(
-                `${serviceMethodCall?.method}_Response`,
-                packet.readBuffer()
-            );
+            const serviceMethodCall = this.serviceMethodCalls.get(proto.jobidTarget.toString());
+            const message = Protos.decode(`${serviceMethodCall?.method}_Response`, packet.readBuffer());
             this.serviceMethodCalls.delete(proto.jobidTarget.toString());
             serviceMethodCall?.promiseResolve({
                 EResult: proto.eresult,
@@ -256,10 +202,7 @@ export default abstract class Base extends EventEmitter {
 
         // assign correct EMsg key and value
         const eMsg = { key: EMsgReceivedKey, value: EMsgReceived };
-        if (
-            EMsgReceived === EMsg.ClientGamesPlayedNoDataBlob ||
-            EMsgReceived === EMsg.ClientGamesPlayedWithDataBlob
-        ) {
+        if (EMsgReceived === EMsg.ClientGamesPlayedNoDataBlob || EMsgReceived === EMsg.ClientGamesPlayedWithDataBlob) {
             eMsg.value = EMsg.ClientGamesPlayed;
         }
         eMsg.key = EMsgMap.get(eMsg.value);
@@ -320,10 +263,7 @@ export default abstract class Base extends EventEmitter {
     /**
      * build header: [EMsg, CMsgProtoBufHeader length, CMsgProtoBufHeader]
      */
-    private buildProtoHeader(
-        eMsg: ValueOf<typeof EMsg>,
-        serviceMethodCall?: ServiceMethodCall
-    ): Buffer {
+    private buildProtoHeader(eMsg: ValueOf<typeof EMsg>, serviceMethodCall?: ServiceMethodCall): Buffer {
         const sBuffer = new SmartBuffer();
 
         // EMsg must be PROTO MASKED

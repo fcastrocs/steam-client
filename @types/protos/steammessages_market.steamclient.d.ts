@@ -1,16 +1,18 @@
+/* eslint-disable import/extensions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed May 22 2024 20:34:57 GMT-0400 (Eastern Daylight Time)
+ * Wed May 22 2024 21:24:10 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
 import { ValueOf } from "type-fest";
 
-export type CEconMarket_IsMarketplaceAllowed_Request = {
+export type CEconMarketIsMarketplaceAllowedRequest = {
 	webcookie?: string
 }
 
-export type CEconMarket_IsMarketplaceAllowed_Response = {
+export type CEconMarketIsMarketplaceAllowedResponse = {
 	allowed?: boolean
 	reason?: number
 	allowedAtTime?: number

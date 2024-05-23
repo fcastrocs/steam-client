@@ -7,14 +7,8 @@ import { CPlayer_GetOwnedGames_Response } from './protos/steammessages_player.st
 import { SteamClientError } from './index.js';
 import { EResult } from '../resources/language/EResult.js';
 import { EPersonaState } from '../resources/language/enums.steamd.js';
-import {
-    CMsgClientEmailAddrInfo,
-    CMsgClientPlayingSessionState
-} from './protos/steammessages_clientserver_2.js';
-import {
-    CMsgClientAccountInfo,
-    CMsgClientLogOnResponse
-} from './protos/steammessages_clientserver_login.js';
+import { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from './protos/steammessages_clientserver_2.js';
+import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login.js';
 import { CMsgClientIsLimitedAccount } from './protos/steammessages_clientserver.js';
 
 export type LoginOptions = {
@@ -42,30 +36,15 @@ export interface LoginRes {
     rawResponse: CMsgClientLogOnResponse;
 }
 
-export type Friend = Merge<
-    IterableElement<CMsgClientPersonaState['friends']>,
-    { avatarString?: string }
->;
+export type Friend = Merge<IterableElement<CMsgClientPersonaState['friends']>, { avatarString?: string }>;
 
 export default class Client extends Steam {
     on(event: 'ClientPersonaState', listener: (state: Friend) => void): this;
     once(event: 'ClientPersonaState', listener: (state: Friend) => void): this;
-    on(
-        event: 'ClientPlayingSessionState',
-        listener: (state: CMsgClientPlayingSessionState) => void
-    ): this;
-    once(
-        event: 'ClientPlayingSessionState',
-        listener: (state: CMsgClientPlayingSessionState) => void
-    ): this;
-    on(
-        event: 'disconnected',
-        listener: (error: SteamClientError) => void
-    ): this;
-    once(
-        event: 'disconnected',
-        listener: (error: SteamClientError) => void
-    ): this;
+    on(event: 'ClientPlayingSessionState', listener: (state: CMsgClientPlayingSessionState) => void): this;
+    once(event: 'ClientPlayingSessionState', listener: (state: CMsgClientPlayingSessionState) => void): this;
+    on(event: 'disconnected', listener: (error: SteamClientError) => void): this;
+    once(event: 'disconnected', listener: (error: SteamClientError) => void): this;
 
     on(event: 'ClientLoggedOff', listener: (eresult: EResult) => void): this;
     once(event: 'ClientLoggedOff', listener: (eresult: EResult) => void): this;
@@ -97,9 +76,7 @@ export default class Client extends Steam {
     /**
      * Activate free games
      */
-    requestFreeLicense(
-        appids: number[]
-    ): Promise<CPlayer_GetOwnedGames_Response['games']>;
+    requestFreeLicense(appids: number[]): Promise<CPlayer_GetOwnedGames_Response['games']>;
     /**
      * Whether playing is blocked by another session
      */

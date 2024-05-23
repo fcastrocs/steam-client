@@ -99,10 +99,7 @@ const authTokens = await steam.service.auth.getAuthTokensViaQR('terminal'); // c
 // Credential authentication
 steam.once('waitingForConfirmation', (res) => console.log(res.guardType));
 // promise will reject after 2 minutes if authentication is not confirmed.
-const authTokens = await steam.service.auth.getAuthTokensViaCredentials(
-    accountName,
-    password
-);
+const authTokens = await steam.service.auth.getAuthTokensViaCredentials(accountName, password);
 
 // you must handle the logic within your app to be able to submit the steam guard code
 // After this is called, then getAuthTokensViaCredentials will resolve with authTokens.

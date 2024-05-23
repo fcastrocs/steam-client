@@ -3,7 +3,5 @@ import Steam from '../Steam.js';
 
 export default class Credentials {
     constructor(steam: Steam);
-    registerCDKey(
-        activationCode: string
-    ): Promise<CPlayer_GetOwnedGames_Response['games']>;
+    registerCDKey(activationCode: string): Promise<CPlayer_GetOwnedGames_Response['games']>;
 }

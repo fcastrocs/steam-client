@@ -15,25 +15,20 @@ export default class Econ {
         return this.getInventoryItems(753, 6, tradableOnly);
     }
 
-    async getInventoryItems(
-        appid: number,
-        contextid: number,
-        tradableOnly?: boolean
-    ) {
-        const res: CEcon_GetInventoryItemsWithDescriptions_Response =
-            await this.steam.conn.sendServiceMethodCall(
-                this.serviceName,
-                'GetInventoryItemsWithDescriptions',
-                {
-                    steamid: this.steam.steamId,
-                    contextid: Long.fromInt(contextid, true),
-                    appid,
-                    getDescriptions: true,
-                    filters: {
-                        tradableOnly: !!tradableOnly
-                    }
-                } as CEcon_GetInventoryItemsWithDescriptions_Request
-            );
+    async getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean) {
+        const res: CEcon_GetInventoryItemsWithDescriptions_Response = await this.steam.conn.sendServiceMethodCall(
+            this.serviceName,
+            'GetInventoryItemsWithDescriptions',
+            {
+                steamid: this.steam.steamId,
+                contextid: Long.fromInt(contextid, true),
+                appid,
+                getDescriptions: true,
+                filters: {
+                    tradableOnly: !!tradableOnly
+                }
+            } as CEcon_GetInventoryItemsWithDescriptions_Request
+        );
 
         if (!res.assets) {
             return [];
@@ -41,8 +36,7 @@ export default class Econ {
 
         return res.assets.map((item) => {
             const dIndex = res.descriptions.findIndex(
-                (des) =>
-                    item.instanceid.toString() === des.instanceid.toString()
+                (des) => item.instanceid.toString() === des.instanceid.toString()
             );
 
             return {
@@ -56,8 +50,7 @@ export default class Econ {
                 type: res.descriptions[dIndex].type,
                 tradable: res.descriptions[dIndex].tradable,
                 marketable: res.descriptions[dIndex].marketable,
-                marketTradableRestriction:
-                    res.descriptions[dIndex].marketTradableRestriction
+                marketTradableRestriction: res.descriptions[dIndex].marketTradableRestriction
             } as Item;
         });
     }

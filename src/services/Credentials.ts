@@ -7,10 +7,6 @@ export default class Credentials {
     constructor(private steam: Steam) {}
 
     async getSteamGuardDetails(): Promise<CCredentials_GetSteamGuardDetails_Response> {
-        return this.steam.conn.sendServiceMethodCall(
-            this.serviceName,
-            'GetSteamGuardDetails',
-            {}
-        );
+        return this.steam.conn.sendServiceMethodCall(this.serviceName, 'GetSteamGuardDetails', {});
     }
 }

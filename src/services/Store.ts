@@ -14,33 +14,23 @@ export default class Credentials {
 
     constructor(private steam: Steam) {}
 
-    async registerCDKey(
-        activationCode: string
-    ): Promise<CPlayer_GetOwnedGames_Response['games']> {
-        const res: CStore_RegisterCDKey_Response =
-            await this.steam.conn.sendServiceMethodCall(
-                this.serviceName,
-                'RegisterCDKey',
-                {
-                    activationCode,
-                    isRequestFromClient: true
-                } as CStore_RegisterCDKey_Request
-            );
+    async registerCDKey(activationCode: string): Promise<CPlayer_GetOwnedGames_Response['games']> {
+        const res: CStore_RegisterCDKey_Response = await this.steam.conn.sendServiceMethodCall(
+            this.serviceName,
+            'RegisterCDKey',
+            {
+                activationCode,
+                isRequestFromClient: true
+            } as CStore_RegisterCDKey_Request
+        );
 
-        if (
-            (res as UnknownRecord).EResult !== EResult.OK ||
-            !res.purchaseReceiptInfo
-        ) {
-            throw new SteamClientError(
-                getKeyByValue(EPurchaseResultDetail, res.purchaseResultDetails)
-            );
+        if ((res as UnknownRecord).EResult !== EResult.OK || !res.purchaseReceiptInfo) {
+            throw new SteamClientError(getKeyByValue(EPurchaseResultDetail, res.purchaseResultDetails));
         }
 
         const appId: number[] = [];
 
-        res.purchaseReceiptInfo.lineItems.forEach((lineItem) =>
-            appId.push(lineItem.appid)
-        );
+        res.purchaseReceiptInfo.lineItems.forEach((lineItem) => appId.push(lineItem.appid));
 
         return this.steam.service.player.getOwnedGames({ appidsFilter: appId });
     }
