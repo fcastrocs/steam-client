@@ -1,15 +1,15 @@
 import { IterableElement, Merge } from 'type-fest';
-import { ConnectionOptions } from './connections/Base.js';
-import Steam from './Steam.js';
-import { Item } from './services/Econ.js';
-import { CMsgClientPersonaState } from './protos/steammessages_clientserver_friends.js';
-import { CPlayer_GetOwnedGames_Response } from './protos/steammessages_player.steamclient.js';
-import { SteamClientError } from './index.js';
-import { EResult } from '../resources/language/EResult.js';
-import { EPersonaState } from '../resources/language/enums.steamd.js';
-import { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from './protos/steammessages_clientserver_2.js';
-import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login.js';
-import { CMsgClientIsLimitedAccount } from './protos/steammessages_clientserver.js';
+import { ConnectionOptions } from './connections/Base';
+import Steam from './Steam';
+import { Item } from './services/Econ';
+import { CMsgClientPersonaState } from './protos/steammessages_clientserver_friends';
+import { CPlayer_GetOwnedGames_Response } from './protos/steammessages_player.steamclient';
+import { SteamClientError } from './index';
+import { EResult } from '../resources/language/EResult';
+import { EPersonaState } from '../resources/language/enums.steamd';
+import { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from './protos/steammessages_clientserver_2';
+import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login';
+import { CMsgClientIsLimitedAccount } from './protos/steammessages_clientserver';
 
 export type LoginOptions = {
     accountName?: string;

@@ -3,14 +3,14 @@
  */
 import Long from 'long';
 import EventEmitter from 'events';
-import Auth from './services/Auth.js';
-import Credentials from './services/Credentials.js';
-import Player from './services/Player.js';
-import Econ from './services/Econ.js';
-import TCPConnection from './connections/TCPConn.js';
-import WebSocketConnection from './connections/WebsocketConn.js';
-import { ConnectionOptions } from './connections/Base.js';
-import Store from './services/Store.js';
+import Auth from './services/Auth';
+import Credentials from './services/Credentials';
+import Player from './services/Player';
+import Econ from './services/Econ';
+import TCPConnection from './connections/TCPConn';
+import WebSocketConnection from './connections/WebsocketConn';
+import { ConnectionOptions } from './connections/Base';
+import Store from './services/Store';
 
 export default abstract class Steam extends EventEmitter {
     readonly service: {
