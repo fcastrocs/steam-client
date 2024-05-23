@@ -1,10 +1,13 @@
-import { CPlayer_GetOwnedGames_Response } from '../protos/steammessages_player.steamclient';
-import Steam from '../Steam';
+import { CPlayerGetOwnedGamesResponse } from '../protos/steammessages_player.steamclient';
+import type Steam from '../Steam';
 
 export default class Player {
+    private steam;
+
+    private readonly serviceName;
     constructor(steam: Steam);
     getOwnedGames(options?: {
         appidsFilter?: number[];
         includePlayedFreeGames?: boolean;
-    }): Promise<CPlayer_GetOwnedGames_Response['games']>;
+    }): Promise<CPlayerGetOwnedGamesResponse['games']>;
 }

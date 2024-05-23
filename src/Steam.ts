@@ -11,8 +11,8 @@ import Player from './services/Player';
 import Econ from './services/Econ';
 import Store from './services/Store';
 import Language from './modules/language';
-import TCPConnection from './connections/TCPConn';
-import WebSocketConnection from './connections/WebsocketConn';
+import TCPConnection from './connections/TCPConnection';
+import WebSocketConnection from './connections/WebSocketConnection';
 import type { ConnectionOptions } from '../@types/connections/Base';
 
 const { EResultMap } = Language;

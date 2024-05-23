@@ -1,8 +1,9 @@
 import { EventEmitter } from 'events';
 import Long from 'long';
-import { UnknownRecord } from 'type-fest';
-import { EMsg } from '../../resources/language/enums_clientserver';
-import { SteamClientError } from '../index.js';
+import { UnknownRecord, ValueOf } from 'type-fest';
+import { SteamClientError } from '../modules/common';
+
+declare const EMsg: typeof import('../../resources/language/enums_clientserver').EMsg;
 
 export interface SessionKey {
     plain: Buffer;
@@ -36,18 +37,43 @@ export interface ConnectionOptions {
 export default abstract class Base extends EventEmitter {
     protected options: ConnectionOptions;
 
+    private heartBeat;
+
     protected readonly MAGIC = 'VT01';
 
     protected readonly PROTO_MASK = 2147483648;
+
+    private JOB_NONE;
+
+    private jobIdTimeout;
+
+    private connectionDestroyed;
+
+    private readonly serviceMethodCalls;
+
+    private readonly jobidTargets;
+
+    private readonly protoResponses;
+
+    readonly timeout: number;
+
+    private DEFAULT_STEAMID;
+
+    private session;
+
     constructor(options: ConnectionOptions);
     /**
      * Send proto message
      */
-    sendProto(eMsg: EMsg, payload: UnknownRecord): void;
+    sendProto(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord): void;
     /**
      * Send proto message and wait for response
      */
-    sendProtoPromise(eMsg: EMsg, payload: UnknownRecord, resEMsg: EMsg): Promise<UnknownRecord>;
+    sendProtoPromise(
+        eMsg: ValueOf<typeof EMsg>,
+        payload: UnknownRecord,
+        resEMsg: ValueOf<typeof EMsg>
+    ): Promise<UnknownRecord>;
     /**
      * Send service method call
      */
@@ -67,4 +93,17 @@ export default abstract class Base extends EventEmitter {
      * disconnected is emmitted when error is passed
      */
     protected destroyConnection(error?: SteamClientError): void;
+    /**
+     * Heartbeat connection after login
+     */
+    private startHeartBeat;
+
+    /**
+     * build header: [EMsg, CMsgProtoBufHeader length, CMsgProtoBufHeader]
+     */
+    private buildProtoHeader;
+
+    private multi;
+
+    private isConnected;
 }

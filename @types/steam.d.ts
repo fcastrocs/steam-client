@@ -1,18 +1,19 @@
 /**
  * Manages high-level Steam operations
  */
-import Long from 'long';
 import EventEmitter from 'events';
 import Auth from './services/Auth';
 import Credentials from './services/Credentials';
 import Player from './services/Player';
-import Econ from './services/Econ';
-import TCPConnection from './connections/TCPConn';
-import WebSocketConnection from './connections/WebsocketConn';
-import { ConnectionOptions } from './connections/Base';
+import type Econ from './services/Econ';
 import Store from './services/Store';
+import TCPConnection from './connections/TCPConnection';
+import WebSocketConnection from './connections/WebSocketConnection';
+import type { ConnectionOptions } from './connections/Base';
 
 export default abstract class Steam extends EventEmitter {
+    private options;
+
     readonly service: {
         auth: Auth;
         credentials: Credentials;
@@ -29,16 +30,13 @@ export default abstract class Steam extends EventEmitter {
 
     protected loggedIn: boolean;
 
+    private obfustucatedIp;
     constructor(options: ConnectionOptions);
     disconnect(): void;
     get isLoggedIn(): boolean;
-    get steamId(): Long;
+    get steamId(): import('long').default;
     /**
      * Access obfustucated Ip
      */
     getObfustucatedIp(): number;
-    /**
-     * Generate obfustucated Ip
-     */
-    protected obfustucateIp(): Promise<number>;
 }

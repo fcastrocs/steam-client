@@ -1,7 +1,10 @@
-import { CPlayer_GetOwnedGames_Response } from '../protos/steammessages_player.steamclient';
-import Steam from '../Steam';
+import type Steam from '../Steam';
+import type { CPlayerGetOwnedGamesResponse } from '../protos/steammessages_player.steamclient';
 
 export default class Credentials {
+    private steam;
+
+    private readonly serviceName;
     constructor(steam: Steam);
-    registerCDKey(activationCode: string): Promise<CPlayer_GetOwnedGames_Response['games']>;
+    registerCDKey(activationCode: string): Promise<CPlayerGetOwnedGamesResponse['games']>;
 }

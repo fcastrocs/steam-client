@@ -1,4 +1,4 @@
-import Steam from '../Steam';
+import type Steam from '../Steam';
 
 export type Item = {
     appid: number;
@@ -16,6 +16,9 @@ export type Item = {
 };
 
 export default class Econ {
+    private steam;
+
+    private readonly serviceName;
     constructor(steam: Steam);
     getSteamContextItems(tradableOnly?: boolean): Promise<Item[]>;
     getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean): Promise<Item[]>;
