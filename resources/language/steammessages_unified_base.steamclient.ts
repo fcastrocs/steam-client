@@ -5,12 +5,11 @@
  */
 
 export enum EProtoExecutionSite {
-	Unknown = 0,
-	SteamClient = 2,
+    Unknown = 0,
+    SteamClient = 2
 }
 
 export enum EProtoServiceType {
-	SteamMessages = 0,
-	VRGamepadUIMessages = 1,
+    SteamMessages = 0,
+    VRGamepadUIMessages = 1
 }
-

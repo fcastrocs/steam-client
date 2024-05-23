@@ -5,10 +5,8 @@
  * Wed May 22 2024 21:33:31 GMT-0400 (Eastern Daylight Time)
  */
 
-import Long from "long";
-import { ValueOf } from "type-fest";
-import * as enums from "../../resources/language/steammessages_unified_base.steamclient";
+import Long from 'long';
+import { ValueOf } from 'type-fest';
+import * as enums from '../../resources/language/steammessages_unified_base.steamclient';
 
-export type NoResponse = {
-}
-
+export type NoResponse = {};
