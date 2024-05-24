@@ -1,5 +1,5 @@
-import { CPlayerGetOwnedGamesResponse } from '../protos/steammessages_player.steamclient';
-import type Steam from '../Steam';
+import { CPlayerGetOwnedGamesResponse } from '../protos/steammessages_player.steamclient.js';
+import type Steam from '../Steam.js';
 
 export default class Player {
     private steam;

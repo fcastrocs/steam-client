@@ -1,21 +1,21 @@
 import Long from 'long';
 import { ValueOf } from 'type-fest';
-import Steam from './Steam';
-import Language from './modules/language';
-import { SteamClientError, isEmpty } from './modules/common';
-import type { Friend, LoginOptions, LoginRes } from '../@types/Client';
-import type { ConnectionOptions } from '../@types/connections/Base';
-import type { CMsgClientIsLimitedAccount, CMsgClientGamesPlayed } from '../@types/protos/steammessages_clientserver';
+import Steam from './Steam.js';
+import Language from './modules/language.js';
+import { SteamClientError, isEmpty } from './modules/common.js';
+import type { Friend, LoginOptions, LoginRes } from '../@types/Client.js';
+import type { ConnectionOptions } from '../@types/connections/Base.js';
+import type { CMsgClientIsLimitedAccount, CMsgClientGamesPlayed } from '../@types/protos/steammessages_clientserver.js';
 import type {
     CMsgClientPlayingSessionState,
     CMsgClientEmailAddrInfo,
     CMsgClientRequestFreeLicenseResponse,
     CMsgClientRequestFreeLicense
-} from '../@types/protos/steammessages_clientserver_2';
-import type { CMsgClientPersonaState } from '../@types/protos/steammessages_clientserver_friends';
-import type { CMsgClientLogon, CMsgClientAccountInfo } from '../@types/protos/steammessages_clientserver_login';
-import { EOSType } from '../resources/language/enums.steamd';
-import { CPlayerGetOwnedGamesResponse } from '../@types/protos/steammessages_player.steamclient';
+} from '../@types/protos/steammessages_clientserver_2.js';
+import type { CMsgClientPersonaState } from '../@types/protos/steammessages_clientserver_friends.js';
+import type { CMsgClientLogon, CMsgClientAccountInfo } from '../@types/protos/steammessages_clientserver_login.js';
+import { EOSType } from '../resources/language/enums.steamd.js';
+import { CPlayerGetOwnedGamesResponse } from '../@types/protos/steammessages_player.steamclient.js';
 
 const { EMsg, EResult, EResultMap, EPersonaState } = Language;
 // responses that should be received before login is complete

@@ -1,8 +1,8 @@
 /**
  * Handle websocket connection to steam
  */
-import Base, { ConnectionOptions } from './Base';
-import { SteamClientError } from '../modules/common';
+import Base, { ConnectionOptions } from './Base.js';
+import { SteamClientError } from '../modules/common.js';
 
 export default class WebSocketConnection extends Base {
     protected options: ConnectionOptions;

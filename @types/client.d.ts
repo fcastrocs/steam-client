@@ -1,13 +1,13 @@
 import { ValueOf } from 'type-fest';
-import Steam from './Steam';
-import type { ConnectionOptions } from './connections/Base';
-import type { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from './protos/steammessages_clientserver_2';
-import { CPlayerGetOwnedGamesResponse } from './protos/steammessages_player.steamclient';
-import { CMsgClientPersonaState } from './protos/steammessages_clientserver_friends';
-import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login';
-import { CMsgClientIsLimitedAccount } from './protos/steammessages_clientserver';
+import Steam from './Steam.js';
+import type { ConnectionOptions } from './connections/Base.js';
+import type { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from './protos/steammessages_clientserver_2.js';
+import { CPlayerGetOwnedGamesResponse } from './protos/steammessages_player.steamclient.js';
+import { CMsgClientPersonaState } from './protos/steammessages_clientserver_friends.js';
+import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login.js';
+import { CMsgClientIsLimitedAccount } from './protos/steammessages_clientserver.js';
 
-declare const EPersonaState: typeof import('../resources/language/enums.steamd').EPersonaState;
+declare const EPersonaState: typeof import('../resources/language/enums.steamd.js').EPersonaState;
 
 export default class Client extends Steam {
     on(event: 'ClientPersonaState', listener: (state: Friend) => void): this;

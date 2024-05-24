@@ -60,7 +60,7 @@ async function extractEnumsAndProtoTypes() {
                     )
                 ) {
                     stream.write(
-                        `import * as enums from "../../resources/language/${path.basename(item.filename as string).replace('.proto', '')}";\n\n`
+                        `import * as enums from "../../resources/language/${path.basename(item.filename as string).replace('.proto', '.js')}";\n\n`
                     );
                 } else {
                     stream.write('\n');

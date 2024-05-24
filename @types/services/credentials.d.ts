@@ -1,5 +1,5 @@
-import { CCredentialsGetSteamGuardDetailsResponse } from '../protos/steammessages_credentials.steamclient';
-import type Steam from '../Steam';
+import { CCredentialsGetSteamGuardDetailsResponse } from '../protos/steammessages_credentials.steamclient.js';
+import type Steam from '../Steam.js';
 
 export default class Credentials {
     private steam;

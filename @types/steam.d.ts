@@ -2,14 +2,14 @@
  * Manages high-level Steam operations
  */
 import EventEmitter from 'events';
-import Auth from './services/Auth';
-import Credentials from './services/Credentials';
-import Player from './services/Player';
-import type Econ from './services/Econ';
-import Store from './services/Store';
-import TCPConnection from './connections/TCPConnection';
-import WebSocketConnection from './connections/WebSocketConnection';
-import type { ConnectionOptions } from './connections/Base';
+import Auth from './services/Auth.js';
+import Credentials from './services/Credentials.js';
+import Player from './services/Player.js';
+import type Econ from './services/Econ.js';
+import Store from './services/Store.js';
+import TCPConnection from './connections/TCPConnection.js';
+import WebSocketConnection from './connections/WebSocketConnection.js';
+import type { ConnectionOptions } from './connections/Base.js';
 
 export default abstract class Steam extends EventEmitter {
     private options;

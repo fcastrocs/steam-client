@@ -1,12 +1,12 @@
 import EventEmitter from 'events';
-import type Steam from '../Steam';
+import type Steam from '../Steam.js';
 import {
     CAuthenticationAccessTokenGenerateForAppResponse,
     CAuthenticationBeginAuthSessionViaCredentialsResponse,
     CAuthenticationBeginAuthSessionViaQRResponse,
     CAuthenticationPollAuthSessionStatusResponse
-} from '../protos/steammessages_auth.steamclient';
-import { EAuthSessionGuardType } from '../../resources/language/steammessages_auth.steamclient';
+} from '../protos/steammessages_auth.steamclient.js';
+import { EAuthSessionGuardType } from '../../resources/language/steammessages_auth.steamclient.js';
 
 export default class Auth extends EventEmitter {
     on(event: 'waitingForConfirmation', listener: (confirmation: Confirmation) => void): this;

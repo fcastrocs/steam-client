@@ -1,4 +1,4 @@
-import type Steam from '../Steam';
+import type Steam from '../Steam.js';
 
 export type Item = {
     appid: number;

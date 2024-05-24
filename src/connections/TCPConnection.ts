@@ -4,14 +4,13 @@
 
 import net, { Socket } from 'net';
 import { SmartBuffer } from 'smart-buffer';
-import crc32 from 'buffer-crc32';
+import crc32 = require('buffer-crc32');
 import SteamCrypto, { SessionKey } from '@fcastrocs/steam-client-crypto';
-
 import { SocksClient } from 'socks';
-import Base from './Base';
-import { ConnectionOptions } from '../../@types/connections/Base';
-import { SteamClientError } from '../modules/common';
-import Language from '../modules/language';
+import Base from './Base.js';
+import { ConnectionOptions } from '../../@types/connections/Base.js';
+import { SteamClientError } from '../modules/common.js';
+import Language from '../modules/language.js';
 
 const { EMsg, EResult } = Language;
 

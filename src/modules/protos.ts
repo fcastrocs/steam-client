@@ -5,11 +5,9 @@ import ProtoBuf from 'protobufjs';
 import fs from 'fs';
 import { UnknownRecord } from 'type-fest';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const FILENAME = fileURLToPath(import.meta.url);
-const DIRNAME = path.dirname(FILENAME);
-const rootDir = path.join(DIRNAME, '../../../resources/protos/');
+const rootPath = path.resolve(process.cwd());
+const rootDir = path.join(rootPath, 'resources/protos/');
 const Protos = await loadProtos();
 
 export { Protos as Root };

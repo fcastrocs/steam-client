@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
-import { SteamClientError } from '../modules/common';
+import { SteamClientError } from '../modules/common.js';
 
-declare const EMsg: typeof import('../../resources/language/enums_clientserver').EMsg;
+declare const EMsg: typeof import('../../resources/language/enums_clientserver.js').EMsg;
 
 export interface SessionKey {
     plain: Buffer;

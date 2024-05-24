@@ -1,10 +1,10 @@
 import Long from 'long';
-import type Steam from '../Steam';
-import type { Item } from '../../@types/services/Econ';
+import type Steam from '../Steam.js';
+import type { Item } from '../../@types/services/Econ.js';
 import type {
     CEconGetInventoryItemsWithDescriptionsRequest,
     CEconGetInventoryItemsWithDescriptionsResponse
-} from '../../@types/protos/steammessages_econ.steamclient';
+} from '../../@types/protos/steammessages_econ.steamclient.js';
 
 export default class Econ {
     private readonly serviceName = 'Econ';
