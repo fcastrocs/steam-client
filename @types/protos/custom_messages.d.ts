@@ -1,0 +1,3 @@
+interface CMsgClientVACBanStatus {
+    numBans: number;
+}

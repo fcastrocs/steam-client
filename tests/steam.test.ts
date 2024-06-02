@@ -212,8 +212,7 @@ const login = async () => {
     expect(res.clientVACBanStatus).toBeDefined();
     expect(res.clientPersonaState).toBeDefined();
     expect(res.clientPlayingSessionState).toBeDefined();
-    expect(res.steamId).toHaveLength(17);
-    expect(res.games).toBeInstanceOf(Array);
+    expect(res.ownedGamesResponse).toBeInstanceOf(Array);
     expect(res.inventory).toBeDefined();
     expect(res.inventory).toHaveProperty('steam');
     expect(res.inventory.steam).toBeInstanceOf(Array);

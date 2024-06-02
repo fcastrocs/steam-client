@@ -1,4 +1,4 @@
-import { ValueOf } from 'type-fest';
+import { IterableElement, Merge, ValueOf } from 'type-fest';
 import Steam from './Steam.js';
 import type { ConnectionOptions } from './connections/Base.js';
 import type { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from './protos/steammessages_clientserver_2.js';
@@ -6,6 +6,7 @@ import { CPlayerGetOwnedGamesResponse } from './protos/steammessages_player.stea
 import { CMsgClientPersonaState } from './protos/steammessages_clientserver_friends.js';
 import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login.js';
 import { CMsgClientIsLimitedAccount } from './protos/steammessages_clientserver.js';
+import { Item } from './services/Econ.js';
 
 declare const EPersonaState: typeof import('../resources/language/enums.steamd.js').EPersonaState;
 
@@ -28,7 +29,7 @@ export default class Client extends Steam {
     /**
      * login to steam via credentials or refresh_token
      */
-    login(options: LoginOptions): Promise<LoginRes>;
+    login(options: LoginOptions): Promise<SteamAccount>;
     /**
      * Change player nickname
      */
@@ -80,21 +81,20 @@ export type LoginOptions = {
     machineId?: Buffer;
 };
 
-export interface LoginRes {
+export interface SteamAccount {
+    machineName: string;
+    machineId: Buffer;
+    clientLogOnResponse: CMsgClientLogOnResponse;
     clientAccountInfo: CMsgClientAccountInfo;
     clientEmailAddrInfo: CMsgClientEmailAddrInfo;
     clientIsLimitedAccount: CMsgClientIsLimitedAccount;
-    clientVACBanStatus: { numBans: number };
+    clientVACBanStatus: CMsgClientVACBanStatus;
     clientPersonaState: Friend;
     clientPlayingSessionState: CMsgClientPlayingSessionState;
-    steamId: string;
-    games: CPlayerGetOwnedGamesResponse['games'];
+    ownedGamesResponse: CPlayerGetOwnedGamesResponse['games'];
     inventory: {
         steam: Item[];
     };
-    machineName: string;
-    machineId: Buffer;
-    rawResponse: CMsgClientLogOnResponse;
 }
 
 export type Friend = Merge<IterableElement<CMsgClientPersonaState['friends']>, { avatarString?: string }>;
