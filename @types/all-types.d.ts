@@ -5,6 +5,7 @@ export * from './connections/WebSocketConnection.js';
 export * from './modules/common.js';
 export * from './modules/language.js';
 export * from './protos/contenthubs.js';
+export * from './protos/custom_messages.js';
 export * from './protos/encrypted_app_ticket.js';
 export * from './protos/steammessages_auth.steamclient.js';
 export * from './protos/steammessages_base.js';

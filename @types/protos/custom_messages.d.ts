@@ -1,3 +1,3 @@
-interface CMsgClientVACBanStatus {
+export type CMsgClientVACBanStatus = {
     numBans: number;
-}
+};

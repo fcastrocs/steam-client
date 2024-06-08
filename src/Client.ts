@@ -15,6 +15,7 @@ import type {
     CMsgClientPlayingSessionState,
     CMsgClientRequestFreeLicense,
     CMsgClientRequestFreeLicenseResponse,
+    CMsgClientVACBanStatus,
     CPlayerGetOwnedGamesResponse,
     ConnectionOptions,
     Friend,
