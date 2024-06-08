@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import type Steam from '../Steam.js';
+import { Steam } from '../Steam.js';
 import {
     CAuthenticationAccessTokenGenerateForAppResponse,
     CAuthenticationBeginAuthSessionViaCredentialsResponse,

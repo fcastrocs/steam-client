@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { CCredentialsGetSteamGuardDetailsResponse } from '../protos/steammessages_credentials.steamclient.js';
-import type Steam from '../Steam.js';
+import { Steam } from '../Steam.js';
 
 export class Credentials {
     private steam;

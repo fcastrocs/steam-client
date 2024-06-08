@@ -7,6 +7,7 @@ import { CMsgClientPersonaState } from './protos/steammessages_clientserver_frie
 import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login.js';
 import { CMsgClientIsLimitedAccount } from './protos/steammessages_clientserver.js';
 import { Item } from './services/Econ.js';
+import { CMsgClientVACBanStatus } from './all-types.js';
 
 declare const EPersonaState: typeof import('../resources/language/enums.steamd.js').EPersonaState;
 

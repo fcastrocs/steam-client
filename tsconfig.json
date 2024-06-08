@@ -18,6 +18,6 @@
             "@/*": ["./src/*"]
         }
     },
-    "include": ["./src/**/*", "./resources/**/*", "./@types/index.d.ts"],
+    "include": ["./src/**/*", "./resources/**/*", "./@types/**/*"],
     "compileOnSave": false
 }

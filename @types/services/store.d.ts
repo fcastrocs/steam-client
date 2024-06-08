@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
-import type Steam from '../Steam.js';
-import type { CPlayerGetOwnedGamesResponse } from '../protos/steammessages_player.steamclient.js';
+import { Steam } from '../Steam.js';
+import { CPlayerGetOwnedGamesResponse } from '../protos/steammessages_player.steamclient.js';
 
 export class Store {
     private steam;
