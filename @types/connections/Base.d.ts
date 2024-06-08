@@ -34,7 +34,7 @@ export interface ConnectionOptions {
     timeout?: number;
 }
 
-export default abstract class Base extends EventEmitter {
+export abstract class Base extends EventEmitter {
     protected options: ConnectionOptions;
 
     private heartBeat;

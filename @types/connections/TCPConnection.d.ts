@@ -1,10 +1,11 @@
+/* eslint-disable import/prefer-default-export */
 /**
  * Handle TCP connection to steam
  */
-import Base, { ConnectionOptions } from './Base.js';
+import { Base, ConnectionOptions } from './Base.js';
 import { SteamClientError } from '../modules/common.js';
 
-export default class TCPConnection extends Base {
+export class TCPConnection extends Base {
     protected options: ConnectionOptions;
 
     readonly timeout: number;

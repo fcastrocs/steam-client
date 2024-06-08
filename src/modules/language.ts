@@ -2,7 +2,6 @@
  * Load steam language
  */
 import { ValueOf } from 'type-fest';
-import { LanguageType } from '../../@types/index.js';
 import { EResult } from '../../resources/language/EResult.js';
 import { EPersonaState } from '../../resources/language/enums.steamd.js';
 import { EMsg } from '../../resources/language/enums_clientserver.js';
@@ -28,7 +27,7 @@ function createEnumMaps() {
 
 const { EMsgMap, EResultMap } = createEnumMaps();
 
-const Language: LanguageType = {
+const Language = {
     EMsgMap,
     EResultMap,
     EMsg,

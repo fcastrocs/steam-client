@@ -8,7 +8,7 @@ import {
 } from '../protos/steammessages_auth.steamclient.js';
 import { EAuthSessionGuardType } from '../../resources/language/steammessages_auth.steamclient.js';
 
-export default class Auth extends EventEmitter {
+export class Auth extends EventEmitter {
     on(event: 'waitingForConfirmation', listener: (confirmation: Confirmation) => void): this;
     once(event: 'waitingForConfirmation', listener: (confirmation: Confirmation) => void): this;
     on(event: 'authTokens', listener: (authTokens: CAuthenticationPollAuthSessionStatusResponse) => void): this;

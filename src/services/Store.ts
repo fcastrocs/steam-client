@@ -1,13 +1,13 @@
 import type { UnknownRecord } from 'type-fest';
-import type Steam from '../Steam.js';
+import Steam from '../Steam.js';
 import { SteamClientError, getKeyByValue } from '../modules/common.js';
-import type { CPlayerGetOwnedGamesResponse } from '../../@types/protos/steammessages_player.steamclient.js';
-import type {
-    CStoreRegisterCDKeyRequest,
-    CStoreRegisterCDKeyResponse
-} from '../../@types/protos/steammessages_store.steamclient.js';
 import { EPurchaseResultDetail } from '../../resources/language/enums.steamd.js';
 import { EResult } from '../../resources/language/EResult.js';
+import type {
+    CPlayerGetOwnedGamesResponse,
+    CStoreRegisterCDKeyResponse,
+    CStoreRegisterCDKeyRequest
+} from '../../@types/index.js';
 
 export default class Credentials {
     private readonly serviceName = 'Store';

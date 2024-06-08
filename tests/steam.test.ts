@@ -1,8 +1,6 @@
-import SteamClient, { Language } from '../';
+import SteamClient, { Confirmation, ConnectionOptions, Language } from '../';
 import fs from 'fs';
 import { describe, it, assert, expect } from 'vitest';
-import { ConnectionOptions } from '../@types/connections/Base';
-import { Confirmation } from '../@types/services/Auth';
 import { ValueOf } from 'type-fest';
 
 //https://api.steampowered.com/ISteamDirectory/GetCMList/v1/?format=json&cellid=0

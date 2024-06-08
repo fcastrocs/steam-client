@@ -2,19 +2,9 @@ import NodeRSA from 'node-rsa';
 import QRCode from 'qrcode';
 import EventEmitter from 'events';
 import { UnknownRecord, ValueOf } from 'type-fest';
-import type Steam from '../Steam.js';
+import Steam from '../Steam.js';
 import Language from '../modules/language.js';
 import { SteamClientError } from '../modules/common.js';
-import { Confirmation } from '../../@types/services/Auth.js';
-import {
-    CAuthenticationAccessTokenGenerateForAppResponse,
-    CAuthenticationBeginAuthSessionViaCredentialsRequest,
-    CAuthenticationBeginAuthSessionViaCredentialsResponse,
-    CAuthenticationBeginAuthSessionViaQRResponse,
-    CAuthenticationGetPasswordRSAPublicKeyResponse,
-    CAuthenticationPollAuthSessionStatusResponse,
-    CAuthenticationUpdateAuthSessionWithSteamGuardCodeResponse
-} from '../../@types/protos/steammessages_auth.steamclient.js';
 import {
     EAuthSessionGuardType,
     EAuthTokenPlatformType,
@@ -22,6 +12,16 @@ import {
 } from '../../resources/language/steammessages_auth.steamclient.js';
 import { EOSType } from '../../resources/language/enums.steamd.js';
 import { ESessionPersistence } from '../../resources/language/enums.js';
+import type {
+    CAuthenticationBeginAuthSessionViaCredentialsResponse,
+    CAuthenticationBeginAuthSessionViaQRResponse,
+    Confirmation,
+    CAuthenticationGetPasswordRSAPublicKeyResponse,
+    CAuthenticationBeginAuthSessionViaCredentialsRequest,
+    CAuthenticationUpdateAuthSessionWithSteamGuardCodeResponse,
+    CAuthenticationAccessTokenGenerateForAppResponse,
+    CAuthenticationPollAuthSessionStatusResponse
+} from '../../@types/index.js';
 
 const { EResultMap, EResult } = Language;
 

@@ -13,9 +13,13 @@ import { UnknownRecord, ValueOf } from 'type-fest';
 import Language from '../modules/language.js';
 import * as Protos from '../modules/protos.js';
 import { SteamClientError } from '../modules/common.js';
-import { ConnectionOptions, ServiceMethodCall } from '../../@types/connections/Base.js';
-import type { CMsgProtoBufHeader, CMsgMulti } from '../../@types/protos/steammessages_base.js';
-import type { CMsgClientLogOnResponse } from '../../@types/protos/steammessages_clientserver_login.js';
+import type {
+    CMsgClientLogOnResponse,
+    CMsgMulti,
+    CMsgProtoBufHeader,
+    ConnectionOptions,
+    ServiceMethodCall
+} from '../../@types/index.js';
 
 const { EMsgMap, EMsg } = Language;
 
@@ -281,9 +285,9 @@ export default abstract class Base extends EventEmitter {
         // steam will receive response to this jobId
         this.jobidTargets.delete(eMsg);
 
-        const CMsgProtoBufHeader = Protos.encode('CMsgProtoBufHeader', message);
-        sBuffer.writeInt32LE(CMsgProtoBufHeader.length);
-        sBuffer.writeBuffer(CMsgProtoBufHeader);
+        const cMsgProtoBufHeader = Protos.encode('CMsgProtoBufHeader', message);
+        sBuffer.writeInt32LE(cMsgProtoBufHeader.length);
+        sBuffer.writeBuffer(cMsgProtoBufHeader);
 
         return sBuffer.toBuffer();
     }

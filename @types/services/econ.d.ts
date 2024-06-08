@@ -15,7 +15,7 @@ export type Item = {
     marketTradableRestriction: number;
 };
 
-export default class Econ {
+export class Econ {
     private steam;
 
     private readonly serviceName;

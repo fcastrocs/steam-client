@@ -5,15 +5,15 @@
 import EventEmitter from 'events';
 import { randomBytes } from 'crypto';
 // import http from 'http';
-import Auth from './services/Auth.js';
+import Language from './modules/language.js';
+import WebSocketConnection from './connections/WebSocketConnection.js';
+import TCPConnection from './connections/TCPConnection.js';
 import Credentials from './services/Credentials.js';
 import Player from './services/Player.js';
 import Econ from './services/Econ.js';
 import Store from './services/Store.js';
-import Language from './modules/language.js';
-import TCPConnection from './connections/TCPConnection.js';
-import WebSocketConnection from './connections/WebSocketConnection.js';
-import type { ConnectionOptions } from '../@types/connections/Base.js';
+import Auth from './services/Auth.js';
+import type { ConnectionOptions } from '../@types/index.js';
 
 const { EResultMap } = Language;
 

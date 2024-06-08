@@ -1,17 +1,18 @@
+/* eslint-disable import/prefer-default-export */
 /**
  * Manages high-level Steam operations
  */
 import EventEmitter from 'events';
-import Auth from './services/Auth.js';
-import Credentials from './services/Credentials.js';
-import Player from './services/Player.js';
-import type Econ from './services/Econ.js';
-import Store from './services/Store.js';
-import TCPConnection from './connections/TCPConnection.js';
-import WebSocketConnection from './connections/WebSocketConnection.js';
-import type { ConnectionOptions } from './connections/Base.js';
+import { Auth } from './services/Auth.js';
+import { Credentials } from './services/Credentials.js';
+import { Player } from './services/Player.js';
+import { Econ } from './services/Econ.js';
+import { Store } from './services/Store.js';
+import { TCPConnection } from './connections/TCPConnection.js';
+import { WebSocketConnection } from './connections/WebSocketConnection.js';
+import { ConnectionOptions } from './connections/Base.js';
 
-export default abstract class Steam extends EventEmitter {
+export abstract class Steam extends EventEmitter {
     private options;
 
     readonly service: {

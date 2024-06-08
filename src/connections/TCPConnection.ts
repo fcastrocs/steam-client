@@ -8,9 +8,9 @@ import crc32 = require('buffer-crc32');
 import SteamCrypto, { SessionKey } from '@fcastrocs/steam-client-crypto';
 import { SocksClient } from 'socks';
 import Base from './Base.js';
-import { ConnectionOptions } from '../../@types/connections/Base.js';
 import { SteamClientError } from '../modules/common.js';
 import Language from '../modules/language.js';
+import type { ConnectionOptions } from '../../@types/index.js';
 
 const { EMsg, EResult } = Language;
 

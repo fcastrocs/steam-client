@@ -3,23 +3,24 @@ import { ValueOf } from 'type-fest';
 import Steam from './Steam.js';
 import Language from './modules/language.js';
 import { PromiseTimeout, SteamClientError, allWithTimeout, isEmpty } from './modules/common.js';
-import type { Friend, LoginOptions, SteamAccount } from '../@types/Client.js';
-import type { ConnectionOptions } from '../@types/connections/Base.js';
-import type { CMsgClientIsLimitedAccount, CMsgClientGamesPlayed } from '../@types/protos/steammessages_clientserver.js';
-import type {
-    CMsgClientPlayingSessionState,
-    CMsgClientEmailAddrInfo,
-    CMsgClientRequestFreeLicenseResponse,
-    CMsgClientRequestFreeLicense
-} from '../@types/protos/steammessages_clientserver_2.js';
-import type { CMsgClientPersonaState } from '../@types/protos/steammessages_clientserver_friends.js';
-import type {
-    CMsgClientLogon,
-    CMsgClientAccountInfo,
-    CMsgClientLogOnResponse
-} from '../@types/protos/steammessages_clientserver_login.js';
 import { EOSType } from '../resources/language/enums.steamd.js';
-import { CPlayerGetOwnedGamesResponse } from '../@types/protos/steammessages_player.steamclient.js';
+import type {
+    CMsgClientAccountInfo,
+    CMsgClientEmailAddrInfo,
+    CMsgClientGamesPlayed,
+    CMsgClientIsLimitedAccount,
+    CMsgClientLogOnResponse,
+    CMsgClientLogon,
+    CMsgClientPersonaState,
+    CMsgClientPlayingSessionState,
+    CMsgClientRequestFreeLicense,
+    CMsgClientRequestFreeLicenseResponse,
+    CPlayerGetOwnedGamesResponse,
+    ConnectionOptions,
+    Friend,
+    LoginOptions,
+    SteamAccount
+} from '../@types/index.js';
 
 const { EMsg, EResult, EResultMap, EPersonaState } = Language;
 

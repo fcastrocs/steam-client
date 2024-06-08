@@ -1,7 +1,7 @@
 import { IterableElement, Merge, ValueOf } from 'type-fest';
-import Steam from './Steam.js';
-import type { ConnectionOptions } from './connections/Base.js';
-import type { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from './protos/steammessages_clientserver_2.js';
+import { Steam } from './Steam.js';
+import { ConnectionOptions } from './connections/Base.js';
+import { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from './protos/steammessages_clientserver_2.js';
 import { CPlayerGetOwnedGamesResponse } from './protos/steammessages_player.steamclient.js';
 import { CMsgClientPersonaState } from './protos/steammessages_clientserver_friends.js';
 import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login.js';
@@ -10,7 +10,7 @@ import { Item } from './services/Econ.js';
 
 declare const EPersonaState: typeof import('../resources/language/enums.steamd.js').EPersonaState;
 
-export default class Client extends Steam {
+export class Client extends Steam {
     on(event: 'ClientPersonaState', listener: (state: Friend) => void): this;
     once(event: 'ClientPersonaState', listener: (state: Friend) => void): this;
     on(event: 'ClientPlayingSessionState', listener: (state: CMsgClientPlayingSessionState) => void): this;
