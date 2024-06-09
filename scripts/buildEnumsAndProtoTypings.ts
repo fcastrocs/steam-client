@@ -6,7 +6,7 @@
 import { ReflectionObject } from 'protobufjs';
 import fs, { createWriteStream } from 'fs';
 import path from 'path';
-import { loadProtos } from '../src/modules/protos';
+import SteamProtos from '../src/modules/SteamProtos';
 
 const LANGUAGE_PATH = 'resources/language/';
 const PROTOS_TYPES_PATH = '@types/protos/';
@@ -29,7 +29,8 @@ export default async function main() {
  * Extract enums and build proto types from proto files
  */
 async function extractEnumsAndProtoTypes() {
-    const root = await loadProtos();
+    const steamProtos = new SteamProtos();
+    const root = steamProtos.getProtosRoot();
     if (!root.nested) return;
     const nested = root.nested;
 

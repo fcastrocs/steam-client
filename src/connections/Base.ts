@@ -10,8 +10,8 @@ import { SmartBuffer } from 'smart-buffer';
 import Zip from 'zlib';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
+import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
-import * as Protos from '../modules/protos.js';
 import { SteamClientError } from '../modules/common.js';
 import type {
     CMsgClientLogOnResponse,
@@ -51,6 +51,8 @@ export default abstract class Base extends EventEmitter {
         steamId: this.DEFAULT_STEAMID
     };
 
+    private steamProtos = new SteamProtos();
+
     constructor(protected options: ConnectionOptions) {
         super();
         // set timeout only if greater than current value
@@ -62,7 +64,7 @@ export default abstract class Base extends EventEmitter {
      */
     public sendProto(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord) {
         const protoHeader = this.buildProtoHeader(eMsg);
-        const body = Protos.encode(`CMsg${EMsgMap.get(eMsg)}`, payload);
+        const body = this.steamProtos.encode(`CMsg${EMsgMap.get(eMsg)}`, payload);
         this.emit('sendData', Buffer.concat([protoHeader, body]));
     }
 
@@ -110,7 +112,7 @@ export default abstract class Base extends EventEmitter {
                 : EMsg.ServiceMethodCallFromClient;
 
             const protoHeader = this.buildProtoHeader(serviceMethodEMsg, serviceMethodCall);
-            const buffer = Protos.encode(`${newMethod}_Request`, body);
+            const buffer = this.steamProtos.encode(`${newMethod}_Request`, body);
             this.emit('sendData', Buffer.concat([protoHeader, buffer]));
         });
     }
@@ -175,7 +177,10 @@ export default abstract class Base extends EventEmitter {
         }
 
         const headerLength = packet.readUInt32LE();
-        const proto: CMsgProtoBufHeader = Protos.decode('CMsgProtoBufHeader', packet.readBuffer(headerLength));
+        const proto: CMsgProtoBufHeader = this.steamProtos.decode(
+            'CMsgProtoBufHeader',
+            packet.readBuffer(headerLength)
+        );
         this.session.steamId = proto.steamid;
         this.session.clientId = proto.clientSessionid;
 
@@ -190,7 +195,7 @@ export default abstract class Base extends EventEmitter {
         // service method
         if (EMsgReceived === EMsg.ServiceMethodResponse) {
             const serviceMethodCall = this.serviceMethodCalls.get(proto.jobidTarget.toString());
-            const message = Protos.decode(`${serviceMethodCall?.method}_Response`, packet.readBuffer());
+            const message = this.steamProtos.decode(`${serviceMethodCall?.method}_Response`, packet.readBuffer());
             this.serviceMethodCalls.delete(proto.jobidTarget.toString());
             serviceMethodCall?.promiseResolve({
                 EResult: proto.eresult,
@@ -213,7 +218,7 @@ export default abstract class Base extends EventEmitter {
 
         // decode body and emit message
         try {
-            const body = Protos.decode(`CMsg${eMsg.key}`, packet.readBuffer());
+            const body = this.steamProtos.decode(`CMsg${eMsg.key}`, packet.readBuffer());
             // emit message
             this.emit(eMsg.key, body);
 
@@ -285,7 +290,7 @@ export default abstract class Base extends EventEmitter {
         // steam will receive response to this jobId
         this.jobidTargets.delete(eMsg);
 
-        const cMsgProtoBufHeader = Protos.encode('CMsgProtoBufHeader', message);
+        const cMsgProtoBufHeader = this.steamProtos.encode('CMsgProtoBufHeader', message);
         sBuffer.writeInt32LE(cMsgProtoBufHeader.length);
         sBuffer.writeBuffer(cMsgProtoBufHeader);
 
@@ -293,7 +298,7 @@ export default abstract class Base extends EventEmitter {
     }
 
     private async multi(payload: Buffer): Promise<void> {
-        const message: CMsgMulti = Protos.decode('CMsgMulti', payload);
+        const message: CMsgMulti = this.steamProtos.decode('CMsgMulti', payload);
         let body = message.messageBody;
 
         // message is gzipped
