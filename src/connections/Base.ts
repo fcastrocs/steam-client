@@ -7,9 +7,9 @@
 
 import { EventEmitter } from 'events';
 import { SmartBuffer } from 'smart-buffer';
-import Zip from 'zlib';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
+import { gunzipSync } from 'zlib';
 import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
 import { SteamClientError } from '../modules/common.js';
@@ -185,10 +185,7 @@ export default abstract class Base extends EventEmitter {
         }
 
         const headerLength = packet.readUInt32LE();
-        const proto: CMsgProtoBufHeader = this.steamProtos.decode(
-            'CMsgProtoBufHeader',
-            packet.readBuffer(headerLength)
-        );
+        const proto: CMsgProtoBufHeader = this.steamProtos.decode('CMsgProtoBufHeader', packet.readBuffer(headerLength));
         this.session.steamId = proto.steamid;
         this.session.clientId = proto.clientSessionid;
 
@@ -305,18 +302,13 @@ export default abstract class Base extends EventEmitter {
         return sBuffer.toBuffer();
     }
 
-    private async multi(payload: Buffer): Promise<void> {
+    private multi(payload: Buffer) {
         const message: CMsgMulti = this.steamProtos.decode('CMsgMulti', payload);
         let body = message.messageBody;
 
         // message is gzipped
         if (message.sizeUnzipped) {
-            body = await new Promise((resolve) => {
-                Zip.gunzip(body, (err, unzipped) => {
-                    if (err) throw new SteamClientError(err.message);
-                    resolve(unzipped);
-                });
-            });
+            body = gunzipSync(body);
         }
 
         while (body.length) {
