@@ -4,9 +4,9 @@
 import ProtoBuf, { Root } from 'protobufjs';
 import fs from 'fs';
 import { UnknownRecord } from 'type-fest';
-import appRootPath from 'app-root-path';
+import path from 'path';
 
-const rootDir = `${appRootPath}/resources/protos/`;
+const rootDir = path.resolve(__dirname, '../../../resources/protos');
 
 export default class SteamProtos {
     private Protos: Root;
@@ -16,15 +16,15 @@ export default class SteamProtos {
     }
 
     private loadProtos() {
-        const protoFileNames = fs.readdirSync(`${rootDir}steam`);
+        const protoFileNames = fs.readdirSync(`${rootDir}/steam`);
 
         const root = new ProtoBuf.Root();
 
         root.resolvePath = (_origin, target) => {
             if (target.includes('google/protobuf')) {
-                return rootDir + target;
+                return `${rootDir}/${target}`;
             }
-            return `${rootDir}steam/${target}`;
+            return `${rootDir}/steam/${target}`;
         };
 
         this.Protos = root.loadSync(protoFileNames);
