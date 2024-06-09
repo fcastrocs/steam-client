@@ -4,10 +4,9 @@
 import ProtoBuf, { Root } from 'protobufjs';
 import fs from 'fs';
 import { UnknownRecord } from 'type-fest';
-import path from 'path';
+import appRootPath from 'app-root-path';
 
-const rootPath = path.resolve(process.cwd());
-const rootDir = path.join(rootPath, 'resources/protos/');
+const rootDir = `${appRootPath}/resources/protos/`;
 
 export default class SteamProtos {
     private Protos: Root;

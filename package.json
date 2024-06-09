@@ -1,6 +1,6 @@
 {
     "name": "@fcastrocs/steamclient",
-    "version": "2.0.6",
+    "version": "2.0.7",
     "main": "./dist/src/index.js",
     "types": "./@types/index.d.ts",
     "scripts": {
@@ -32,6 +32,7 @@
     },
     "dependencies": {
         "@fcastrocs/steam-client-crypto": "^1.0.3",
+        "app-root-path": "^3.1.0",
         "buffer-crc32": "^1.0.0",
         "https-proxy-agent": "^7.0.4",
         "long": "^5.2.3",
