@@ -2,9 +2,10 @@
  * Handle websocket connection to steam
  */
 
-import WebSocket, { ClientOptions } from 'ws';
+import WebSocket from 'ws';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import { Agent } from 'http';
 import Base from './Base.js';
 import { SteamClientError } from '../modules/common.js';
 import Language from '../modules/language.js';
@@ -25,27 +26,9 @@ export default class WebSocketConnection extends Base {
     public async connect(): Promise<void> {
         if (this.isConnected()) throw new SteamClientError('Client is already connected to Steam.');
 
-        // set proxy agent if proxy was specified
-        let agent;
-
-        if (this.options.proxy) {
-            if (this.options.proxy.type === 'socks') {
-                agent = new SocksProxyAgent(
-                    `socks://${this.options.proxy.user}:${this.options.proxy.pass}@${this.options.proxy.host}:${this.options.proxy.port}`
-                );
-            } else {
-                agent = new HttpsProxyAgent(
-                    `http://${this.options.proxy.user}:${this.options.proxy.pass}@${this.options.proxy.host}:${this.options.proxy.port}`
-                );
-            }
-        }
-
-        const wsOptions: ClientOptions = {
-            agent
-        };
-
+        const agent = this.getProxyAgent();
         const wsURL = `wss://${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`;
-        this.ws = new WebSocket(wsURL, { ...wsOptions });
+        this.ws = new WebSocket(wsURL, { agent });
 
         // received data from steam
         this.ws.on('message', (data, isBinary) => {
@@ -56,10 +39,23 @@ export default class WebSocketConnection extends Base {
             }
         });
 
+        return this.awaitConnection();
+    }
+
+    private getProxyAgent(): Agent | undefined {
+        if (!this.options.proxy) {
+            return undefined;
+        }
+
+        const { proxy } = this.options;
+        const proxyUrl = `${proxy.user}:${proxy.pass}@${proxy.host}:${proxy.port}`;
+
+        return proxy.type === 'socks' ? new SocksProxyAgent(`socks://${proxyUrl}`) : new HttpsProxyAgent(`http://${proxyUrl}`);
+    }
+
+    private awaitConnection(): Promise<void> {
         return new Promise((resolve, reject) => {
-            // expect connection handshake before timeout. This will trigger "error" event
             const timeoutId = setTimeout(() => {
-                clearTimeout(timeoutId);
                 reject(new SteamClientError('Could not connect to Steam WS (timeout)'));
             }, this.timeout);
 
@@ -70,14 +66,12 @@ export default class WebSocketConnection extends Base {
 
             this.ws.once('error', errorListener);
 
-            // successfully connected
             this.ws.once('open', () => {
                 clearTimeout(timeoutId);
                 this.ws.removeListener('error', errorListener);
                 this.establishedConn = true;
-                this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
-                // register needed events
                 this.registerEvents();
+                this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
                 resolve();
             });
         });

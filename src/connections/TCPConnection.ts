@@ -4,7 +4,7 @@
 
 import net, { Socket } from 'net';
 import { SmartBuffer } from 'smart-buffer';
-import crc32 = require('buffer-crc32');
+import crc32 from 'buffer-crc32';
 import SteamCrypto, { SessionKey } from '@fcastrocs/steam-client-crypto';
 import { SocksClient } from 'socks';
 import Base from './Base.js';
@@ -48,15 +48,14 @@ export default class TCPConnection extends Base {
         }
 
         this.establishedConn = true;
-
         this.socket.setTimeout(this.timeout);
 
-        // start reading data
         this.socket.on('readable', () => this.readData());
+        await this.waitForEncryptionHandshake();
+    }
 
-        // wait for encryption handshake
+    private async waitForEncryptionHandshake(): Promise<void> {
         return new Promise((resolve, reject) => {
-            // expect connection handshake before timeout
             const timeoutId = setTimeout(() => {
                 this.destroyConnection();
                 reject(new SteamClientError('Connecting to Steam timeout.'));
@@ -64,18 +63,7 @@ export default class TCPConnection extends Base {
 
             this.once('encryption-success', () => {
                 clearTimeout(timeoutId);
-                this.encrypted = true;
-
-                // catch all transmission errors
-                this.socket.on('error', (err) => this.destroyConnection(new SteamClientError(err.message)));
-                this.socket.on('close', () =>
-                    this.destroyConnection(new SteamClientError('Remote host closed connection.'))
-                );
-                this.socket.on('end', () => this.destroyConnection(new SteamClientError('Connection ended.')));
-                this.socket.on('timeout', () => this.destroyConnection(new SteamClientError('Connection timed out.')));
-
-                this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
-
+                this.handleSuccessfulEncryption();
                 resolve();
             });
 
@@ -85,6 +73,18 @@ export default class TCPConnection extends Base {
                 reject(new SteamClientError('Encryption handshake failed.'));
             });
         });
+    }
+
+    private handleSuccessfulEncryption() {
+        this.encrypted = true;
+
+        // catch all transmission errors
+        this.socket.on('error', (err) => this.destroyConnection(new SteamClientError(err.message)));
+        this.socket.on('close', () => this.destroyConnection(new SteamClientError('Remote host closed connection.')));
+        this.socket.on('end', () => this.destroyConnection(new SteamClientError('Connection ended.')));
+        this.socket.on('timeout', () => this.destroyConnection(new SteamClientError('Connection timed out.')));
+
+        this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
     }
 
     private async directConnect(): Promise<Socket> {
@@ -157,63 +157,72 @@ export default class TCPConnection extends Base {
      * where header: 8 bytes [packetSize(UInt32), magic(4 bytes string)]
      */
     private readData() {
-        if (!this.incompletePacket) {
-            const header: Buffer = this.socket.read(8);
-            if (!header) return;
-
-            this.packetSize = header.readUInt32LE(0);
-
-            if (header.subarray(4).toString('ascii') !== this.MAGIC) {
-                this.destroyConnection(new SteamClientError('Steam sent bad data.'));
-                return;
-            }
+        if (!this.readHeader()) {
+            return;
         }
 
         // read packet
-        let packet: Buffer = this.socket.read(this.packetSize);
-
-        // we haven't received the pack
+        const packet: Buffer = this.socket.read(this.packetSize);
         if (!packet) {
             this.incompletePacket = true;
             return;
         }
 
-        // we got the packet, reset variables
+        // we got the packet
+        this.resetPacketState();
+
+        if (!this.encrypted) {
+            this.handleUnencryptedPacket(packet);
+        } else {
+            this.handleEncryptedPacket(packet);
+        }
+    }
+
+    private readHeader(): boolean {
+        if (!this.incompletePacket) {
+            const header: Buffer = this.socket.read(8);
+            if (!header) {
+                return false;
+            }
+
+            this.packetSize = header.readUInt32LE(0);
+
+            if (header.subarray(4).toString('ascii') !== this.MAGIC) {
+                this.destroyConnection(new SteamClientError('Steam sent bad data.'));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private resetPacketState(): void {
         this.packetSize = 0;
         this.incompletePacket = false;
+    }
 
-        // not encrypted yet
-        if (!this.encrypted) {
-            const sbuffer = SmartBuffer.fromBuffer(packet);
+    private handleUnencryptedPacket(packet: Buffer): void {
+        const sbuffer = SmartBuffer.fromBuffer(packet);
+        const rawEMsg = sbuffer.readUInt32LE();
+        // eslint-disable-next-line no-bitwise
+        const EMsgReceived = rawEMsg & ~this.PROTO_MASK;
 
-            const rawEMsg = sbuffer.readUInt32LE();
-            // eslint-disable-next-line no-bitwise
-            const EMsgReceived = rawEMsg & ~this.PROTO_MASK;
+        sbuffer.readBigUInt64LE(); // jobidTarget
+        sbuffer.readBigUInt64LE(); // jobidSource
 
-            sbuffer.readBigUInt64LE(); // jobidTarget 18446744073709551615n
-            sbuffer.readBigUInt64LE(); // jobidSource 18446744073709551615n
-
-            if (EMsgReceived === EMsg.ChannelEncryptRequest) {
-                this.channelEncryptResponse(sbuffer);
-                return;
-            }
-
-            if (EMsgReceived === EMsg.ChannelEncryptResult) {
-                this.ChannelEncryptResult(sbuffer);
-                return;
-            }
-
-            return;
+        if (EMsgReceived === EMsg.ChannelEncryptRequest) {
+            this.channelEncryptResponse(sbuffer);
+        } else if (EMsgReceived === EMsg.ChannelEncryptResult) {
+            this.ChannelEncryptResult(sbuffer);
         }
+    }
 
+    private handleEncryptedPacket(packet: Buffer): void {
         try {
-            packet = SteamCrypto.decrypt(packet, this.encryptionKey.plain);
+            const decryptedPacket = SteamCrypto.decrypt(packet, this.encryptionKey.plain);
+            this.decodeData(decryptedPacket);
         } catch (error) {
             this.destroyConnection(new SteamClientError('Data Encryption failed.'));
-            return;
         }
-
-        this.decodeData(packet);
     }
 
     /**
