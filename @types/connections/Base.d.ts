@@ -37,6 +37,8 @@ export interface ConnectionOptions {
 export abstract class Base extends EventEmitter {
     protected options: ConnectionOptions;
 
+    protected establishedConn: boolean;
+
     private heartBeat;
 
     protected readonly MAGIC = 'VT01';
@@ -105,5 +107,5 @@ export abstract class Base extends EventEmitter {
 
     private multi;
 
-    private isConnected;
+    protected isConnected(): boolean;
 }

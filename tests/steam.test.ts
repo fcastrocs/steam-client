@@ -145,7 +145,7 @@ const connectToSteam = async (type: ConnectionOptions['type']) => {
     }
     const options: ConnectionOptions = { steamCM, timeout, type, proxy };
     steam = new SteamClient(options);
-    await steam.conn.connect();
+    await steam.connect();
 };
 
 const getAuthTokensViaQR = async () => {

@@ -24,6 +24,8 @@ import type {
 const { EMsgMap, EMsg } = Language;
 
 export default abstract class Base extends EventEmitter {
+    protected establishedConn: boolean;
+
     private heartBeat: NodeJS.Timeout;
 
     protected readonly MAGIC = 'VT01';
@@ -63,6 +65,8 @@ export default abstract class Base extends EventEmitter {
      * Send proto message
      */
     public sendProto(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord) {
+        if (!this.isConnected()) throw new SteamClientError('Client is not connected to Steam.');
+
         const protoHeader = this.buildProtoHeader(eMsg);
         const body = this.steamProtos.encode(`CMsg${EMsgMap.get(eMsg)}`, payload);
         this.emit('sendData', Buffer.concat([protoHeader, body]));
@@ -76,6 +80,8 @@ export default abstract class Base extends EventEmitter {
         payload: UnknownRecord,
         resEMsg: ValueOf<typeof EMsg>
     ): Promise<UnknownRecord> {
+        if (!this.isConnected()) throw new SteamClientError('Client is not connected to Steam.');
+
         return new Promise((resolve) => {
             this.protoResponses.set(resEMsg, resolve);
             this.sendProto(eMsg, payload);
@@ -86,6 +92,8 @@ export default abstract class Base extends EventEmitter {
      * Send service method call
      */
     public sendServiceMethodCall(serviceName: string, method: string, body: UnknownRecord): Promise<UnknownRecord> {
+        if (!this.isConnected()) throw new SteamClientError('Client is not connected to Steam.');
+
         let targetJobName = `${serviceName}.${method}#1`;
         targetJobName = targetJobName.replace('AccessToken_GenerateForApp', 'GenerateAccessTokenForApp');
 
@@ -318,7 +326,7 @@ export default abstract class Base extends EventEmitter {
         }
     }
 
-    private isConnected() {
-        return !this.connectionDestroyed && !!this.session;
+    protected isConnected() {
+        return !this.connectionDestroyed && this.establishedConn;
     }
 }

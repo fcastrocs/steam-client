@@ -32,9 +32,18 @@ export abstract class Steam extends EventEmitter {
     protected loggedIn: boolean;
 
     private obfustucatedIp;
+
     constructor(options: ConnectionOptions);
+
+    /**
+     * Connect to Steam
+     */
+    connect(): Promise<void>;
+
     disconnect(): void;
+
     get isLoggedIn(): boolean;
+
     get steamId(): import('long').default;
     /**
      * Access obfustucated Ip

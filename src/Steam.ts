@@ -65,6 +65,10 @@ export default abstract class Steam extends EventEmitter {
         });
     }
 
+    public connect(): Promise<void> {
+        return this.conn.connect();
+    }
+
     public disconnect() {
         this.conn.destroyConnection();
     }

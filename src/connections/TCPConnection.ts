@@ -38,12 +38,16 @@ export default class TCPConnection extends Base {
      * Connect to Steam CM server.
      */
     public async connect(): Promise<void> {
+        if (this.isConnected()) throw new SteamClientError('Client is already connected to Steam.');
+
         // direct connection, no proxy
         if (!this.options.proxy) {
             this.socket = await this.directConnect();
         } else {
             this.socket = await this.proxyConnect();
         }
+
+        this.establishedConn = true;
 
         this.socket.setTimeout(this.timeout);
 
@@ -71,6 +75,7 @@ export default class TCPConnection extends Base {
                 this.socket.on('timeout', () => this.destroyConnection(new SteamClientError('Connection timed out.')));
 
                 this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
+
                 resolve();
             });
 

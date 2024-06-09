@@ -23,6 +23,8 @@ export default class WebSocketConnection extends Base {
     }
 
     public async connect(): Promise<void> {
+        if (this.isConnected()) throw new SteamClientError('Client is already connected to Steam.');
+
         // set proxy agent if proxy was specified
         let agent;
 
@@ -72,6 +74,7 @@ export default class WebSocketConnection extends Base {
             this.ws.once('open', () => {
                 clearTimeout(timeoutId);
                 this.ws.removeListener('error', errorListener);
+                this.establishedConn = true;
                 this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
                 // register needed events
                 this.registerEvents();
