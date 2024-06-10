@@ -235,16 +235,16 @@ export default class Auth extends EventEmitter {
 
 async function genQRCode(challengeUrl: string) {
     return {
+        image: await QRCode.toDataURL(challengeUrl, { type: 'image/webp' }),
         terminal: await QRCode.toString(challengeUrl, {
             type: 'terminal',
             small: true,
             errorCorrectionLevel: 'H'
-        }),
-        image: await QRCode.toDataURL(challengeUrl, { type: 'image/webp' })
+        })
     };
 }
 
-async function checkResult(res: UnknownRecord) {
+function checkResult(res: UnknownRecord) {
     if (res.EResult !== EResult.OK) {
         throw new SteamClientError(EResultMap.get(res.EResult as ValueOf<typeof EResult>));
     }
