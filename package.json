@@ -1,12 +1,12 @@
 {
     "name": "@fcastrocs/steamclient",
-    "version": "2.0.14",
+    "version": "2.0.15",
     "main": "./dist/src/index.js",
     "types": "./@types/index.d.ts",
     "scripts": {
         "prepare": "husky",
         "build": "tsc",
-        "prepublish": "tsc",
+        "prepublishOnly": "tsc",
         "buildResources": "npx tsx ./scripts/index.ts",
         "gen-types": "npx tsx ./scripts/generate-types.ts",
         "test": "tsc && vitest",
