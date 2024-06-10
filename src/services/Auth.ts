@@ -28,9 +28,7 @@ const { EResultMap, EResult } = Language;
 export default class Auth extends EventEmitter {
     private waitingForConfirmation: boolean;
 
-    private partialSession:
-        | CAuthenticationBeginAuthSessionViaCredentialsResponse
-        | CAuthenticationBeginAuthSessionViaQRResponse;
+    private partialSession: CAuthenticationBeginAuthSessionViaCredentialsResponse | CAuthenticationBeginAuthSessionViaQRResponse;
 
     private readonly serviceName = 'Authentication';
 
@@ -45,7 +43,7 @@ export default class Auth extends EventEmitter {
      * @emits "waitingForConfirmation" "authTokens" "getAuthTokensTimeout"
      * @throws EResult
      */
-    public async getAuthTokensViaQR() {
+    public async getAuthTokensViaQR(): Promise<Confirmation> {
         if (this.steam.isLoggedIn) throw new SteamClientError('AlreadyLoggedIn');
 
         // begin login by getting QR challenge URL
@@ -70,10 +68,7 @@ export default class Auth extends EventEmitter {
         this.partialSession = res;
         this.pollAuthStatusInterval();
 
-        this.emit('waitingForConfirmation', {
-            qrCode: await genQRCode(res.challengeUrl),
-            timeout: this.timeout
-        } as Confirmation);
+        return { qrCode: await genQRCode(res.challengeUrl), timeout: this.timeout };
     }
 
     /**
@@ -153,13 +148,16 @@ export default class Auth extends EventEmitter {
         if (!this.waitingForConfirmation) throw new SteamClientError('NotWaitingForConfirmation');
 
         // submit steam guard code
-        const res: CAuthenticationUpdateAuthSessionWithSteamGuardCodeResponse =
-            await this.steam.conn.sendServiceMethodCall(this.serviceName, 'UpdateAuthSessionWithSteamGuardCode', {
+        const res: CAuthenticationUpdateAuthSessionWithSteamGuardCodeResponse = await this.steam.conn.sendServiceMethodCall(
+            this.serviceName,
+            'UpdateAuthSessionWithSteamGuardCode',
+            {
                 clientId: this.partialSession.clientId,
                 steamid: (this.partialSession as CAuthenticationBeginAuthSessionViaCredentialsResponse).steamid,
                 code: guardCode,
                 codeType: guardType as unknown as number
-            });
+            }
+        );
 
         checkResult(res);
     }
@@ -194,11 +192,14 @@ export default class Auth extends EventEmitter {
 
         // poll auth status until user responds to QR or timeouts
         intervalId = setInterval(async () => {
-            const pollStatus: CAuthenticationPollAuthSessionStatusResponse =
-                await this.steam.conn.sendServiceMethodCall(this.serviceName, 'PollAuthSessionStatus', {
+            const pollStatus: CAuthenticationPollAuthSessionStatusResponse = await this.steam.conn.sendServiceMethodCall(
+                this.serviceName,
+                'PollAuthSessionStatus',
+                {
                     clientId: this.partialSession.clientId,
                     requestId: this.partialSession.requestId
-                });
+                }
+            );
 
             checkResult(pollStatus);
 

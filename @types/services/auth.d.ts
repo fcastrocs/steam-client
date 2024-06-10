@@ -32,7 +32,7 @@ export class Auth extends EventEmitter {
      * @emits "waitingForConfirmation" "authTokens" "getAuthTokensTimeout"
      * @throws EResult
      */
-    getAuthTokensViaQR(): Promise<void>;
+    getAuthTokensViaQR(): Promise<Confirmation>;
     /**
      * Obtain auth tokens via credentials
      * @emits "waitingForConfirmation" "authTokens" "getAuthTokensTimeout"
