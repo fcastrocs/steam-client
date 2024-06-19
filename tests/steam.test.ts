@@ -187,8 +187,10 @@ const getAuthTokensViaQR = async () => {
 const login = async () => {
     const res = await steam.login({
         refreshToken: auth.refreshToken,
-        machineName: auth.machineName,
-        machineId: auth.machineId
+        rememberedMachine: {
+            name: auth.machineName,
+            id: auth.machineId
+        }
     });
 
     // console.log(res.rawResponse);
@@ -214,8 +216,10 @@ const login = async () => {
     expect(res.inventory).toBeDefined();
     expect(res.inventory).toHaveProperty('steam');
     expect(res.inventory.steam).toBeInstanceOf(Array);
-    expect(res.machineName).toHaveLength(18);
-    expect(res.machineId).toBeInstanceOf(Buffer);
+    expect(res.steamId).toBeDefined();
+    expect(res.rememberedMachine).toBeDefined();
+    expect(res.rememberedMachine.name).toHaveLength(18);
+    expect(res.rememberedMachine.id).toBeInstanceOf(Buffer);
     expect(steam.isLoggedIn).toBeTruthy();
 };
 
