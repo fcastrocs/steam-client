@@ -11,6 +11,7 @@ import { Store } from './services/Store.js';
 import { TCPConnection } from './connections/TCPConnection.js';
 import { WebSocketConnection } from './connections/WebSocketConnection.js';
 import { ConnectionOptions } from './connections/Base.js';
+import { RememberedMachine } from './all-types.js';
 
 export abstract class Steam extends EventEmitter {
     private options;
@@ -23,9 +24,7 @@ export abstract class Steam extends EventEmitter {
         store: Store;
     };
 
-    readonly machineName: string;
-
-    readonly machineId: Buffer;
+    rememberedMachine: RememberedMachine;
 
     readonly conn: WebSocketConnection | TCPConnection;
 
@@ -48,5 +47,7 @@ export abstract class Steam extends EventEmitter {
     /**
      * Access obfustucated Ip
      */
-    getObfustucatedIp(): number;
+    protected getObfustucatedIp(): number;
+
+    protected generateRememberedMachine(): void;
 }

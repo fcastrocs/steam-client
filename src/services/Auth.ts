@@ -52,11 +52,11 @@ export default class Auth extends EventEmitter {
             'BeginAuthSessionViaQR',
             {
                 deviceDetails: {
-                    deviceFriendlyName: this.steam.machineName,
+                    deviceFriendlyName: this.steam.rememberedMachine.name,
                     platformType: EAuthTokenPlatformType.SteamClient, // as unknown as typeof EAuthTokenPlatformType,
                     osType: EOSType.Win11,
                     gamingDeviceType: 1,
-                    machineId: this.steam.machineId
+                    machineId: this.steam.rememberedMachine.id
                 },
                 websiteId: 'Unknown'
             }
@@ -103,11 +103,11 @@ export default class Auth extends EventEmitter {
                 websiteId: 'Unknown',
                 language: 0,
                 deviceDetails: {
-                    deviceFriendlyName: this.steam.machineName,
+                    deviceFriendlyName: this.steam.rememberedMachine.name,
                     platformType: EAuthTokenPlatformType.SteamClient,
                     osType: EOSType.Win11,
                     gamingDeviceType: 1,
-                    machineId: this.steam.machineId
+                    machineId: this.steam.rememberedMachine.id
                 }
             } as CAuthenticationBeginAuthSessionViaCredentialsRequest
         );

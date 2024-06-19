@@ -13,7 +13,7 @@ import Player from './services/Player.js';
 import Econ from './services/Econ.js';
 import Store from './services/Store.js';
 import Auth from './services/Auth.js';
-import type { ConnectionOptions } from '../@types/index.js';
+import type { ConnectionOptions, RememberedMachine } from '../@types/index.js';
 
 const { EResultMap } = Language;
 
@@ -26,9 +26,7 @@ export default abstract class Steam extends EventEmitter {
         store: Store;
     };
 
-    readonly machineName: string;
-
-    readonly machineId: Buffer;
+    rememberedMachine: RememberedMachine;
 
     readonly conn: WebSocketConnection | TCPConnection;
 
@@ -40,10 +38,10 @@ export default abstract class Steam extends EventEmitter {
         super();
 
         // create connection
-        if (options.type === 'ws') {
-            this.conn = new WebSocketConnection(options);
-        } else if (options.type === 'tcp') {
-            this.conn = new TCPConnection(options);
+        if (this.options.type === 'ws') {
+            this.conn = new WebSocketConnection(this.options);
+        } else if (this.options.type === 'tcp') {
+            this.conn = new TCPConnection(this.options);
         }
 
         // inject dependencies
@@ -54,10 +52,6 @@ export default abstract class Steam extends EventEmitter {
             econ: new Econ(this),
             store: new Store(this)
         };
-
-        // create machine identity
-        this.machineName = createMachineName();
-        this.machineId = createMachineId();
 
         this.conn.once('ClientLoggedOff', (body) => {
             this.disconnect();
@@ -84,7 +78,7 @@ export default abstract class Steam extends EventEmitter {
     /**
      * Access obfustucated Ip
      */
-    public getObfustucatedIp() {
+    protected getObfustucatedIp() {
         return this.obfustucatedIp;
     }
 
@@ -141,6 +135,13 @@ export default abstract class Steam extends EventEmitter {
         this.obfustucatedIp = ipInt ^ mask;
         return this.obfustucatedIp;
     } */
+
+    protected generateRememberedMachine() {
+        this.rememberedMachine = {
+            id: createMachineId(),
+            name: createMachineName()
+        };
+    }
 }
 
 function createMachineName() {

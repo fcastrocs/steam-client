@@ -67,6 +67,12 @@ export default class Client extends Steam {
             this.verifyRefreshToken(options.refreshToken);
         }
 
+        this.rememberedMachine = options.rememberedMachine;
+
+        if (!this.rememberedMachine) {
+            this.generateRememberedMachine();
+        }
+
         // configure options
         const logonOptions: CMsgClientLogon = {
             ...options,
@@ -83,8 +89,8 @@ export default class Client extends Steam {
                 },
             }, */
             qosLevel: 2,
-            machineId: options?.rememberedMachine.id,
-            machineName: options?.rememberedMachine.name,
+            machineId: this.rememberedMachine.id,
+            machineName: this.rememberedMachine.name,
             supportsRateLimitResponse: true,
             priorityReason: 11,
             accessToken: options.refreshToken
@@ -160,7 +166,7 @@ export default class Client extends Steam {
 
         const steamAccount: SteamAccount = {
             steamId: loginRes.clientSuppliedSteamid.toString(),
-            rememberedMachine: { name: logonOptions.machineName, id: logonOptions.machineId },
+            rememberedMachine: this.rememberedMachine,
             clientLogOnResponse: loginRes,
             ownedGamesResponse: accountInfo[0],
             inventory: {
