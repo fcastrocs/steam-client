@@ -67,11 +67,7 @@ export default class Client extends Steam {
             this.verifyRefreshToken(options.refreshToken);
         }
 
-        this.rememberedMachine = options.rememberedMachine;
-
-        if (!this.rememberedMachine) {
-            this.generateRememberedMachine();
-        }
+        this.rememberedMachine = options.rememberedMachine ? options.rememberedMachine : this.rememberedMachine;
 
         // configure options
         const logonOptions: CMsgClientLogon = {

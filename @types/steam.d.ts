@@ -49,5 +49,5 @@ export abstract class Steam extends EventEmitter {
      */
     protected getObfustucatedIp(): number;
 
-    protected generateRememberedMachine(): void;
+    private generateRememberedMachine(): void;
 }

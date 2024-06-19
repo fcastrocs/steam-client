@@ -37,6 +37,8 @@ export default abstract class Steam extends EventEmitter {
     constructor(private options: ConnectionOptions) {
         super();
 
+        this.generateRememberedMachine();
+
         // create connection
         if (this.options.type === 'ws') {
             this.conn = new WebSocketConnection(this.options);
@@ -136,7 +138,7 @@ export default abstract class Steam extends EventEmitter {
         return this.obfustucatedIp;
     } */
 
-    protected generateRememberedMachine() {
+    private generateRememberedMachine() {
         this.rememberedMachine = {
             id: createMachineId(),
             name: createMachineName()
