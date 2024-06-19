@@ -74,17 +74,21 @@ export class Client extends Steam {
     private verifyRefreshToken;
 }
 
+export type RememberedMachine = {
+    name: string;
+    id: Buffer;
+};
+
 export type LoginOptions = {
     accountName?: string;
     password?: string;
     refreshToken?: string;
-    machineName?: string;
-    machineId?: Buffer;
+    rememberedMachine?: RememberedMachine;
 };
 
 export interface SteamAccount {
-    machineName: string;
-    machineId: Buffer;
+    steamId: string;
+    rememberedMachine: RememberedMachine;
     clientLogOnResponse: CMsgClientLogOnResponse;
     clientAccountInfo: CMsgClientAccountInfo;
     clientEmailAddrInfo: CMsgClientEmailAddrInfo;

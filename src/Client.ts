@@ -83,8 +83,8 @@ export default class Client extends Steam {
                 },
             }, */
             qosLevel: 2,
-            machineId: options.machineId || this.machineId,
-            machineName: options.machineName || this.machineName,
+            machineId: options?.rememberedMachine.id,
+            machineName: options?.rememberedMachine.name,
             supportsRateLimitResponse: true,
             priorityReason: 11,
             accessToken: options.refreshToken
@@ -159,8 +159,8 @@ export default class Client extends Steam {
         );
 
         const steamAccount: SteamAccount = {
-            machineName: logonOptions.machineName,
-            machineId: logonOptions.machineId,
+            steamId: loginRes.clientSuppliedSteamid.toString(),
+            rememberedMachine: { name: logonOptions.machineName, id: logonOptions.machineId },
             clientLogOnResponse: loginRes,
             ownedGamesResponse: accountInfo[0],
             inventory: {
@@ -196,10 +196,7 @@ export default class Client extends Steam {
      * Empty array stops idling
      * forcePlay truthy kicks another playing session
      */
-    public async gamesPlayed(
-        gameIds: number[],
-        options?: { forcePlay?: boolean }
-    ): Promise<CMsgClientPlayingSessionState> {
+    public async gamesPlayed(gameIds: number[], options?: { forcePlay?: boolean }): Promise<CMsgClientPlayingSessionState> {
         const playingBlocked = this.isPlayingBlocked;
         const playingGame = this.isPlayingGame;
 
@@ -278,10 +275,7 @@ export default class Client extends Steam {
     /**
      * Change player name or persona state
      */
-    private async changeStatus(body: {
-        personaState?: ValueOf<typeof EPersonaState>;
-        playerName?: string;
-    }): Promise<Friend> {
+    private async changeStatus(body: { personaState?: ValueOf<typeof EPersonaState>; playerName?: string }): Promise<Friend> {
         let somethingChanged = false;
 
         //  make sure something is actually changing
