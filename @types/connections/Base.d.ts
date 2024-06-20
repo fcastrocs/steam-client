@@ -71,11 +71,7 @@ export abstract class Base extends EventEmitter {
     /**
      * Send proto message and wait for response
      */
-    sendProtoPromise(
-        eMsg: ValueOf<typeof EMsg>,
-        payload: UnknownRecord,
-        resEMsg: ValueOf<typeof EMsg>
-    ): Promise<UnknownRecord>;
+    sendProtoPromise(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord, resEMsg: ValueOf<typeof EMsg>): Promise<UnknownRecord>;
     /**
      * Send service method call
      */

@@ -6,25 +6,26 @@ import fs from 'fs';
 import { UnknownRecord } from 'type-fest';
 import path from 'path';
 
-const rootDir = path.resolve(__dirname, '../../../resources/protos');
-
 export default class SteamProtos {
     private Protos: Root;
 
-    constructor() {
+    private rootDir: string;
+
+    constructor(protoRoot?: string) {
+        this.rootDir = protoRoot ? path.resolve(__dirname, protoRoot) : path.resolve(__dirname, '../../../resources/protos');
         this.loadProtos();
     }
 
     private loadProtos() {
-        const protoFileNames = fs.readdirSync(`${rootDir}/steam`);
+        const protoFileNames = fs.readdirSync(`${this.rootDir}/steam`);
 
         const root = new ProtoBuf.Root();
 
         root.resolvePath = (_origin, target) => {
             if (target.includes('google/protobuf')) {
-                return `${rootDir}/${target}`;
+                return `${this.rootDir}/${target}`;
             }
-            return `${rootDir}/steam/${target}`;
+            return `${this.rootDir}/steam/${target}`;
         };
 
         this.Protos = root.loadSync(protoFileNames);

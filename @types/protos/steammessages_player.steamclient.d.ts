@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Thu May 23 2024 22:57:11 GMT-0400 (Eastern Daylight Time)
+ * Wed Jun 19 2024 20:24:16 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from 'long';
@@ -105,6 +105,7 @@ export type CPlayerGetOwnedGamesResponse = {
         playtimeWindowsForever?: number;
         playtimeMacForever?: number;
         playtimeLinuxForever?: number;
+        playtimeDeckForever?: number;
         rtimeLastPlayed?: number;
         capsuleFilename?: string;
         sortAs?: string;
@@ -943,12 +944,15 @@ export type CPlayerGetLastPlayedTimesResponse = {
         playtimeWindowsForever?: number;
         playtimeMacForever?: number;
         playtimeLinuxForever?: number;
+        playtimeDeckForever?: number;
         firstWindowsPlaytime?: number;
         firstMacPlaytime?: number;
         firstLinuxPlaytime?: number;
+        firstDeckPlaytime?: number;
         lastWindowsPlaytime?: number;
         lastMacPlaytime?: number;
         lastLinuxPlaytime?: number;
+        lastDeckPlaytime?: number;
         playtimeDisconnected?: number;
     }[];
 };
@@ -1180,12 +1184,15 @@ export type CPlayerLastPlayedTimesNotification = {
         playtimeWindowsForever?: number;
         playtimeMacForever?: number;
         playtimeLinuxForever?: number;
+        playtimeDeckForever?: number;
         firstWindowsPlaytime?: number;
         firstMacPlaytime?: number;
         firstLinuxPlaytime?: number;
+        firstDeckPlaytime?: number;
         lastWindowsPlaytime?: number;
         lastMacPlaytime?: number;
         lastLinuxPlaytime?: number;
+        lastDeckPlaytime?: number;
         playtimeDisconnected?: number;
     }[];
 };

@@ -15,14 +15,10 @@ export default class Credentials {
     constructor(private steam: Steam) {}
 
     async registerCDKey(activationCode: string): Promise<CPlayerGetOwnedGamesResponse['games']> {
-        const res: CStoreRegisterCDKeyResponse = await this.steam.conn.sendServiceMethodCall(
-            this.serviceName,
-            'RegisterCDKey',
-            {
-                activationCode,
-                isRequestFromClient: true
-            } as CStoreRegisterCDKeyRequest
-        );
+        const res: CStoreRegisterCDKeyResponse = await this.steam.conn.sendServiceMethodCall(this.serviceName, 'RegisterCDKey', {
+            activationCode,
+            isRequestFromClient: true
+        } as CStoreRegisterCDKeyRequest);
 
         if ((res as UnknownRecord).EResult !== EResult.OK || !res.purchaseReceiptInfo) {
             throw new SteamClientError(getKeyByValue(EPurchaseResultDetail, res.purchaseResultDetails));

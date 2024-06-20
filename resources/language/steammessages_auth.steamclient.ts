@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Thu May 23 2024 22:57:11 GMT-0400 (Eastern Daylight Time)
+ * Wed Jun 19 2024 20:24:16 GMT-0400 (Eastern Daylight Time)
  */
 
 export enum EAuthTokenPlatformType {
@@ -31,6 +31,14 @@ export enum EAuthSessionSecurityHistory {
 export enum ETokenRenewalType {
     None = 0,
     Allow = 1
+}
+
+export enum EAuthenticationType {
+    Unknown = 0,
+    Password = 1,
+    QR = 2,
+    AccountCreation = 3,
+    GuestAccount = 4
 }
 
 export enum EAuthTokenRevokeAction {

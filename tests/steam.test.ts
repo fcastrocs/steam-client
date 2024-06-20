@@ -167,8 +167,8 @@ const getAuthTokensViaQR = async () => {
                 accountName: authTokens.accountName,
                 refreshToken: authTokens.refreshToken,
                 accessToken: authTokens.accessToken,
-                machineName: steam.machineName,
-                machineId: steam.machineId
+                machineName: steam.rememberedMachine.name,
+                machineId: steam.rememberedMachine.id
             } as typeof auth;
             fs.writeFileSync(
                 'auth.json',
@@ -280,7 +280,7 @@ const getAuthTokensViaCredentials = async () => {
         steam.service.auth.on('authTokens', (authTokens) => {
             auth = {
                 accountName: authTokens.accountName,
-                machineName: steam.machineName,
+                machineName: steam.rememberedMachine.name,
                 refreshToken: authTokens.refreshToken
             } as typeof auth;
             fs.writeFileSync('auth.json', JSON.stringify(auth));

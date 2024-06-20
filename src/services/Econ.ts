@@ -35,9 +35,7 @@ export default class Econ {
         }
 
         return res.assets.map((item) => {
-            const dIndex = res.descriptions.findIndex(
-                (des) => item.instanceid.toString() === des.instanceid.toString()
-            );
+            const dIndex = res.descriptions.findIndex((des) => item.instanceid.toString() === des.instanceid.toString());
 
             return {
                 appid: item.appid,

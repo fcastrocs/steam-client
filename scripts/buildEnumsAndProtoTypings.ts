@@ -29,7 +29,7 @@ export default async function main() {
  * Extract enums and build proto types from proto files
  */
 async function extractEnumsAndProtoTypes() {
-    const steamProtos = new SteamProtos();
+    const steamProtos = new SteamProtos('../../resources/protos');
     const root = steamProtos.getProtosRoot();
     if (!root.nested) return;
     const nested = root.nested;
@@ -55,11 +55,7 @@ async function extractEnumsAndProtoTypes() {
                 stream.write(`import Long from "long";\n`);
                 stream.write(`import { ValueOf } from "type-fest";\n`);
 
-                if (
-                    fs.existsSync(
-                        `./resources/language/${path.basename(item.filename as string).replace('.proto', '.ts')}`
-                    )
-                ) {
+                if (fs.existsSync(`./resources/language/${path.basename(item.filename as string).replace('.proto', '.ts')}`)) {
                     stream.write(
                         `import * as enums from "../../resources/language/${path.basename(item.filename as string).replace('.proto', '.js')}";\n\n`
                     );

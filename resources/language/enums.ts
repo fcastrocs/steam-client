@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Thu May 23 2024 22:57:11 GMT-0400 (Eastern Daylight Time)
+ * Wed Jun 19 2024 20:24:16 GMT-0400 (Eastern Daylight Time)
  */
 
 export enum EPublishedFileQueryType {
@@ -493,4 +493,35 @@ export enum EAsyncGameSessionUserVisibility {
     EnvelopeAndSessionList = 0,
     SessionListOnly = 1,
     Dismissed = 2
+}
+
+export enum EGameRecordingType {
+    Unknown = 0,
+    NotRecording = 1,
+    ManualRecording = 2,
+    BackgroundRecording = 3,
+    Clip = 4
+}
+
+export enum EProtoAppType {
+    EAppTypeInvalid = 0,
+    EAppTypeGame = 1,
+    EAppTypeApplication = 2,
+    EAppTypeTool = 4,
+    EAppTypeDemo = 8,
+    EAppTypeDeprected = 16,
+    EAppTypeDLC = 32,
+    EAppTypeGuide = 64,
+    EAppTypeDriver = 128,
+    EAppTypeConfig = 256,
+    EAppTypeHardware = 512,
+    EAppTypeFranchise = 1024,
+    EAppTypeVideo = 2048,
+    EAppTypePlugin = 4096,
+    EAppTypeMusicAlbum = 8192,
+    EAppTypeSeries = 16384,
+    EAppTypeComic = 32768,
+    EAppTypeBeta = 65536,
+    EAppTypeShortcut = 1073741824,
+    EAppTypeDepotOnly = -2147483648
 }

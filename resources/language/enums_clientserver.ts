@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Thu May 23 2024 22:57:11 GMT-0400 (Eastern Daylight Time)
+ * Wed Jun 19 2024 20:24:16 GMT-0400 (Eastern Daylight Time)
  */
 
 export enum EMsg {
@@ -1005,6 +1005,8 @@ export enum EMsg {
     ClientRequestMachineAuth = 5541,
     ClientRequestMachineAuthResponse = 5542,
     ClientScreenshotsChanged = 5543,
+    ClientLaunchClientApp = 5544,
+    ClientLaunchClientAppResponse = 5545,
     ClientGetCDNAuthToken = 5546,
     ClientGetCDNAuthTokenResponse = 5547,
     ClientDownloadRateStatistics = 5548,
@@ -1041,8 +1043,6 @@ export enum EMsg {
     ClientCommentNotifications = 5582,
     ClientRequestCommentNotifications = 5583,
     ClientPersonaChangeResponse = 5584,
-    ClientRequestWebAPIAuthenticateUserNonce = 5585,
-    ClientRequestWebAPIAuthenticateUserNonceResponse = 5586,
     ClientPlayerNicknameList = 5587,
     AMClientSetPlayerNickname = 5588,
     AMClientSetPlayerNicknameResponse = 5589,
@@ -1090,9 +1090,6 @@ export enum EMsg {
     MDSGetDepotManifest = 5829,
     MDSGetDepotManifestResponse = 5830,
     MDSGetDepotManifestChunk = 5831,
-    MDSGetDepotChunk = 5832,
-    MDSGetDepotChunkResponse = 5833,
-    MDSGetDepotChunkChunk = 5834,
     MDSToCSFlushChunk = 5844,
     MDSMigrateChunk = 5847,
     MDSMigrateChunkResponse = 5848,
@@ -1383,6 +1380,12 @@ export enum EMsg {
     RemoteClientStreamingEnabled = 9512,
     RemoteClientStatusRequest = 9515,
     RemoteClientStatusResponse = 9516,
+    RemoteClientAuthorizationRequest = 9517,
+    RemoteClientAuthorizationResponse = 9518,
+    RemoteClientAuthorizationCancelRequest = 9519,
+    RemoteClientAuthorizationConfirmed = 9520,
+    RemoteClientProofRequest = 9521,
+    RemoteClientProofResponse = 9522,
     ClientConcurrentSessionsBase = 9600,
     ClientPlayingSessionState = 9600,
     ClientKickPlayingSession = 9601,

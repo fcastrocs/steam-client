@@ -21,10 +21,7 @@ export function isEmpty(object: UnknownRecord) {
     return Object.keys(object).length === 0;
 }
 
-export async function PromiseTimeout<T>(
-    p: PromiseLike<T>,
-    options: { ms?: number; timeOutErrMsg: string }
-): Promise<Awaited<T>> {
+export async function PromiseTimeout<T>(p: PromiseLike<T>, options: { ms?: number; timeOutErrMsg: string }): Promise<Awaited<T>> {
     let timer: NodeJS.Timeout;
     const ms = options.ms || 15000;
 

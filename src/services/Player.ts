@@ -10,17 +10,12 @@ export default class Player {
         appidsFilter?: number[];
         includePlayedFreeGames?: boolean;
     }): Promise<CPlayerGetOwnedGamesResponse['games']> {
-        const res: CPlayerGetOwnedGamesResponse = await this.steam.conn.sendServiceMethodCall(
-            this.serviceName,
-            'GetOwnedGames',
-            {
-                steamid: this.steam.steamId,
-                appidsFilter: options && options.appidsFilter ? options.appidsFilter : undefined,
-                includePlayedFreeGames:
-                    options && options.includePlayedFreeGames ? options.includePlayedFreeGames : undefined,
-                includeAppinfo: true
-            } as CPlayerGetOwnedGamesRequest
-        );
+        const res: CPlayerGetOwnedGamesResponse = await this.steam.conn.sendServiceMethodCall(this.serviceName, 'GetOwnedGames', {
+            steamid: this.steam.steamId,
+            appidsFilter: options && options.appidsFilter ? options.appidsFilter : undefined,
+            includePlayedFreeGames: options && options.includePlayedFreeGames ? options.includePlayedFreeGames : undefined,
+            includeAppinfo: true
+        } as CPlayerGetOwnedGamesRequest);
 
         if (!res.games) return [];
 
