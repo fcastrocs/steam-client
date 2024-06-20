@@ -34,8 +34,13 @@ export default class WebSocketConnection extends Base {
         this.ws.on('message', (data, isBinary) => {
             if (!isBinary) {
                 this.destroyConnection(new SteamClientError('Data received was not binary.'));
-            } else {
+                return;
+            }
+
+            try {
                 this.decodeData(data as Buffer);
+            } catch (error) {
+                this.destroyConnection(error);
             }
         });
 
