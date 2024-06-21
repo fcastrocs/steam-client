@@ -3,6 +3,7 @@
  * Manages high-level Steam operations
  */
 import EventEmitter from 'events';
+import Long from 'long';
 import { Auth } from './services/Auth.js';
 import { Credentials } from './services/Credentials.js';
 import { Player } from './services/Player.js';
@@ -43,7 +44,7 @@ export abstract class Steam extends EventEmitter {
 
     get isLoggedIn(): boolean;
 
-    get steamId(): import('long').default;
+    get steamId(): Long;
     /**
      * Access obfustucated Ip
      */

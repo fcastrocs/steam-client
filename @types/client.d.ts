@@ -70,8 +70,6 @@ export class Client extends Steam {
      * Change player name or persona state
      */
     private changeStatus;
-
-    private verifyRefreshToken;
 }
 
 export type RememberedMachine = {
@@ -100,6 +98,20 @@ export interface SteamAccount {
     inventory: {
         steam: Item[];
     };
+}
+
+export interface JsonWebToken {
+    iss: string;
+    sub: string;
+    aud: string[];
+    exp: number;
+    nbf: number;
+    iat: number;
+    jti: string;
+    oat: number;
+    per: number;
+    ip_subject: string;
+    ip_confirmer: string;
 }
 
 export type Friend = Merge<IterableElement<CMsgClientPersonaState['friends']>, { avatarString?: string }>;

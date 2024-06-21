@@ -19,6 +19,7 @@ import type {
     CPlayerGetOwnedGamesResponse,
     ConnectionOptions,
     Friend,
+    JsonWebToken,
     LoginOptions,
     SteamAccount
 } from '../@types/index.js';
@@ -64,7 +65,9 @@ export default class Client extends Steam {
     public async login(options: LoginOptions): Promise<SteamAccount> {
         // verify refresh token
         if (options.refreshToken) {
-            this.verifyRefreshToken(options.refreshToken);
+            const token = verifyRefreshToken(options.refreshToken);
+            // supply steamid to base connection
+            this.conn.setSteamId(token.sub);
         }
 
         this.rememberedMachine = options.rememberedMachine ? options.rememberedMachine : this.rememberedMachine;
@@ -311,33 +314,6 @@ export default class Client extends Steam {
 
         throw new SteamClientError('ClientPersonaState did not return friend status.');
     }
-
-    private verifyRefreshToken(refreshToken: string) {
-        try {
-            const headerBase64 = refreshToken.split('.')[1];
-            const header = JSON.parse(atob(headerBase64));
-
-            if (header.iss !== 'steam' || !header.aud.includes('renew')) {
-                throw new SteamClientError('This is not a steam refresh token.');
-            }
-
-            if (!header.aud.includes('client')) {
-                throw new SteamClientError('This is not a client refresh token.');
-            }
-
-            if (header.exp - Math.floor(Date.now() / 1000) < 30) {
-                throw new SteamClientError('RefreshTokenExpired');
-            }
-
-            // supply steamid to base connection
-            this.conn.setSteamId(header.sub);
-        } catch (error) {
-            if (error instanceof SteamClientError) {
-                throw error;
-            }
-            throw new SteamClientError('Refresh token is bad.');
-        }
-    }
 }
 
 function getAvatar(hash: Friend['avatarHash']): string {
@@ -352,4 +328,30 @@ function getAvatar(hash: Friend['avatarHash']): string {
     }
 
     return `https://avatars.akamai.steamstatic.com/${hashHex}_full.jpg`;
+}
+
+function verifyRefreshToken(refreshToken: string): JsonWebToken {
+    try {
+        const headerBase64 = refreshToken.split('.')[1];
+        const token: JsonWebToken = JSON.parse(atob(headerBase64));
+
+        if (token.iss !== 'steam' || !token.aud.includes('renew')) {
+            throw new SteamClientError('This is not a steam refresh token.');
+        }
+
+        if (!token.aud.includes('client')) {
+            throw new SteamClientError('This is not a client refresh token.');
+        }
+
+        if (token.exp - Math.floor(Date.now() / 1000) < 30) {
+            throw new SteamClientError('RefreshTokenExpired');
+        }
+
+        return token;
+    } catch (error) {
+        if (error instanceof SteamClientError) {
+            throw error;
+        }
+        throw new SteamClientError('Refresh token is bad.');
+    }
 }
