@@ -4,6 +4,7 @@
  */
 import EventEmitter from 'events';
 import Long from 'long';
+import { Root } from 'protobufjs';
 import { Auth } from './services/Auth.js';
 import { Credentials } from './services/Credentials.js';
 import { Player } from './services/Player.js';
@@ -38,7 +39,9 @@ export abstract class Steam extends EventEmitter {
     /**
      * Connect to Steam
      */
-    connect(): Promise<void>;
+    connect(protos?: Root): Promise<void>;
+
+    getProtos(): Promise<Root>;
 
     disconnect(): void;
 

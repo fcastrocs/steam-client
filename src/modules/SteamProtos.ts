@@ -15,9 +15,13 @@ export default class SteamProtos {
         this.rootDir = protoRoot ? path.resolve(__dirname, protoRoot) : path.resolve(__dirname, '../../../resources/protos');
     }
 
-    async loadProtos() {
-        const protoFileNames = await fs.readdir(`${this.rootDir}/steam`);
+    async loadProtos(protos?: Root) {
+        if (protos) {
+            this.Protos = protos;
+            return this.Protos;
+        }
 
+        const protoFileNames = await fs.readdir(`${this.rootDir}/steam`);
         const root = new ProtoBuf.Root();
 
         root.resolvePath = (_origin, target) => {

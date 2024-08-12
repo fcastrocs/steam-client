@@ -6,6 +6,7 @@
 import EventEmitter from 'events';
 import { randomBytes } from 'crypto';
 // import http from 'http';
+import { Root } from 'protobufjs';
 import Language from './modules/language.js';
 import WebSocketConnection from './connections/WebSocketConnection.js';
 import TCPConnection from './connections/TCPConnection.js';
@@ -62,9 +63,13 @@ export default abstract class Steam extends EventEmitter {
         });
     }
 
-    public async connect(): Promise<void> {
-        await this.conn.initialize();
-        return this.conn.connect();
+    public getProtos(): Promise<Root> {
+        return this.conn.initialize();
+    }
+
+    public async connect(protos?: Root): Promise<void> {
+        await this.conn.initialize(protos);
+        await this.conn.connect();
     }
 
     public disconnect() {

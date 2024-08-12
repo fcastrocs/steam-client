@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
+import { Root } from 'protobufjs';
 import { SteamClientError } from '../modules/common.js';
 
 declare const EMsg: typeof import('../../resources/language/enums_clientserver.js').EMsg;
@@ -65,7 +66,7 @@ export abstract class Base extends EventEmitter {
 
     constructor(options: ConnectionOptions);
 
-    initialize(): Promise<void>;
+    initialize(): Promise<Root>;
 
     /**
      * Send proto message

@@ -10,6 +10,7 @@ import { SmartBuffer } from 'smart-buffer';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
 import { gunzipSync } from 'zlib';
+import { Root } from 'protobufjs';
 import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
 import { SteamClientError } from '../modules/common.js';
@@ -61,8 +62,8 @@ export default abstract class Base extends EventEmitter {
         this.timeout = options.timeout && options.timeout > this.timeout ? options.timeout : this.timeout;
     }
 
-    public async initialize() {
-        await this.steamProtos.loadProtos();
+    public initialize(protos?: Root) {
+        return this.steamProtos.loadProtos(protos);
     }
 
     /**
