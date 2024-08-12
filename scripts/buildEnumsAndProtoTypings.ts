@@ -30,7 +30,7 @@ export default async function main() {
  */
 async function extractEnumsAndProtoTypes() {
     const steamProtos = new SteamProtos('../../resources/protos');
-    const root = steamProtos.getProtosRoot();
+    const root = await steamProtos.loadProtos();
     if (!root.nested) return;
     const nested = root.nested;
 

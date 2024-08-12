@@ -64,6 +64,9 @@ export abstract class Base extends EventEmitter {
     private session;
 
     constructor(options: ConnectionOptions);
+
+    initialize(): Promise<void>;
+
     /**
      * Send proto message
      */

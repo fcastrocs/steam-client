@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 /**
  * Low-level Steam functionality
  */
@@ -61,7 +62,8 @@ export default abstract class Steam extends EventEmitter {
         });
     }
 
-    public connect(): Promise<void> {
+    public async connect(): Promise<void> {
+        await this.conn.initialize();
         return this.conn.connect();
     }
 
@@ -147,18 +149,21 @@ export default abstract class Steam extends EventEmitter {
 }
 
 function createMachineName() {
-    const name = Math.random()
-        .toString(36)
-        .replace(/[^a-z]+/g, '')
-        .substring(0, 5)
-        .toUpperCase();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const name =
+        chars[(Math.random() * 26) | 0] +
+        chars[(Math.random() * 26) | 0] +
+        chars[(Math.random() * 26) | 0] +
+        chars[(Math.random() * 26) | 0] +
+        chars[(Math.random() * 26) | 0];
     return `DESKTOP-${name}-IDLE`;
 }
 
 function createMachineId() {
-    const hexBB3 = Buffer.from(randomBytes(20).toString('hex')).toString('hex');
-    const hexFF2 = Buffer.from(randomBytes(20).toString('hex')).toString('hex');
-    const hex3B3 = Buffer.from(randomBytes(20).toString('hex')).toString('hex');
+    const hexBB3 = randomBytes(20).toString('hex');
+    const hexFF2 = randomBytes(20).toString('hex');
+    const hex3B3 = randomBytes(20).toString('hex');
+
     return Buffer.from(
         `004D6573736167654F626A656374000142423300${hexBB3}000146463200${hexFF2}000133423300${hex3B3}000808`,
         'hex'

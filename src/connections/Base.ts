@@ -61,6 +61,10 @@ export default abstract class Base extends EventEmitter {
         this.timeout = options.timeout && options.timeout > this.timeout ? options.timeout : this.timeout;
     }
 
+    public async initialize() {
+        await this.steamProtos.loadProtos();
+    }
+
     /**
      * Send proto message
      */
