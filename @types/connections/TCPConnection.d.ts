@@ -8,8 +8,6 @@ import { SteamClientError } from '../modules/common.js';
 export class TCPConnection extends Base {
     protected options: ConnectionOptions;
 
-    readonly timeout: number;
-
     private socket;
 
     private encrypted;

@@ -45,7 +45,7 @@ export default abstract class Base extends EventEmitter {
 
     private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();
 
-    public readonly timeout: number = 10000;
+    public readonly timeout: number;
 
     private DEFAULT_STEAMID = Long.fromString('76561197960265728', true);
 
@@ -58,7 +58,7 @@ export default abstract class Base extends EventEmitter {
 
     constructor(protected options: ConnectionOptions) {
         super();
-        this.timeout = Math.max(options.timeout ?? 10000, 10000);
+        this.timeout = Math.max(options.timeout ?? 15000, 15000);
     }
 
     public initialize(protos?: Root) {

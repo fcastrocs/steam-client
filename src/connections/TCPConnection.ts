@@ -15,8 +15,6 @@ import type { ConnectionOptions } from '../../@types/index.js';
 const { EMsg, EResult } = Language;
 
 export default class TCPConnection extends Base {
-    public readonly timeout: number = 15000;
-
     private socket: Socket;
 
     private encrypted: boolean;
