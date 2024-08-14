@@ -47,11 +47,18 @@ export default class TCPConnection extends Base {
             this.socket = await this.proxyConnect();
         }
 
+        // catch any potential error before encryption
+        const errorListener = (error: Error) => {
+            throw new SteamClientError(error.message);
+        };
+        this.socket.once('error', errorListener);
+
         this.establishedConn = true;
         this.socket.setTimeout(this.timeout);
 
         this.socket.on('readable', () => this.readData());
         await this.waitForEncryptionHandshake();
+        this.socket.removeListener('error', errorListener);
     }
 
     private async waitForEncryptionHandshake(): Promise<void> {
