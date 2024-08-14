@@ -58,12 +58,11 @@ export default abstract class Base extends EventEmitter {
 
     constructor(protected options: ConnectionOptions) {
         super();
-        // set timeout only if greater than current value
-        this.timeout = options.timeout && options.timeout > this.timeout ? options.timeout : this.timeout;
+        this.timeout = Math.max(options.timeout ?? 10000, 10000);
     }
 
     public initialize(protos?: Root) {
-        return this.steamProtos.loadProtos(protos);
+        return this.steamProtos.loadProtos(protos, this.options.minimal);
     }
 
     /**

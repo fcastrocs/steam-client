@@ -31,8 +31,8 @@ export default class Client extends Steam {
 
     private playingSessionState: CMsgClientPlayingSessionState = {};
 
-    constructor(options: ConnectionOptions) {
-        super(options);
+    constructor(private connOptions: ConnectionOptions) {
+        super(connOptions);
 
         // catch changes to personaState, playerName or avatar
         this.conn.on('ClientPersonaState', (body: CMsgClientPersonaState) => {
@@ -154,7 +154,7 @@ export default class Client extends Steam {
                 getClientEmailAddrInfo,
                 getClientIsLimitedAccount,
                 ClientVACBanStatus,
-                setOnlineStatus(),
+                this.connOptions.minimal ? null : setOnlineStatus(),
                 getClientPlayingSessionState
             ],
             {

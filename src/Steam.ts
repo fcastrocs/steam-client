@@ -39,7 +39,9 @@ export default abstract class Steam extends EventEmitter {
     constructor(private options: ConnectionOptions) {
         super();
 
-        this.generateRememberedMachine();
+        if (!options.minimal) {
+            this.generateRememberedMachine();
+        }
 
         // create connection
         if (this.options.type === 'ws') {

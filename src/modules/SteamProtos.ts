@@ -15,20 +15,36 @@ export default class SteamProtos {
         this.rootDir = protoRoot ? path.resolve(__dirname, protoRoot) : path.resolve(__dirname, '../../../resources/protos');
     }
 
-    async loadProtos(protos?: Root) {
+    async loadProtos(protos?: Root, minimal?: boolean) {
         if (protos) {
             this.Protos = protos;
             return this.Protos;
         }
 
-        const protoFileNames = await fs.readdir(`${this.rootDir}/steam`);
+        const protoFileNames = minimal
+            ? [
+                  'contenthubs.proto',
+                  'encrypted_app_ticket.proto',
+                  'enums.proto',
+                  'enums_clientserver.proto',
+                  'steammessages_auth.steamclient.proto',
+                  'steammessages_base.proto',
+                  'steammessages_clientserver.proto',
+                  'steammessages_clientserver_2.proto',
+                  'steammessages_clientserver_login.proto',
+                  'steammessages_econ.steamclient.proto',
+                  'steammessages_player.steamclient.proto',
+                  'steammessages_unified_base.steamclient.proto'
+              ]
+            : await fs.readdir(`${this.rootDir}/steam`);
+
         const root = new ProtoBuf.Root();
 
         root.resolvePath = (_origin, target) => {
             if (target.includes('google/protobuf')) {
                 return `${this.rootDir}/${target}`;
             }
-            return `${this.rootDir}/steam/${target}`;
+            return `${this.rootDir}/${minimal ? 'minimal' : 'steam'}/${target}`;
         };
 
         this.Protos = await root.load(protoFileNames);

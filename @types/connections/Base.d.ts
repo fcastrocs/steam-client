@@ -33,6 +33,7 @@ export interface ConnectionOptions {
         pass?: string;
     };
     timeout?: number;
+    minimal?: boolean;
 }
 
 export abstract class Base extends EventEmitter {

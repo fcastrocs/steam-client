@@ -1,0 +1,13 @@
+import "steammessages_base.proto";
+import "encrypted_app_ticket.proto";
+
+option optimize_for = SPEED;
+option cc_generic_services = false;
+
+message CMsgClientIsLimitedAccount {
+	optional bool bis_limited_account = 1;
+	optional bool bis_community_banned = 2;
+	optional bool bis_locked_account = 3;
+	optional bool bis_limited_account_allowed_to_invite_friends = 4;
+}
+
