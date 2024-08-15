@@ -45,30 +45,6 @@ export default class TCPConnection extends Base {
             this.socket = await this.proxyConnect();
         }
 
-        // catch any potential error before encryption
-        const errorListener = (error: Error) => {
-            throw new SteamClientError(error.message);
-        };
-        this.socket.once('error', errorListener);
-
-        this.establishedConn = true;
-        this.socket.setTimeout(this.timeout);
-
-        this.socket.on('readable', () => this.readData());
-        await this.waitForEncryptionHandshake();
-        this.socket.removeListener('error', errorListener);
-    }
-
-    public async connecta(): Promise<void> {
-        if (this.isConnected()) throw new SteamClientError('Client is already connected to Steam.');
-
-        // direct connection, no proxy
-        if (!this.options.proxy) {
-            this.socket = await this.directConnect();
-        } else {
-            this.socket = await this.proxyConnect();
-        }
-
         this.establishedConn = true;
         this.socket.setTimeout(this.timeout);
 
