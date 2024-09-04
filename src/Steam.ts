@@ -3,23 +3,17 @@
  * Low-level Steam functionality
  */
 
-import EventEmitter from 'events';
 import { randomBytes } from 'crypto';
-// import http from 'http';
-import { Root } from 'protobufjs';
-import Language from './modules/language.js';
-import WebSocketConnection from './connections/WebSocketConnection.js';
-import TCPConnection from './connections/TCPConnection.js';
 import Credentials from './services/Credentials.js';
 import Player from './services/Player.js';
 import Econ from './services/Econ.js';
 import Store from './services/Store.js';
 import Auth from './services/Auth.js';
-import type { ConnectionOptions, RememberedMachine } from '../@types/index.js';
+import type { RememberedMachine } from '../@types/index.js';
+import Connection from './connections/Connection.js';
+import { SteamConnectionOptions } from '../@types/connections/SteamConnection.js';
 
-const { EResultMap } = Language;
-
-export default abstract class Steam extends EventEmitter {
+export default abstract class Steam extends Connection {
     readonly service: {
         auth: Auth;
         credentials: Credentials;
@@ -30,23 +24,10 @@ export default abstract class Steam extends EventEmitter {
 
     rememberedMachine: RememberedMachine;
 
-    readonly conn: WebSocketConnection | TCPConnection;
-
-    protected loggedIn: boolean;
-
-    private obfustucatedIp: number;
-
-    constructor(private options: ConnectionOptions) {
-        super();
+    constructor(protected options: SteamConnectionOptions) {
+        super(options);
 
         this.generateRememberedMachine();
-
-        // create connection
-        if (this.options.type === 'ws') {
-            this.conn = new WebSocketConnection(this.options);
-        } else if (this.options.type === 'tcp') {
-            this.conn = new TCPConnection(this.options);
-        }
 
         // inject dependencies
         this.service = {
@@ -56,94 +37,7 @@ export default abstract class Steam extends EventEmitter {
             econ: new Econ(this),
             store: new Store(this)
         };
-
-        this.conn.once('ClientLoggedOff', (body) => {
-            this.disconnect();
-            this.emit('ClientLoggedOff', EResultMap.get(body.eresult));
-        });
     }
-
-    public getProtos(): Promise<Root> {
-        return this.conn.initialize();
-    }
-
-    public async connect(protos?: Root): Promise<void> {
-        await this.conn.initialize(protos);
-        await this.conn.connect();
-    }
-
-    public disconnect() {
-        this.conn.destroyConnection();
-    }
-
-    public get isLoggedIn() {
-        return this.conn.isLoggedIn();
-    }
-
-    public get steamId() {
-        return this.conn.steamid;
-    }
-
-    /**
-     * Access obfustucated Ip
-     */
-    protected getObfustucatedIp() {
-        return this.obfustucatedIp;
-    }
-
-    /**
-     * Generate obfustucated Ip
-     */
-    /* protected async obfustucateIp(): Promise<number> {
-        if (this.obfustucatedIp) return this.obfustucatedIp;
-
-        const mask = 0x163d3530;
-        let ip: string;
-
-        // get ip
-        if (this.options.proxy) {
-            ip = this.options.proxy.host;
-        } else {
-            // get public ip
-            ip = await new Promise((resolve) => {
-                try {
-                    const req = http
-                        .get({ host: 'api.ipify.org' }, (res) => {
-                            res.once('data', (data) => {
-                                req.destroy();
-                                resolve(data.toString());
-                            });
-                        })
-                        .setTimeout(1000);
-
-                    req.once('error', (error) => {
-                        console.debug(error);
-                        resolve('');
-                    });
-
-                    req.once('timeout', () => {
-                        console.debug('api.ipify.org request timed out.');
-                        resolve('');
-                    });
-                } catch (error) {
-                    console.debug('api.ipify.org request timed out.');
-                    resolve('');
-                }
-            });
-        }
-
-        // could not get ip
-        if (!ip) return 0;
-
-        const ipInt =
-            ip.split('.').reduce(
-                (ipInt, octet) => (ipInt << 8) + parseInt(octet, 10),
-                0
-            ) >>> 0;
-
-        this.obfustucatedIp = ipInt ^ mask;
-        return this.obfustucatedIp;
-    } */
 
     private generateRememberedMachine() {
         this.rememberedMachine = {

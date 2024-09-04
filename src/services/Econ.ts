@@ -16,7 +16,7 @@ export default class Econ {
     }
 
     async getInventoryItems(appid: number, contextid: number, tradableOnly?: boolean) {
-        const res: CEconGetInventoryItemsWithDescriptionsResponse = await this.steam.conn.sendServiceMethodCall(
+        const res: CEconGetInventoryItemsWithDescriptionsResponse = await this.steam.sendServiceMethodCall(
             this.serviceName,
             'GetInventoryItemsWithDescriptions',
             {

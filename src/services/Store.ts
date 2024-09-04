@@ -15,7 +15,7 @@ export default class Credentials {
     constructor(private steam: Steam) {}
 
     async registerCDKey(activationCode: string): Promise<CPlayerGetOwnedGamesResponse['games']> {
-        const res: CStoreRegisterCDKeyResponse = await this.steam.conn.sendServiceMethodCall(this.serviceName, 'RegisterCDKey', {
+        const res: CStoreRegisterCDKeyResponse = await this.steam.sendServiceMethodCall(this.serviceName, 'RegisterCDKey', {
             activationCode,
             isRequestFromClient: true
         } as CStoreRegisterCDKeyRequest);

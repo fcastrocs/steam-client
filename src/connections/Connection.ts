@@ -2,42 +2,26 @@
 /**
  * Handle low-level communication to steam.
  * Emits 'disconnected' if connection is lost
- *       'sendData' to catch in connection protocal subclass
  */
 
-import { EventEmitter } from 'events';
 import { SmartBuffer } from 'smart-buffer';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
 import { gunzipSync } from 'zlib';
-import { Root } from 'protobufjs';
 import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
-import { SteamClientError } from '../modules/common.js';
-import type {
-    CMsgClientLogOnResponse,
-    CMsgMulti,
-    CMsgProtoBufHeader,
-    ConnectionOptions,
-    ServiceMethodCall
-} from '../../@types/index.js';
+import type { CMsgClientLogOnResponse, CMsgMulti, CMsgProtoBufHeader, ServiceMethodCall } from '../../@types/index.js';
+import SteamConnection from './SteamConnection.js';
 
 const { EMsgMap, EMsg } = Language;
+const DEFAULT_STEAMID = Long.fromString('76561197960265728', true);
+const JOB_NONE = Long.fromString('18446744073709551615', true);
+const PROTO_MASK = 0x80000000;
 
-export default abstract class Base extends EventEmitter {
-    protected establishedConn: boolean;
-
+export default abstract class Connection extends SteamConnection {
     private heartBeat: NodeJS.Timeout;
 
-    protected readonly MAGIC = 'VT01';
-
-    protected readonly PROTO_MASK = 0x80000000;
-
-    private JOB_NONE = Long.fromString('18446744073709551615', true);
-
     private jobIdTimeout = 3 * 60 * 1000;
-
-    private connectionDestroyed = false;
 
     private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
 
@@ -45,35 +29,29 @@ export default abstract class Base extends EventEmitter {
 
     private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();
 
-    public readonly timeout: number;
-
-    private DEFAULT_STEAMID = Long.fromString('76561197960265728', true);
-
     private session = {
         clientId: 0,
-        steamId: this.DEFAULT_STEAMID
+        steamId: DEFAULT_STEAMID
     };
 
-    private steamProtos = new SteamProtos();
+    private readonly steamProtos = new SteamProtos();
 
-    constructor(protected options: ConnectionOptions) {
-        super();
-        this.timeout = Math.max(options.timeout ?? 15000, 15000);
-    }
+    public async connect() {
+        await this.steamProtos.loadProtos();
+        await super.connect();
 
-    public initialize(protos?: Root) {
-        return this.steamProtos.loadProtos(protos, this.options.minimal);
+        this.socket.on('data', (data) => {
+            this.decodeData(data);
+        });
     }
 
     /**
      * Send proto message
      */
     public sendProto(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord) {
-        if (!this.isConnected()) throw new SteamClientError('Client is not connected to Steam.');
-
         const protoHeader = this.buildProtoHeader(eMsg);
         const body = this.steamProtos.encode(`CMsg${EMsgMap.get(eMsg)}`, payload);
-        this.emit('sendData', Buffer.concat([protoHeader, body]));
+        this.send(Buffer.concat([protoHeader, body]));
     }
 
     /**
@@ -84,8 +62,6 @@ export default abstract class Base extends EventEmitter {
         payload: UnknownRecord,
         resEMsg: ValueOf<typeof EMsg>
     ): Promise<UnknownRecord> {
-        if (!this.isConnected()) throw new SteamClientError('Client is not connected to Steam.');
-
         return new Promise((resolve) => {
             this.protoResponses.set(resEMsg, resolve);
             this.sendProto(eMsg, payload);
@@ -96,8 +72,6 @@ export default abstract class Base extends EventEmitter {
      * Send service method call
      */
     public sendServiceMethodCall(serviceName: string, method: string, body: UnknownRecord): Promise<UnknownRecord> {
-        if (!this.isConnected()) throw new SteamClientError('Client is not connected to Steam.');
-
         let targetJobName = `${serviceName}.${method}#1`;
         targetJobName = targetJobName.replace('AccessToken_GenerateForApp', 'GenerateAccessTokenForApp');
 
@@ -119,21 +93,21 @@ export default abstract class Base extends EventEmitter {
             // steam has this.jobIdTimeout ms to response to this jobId
             setTimeout(() => this.serviceMethodCalls.delete(jobidSource.toString()), this.jobIdTimeout);
 
-            const serviceMethodEMsg = this.session.steamId.equals(this.DEFAULT_STEAMID)
+            const serviceMethodEMsg = this.session.steamId.equals(DEFAULT_STEAMID)
                 ? EMsg.ServiceMethodCallFromClientNonAuthed
                 : EMsg.ServiceMethodCallFromClient;
 
             const protoHeader = this.buildProtoHeader(serviceMethodEMsg, serviceMethodCall);
             const buffer = this.steamProtos.encode(`${newMethod}_Request`, body);
-            this.emit('sendData', Buffer.concat([protoHeader, buffer]));
+            this.send(Buffer.concat([protoHeader, buffer]));
         });
     }
 
-    public isLoggedIn() {
-        return !!this.session && this.session.steamId !== this.DEFAULT_STEAMID && this.session.clientId !== 0;
+    public get isLoggedIn() {
+        return this.connected && this.session.steamId !== DEFAULT_STEAMID && this.session.clientId !== 0;
     }
 
-    public get steamid() {
+    public get steamId() {
         return this.session.steamId;
     }
 
@@ -148,13 +122,11 @@ export default abstract class Base extends EventEmitter {
      * NonProtoBuf: [ header: [EMsg, header length, ExtendedHeader], body: raw bytes] ]
      */
     protected decodeData(data: Buffer): void {
-        if (!this.isConnected()) return;
-
         const packet = SmartBuffer.fromBuffer(data);
 
         const rawEMsg = packet.readUInt32LE();
-        const EMsgReceived = rawEMsg & ~this.PROTO_MASK;
-        const isProto = rawEMsg & this.PROTO_MASK;
+        const EMsgReceived = rawEMsg & ~PROTO_MASK;
+        const isProto = rawEMsg & PROTO_MASK;
         const EMsgReceivedKey = EMsgMap.get(EMsgReceived);
 
         // package is gzipped, have to gunzip it first
@@ -194,7 +166,7 @@ export default abstract class Base extends EventEmitter {
         this.session.clientId = proto.clientSessionid;
 
         // steam expects a response to this jobId
-        if (proto.jobidSource && !this.JOB_NONE.equals(proto.jobidSource)) {
+        if (proto.jobidSource && !JOB_NONE.equals(proto.jobidSource)) {
             const key = `${EMsgReceivedKey}Response` as keyof typeof EMsg;
             this.jobidTargets.set(EMsg[key], proto.jobidSource);
             // we have this.jobIdTimeout ms to response to this jobId
@@ -253,20 +225,11 @@ export default abstract class Base extends EventEmitter {
     }
 
     /**
-     * Destroy connection to Steam and do some cleanup
-     * disconnected is emmitted when error is passed
+     * Destroy connection to Steam
      */
-    protected destroyConnection(error?: SteamClientError) {
-        // make sure method is called only once
-        if (this.connectionDestroyed) return;
-
-        this.connectionDestroyed = true;
-        this.session = null;
-
-        // emmit if disconnect happened because of an error
-        if (error) this.emit('disconnected', error);
-
+    disconnect() {
         clearInterval(this.heartBeat);
+        super.disconnect();
     }
 
     /**
@@ -285,15 +248,15 @@ export default abstract class Base extends EventEmitter {
         const sBuffer = new SmartBuffer();
 
         // EMsg must be PROTO MASKED
-        sBuffer.writeInt32LE(eMsg | this.PROTO_MASK);
+        sBuffer.writeInt32LE(eMsg | PROTO_MASK);
 
         // CMsgProtoBufHeader
         const message: CMsgProtoBufHeader = {
             steamid: this.session.steamId,
             clientSessionid: this.session.clientId,
-            jobidTarget: this.jobidTargets.get(eMsg) || this.JOB_NONE,
+            jobidTarget: this.jobidTargets.get(eMsg) || JOB_NONE,
             targetJobName: serviceMethodCall?.targetJobName,
-            jobidSource: serviceMethodCall?.jobidSource || this.JOB_NONE
+            jobidSource: serviceMethodCall?.jobidSource || JOB_NONE
         };
 
         // steam will receive response to this jobId
@@ -320,9 +283,5 @@ export default abstract class Base extends EventEmitter {
             this.decodeData(body.subarray(4, 4 + subSize));
             body = body.subarray(4 + subSize);
         }
-    }
-
-    protected isConnected() {
-        return !this.connectionDestroyed && this.establishedConn;
     }
 }

@@ -47,7 +47,7 @@ export default class Auth extends EventEmitter {
         if (this.steam.isLoggedIn) throw new SteamClientError('AlreadyLoggedIn');
 
         // begin login by getting QR challenge URL
-        const res: CAuthenticationBeginAuthSessionViaQRResponse = await this.steam.conn.sendServiceMethodCall(
+        const res: CAuthenticationBeginAuthSessionViaQRResponse = await this.steam.sendServiceMethodCall(
             this.serviceName,
             'BeginAuthSessionViaQR',
             {
@@ -83,7 +83,7 @@ export default class Auth extends EventEmitter {
     ): Promise<CAuthenticationBeginAuthSessionViaCredentialsResponse> {
         if (this.steam.isLoggedIn) throw new SteamClientError('AlreadyLoggedIn');
 
-        const rsa: CAuthenticationGetPasswordRSAPublicKeyResponse = await this.steam.conn.sendServiceMethodCall(
+        const rsa: CAuthenticationGetPasswordRSAPublicKeyResponse = await this.steam.sendServiceMethodCall(
             this.serviceName,
             'GetPasswordRSAPublicKey',
             {
@@ -91,7 +91,7 @@ export default class Auth extends EventEmitter {
             }
         );
 
-        const res: CAuthenticationBeginAuthSessionViaCredentialsResponse = await this.steam.conn.sendServiceMethodCall(
+        const res: CAuthenticationBeginAuthSessionViaCredentialsResponse = await this.steam.sendServiceMethodCall(
             this.serviceName,
             'BeginAuthSessionViaCredentials',
             {
@@ -148,7 +148,7 @@ export default class Auth extends EventEmitter {
         if (!this.waitingForConfirmation) throw new SteamClientError('NotWaitingForConfirmation');
 
         // submit steam guard code
-        const res: CAuthenticationUpdateAuthSessionWithSteamGuardCodeResponse = await this.steam.conn.sendServiceMethodCall(
+        const res: CAuthenticationUpdateAuthSessionWithSteamGuardCodeResponse = await this.steam.sendServiceMethodCall(
             this.serviceName,
             'UpdateAuthSessionWithSteamGuardCode',
             {
@@ -163,7 +163,7 @@ export default class Auth extends EventEmitter {
     }
 
     public async accessTokenGenerateForApp(refreshToken: string) {
-        const res: CAuthenticationAccessTokenGenerateForAppResponse = await this.steam.conn.sendServiceMethodCall(
+        const res: CAuthenticationAccessTokenGenerateForAppResponse = await this.steam.sendServiceMethodCall(
             this.serviceName,
             'AccessToken_GenerateForApp',
             {
@@ -192,7 +192,7 @@ export default class Auth extends EventEmitter {
 
         // poll auth status until user responds to QR or timeouts
         intervalId = setInterval(async () => {
-            const pollStatus: CAuthenticationPollAuthSessionStatusResponse = await this.steam.conn.sendServiceMethodCall(
+            const pollStatus: CAuthenticationPollAuthSessionStatusResponse = await this.steam.sendServiceMethodCall(
                 this.serviceName,
                 'PollAuthSessionStatus',
                 {

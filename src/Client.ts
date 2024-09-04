@@ -17,12 +17,12 @@ import type {
     CMsgClientRequestFreeLicenseResponse,
     CMsgClientVACBanStatus,
     CPlayerGetOwnedGamesResponse,
-    ConnectionOptions,
     Friend,
     JsonWebToken,
     LoginOptions,
     SteamAccount
 } from '../@types/index.js';
+import { SteamConnectionOptions } from '../@types/connections/SteamConnection.js';
 
 const { EMsg, EResult, EResultMap, EPersonaState } = Language;
 
@@ -31,32 +31,30 @@ export default class Client extends Steam {
 
     private playingSessionState: CMsgClientPlayingSessionState = {};
 
-    constructor(private connOptions: ConnectionOptions) {
+    constructor(protected connOptions: SteamConnectionOptions) {
         super(connOptions);
 
         // catch changes to personaState, playerName or avatar
-        this.conn.on('ClientPersonaState', (body: CMsgClientPersonaState) => {
+        this.on('ClientPersonaState', (body: CMsgClientPersonaState) => {
             const me = body.friends[0];
 
             if (me.friendid.equals(this.steamId)) {
                 this.personaState = me;
                 this.personaState.avatarString = getAvatar(this.personaState.avatarHash);
-                this.emit('ClientPersonaState', this.personaState);
+                this.emit('PersonaState', this.personaState);
             }
         });
 
         // emitted after ClientGamesPlayed
-        this.conn.on('ClientPlayingSessionState', (body: CMsgClientPlayingSessionState) => {
+        this.on('ClientPlayingSessionState', (body: CMsgClientPlayingSessionState) => {
             this.playingSessionState = body;
-            this.emit('ClientPlayingSessionState', body);
+            this.emit('PlayingSessionState', body);
         });
 
-        this.conn.on('ClientConcurrentSessionsBase', (body: CMsgClientPlayingSessionState) => {
+        this.on('ClientConcurrentSessionsBase', (body: CMsgClientPlayingSessionState) => {
             this.playingSessionState = body;
-            this.emit('ClientPlayingSessionState', body);
+            this.emit('PlayingSessionState', body);
         });
-
-        this.conn.on('disconnected', (err) => this.emit('disconnected', err));
     }
 
     /**
@@ -67,7 +65,7 @@ export default class Client extends Steam {
         if (options.refreshToken) {
             const token = verifyRefreshToken(options.refreshToken);
             // supply steamid to base connection
-            this.conn.setSteamId(token.sub);
+            this.setSteamId(token.sub);
         }
 
         this.rememberedMachine = options.rememberedMachine ? options.rememberedMachine : this.rememberedMachine;
@@ -97,25 +95,25 @@ export default class Client extends Steam {
 
         // register all events for SteamAccount properties
         const getClientAccountInfo = new Promise<CMsgClientAccountInfo>((done) => {
-            this.conn.once('ClientAccountInfo', async (body) => {
+            this.once('ClientAccountInfo', async (body) => {
                 done(body);
             });
         });
 
         const getClientEmailAddrInfo = new Promise<CMsgClientEmailAddrInfo>((done) => {
-            this.conn.once('ClientEmailAddrInfo', (body) => {
+            this.once('ClientEmailAddrInfo', (body) => {
                 done(body);
             });
         });
 
         const getClientIsLimitedAccount = new Promise<CMsgClientIsLimitedAccount>((done) => {
-            this.conn.once('ClientIsLimitedAccount', (body) => {
+            this.once('ClientIsLimitedAccount', (body) => {
                 done(body);
             });
         });
 
         const ClientVACBanStatus = new Promise<CMsgClientVACBanStatus>((done) => {
-            this.conn.once('ClientVACBanStatus', (body) => {
+            this.once('ClientVACBanStatus', (body) => {
                 done(body);
             });
         });
@@ -135,13 +133,12 @@ export default class Client extends Steam {
 
         // send login request to steam
         const loginRes: CMsgClientLogOnResponse = await PromiseTimeout(
-            this.conn.sendProtoPromise(EMsg.ClientLogon, logonOptions, EMsg.ClientLogOnResponse),
-            { ms: this.conn.timeout, timeOutErrMsg: 'ClientLogon took too long' }
+            this.sendProtoPromise(EMsg.ClientLogon, logonOptions, EMsg.ClientLogOnResponse),
+            { ms: this.timeout, timeOutErrMsg: 'ClientLogon took too long' }
         );
 
         // bad login
         if (loginRes.eresult !== EResult.OK) {
-            this.disconnect();
             throw new SteamClientError(EResultMap.get(loginRes.eresult));
         }
 
@@ -154,11 +151,11 @@ export default class Client extends Steam {
                 getClientEmailAddrInfo,
                 getClientIsLimitedAccount,
                 ClientVACBanStatus,
-                this.connOptions.minimal ? null : setOnlineStatus(),
+                setOnlineStatus(),
                 getClientPlayingSessionState
             ],
             {
-                ms: this.conn.timeout,
+                ms: this.timeout,
                 timeOutErrMsg: 'Steam failed to send all steam account properties before timeout.'
             }
         );
@@ -211,7 +208,7 @@ export default class Client extends Steam {
 
         // kick another playing session before attemping to play in this session
         if (playingBlocked) {
-            this.conn.sendProto(EMsg.ClientKickPlayingSession, {
+            this.sendProto(EMsg.ClientKickPlayingSession, {
                 onlyStopGame: true
             });
         }
@@ -228,7 +225,7 @@ export default class Client extends Steam {
             clientOsType: EOSType.Win11
         };
 
-        const res = await this.conn.sendProtoPromise(EMsg.ClientGamesPlayed, body, EMsg.ClientPlayingSessionState);
+        const res = await this.sendProtoPromise(EMsg.ClientGamesPlayed, body, EMsg.ClientPlayingSessionState);
         this.playingSessionState = res;
         return res;
     }
@@ -239,7 +236,7 @@ export default class Client extends Steam {
     public async requestFreeLicense(appids: number[]): Promise<CPlayerGetOwnedGamesResponse['games']> {
         if (!appids.length) return [];
 
-        const res: CMsgClientRequestFreeLicenseResponse = await this.conn.sendProtoPromise(
+        const res: CMsgClientRequestFreeLicenseResponse = await this.sendProtoPromise(
             EMsg.ClientRequestFreeLicense,
             {
                 appids
@@ -297,7 +294,7 @@ export default class Client extends Steam {
             if (!somethingChanged) return this.personaState;
         }
 
-        const res = await this.conn.sendProtoPromise(EMsg.ClientChangeStatus, body, EMsg.ClientPersonaState);
+        const res = await this.sendProtoPromise(EMsg.ClientChangeStatus, body, EMsg.ClientPersonaState);
         const friends = res.friends as Friend[];
 
         // return the status for this account
