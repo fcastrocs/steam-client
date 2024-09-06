@@ -18,6 +18,8 @@ export interface ServiceMethodCall {
 
 export abstract class Connection extends SteamConnection {
     connect(options: SteamConnectionOptions): Promise<void>;
+    loadProtos(): Promise<void>;
+
     /**
      * Send proto message
      */
