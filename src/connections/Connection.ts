@@ -52,9 +52,7 @@ export default abstract class Connection extends SteamConnection {
     }
 
     async connect(options: SteamConnectionOptions) {
-        if (!this.steamProtos.isLoaded()) {
-            await this.steamProtos.loadProtos();
-        }
+        await this.loadProtos();
 
         await super.connect(options);
 
@@ -73,6 +71,12 @@ export default abstract class Connection extends SteamConnection {
         this.serviceMethodCalls.clear();
         this.jobidTargets.clear();
         this.protoResponses.clear();
+    }
+
+    public async loadProtos() {
+        if (!this.steamProtos.isLoaded()) {
+            await this.steamProtos.loadProtos();
+        }
     }
 
     /**
