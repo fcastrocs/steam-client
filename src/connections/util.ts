@@ -69,11 +69,11 @@ const getPayloadFromWsFrame = (data: Buffer): Buffer => {
         }
 
         // Extract the payload
-        payloadStore = data.subarray(offset);
+        payloadStore = data.subarray(offset, offset + payloadLength);
     }
     // this should be a continuation of the binary message, if not it will get discarded by a new message
     else if (payloadStore) {
-        payloadStore = Buffer.concat([payloadStore, data]);
+        payloadStore = Buffer.concat([payloadStore, data.subarray(0, payloadLength - payloadStore.length)]);
     }
 
     // done
