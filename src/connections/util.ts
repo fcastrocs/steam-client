@@ -77,7 +77,7 @@ const getPayloadFromWsFrame = (data: Buffer): Buffer => {
     }
 
     // done
-    if (payloadStore.length >= payloadLength) {
+    if (payloadStore && payloadStore.length >= payloadLength) {
         return payloadStore;
     }
 

@@ -83,6 +83,7 @@ export default abstract class SteamConnection {
                 servername: this.url.hostname,
                 enableTrace: false,
                 minVersion: 'TLSv1.3',
+                maxVersion: 'TLSv1.3',
                 session: null,
                 rejectUnauthorized: true
             };
@@ -91,7 +92,7 @@ export default abstract class SteamConnection {
                 socket.write(this.generateHeaders().join('\r\n'));
             });
 
-            socket.once('data', () => {
+            socket.once('secureConnect', () => {
                 socket.removeAllListeners();
                 resolve(socket);
             });
