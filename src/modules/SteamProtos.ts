@@ -18,9 +18,10 @@ export default class SteamProtos {
     }
 
     async loadProtos(protos?: Root) {
-        if (!this.Protos || protos) {
-            this.Protos = this.Protos || protos;
-            return this.Protos;
+        if (protos) {
+            this.Protos = protos;
+
+            if (this.Protos) return this.Protos;
         }
 
         const protoFileNames = await fs.readdir(`${this.rootDir}/steam`);
