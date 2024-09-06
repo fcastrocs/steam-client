@@ -8,6 +8,7 @@ import { SmartBuffer } from 'smart-buffer';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
 import { gunzipSync } from 'zlib';
+import { Root } from 'protobufjs';
 import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
 import type {
@@ -73,9 +74,9 @@ export default abstract class Connection extends SteamConnection {
         this.protoResponses.clear();
     }
 
-    public async loadProtos() {
+    public async loadProtos(protos?: Root) {
         if (!this.steamProtos.isLoaded()) {
-            await this.steamProtos.loadProtos();
+            await this.steamProtos.loadProtos(protos);
         }
     }
 
