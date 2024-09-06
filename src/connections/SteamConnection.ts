@@ -82,8 +82,8 @@ export default abstract class SteamConnection {
                 port: Number(this.url.port),
                 servername: this.url.hostname,
                 enableTrace: false,
-                minVersion: 'TLSv1.3',
-                maxVersion: 'TLSv1.3',
+                minVersion: 'TLSv1.2',
+                maxVersion: 'TLSv1.2',
                 session: null,
                 rejectUnauthorized: true
             };
