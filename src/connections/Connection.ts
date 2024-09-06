@@ -74,10 +74,12 @@ export default abstract class Connection extends SteamConnection {
         this.protoResponses.clear();
     }
 
-    public async loadProtos(protos?: Root) {
+    public async loadProtos(passedProtos?: Root) {
+        let protos = passedProtos;
         if (!this.steamProtos.isLoaded()) {
-            await this.steamProtos.loadProtos(protos);
+            protos = await this.steamProtos.loadProtos(protos);
         }
+        return protos;
     }
 
     /**
