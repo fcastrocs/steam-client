@@ -2,154 +2,156 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Wed Jun 19 2024 20:24:16 GMT-0400 (Eastern Daylight Time)
+ * Thu Sep 05 2024 23:44:42 GMT-0400 (Eastern Daylight Time)
  */
 
-import Long from 'long';
-import { ValueOf } from 'type-fest';
+import Long from "long";
+import { ValueOf } from "type-fest";
 
 export type CInventoryGetInventoryRequest = {
-    appid?: number;
-    steamid?: Long;
-};
+	appid?: number
+	steamid?: Long
+}
 
 export type CInventoryResponse = {
-    etag?: string;
-    removeditemids?: Long[];
-    itemJson?: string;
-    itemdefJson?: string;
-    ticket?: Buffer;
-    replayed?: boolean;
-};
+	etag?: string
+	removeditemids?: Long[]
+	itemJson?: string
+	itemdefJson?: string
+	ticket?: Buffer
+	replayed?: boolean
+}
 
 export type CInventoryExchangeItemRequest = {
-    appid?: number;
-    steamid?: Long;
-    materialsitemid?: Long[];
-    materialsquantity?: number[];
-    outputitemdefid?: Long;
-};
+	appid?: number
+	steamid?: Long
+	materialsitemid?: Long[]
+	materialsquantity?: number[]
+	outputitemdefid?: Long
+}
 
 export type CInventoryGetEligiblePromoItemDefIDsRequest = {
-    appid?: number;
-    steamid?: Long;
-};
+	appid?: number
+	steamid?: Long
+}
 
 export type CInventoryGetEligiblePromoItemDefIDsResponse = {
-    itemdefids?: Long[];
-};
+	itemdefids?: Long[]
+}
 
 export type CInventoryAddItemRequest = {
-    appid?: number;
-    itemdefid?: Long[];
-    itempropsjson?: string[];
-    itemquantity?: number[];
-    steamid?: Long;
-    notify?: boolean;
-    requestid?: Long;
-    tradeRestriction?: boolean;
-    isPurchase?: boolean;
-};
+	appid?: number
+	itemdefid?: Long[]
+	itempropsjson?: string[]
+	itemquantity?: number[]
+	steamid?: Long
+	notify?: boolean
+	requestid?: Long
+	tradeRestriction?: boolean
+	isPurchase?: boolean
+}
 
 export type CInventoryModifyItemsRequest = {
-    appid?: number;
-    steamid?: Long;
-    updates?: {
-        itemid?: Long;
-        removeProperty?: boolean;
-        propertyName?: string;
-        propertyValueBool?: boolean;
-        propertyValueInt?: Long;
-        propertyValueString?: string;
-        propertyValueFloat?: number;
-    }[];
-    timestamp?: number;
-};
+	appid?: number
+	steamid?: Long
+	updates?: {
+		itemid?: Long
+		removeProperty?: boolean
+		propertyName?: string
+		propertyValueBool?: boolean
+		propertyValueInt?: Long
+		propertyValueString?: string
+		propertyValueFloat?: number
+	}[]
+	timestamp?: number
+}
 
 export type CInventoryConsumePlaytimeRequest = {
-    appid?: number;
-    itemdefid?: Long;
-};
+	appid?: number
+	itemdefid?: Long
+}
 
 export type CInventoryConsumeItemRequest = {
-    appid?: number;
-    itemid?: Long;
-    quantity?: number;
-    timestamp?: string;
-    steamid?: Long;
-    requestid?: Long;
-};
+	appid?: number
+	itemid?: Long
+	quantity?: number
+	timestamp?: string
+	steamid?: Long
+	requestid?: Long
+}
 
 export type CInventoryDevSetNextDropRequest = {
-    appid?: number;
-    itemdefid?: Long;
-    droptime?: string;
-};
+	appid?: number
+	itemdefid?: Long
+	droptime?: string
+}
 
 export type CInventorySplitItemStackRequest = {
-    appid?: number;
-    itemid?: Long;
-    quantity?: number;
-    steamid?: Long;
-};
+	appid?: number
+	itemid?: Long
+	quantity?: number
+	steamid?: Long
+}
 
 export type CInventoryCombineItemStacksRequest = {
-    appid?: number;
-    fromitemid?: Long;
-    destitemid?: Long;
-    quantity?: number;
-    steamid?: Long;
-};
+	appid?: number
+	fromitemid?: Long
+	destitemid?: Long
+	quantity?: number
+	steamid?: Long
+}
 
 export type CInventoryGetItemDefMetaRequest = {
-    appid?: number;
-};
+	appid?: number
+}
 
 export type CInventoryGetItemDefMetaResponse = {
-    modified?: number;
-    digest?: string;
-};
+	modified?: number
+	digest?: string
+}
 
-export type CInventoryGetUserPurchaseInfoRequest = {};
+export type CInventoryGetUserPurchaseInfoRequest = {
+}
 
 export type CInventoryGetUserPurchaseInfoResponse = {
-    ecurrency?: number;
-};
+	ecurrency?: number
+}
 
 export type CInventoryPurchaseInitRequest = {
-    appid?: number;
-    language?: number;
-    lineItems?: {
-        itemdefid?: Long;
-        quantity?: number;
-    }[];
-};
+	appid?: number
+	language?: number
+	lineItems?: {
+		itemdefid?: Long
+		quantity?: number
+	}[]
+}
 
 export type CInventoryPurchaseInitResponse = {
-    orderid?: Long;
-    transid?: Long;
-};
+	orderid?: Long
+	transid?: Long
+}
 
 export type CInventoryPurchaseFinalizeRequest = {
-    appid?: number;
-    language?: number;
-    orderid?: Long;
-};
+	appid?: number
+	language?: number
+	orderid?: Long
+}
 
 export type CInventoryInspectItemRequest = {
-    itemdefid?: Long;
-    itemid?: Long;
-    tags?: string;
-};
+	itemdefid?: Long
+	itemid?: Long
+	tags?: string
+}
 
 export type CInventoryClientNewItemsNotification = {
-    appid?: number;
-    inventoryResponse?: {
-        etag?: string;
-        removeditemids?: Long[];
-        itemJson?: string;
-        itemdefJson?: string;
-        ticket?: Buffer;
-        replayed?: boolean;
-    };
-};
+	appid?: number
+	inventoryResponse?: {
+		etag?: string
+		removeditemids?: Long[]
+		itemJson?: string
+		itemdefJson?: string
+		ticket?: Buffer
+		replayed?: boolean
+	}
+}
+

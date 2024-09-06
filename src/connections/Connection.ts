@@ -10,8 +10,15 @@ import { UnknownRecord, ValueOf } from 'type-fest';
 import { gunzipSync } from 'zlib';
 import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
-import type { CMsgClientLogOnResponse, CMsgMulti, CMsgProtoBufHeader, ServiceMethodCall } from '../../@types/index.js';
+import type {
+    CMsgClientLogOnResponse,
+    CMsgMulti,
+    CMsgProtoBufHeader,
+    ServiceMethodCall,
+    SteamConnectionOptions
+} from '../../@types/index.js';
 import SteamConnection from './SteamConnection.js';
+import { getPayloadFromWsFrame } from './util.js';
 
 const { EMsgMap, EMsg } = Language;
 const DEFAULT_STEAMID = Long.fromString('76561197960265728', true);
@@ -29,20 +36,43 @@ export default abstract class Connection extends SteamConnection {
 
     private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();
 
+    private readonly steamProtos = new SteamProtos();
+
     private session = {
         clientId: 0,
         steamId: DEFAULT_STEAMID
     };
 
-    private readonly steamProtos = new SteamProtos();
+    constructor() {
+        super();
 
-    public async connect() {
-        await this.steamProtos.loadProtos();
-        await super.connect();
+        this.on('disconnected', () => {
+            this.resetState();
+        });
+    }
+
+    async connect(options: SteamConnectionOptions) {
+        if (!this.steamProtos.isLoaded()) {
+            await this.steamProtos.loadProtos();
+        }
+
+        await super.connect(options);
 
         this.socket.on('data', (data) => {
-            this.decodeData(data);
+            const payload = getPayloadFromWsFrame(data);
+            if (payload) {
+                this.decodeData(payload);
+            }
         });
+    }
+
+    private resetState() {
+        this.session.clientId = 0;
+        this.session.steamId = DEFAULT_STEAMID;
+        clearInterval(this.heartBeat);
+        this.serviceMethodCalls.clear();
+        this.jobidTargets.clear();
+        this.protoResponses.clear();
     }
 
     /**
@@ -222,14 +252,6 @@ export default abstract class Connection extends SteamConnection {
         } catch (error) {
             // console.error(`Proto decode failed: ${eMsg.key}`);
         }
-    }
-
-    /**
-     * Destroy connection to Steam
-     */
-    disconnect() {
-        clearInterval(this.heartBeat);
-        super.disconnect();
     }
 
     /**

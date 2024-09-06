@@ -5,7 +5,7 @@ import { CPlayerGetOwnedGamesResponse } from './protos/steammessages_player.stea
 import { CMsgClientPersonaState } from './protos/steammessages_clientserver_friends.js';
 import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login.js';
 import { CMsgClientIsLimitedAccount } from './protos/steammessages_clientserver.js';
-import { Item } from './services/Econ.js';
+// import { Item } from './services/Econ.js';
 import { CMsgClientVACBanStatus } from './all-types.js';
 
 declare const EPersonaState: typeof import('../resources/language/enums.steamd.js').EPersonaState;
@@ -15,6 +15,8 @@ export class Client extends Steam {
     once(event: 'PersonaState', listener: (state: Friend) => void): this;
     on(event: 'PlayingSessionState', listener: (state: CMsgClientPlayingSessionState) => void): this;
     once(event: 'PlayingSessionState', listener: (state: CMsgClientPlayingSessionState) => void): this;
+    on(event: 'disconnected', listener: (error: Error) => void): this;
+    once(event: 'disconnected', listener: (error: Error) => void): this;
 
     /**
      * login to steam via credentials or refresh_token
@@ -80,9 +82,9 @@ export interface SteamAccount {
     clientPersonaState: Friend;
     clientPlayingSessionState: CMsgClientPlayingSessionState;
     ownedGamesResponse: CPlayerGetOwnedGamesResponse['games'];
-    inventory: {
-        steam: Item[];
-    };
+    // inventory: {
+    //     steam: Item[];
+    // };
 }
 
 export interface JsonWebToken {

@@ -8,75 +8,70 @@ import tls, { ConnectionOptions } from 'tls';
 import net, { Socket } from 'net';
 import EventEmitter from 'events';
 import type { SteamConnectionOptions } from '../../@types';
+import { createWsBinaryFrame } from './util';
 
 export default abstract class SteamConnection {
-    private readonly url: URL;
+    private url: URL;
 
-    private readonly handshakeKey: string;
+    private handshakeKey: string;
+
+    private readonly emitter = new EventEmitter();
+
+    private options: SteamConnectionOptions;
 
     protected socket: Socket;
 
     protected connected: boolean;
 
-    private readonly emitter = new EventEmitter();
+    timeout: number;
 
-    readonly timeout: number;
+    protected async connect(options: SteamConnectionOptions): Promise<void> {
+        if (this.connected) {
+            throw new Error('Already Connected');
+        }
 
-    constructor(protected options: SteamConnectionOptions) {
+        this.options = options;
         this.url = new URL(`wss://${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`);
         this.handshakeKey = crypto.randomBytes(16).toString('base64');
         this.timeout = this.options.timeout || 15000;
-    }
+        let { proxySocket } = this.options;
 
-    protected async connect() {
-        if (this.connected) return;
-
-        let proxySocket: Socket;
-
-        if (this.options.httpProxy) {
-            proxySocket = await this.connectHttpProxy();
-        } else if (this.options.socksProxy) {
-            proxySocket = await this.connectSocksProxy();
+        if (!proxySocket) {
+            if (this.options.httpProxy) {
+                proxySocket = await this.connectHttpProxy();
+            } else if (this.options.socksProxy) {
+                proxySocket = await this.connectSocksProxy();
+            }
         }
 
         this.socket = await this.tlsUpgradeOrConnect(proxySocket);
         this.connected = true;
-        this.socketEvents();
+        this.handleConnectionEvents(this.socket);
     }
 
-    protected disconnect() {
+    public disconnect() {
+        this.cleanUp();
+    }
+
+    private cleanUp(socket?: Socket, error?: Error) {
+        this.socket = socket || this.socket;
+
         if (this.connected) {
             this.connected = false;
+            this.socket.end();
             this.socket.destroy();
+            this.socket.removeAllListeners();
         }
+
+        this.emit('disconnected', error);
+        this.socket = null;
     }
 
-    send(buffer: Uint8Array) {
-        if (this.connected) {
-            this.socket.write(buffer);
+    send(buffer: Buffer) {
+        if (this.connected && buffer.length) {
+            const frame = createWsBinaryFrame(buffer);
+            this.socket.write(frame);
         }
-    }
-
-    private socketEvents() {
-        const handleEvent = (error: Error) => {
-            if (this.connected) {
-                this.connected = false;
-                this.socket.destroy();
-                this.emit('disconnected', error);
-            }
-        };
-
-        this.socket.once('error', (error) => {
-            handleEvent(error);
-        });
-
-        this.socket.once('timeout', () => {
-            handleEvent(new Error('Timeout: connection idled for too long.'));
-        });
-
-        this.socket.once('end', () => {
-            handleEvent(new Error('Connection ended by the other side.'));
-        });
     }
 
     private async tlsUpgradeOrConnect(existingSocket?: Socket): Promise<Socket> {
@@ -93,12 +88,11 @@ export default abstract class SteamConnection {
             };
 
             const socket = tls.connect(options, () => {
-                socket.setNoDelay(true);
                 socket.write(this.generateHeaders().join('\r\n'));
             });
 
             socket.once('data', () => {
-                this.removeConnectionEvents(socket);
+                socket.removeAllListeners();
                 resolve(socket);
             });
 
@@ -110,7 +104,7 @@ export default abstract class SteamConnection {
         return new Promise((resolve, reject) => {
             const { port: proxyPort, host: proxyHost, user, pass } = this.options.httpProxy;
 
-            const proxySocket = net.connect(proxyPort, proxyHost, () => {
+            const proxySocket = net.createConnection({ port: proxyPort, host: proxyHost }, () => {
                 proxySocket.setNoDelay(true);
 
                 proxySocket.write(`CONNECT ${this.url.hostname}:${this.url.port} HTTP/1.1\r\n`);
@@ -125,12 +119,13 @@ export default abstract class SteamConnection {
             proxySocket.once('data', (data) => {
                 const response = data.toString();
                 if (response.includes('200 Connection established')) {
-                    this.removeConnectionEvents(proxySocket);
+                    proxySocket.removeAllListeners();
                     resolve(proxySocket);
                     return;
                 }
-                reject(new Error('HTTP Proxy Error: could not establish tunnel to remote host.'));
-                proxySocket.destroy();
+
+                this.cleanUp(proxySocket);
+                reject(new Error('HTTP Proxy Error could not establish tunnel to remote host.'));
             });
 
             this.handleConnectionEvents(proxySocket, reject);
@@ -166,14 +161,14 @@ export default abstract class SteamConnection {
 
         socket.once('data', (data) => {
             if (data[0] !== 0x05) {
-                reject(new Error('SOCKS5 error: invalid response.'));
-                socket.destroy();
+                reject(new Error('SOCKS5 error invalid response.'));
+                this.cleanUp(socket);
                 return;
             }
 
             if (data[1] !== 0x00) {
-                reject(new Error('SOCKS5 error: authentication failed.'));
-                socket.destroy();
+                reject(new Error('SOCKS5 error authentication failed.'));
+                this.cleanUp(socket);
                 return;
             }
 
@@ -192,43 +187,40 @@ export default abstract class SteamConnection {
 
             socket.once('data', (response) => {
                 if (response[1] !== 0x00) {
-                    reject(new Error('SOCKS5 error: remote host connection failed.'));
-                    socket.destroy();
+                    reject(new Error('SOCKS5 error remote host connection failed.'));
+                    this.cleanUp(socket);
                     return;
                 }
-                this.removeConnectionEvents(socket);
+
+                socket.removeAllListeners();
                 resolve(socket);
             });
         });
     }
 
-    private handleConnectionEvents(socket: Socket, reject: (err: Error) => void) {
-        if (this.connected) throw new Error('Do you use this method for established connections.');
-
+    private handleConnectionEvents(socket: Socket, reject?: (err: Error) => void) {
         socket.setTimeout(this.timeout);
 
-        socket.once('error', (err: Error) => {
-            reject(err);
-            socket.destroy();
+        const cb = (error?: Error) => {
+            if (reject) {
+                reject(error);
+            }
+            this.cleanUp(socket, error);
+        };
+
+        socket.once('error', cb);
+
+        socket.once('end', () => {
+            cb(new Error('Connection ended.'));
         });
 
-        // Handle the 'end' event
-        socket.once('end', () => {
-            reject(new Error('Connection ended: other side finished sending data.'));
-            socket.destroy();
+        socket.once('close', () => {
+            cb(new Error('Connection closed.'));
         });
 
         socket.once('timeout', () => {
-            reject(new Error('Timeout: connection idled for too long.'));
-            socket.destroy();
+            cb(new Error('Connection timedout.'));
         });
-    }
-
-    private removeConnectionEvents(socket: Socket) {
-        if (this.connected) throw new Error('Do not use this method for established connections.');
-        socket.removeAllListeners('error');
-        socket.removeAllListeners('timeout');
-        socket.removeAllListeners('end');
     }
 
     private generateHeaders() {
@@ -245,6 +237,10 @@ export default abstract class SteamConnection {
 
     protected emit(event: string, ...args: any[]) {
         this.emitter.emit(event, ...args);
+    }
+
+    protected removeListeners(eventName: string) {
+        this.emitter.removeAllListeners(eventName);
     }
 
     on(event: string, listener: (...args: any[]) => void) {

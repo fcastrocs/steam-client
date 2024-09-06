@@ -8,11 +8,9 @@ import { Player } from './services/Player.js';
 import { Econ } from './services/Econ.js';
 import { Store } from './services/Store.js';
 import { Connection } from './connections/Connection.js';
-import { RememberedMachine, SteamConnectionOptions } from './all-types.js';
+import { RememberedMachine } from './all-types.js';
 
 export abstract class Steam extends Connection {
-    protected options: SteamConnectionOptions;
-
     readonly service: {
         auth: Auth;
         credentials: Credentials;
@@ -22,6 +20,4 @@ export abstract class Steam extends Connection {
     };
 
     rememberedMachine: RememberedMachine;
-
-    constructor(options: SteamConnectionOptions);
 }

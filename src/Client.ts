@@ -22,7 +22,6 @@ import type {
     LoginOptions,
     SteamAccount
 } from '../@types/index.js';
-import { SteamConnectionOptions } from '../@types/connections/SteamConnection.js';
 
 const { EMsg, EResult, EResultMap, EPersonaState } = Language;
 
@@ -31,8 +30,8 @@ export default class Client extends Steam {
 
     private playingSessionState: CMsgClientPlayingSessionState = {};
 
-    constructor(protected connOptions: SteamConnectionOptions) {
-        super(connOptions);
+    constructor() {
+        super();
 
         // catch changes to personaState, playerName or avatar
         this.on('ClientPersonaState', (body: CMsgClientPersonaState) => {
@@ -54,6 +53,10 @@ export default class Client extends Steam {
         this.on('ClientConcurrentSessionsBase', (body: CMsgClientPlayingSessionState) => {
             this.playingSessionState = body;
             this.emit('PlayingSessionState', body);
+        });
+
+        this.on('disconnected', () => {
+            this.refreshState();
         });
     }
 
@@ -146,7 +149,7 @@ export default class Client extends Steam {
         const accountInfo = await allWithTimeout(
             [
                 this.service.player.getOwnedGames(),
-                this.service.econ.getSteamContextItems(),
+                // this.service.econ.getSteamContextItems(),
                 getClientAccountInfo,
                 getClientEmailAddrInfo,
                 getClientIsLimitedAccount,
@@ -165,15 +168,15 @@ export default class Client extends Steam {
             rememberedMachine: this.rememberedMachine,
             clientLogOnResponse: loginRes,
             ownedGamesResponse: accountInfo[0],
-            inventory: {
-                steam: accountInfo[1]
-            },
-            clientAccountInfo: accountInfo[2],
-            clientEmailAddrInfo: accountInfo[3],
-            clientIsLimitedAccount: accountInfo[4],
-            clientVACBanStatus: accountInfo[5],
-            clientPersonaState: accountInfo[6],
-            clientPlayingSessionState: accountInfo[7]
+            // inventory: {
+            //     steam: accountInfo[1]
+            // },
+            clientAccountInfo: accountInfo[1],
+            clientEmailAddrInfo: accountInfo[2],
+            clientIsLimitedAccount: accountInfo[3],
+            clientVACBanStatus: accountInfo[4],
+            clientPersonaState: accountInfo[5],
+            clientPlayingSessionState: accountInfo[6]
         };
 
         return steamAccount;
@@ -272,6 +275,14 @@ export default class Client extends Steam {
 
     public getPlayingSessionState() {
         return { ...this.playingSessionState };
+    }
+
+    private refreshState() {
+        this.removeListeners('ClientAccountInfo');
+        this.removeListeners('ClientEmailAddrInfo');
+        this.removeListeners('ClientIsLimitedAccount');
+        this.removeListeners('ClientVACBanStatus');
+        this.removeListeners('ClientPlayingSessionState');
     }
 
     /**

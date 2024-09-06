@@ -1,15 +1,16 @@
 /* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Wed Jun 19 2024 20:24:16 GMT-0400 (Eastern Daylight Time)
+ * Thu Sep 05 2024 23:44:42 GMT-0400 (Eastern Daylight Time)
  */
 
 export enum EProtoExecutionSite {
-    Unknown = 0,
-    SteamClient = 2
+	Unknown = 0,
+	SteamClient = 2,
 }
 
 export enum EProtoServiceType {
-    SteamMessages = 0,
-    VRGamepadUIMessages = 1
+	SteamMessages = 0,
+	VRGamepadUIMessages = 1,
 }
+

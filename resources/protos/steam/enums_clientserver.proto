@@ -514,7 +514,6 @@ enum EMsg {
 	k_EMsgGCCmdSwitch = 2209;
 	k_EMsgAMRefreshSessions = 2210;
 	k_EMsgGCAchievementAwarded = 2212;
-	k_EMsgGCSystemMessage = 2213;
 	k_EMsgGCCmdStatus = 2216;
 	k_EMsgGCRegisterWebInterfaces_Deprecated = 2217;
 	k_EMsgGCGetAccountDetails_DEPRECATED = 2218;
@@ -766,7 +765,6 @@ enum EMsg {
 	k_EMsgAMNameChange = 4300;
 	k_EMsgAMGetNameHistory = 4301;
 	k_EMsgAMGetNameHistoryResponse = 4302;
-	k_EMsgAMUpdateProviderStatus = 4305;
 	k_EMsgAMSupportRemoveAccountSecurity = 4307;
 	k_EMsgAMIsAccountInCaptchaGracePeriod = 4308;
 	k_EMsgAMIsAccountInCaptchaGracePeriodResponse = 4309;
@@ -1334,6 +1332,8 @@ enum EMsg {
 	k_EMsgClientPICSProductInfoResponse = 8904;
 	k_EMsgClientPICSAccessTokenRequest = 8905;
 	k_EMsgClientPICSAccessTokenResponse = 8906;
+	k_EMsgClientPICSPrivateBetaRequest = 8907;
+	k_EMsgClientPICSPrivateBetaResponse = 8908;
 	k_EMsgWorkerProcess = 9000;
 	k_EMsgWorkerProcessPingRequest = 9000;
 	k_EMsgWorkerProcessPingResponse = 9001;
@@ -1510,4 +1510,5 @@ enum ECodecUsageReason {
 	k_ECodecUsageReasonRemotePlay = 1;
 	k_ECodecUsageReasonBroadcasting = 2;
 	k_ECodecUsageReasonGameVideo = 3;
+	k_ECodecUsageReasonGameRecording = 4;
 }

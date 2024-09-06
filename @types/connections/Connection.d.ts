@@ -5,14 +5,9 @@
 
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
-import { SteamConnection } from './SteamConnection.js';
+import { SteamConnection, SteamConnectionOptions } from './SteamConnection.js';
 
 declare const EMsg: typeof import('../../resources/language/enums_clientserver.js').EMsg;
-
-export interface SessionKey {
-    plain: Buffer;
-    encrypted: Buffer;
-}
 
 export interface ServiceMethodCall {
     method: string;
@@ -22,7 +17,7 @@ export interface ServiceMethodCall {
 }
 
 export abstract class Connection extends SteamConnection {
-    connect(): Promise<void>;
+    connect(options: SteamConnectionOptions): Promise<void>;
     /**
      * Send proto message
      */
@@ -38,15 +33,4 @@ export abstract class Connection extends SteamConnection {
     get isLoggedIn(): boolean;
     get steamId(): Long;
     setSteamId(steamId: string): void;
-    /**
-     * Decode data and emmit decoded payload.
-     * Steam sends ProtoBuf or NonProtoBuf
-     * ProtoBuf: [ header: [EMsg, header length, CMsgProtoBufHeader], body: proto] ]
-     * NonProtoBuf: [ header: [EMsg, header length, ExtendedHeader], body: raw bytes] ]
-     */
-    protected decodeData(data: Buffer): void;
-    /**
-     * Destroy connection to Steam
-     */
-    disconnect(): void;
 }

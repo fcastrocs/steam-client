@@ -11,7 +11,6 @@ import Store from './services/Store.js';
 import Auth from './services/Auth.js';
 import type { RememberedMachine } from '../@types/index.js';
 import Connection from './connections/Connection.js';
-import { SteamConnectionOptions } from '../@types/connections/SteamConnection.js';
 
 export default abstract class Steam extends Connection {
     readonly service: {
@@ -24,8 +23,8 @@ export default abstract class Steam extends Connection {
 
     rememberedMachine: RememberedMachine;
 
-    constructor(protected options: SteamConnectionOptions) {
-        super(options);
+    constructor() {
+        super();
 
         this.generateRememberedMachine();
 

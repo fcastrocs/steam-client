@@ -15,13 +15,8 @@ export default class SteamProtos {
         this.rootDir = protoRoot ? path.resolve(__dirname, protoRoot) : path.resolve(__dirname, '../../../resources/protos');
     }
 
-    async loadProtos(protos?: Root, minimal?: boolean) {
-        if (protos) {
-            this.Protos = protos;
-            return this.Protos;
-        }
-
-        const protoFileNames = minimal
+    async loadProtos(options: { minimal?: boolean } = {}) {
+        const protoFileNames = options.minimal
             ? [
                   'contenthubs.proto',
                   'encrypted_app_ticket.proto',
@@ -44,11 +39,15 @@ export default class SteamProtos {
             if (target.includes('google/protobuf')) {
                 return `${this.rootDir}/${target}`;
             }
-            return `${this.rootDir}/${minimal ? 'minimal' : 'steam'}/${target}`;
+            return `${this.rootDir}/${options.minimal ? 'minimal' : 'steam'}/${target}`;
         };
 
         this.Protos = await root.load(protoFileNames);
         return this.Protos;
+    }
+
+    isLoaded() {
+        return !!this.Protos;
     }
 
     encode(type: string, body: UnknownRecord) {
