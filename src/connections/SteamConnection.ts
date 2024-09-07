@@ -66,6 +66,7 @@ export default abstract class SteamConnection {
         this.socket = socket || this.socket;
 
         this.connected = false;
+
         if (this.socket) {
             this.socket.destroy();
             this.socket.removeAllListeners();
@@ -99,9 +100,7 @@ export default abstract class SteamConnection {
             tlsSocket.write(this.generateHeaders().join('\r\n'));
         });
 
-        if (!socket) {
-            this.handleConnectionEvents(tlsSocket, reject);
-        }
+        this.handleConnectionEvents(tlsSocket, reject);
 
         tlsSocket.once('data', (data) => {
             if (data && data.toString().includes('Sec-WebSocket-Accept')) {
