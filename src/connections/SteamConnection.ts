@@ -51,7 +51,6 @@ export default abstract class SteamConnection {
                 }
             });
 
-            socket.removeAllListeners();
             this.connected = true;
         } catch (error) {
             this.cleanUp(socket);
