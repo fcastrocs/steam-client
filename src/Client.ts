@@ -273,7 +273,6 @@ export default class Client extends Steam {
         this.removeListeners('ClientIsLimitedAccount');
         this.removeListeners('ClientVACBanStatus');
         this.removeListeners('ClientPlayingSessionState');
-        console.log('done');
     }
 
     /**

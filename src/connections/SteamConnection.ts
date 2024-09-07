@@ -67,9 +67,12 @@ export default abstract class SteamConnection {
         this.socket = socket || this.socket;
 
         this.connected = false;
-        this.socket.destroy();
-        this.socket.removeAllListeners();
-        this.socket = null;
+        if (this.socket) {
+            this.socket.destroy();
+            this.socket.removeAllListeners();
+            this.socket = null;
+        }
+
         this.emit('disconnected', error);
     }
 
