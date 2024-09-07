@@ -84,7 +84,7 @@ export default abstract class SteamConnection {
             }
 
             if (this.proxySocket) {
-                this.socket.destroy();
+                this.proxySocket.destroy();
             }
 
             this.emit('disconnected', error);
