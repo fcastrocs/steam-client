@@ -9,6 +9,7 @@ import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
 import { gunzip } from 'zlib';
 import { Root } from 'protobufjs';
+import { promisify } from 'util';
 import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
 import type {
@@ -20,6 +21,8 @@ import type {
 } from '../../@types/index.js';
 import SteamConnection from './SteamConnection.js';
 import { getPayloadFromWsFrame } from './util.js';
+
+const gunzipAsync = promisify(gunzip);
 
 const { EMsgMap, EMsg } = Language;
 const DEFAULT_STEAMID = Long.fromString('76561197960265728', true);
@@ -308,23 +311,19 @@ export default abstract class Connection extends SteamConnection {
         return sBuffer.toBuffer();
     }
 
-    private multi(payload: Buffer) {
+    private async multi(payload: Buffer) {
         const message: CMsgMulti = this.steamProtos.decode('CMsgMulti', payload);
-        const body = message.messageBody;
+        let body = message.messageBody;
 
         // message is gzipped
         if (message.sizeUnzipped) {
-            gunzip(body, (err, result) => {
-                if (err) throw err;
+            body = await gunzipAsync(body);
+        }
 
-                let unZipped = result;
-
-                while (unZipped.length) {
-                    const subSize = unZipped.readUInt32LE(0);
-                    this.decodeData(unZipped.subarray(4, 4 + subSize));
-                    unZipped = unZipped.subarray(4 + subSize);
-                }
-            });
+        while (body.length) {
+            const subSize = body.readUInt32LE(0);
+            this.decodeData(body.subarray(4, 4 + subSize));
+            body = body.subarray(4 + subSize);
         }
     }
 }
