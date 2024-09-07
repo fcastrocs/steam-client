@@ -15,6 +15,7 @@ export interface ServiceMethodCall {
     jobidSource: Long;
     targetJobName: string;
     promiseResolve: (value: UnknownRecord | PromiseLike<UnknownRecord>) => void;
+    timeout: NodeJS.Timeout;
 }
 
 export abstract class Connection extends SteamConnection {

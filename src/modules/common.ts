@@ -41,19 +41,18 @@ export async function PromiseTimeout<T>(p: PromiseLike<T>, options: { ms?: numbe
 
 export async function allWithTimeout<T extends unknown[] | []>(
     p: T,
-    options: { ms?: number; timeOutErrMsg: string }
+    options: { ms: number; timeOutErrMsg: string }
 ): Promise<{ [P in keyof T]: Awaited<T[P]> }> {
     let timer: NodeJS.Timeout;
-    const ms = options.ms || 15000;
 
     const timeOut = new Promise((_, reject) => {
         timer = setTimeout(() => {
             reject(new SteamClientError(options.timeOutErrMsg));
-        }, ms);
+        }, options.ms);
     });
 
     try {
-        const results = await Promise.race([Promise.all(p), timeOut]);
+        const results = await Promise.race([Promise.allSettled(p), timeOut]);
         return results as { [P in keyof T]: Awaited<T[P]> };
     } finally {
         clearTimeout(timer);

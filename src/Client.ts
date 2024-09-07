@@ -82,12 +82,6 @@ export default class Client extends Steam {
             clientLanguage: 'english',
             clientOsType: EOSType.Win11,
             shouldRememberPassword: true,
-            // comment this out for now, it's not necessary
-            /* obfuscatedPrivateIp: {
-                ip: {
-                    v4: await this.obfustucateIp(),
-                },
-            }, */
             qosLevel: 2,
             machineId: this.rememberedMachine.id,
             machineName: this.rememberedMachine.name,
@@ -149,7 +143,6 @@ export default class Client extends Steam {
         const accountInfo = await allWithTimeout(
             [
                 this.service.player.getOwnedGames(),
-                // this.service.econ.getSteamContextItems(),
                 getClientAccountInfo,
                 getClientEmailAddrInfo,
                 getClientIsLimitedAccount,
@@ -168,9 +161,6 @@ export default class Client extends Steam {
             rememberedMachine: this.rememberedMachine,
             clientLogOnResponse: loginRes,
             ownedGamesResponse: accountInfo[0],
-            // inventory: {
-            //     steam: accountInfo[1]
-            // },
             clientAccountInfo: accountInfo[1],
             clientEmailAddrInfo: accountInfo[2],
             clientIsLimitedAccount: accountInfo[3],
@@ -283,6 +273,7 @@ export default class Client extends Steam {
         this.removeListeners('ClientIsLimitedAccount');
         this.removeListeners('ClientVACBanStatus');
         this.removeListeners('ClientPlayingSessionState');
+        console.log('done');
     }
 
     /**

@@ -7,7 +7,7 @@
 import { SmartBuffer } from 'smart-buffer';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
-import { gunzipSync } from 'zlib';
+import { gunzip } from 'zlib';
 import { Root } from 'protobufjs';
 import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
@@ -29,8 +29,6 @@ const PROTO_MASK = 0x80000000;
 export default abstract class Connection extends SteamConnection {
     private heartBeat: NodeJS.Timeout;
 
-    private jobIdTimeout = 3 * 60 * 1000;
-
     private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
 
     private readonly jobidTargets: Map<ValueOf<typeof EMsg>, Long> = new Map();
@@ -38,6 +36,8 @@ export default abstract class Connection extends SteamConnection {
     private readonly protoResponses: Map<ValueOf<typeof EMsg>, (value: UnknownRecord) => void> = new Map();
 
     private readonly steamProtos = new SteamProtos();
+
+    private timeouts: NodeJS.Timeout[] = [];
 
     private session = {
         clientId: 0,
@@ -72,6 +72,8 @@ export default abstract class Connection extends SteamConnection {
         this.serviceMethodCalls.clear();
         this.jobidTargets.clear();
         this.protoResponses.clear();
+        this.timeouts.forEach((timeout) => clearTimeout(timeout));
+        this.timeouts = [];
     }
 
     public async loadProtos(passedProtos?: Root) {
@@ -116,19 +118,25 @@ export default abstract class Connection extends SteamConnection {
 
         const jobidSource = Long.fromInt(Math.floor(Date.now() + Math.random()), true);
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
+            // Timeout if steam doesn't respond
+            const timeout = setTimeout(() => {
+                this.serviceMethodCalls.delete(jobidSource.toString());
+                reject(new Error('ServiceMethodCall Response timeout.'));
+            }, this.timeout);
+
+            this.timeouts.push(timeout);
+
             const serviceMethodCall: ServiceMethodCall = {
                 method: newMethod,
                 promiseResolve: resolve,
                 targetJobName,
-                jobidSource
+                jobidSource,
+                timeout
             };
 
             // save jobId that steam will send a response to
             this.serviceMethodCalls.set(jobidSource.toString(), serviceMethodCall);
-
-            // steam has this.jobIdTimeout ms to response to this jobId
-            setTimeout(() => this.serviceMethodCalls.delete(jobidSource.toString()), this.jobIdTimeout);
 
             const serviceMethodEMsg = this.session.steamId.equals(DEFAULT_STEAMID)
                 ? EMsg.ServiceMethodCallFromClientNonAuthed
@@ -207,7 +215,7 @@ export default abstract class Connection extends SteamConnection {
             const key = `${EMsgReceivedKey}Response` as keyof typeof EMsg;
             this.jobidTargets.set(EMsg[key], proto.jobidSource);
             // we have this.jobIdTimeout ms to response to this jobId
-            setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.jobIdTimeout);
+            setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.timeout);
         }
 
         // service method
@@ -219,6 +227,7 @@ export default abstract class Connection extends SteamConnection {
                 EResult: proto.eresult,
                 ...message
             });
+            clearTimeout(serviceMethodCall.timeout);
             return;
         }
 
@@ -239,8 +248,6 @@ export default abstract class Connection extends SteamConnection {
             const body = this.steamProtos.decode(`CMsg${eMsg.key}`, packet.readBuffer());
             // emit message
             this.emit(eMsg.key, body);
-
-            // console.debug(`EMsg: ${eMsg.key}`);
 
             // response to sendProtoPromise
             const promiseResolve = this.protoResponses.get(eMsg.value);
@@ -300,17 +307,21 @@ export default abstract class Connection extends SteamConnection {
 
     private multi(payload: Buffer) {
         const message: CMsgMulti = this.steamProtos.decode('CMsgMulti', payload);
-        let body = message.messageBody;
+        const body = message.messageBody;
 
         // message is gzipped
         if (message.sizeUnzipped) {
-            body = gunzipSync(body);
-        }
+            gunzip(body, (err, result) => {
+                if (err) throw err;
 
-        while (body.length) {
-            const subSize = body.readUInt32LE(0);
-            this.decodeData(body.subarray(4, 4 + subSize));
-            body = body.subarray(4 + subSize);
+                let unZipped = result;
+
+                while (unZipped.length) {
+                    const subSize = unZipped.readUInt32LE(0);
+                    this.decodeData(unZipped.subarray(4, 4 + subSize));
+                    unZipped = unZipped.subarray(4 + subSize);
+                }
+            });
         }
     }
 }

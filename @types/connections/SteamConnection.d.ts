@@ -1,5 +1,3 @@
-import { Socket } from 'net';
-
 export interface Server {
     host: string;
     port: number;
@@ -14,7 +12,6 @@ export interface SteamConnectionOptions {
     steamCM: Server;
     httpProxy?: Server & Authentication;
     socksProxy?: Server & Authentication & { version: 4 | 5 };
-    proxySocket?: Socket;
     timeout: number;
 }
 
@@ -22,5 +19,5 @@ export abstract class SteamConnection {
     send(buffer: Uint8Array): void;
     on(event: string, listener: (...args: any[]) => void): void;
     once(event: string, listener: (...args: any[]) => void): void;
-    disconnect();
+    disconnect(): void;
 }
