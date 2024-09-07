@@ -96,6 +96,11 @@ export default abstract class SteamConnection {
             rejectUnauthorized: true
         };
 
+        if (socket && !socket.destroyed && !socket.writable) {
+            reject(new Error('Proxy socket dropped before TLS connection was established.'));
+            return;
+        }
+
         const tlsSocket = tls.connect(options, () => {
             tlsSocket.write(this.generateHeaders().join('\r\n'));
         });
