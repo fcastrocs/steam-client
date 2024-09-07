@@ -4,7 +4,7 @@
  * Connection via HTTP, Socks v4 and v5 supported
  */
 import crypto from 'crypto';
-import tls, { ConnectionOptions, TLSSocket } from 'tls';
+import tls, { ConnectionOptions } from 'tls';
 import { Socket } from 'net';
 import EventEmitter from 'events';
 import type { SteamConnectionOptions } from '../../@types';
@@ -19,9 +19,11 @@ export default abstract class SteamConnection {
 
     private options: SteamConnectionOptions;
 
-    private promiseRejected: boolean;
+    private cleanedUp: boolean;
 
     protected socket: Socket;
+
+    private proxySocket: Socket;
 
     protected connected: boolean;
 
@@ -36,27 +38,35 @@ export default abstract class SteamConnection {
         this.url = new URL(`wss://${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`);
         this.handshakeKey = crypto.randomBytes(16).toString('base64');
         this.timeout = this.options.timeout || 15000;
-        this.promiseRejected = false;
+        this.cleanedUp = false;
 
-        const socket = new Socket();
-        socket.setNoDelay(true);
+        if (this.socket) {
+            this.socket.removeAllListeners();
+        }
+
+        if (this.proxySocket) {
+            this.proxySocket.removeAllListeners();
+        }
+
+        this.proxySocket = new Socket();
+        this.proxySocket.setNoDelay(true);
 
         try {
-            this.socket = await new Promise<TLSSocket>((resolve, reject) => {
-                this.handleConnectionEvents(socket, reject);
+            await new Promise<void>((resolve, reject) => {
+                this.handleConnectionEvents(this.proxySocket, reject);
 
                 if (this.options.httpProxy) {
-                    this.connectHttpProxy(socket, resolve, reject);
+                    this.connectHttpProxy(resolve, reject);
                 } else if (this.options.socksProxy) {
-                    this.connectSocksProxy(socket, resolve, reject);
+                    this.connectSocksProxy(resolve, reject);
                 } else {
-                    this.tlsUpgradeOrConnect(undefined, resolve, reject);
+                    this.tlsUpgradeOrConnect(resolve, reject);
                 }
             });
 
             this.connected = true;
         } catch (error) {
-            this.cleanUp(socket);
+            this.cleanUp();
             throw error;
         }
     }
@@ -65,18 +75,22 @@ export default abstract class SteamConnection {
         this.cleanUp();
     }
 
-    private cleanUp(socket?: Socket, error?: Error) {
-        this.socket = socket || this.socket;
-
+    private cleanUp(error?: Error) {
         this.connected = false;
 
-        if (this.socket) {
-            this.socket.destroy();
-            this.socket.removeAllListeners();
-            this.socket = null;
+        if (!this.cleanedUp) {
+            if (this.socket) {
+                this.socket.destroy();
+            }
+
+            if (this.proxySocket) {
+                this.socket.destroy();
+            }
+
+            this.emit('disconnected', error);
         }
 
-        this.emit('disconnected', error);
+        this.cleanedUp = false;
     }
 
     send(buffer: Buffer) {
@@ -86,9 +100,9 @@ export default abstract class SteamConnection {
         }
     }
 
-    private tlsUpgradeOrConnect(socket: Socket, resolve: (value: TLSSocket) => void, reject: (error: Error) => void) {
+    private tlsUpgradeOrConnect(resolve: () => void, reject: (error: Error) => void) {
         const options: ConnectionOptions = {
-            socket,
+            socket: this.proxySocket,
             host: this.url.hostname,
             port: Number(this.url.port),
             servername: this.url.hostname,
@@ -98,41 +112,41 @@ export default abstract class SteamConnection {
             rejectUnauthorized: true
         };
 
-        if (!this.promiseRejected) {
-            const tlsSocket = tls.connect(options, () => {
-                tlsSocket.setNoDelay(true);
-                tlsSocket.write(this.generateHeaders().join('\r\n'));
+        if (!this.cleanedUp) {
+            this.socket = tls.connect(options, () => {
+                this.socket.setNoDelay(true);
+                this.socket.write(this.generateHeaders().join('\r\n'));
             });
 
-            this.handleConnectionEvents(tlsSocket, reject);
+            this.handleConnectionEvents(this.socket, reject);
 
-            tlsSocket.once('data', (data) => {
+            this.socket.once('data', (data) => {
                 if (data && data.toString().includes('Sec-WebSocket-Accept')) {
-                    resolve(tlsSocket);
+                    resolve();
                 } else {
-                    reject(new Error(data));
+                    reject(new Error(data.toString()));
                 }
             });
         }
     }
 
-    private connectHttpProxy(socket: Socket, resolve: (value: TLSSocket) => void, reject: (error: Error) => void) {
+    private connectHttpProxy(resolve: () => void, reject: (error: Error) => void) {
         const { port: proxyPort, host: proxyHost, user, pass } = this.options.httpProxy;
 
-        socket.connect({ port: proxyPort, host: proxyHost }, () => {
-            socket.write(`CONNECT ${this.url.hostname}:${this.url.port} HTTP/1.1\r\n`);
-            socket.write(`Host: ${this.url.hostname}:${this.url.port}\r\n`);
+        this.proxySocket.connect({ port: proxyPort, host: proxyHost }, () => {
+            this.proxySocket.write(`CONNECT ${this.url.hostname}:${this.url.port} HTTP/1.1\r\n`);
+            this.proxySocket.write(`Host: ${this.url.hostname}:${this.url.port}\r\n`);
             if (user && pass) {
                 const credentials = Buffer.from(`${user}:${pass}`).toString('base64');
-                socket.write(`Proxy-Authorization: Basic ${credentials}\r\n`);
+                this.proxySocket.write(`Proxy-Authorization: Basic ${credentials}\r\n`);
             }
-            socket.write('Connection: Keep-Alive\r\n\r\n');
+            this.proxySocket.write('Connection: Keep-Alive\r\n\r\n');
         });
 
-        socket.once('data', (data) => {
+        this.proxySocket.once('data', (data) => {
             const response = data.toString();
             if (response.includes('200 Connection established')) {
-                this.tlsUpgradeOrConnect(socket, resolve, reject);
+                this.tlsUpgradeOrConnect(resolve, reject);
                 return;
             }
 
@@ -140,17 +154,17 @@ export default abstract class SteamConnection {
         });
     }
 
-    private connectSocksProxy(socket: Socket, resolve: (value: TLSSocket) => void, reject: (error: Error) => void) {
+    private connectSocksProxy(resolve: () => void, reject: (error: Error) => void) {
         const { host, port, version } = this.options.socksProxy;
 
-        socket.connect(port, host, () => {
+        this.proxySocket.connect(port, host, () => {
             if (version === 5) {
-                this.socks5HandShake(socket, resolve, reject);
+                this.socks5HandShake(resolve, reject);
             }
         });
     }
 
-    private socks5HandShake(socket: Socket, resolve: (value: TLSSocket) => void, reject: (error: Error) => void) {
+    private socks5HandShake(resolve: () => void, reject: (error: Error) => void) {
         const { user, pass } = this.options.socksProxy;
         const hasAuthentication = user && pass;
 
@@ -160,9 +174,9 @@ export default abstract class SteamConnection {
             hasAuthentication ? 0x02 : 0x00 // type of authentication
         ]);
 
-        socket.write(handshake);
+        this.proxySocket.write(handshake);
 
-        socket.once('data', (data) => {
+        this.proxySocket.once('data', (data) => {
             if (data[0] !== 0x05) {
                 reject(new Error('SOCKS5 error invalid response.'));
                 return;
@@ -184,40 +198,40 @@ export default abstract class SteamConnection {
                 Number(this.url.port) & 0xff // Low byte of destination port
             ]);
 
-            socket.write(request);
+            this.proxySocket.write(request);
 
-            socket.once('data', (response) => {
+            this.proxySocket.once('data', (response) => {
                 if (response[1] !== 0x00) {
                     reject(new Error('SOCKS5 error remote host connection failed.'));
                     return;
                 }
-                this.tlsUpgradeOrConnect(socket, resolve, reject);
+                this.tlsUpgradeOrConnect(resolve, reject);
             });
         });
     }
 
-    private handleConnectionEvents(socket: Socket, reject?: (err: Error) => void) {
+    private handleConnectionEvents(socket: Socket, reject: (err: Error) => void) {
         socket.setTimeout(this.timeout);
 
         const cb = (error?: Error) => {
-            if (reject && !this.connected) {
-                this.promiseRejected = true;
+            this.cleanUp(error);
+
+            if (!this.connected) {
                 reject(error);
             }
-            this.cleanUp(socket, error);
         };
 
-        socket.once('error', cb);
+        socket.on('error', cb);
 
-        socket.once('end', () => {
+        socket.on('end', () => {
             cb(new Error('Connection ended.'));
         });
 
-        socket.once('close', () => {
+        socket.on('close', () => {
             cb(new Error('Connection closed.'));
         });
 
-        socket.once('timeout', () => {
+        socket.on('timeout', () => {
             cb(new Error('Connection timedout.'));
         });
     }
