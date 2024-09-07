@@ -19,6 +19,8 @@ export default abstract class SteamConnection {
 
     private options: SteamConnectionOptions;
 
+    private promiseRejected: boolean;
+
     protected socket: Socket;
 
     protected connected: boolean;
@@ -34,6 +36,7 @@ export default abstract class SteamConnection {
         this.url = new URL(`wss://${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`);
         this.handshakeKey = crypto.randomBytes(16).toString('base64');
         this.timeout = this.options.timeout || 15000;
+        this.promiseRejected = false;
 
         const socket = new Socket();
         socket.setNoDelay(true);
@@ -92,28 +95,25 @@ export default abstract class SteamConnection {
             enableTrace: false,
             minVersion: 'TLSv1.2',
             maxVersion: 'TLSv1.2',
-            session: null,
             rejectUnauthorized: true
         };
 
-        if (socket && !socket.destroyed && !socket.writable) {
-            reject(new Error('Proxy socket dropped before TLS connection was established.'));
-            return;
+        if (!this.promiseRejected) {
+            const tlsSocket = tls.connect(options, () => {
+                tlsSocket.setNoDelay(true);
+                tlsSocket.write(this.generateHeaders().join('\r\n'));
+            });
+
+            this.handleConnectionEvents(tlsSocket, reject);
+
+            tlsSocket.once('data', (data) => {
+                if (data && data.toString().includes('Sec-WebSocket-Accept')) {
+                    resolve(tlsSocket);
+                } else {
+                    reject(new Error(data));
+                }
+            });
         }
-
-        const tlsSocket = tls.connect(options, () => {
-            tlsSocket.write(this.generateHeaders().join('\r\n'));
-        });
-
-        this.handleConnectionEvents(tlsSocket, reject);
-
-        tlsSocket.once('data', (data) => {
-            if (data && data.toString().includes('Sec-WebSocket-Accept')) {
-                resolve(tlsSocket);
-            } else {
-                reject(new Error(data));
-            }
-        });
     }
 
     private connectHttpProxy(socket: Socket, resolve: (value: TLSSocket) => void, reject: (error: Error) => void) {
@@ -201,6 +201,7 @@ export default abstract class SteamConnection {
 
         const cb = (error?: Error) => {
             if (reject && !this.connected) {
+                this.promiseRejected = true;
                 reject(error);
             }
             this.cleanUp(socket, error);
