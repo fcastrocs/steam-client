@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Thu Sep 05 2024 23:44:42 GMT-0400 (Eastern Daylight Time)
+ * Sat Sep 07 2024 00:54:51 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -715,6 +715,7 @@ export type CPlayerGetAchievementsProgressRequest = {
 	steamid?: Long
 	language?: string
 	appids?: number[]
+	includeUnvettedApps?: boolean
 }
 
 export type CPlayerGetAchievementsProgressResponse = {
@@ -725,6 +726,7 @@ export type CPlayerGetAchievementsProgressResponse = {
 		percentage?: number
 		allUnlocked?: boolean
 		cacheTime?: number
+		vetted?: boolean
 	}[]
 }
 

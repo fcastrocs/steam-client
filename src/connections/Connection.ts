@@ -57,6 +57,8 @@ export default abstract class Connection extends SteamConnection {
 
         await super.connect(options);
 
+        this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
+
         this.socket.on('data', (data) => {
             const payload = getPayloadFromWsFrame(data);
             if (payload) {
@@ -144,6 +146,7 @@ export default abstract class Connection extends SteamConnection {
 
             const protoHeader = this.buildProtoHeader(serviceMethodEMsg, serviceMethodCall);
             const buffer = this.steamProtos.encode(`${newMethod}_Request`, body);
+
             this.send(Buffer.concat([protoHeader, buffer]));
         });
     }

@@ -77,7 +77,7 @@ export default abstract class SteamConnection {
     }
 
     send(buffer: Buffer) {
-        if (this.connected && buffer.length) {
+        if (this.connected) {
             const frame = createWsBinaryFrame(buffer);
             this.socket.write(frame);
         }
@@ -104,8 +104,12 @@ export default abstract class SteamConnection {
             this.handleConnectionEvents(tlsSocket, reject);
         }
 
-        tlsSocket.once('secureConnect', () => {
-            resolve(tlsSocket);
+        tlsSocket.once('data', (data) => {
+            if (data && data.toString().includes('Sec-WebSocket-Accept')) {
+                resolve(tlsSocket);
+            } else {
+                reject(new Error(data));
+            }
         });
     }
 
