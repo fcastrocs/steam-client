@@ -90,7 +90,7 @@ export default abstract class SteamConnection {
             this.emit('disconnected', error);
         }
 
-        this.cleanedUp = false;
+        this.cleanedUp = true;
     }
 
     send(buffer: Buffer) {
