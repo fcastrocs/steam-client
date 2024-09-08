@@ -34,7 +34,7 @@ const PROTOS = [
 export default async function fetchProtos() {
     // fetch steam protos
     PROTOS.forEach(async (proto) => {
-        let text = await fetch(`${PROTOS_URL}steam/${proto}`).then((res) => res.text());
+        let text = await fetch(`${PROTOS_URL}steam/${proto}`).then((res) => res.text())
 
         // bug fix, incorrectly named proto
         if (proto === 'steammessages_clientserver_login.proto') {
