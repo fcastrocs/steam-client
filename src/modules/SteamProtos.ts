@@ -1,27 +1,33 @@
 /**
  * Proto encode and decoder
  */
-import ProtoBuf, { Root, Type } from 'protobufjs';
+
+import ProtoBuf, { Type } from 'protobufjs';
 import fs from 'fs/promises';
 import { UnknownRecord } from 'type-fest';
 import path from 'path';
+import { CachedProtos } from '../../@types';
 
 export default class SteamProtos {
-    private Protos: Root;
-
     private rootDir: string;
 
-    private preloadedTypes = new Map<string, Type>();
+    private cachedProtos: CachedProtos = {
+        protosRoot: null,
+        preloadedTypes: new Map<string, Type>()
+    };
 
-    constructor(protoRoot?: string) {
-        this.rootDir = protoRoot ? path.resolve(__dirname, protoRoot) : path.resolve(__dirname, '../../../resources/protos');
+    constructor(protosPath?: string) {
+        this.rootDir = protosPath ? path.resolve(__dirname, protosPath) : path.resolve(__dirname, '../../../resources/protos');
     }
 
-    async loadProtos(protos?: Root) {
-        if (protos) {
-            this.Protos = protos;
+    async loadProtos(cachedProtos?: CachedProtos): Promise<CachedProtos> {
+        if (this.isLoaded()) {
+            return this.cachedProtos;
+        }
 
-            if (this.Protos) return this.Protos;
+        if (cachedProtos) {
+            this.cachedProtos = cachedProtos;
+            return this.cachedProtos;
         }
 
         const protoFileNames = await fs.readdir(`${this.rootDir}/steam`);
@@ -35,31 +41,36 @@ export default class SteamProtos {
             return `${this.rootDir}/steam/${target}`;
         };
 
-        this.Protos = await root.load(protoFileNames);
-        return this.Protos;
+        this.cachedProtos.protosRoot = await root.load(protoFileNames);
+        return this.cachedProtos;
     }
 
-    isLoaded() {
-        return !!this.Protos;
+    private isLoaded(): boolean {
+        return !!this.cachedProtos.protosRoot;
     }
 
-    encode(type: string, body: UnknownRecord) {
-        if (!this.Protos) {
-            throw new Error('Protos have not been loaded.');
-        }
-        const proto = this.preloadedTypes.get(type) || this.preloadedTypes.set(type, this.Protos.lookupType(type)).get(type);
+    encode(protoName: string, body: UnknownRecord): Buffer {
+        const proto = this.getProtoType(protoName);
         const message = proto.create(body);
         const err = proto.verify(message);
         if (err) throw new Error(err);
         return Buffer.from(proto.encode(message).finish());
     }
 
-    decode(type: string, body: Buffer) {
-        if (!this.Protos) {
-            throw new Error('Protos have not been loaded.');
-        }
-        const proto = this.preloadedTypes.get(type) || this.preloadedTypes.set(type, this.Protos.lookupType(type)).get(type);
+    decode(protoName: string, body: Buffer) {
+        const proto = this.getProtoType(protoName);
         const payload = proto.decode(body);
         return proto.toObject(payload);
+    }
+
+    private getProtoType(protoName: string): Type {
+        if (!this.isLoaded()) {
+            throw new Error('Protos have not been loaded.');
+        }
+
+        return (
+            this.cachedProtos.preloadedTypes.get(protoName) ||
+            this.cachedProtos.preloadedTypes.set(protoName, this.cachedProtos.protosRoot.lookupType(protoName)).get(protoName)
+        );
     }
 }

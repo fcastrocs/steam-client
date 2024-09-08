@@ -8,7 +8,6 @@ import { SmartBuffer } from 'smart-buffer';
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
 import { gunzip } from 'zlib';
-import { Root } from 'protobufjs';
 import { promisify } from 'util';
 import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
@@ -56,8 +55,7 @@ export default abstract class Connection extends SteamConnection {
     }
 
     async connect(options: SteamConnectionOptions) {
-        await this.loadProtos();
-
+        await this.steamProtos.loadProtos();
         await super.connect(options);
 
         this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
@@ -81,12 +79,8 @@ export default abstract class Connection extends SteamConnection {
         this.timeouts = [];
     }
 
-    public async loadProtos(passedProtos?: Root) {
-        let protos = passedProtos;
-        if (!this.steamProtos.isLoaded()) {
-            protos = await this.steamProtos.loadProtos(protos);
-        }
-        return protos;
+    public getCachedProtos() {
+        return this.steamProtos.loadProtos();
     }
 
     /**

@@ -13,32 +13,27 @@ import type { RememberedMachine } from '../@types/index.js';
 import Connection from './connections/Connection.js';
 
 export default abstract class Steam extends Connection {
-    readonly service: {
-        auth: Auth;
-        credentials: Credentials;
-        player: Player;
-        econ: Econ;
-        store: Store;
-    };
+    readonly auth: Auth;
+
+    readonly credentials: Credentials;
+
+    readonly player: Player;
+
+    readonly econ: Econ;
+
+    readonly store: Store;
 
     rememberedMachine: RememberedMachine;
 
     constructor() {
         super();
 
-        this.generateRememberedMachine();
+        this.auth = new Auth(this);
+        this.credentials = new Credentials(this);
+        this.player = new Player(this);
+        this.econ = new Econ(this);
+        this.store = new Store(this);
 
-        // inject dependencies
-        this.service = {
-            auth: new Auth(this),
-            credentials: new Credentials(this),
-            player: new Player(this),
-            econ: new Econ(this),
-            store: new Store(this)
-        };
-    }
-
-    private generateRememberedMachine() {
         this.rememberedMachine = {
             id: createMachineId(),
             name: createMachineName()

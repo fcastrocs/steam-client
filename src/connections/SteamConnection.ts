@@ -40,14 +40,6 @@ export default abstract class SteamConnection {
         this.timeout = this.options.timeout || 15000;
         this.cleanedUp = false;
 
-        if (this.socket) {
-            this.socket.removeAllListeners();
-        }
-
-        if (this.proxySocket) {
-            this.proxySocket.removeAllListeners();
-        }
-
         this.proxySocket = new Socket();
         this.proxySocket.setNoDelay(true);
 
@@ -81,10 +73,12 @@ export default abstract class SteamConnection {
         if (!this.cleanedUp) {
             if (this.socket) {
                 this.socket.destroy();
+                this.socket = null;
             }
 
             if (this.proxySocket) {
                 this.proxySocket.destroy();
+                this.proxySocket = null;
             }
 
             this.emit('disconnected', error);
@@ -102,7 +96,7 @@ export default abstract class SteamConnection {
 
     private tlsUpgradeOrConnect(resolve: () => void, reject: (error: Error) => void) {
         const options: ConnectionOptions = {
-            socket: this.proxySocket,
+            socket: this.options.httpProxy || this.options.socksProxy ? this.proxySocket : undefined,
             host: this.url.hostname,
             port: Number(this.url.port),
             servername: this.url.hostname,
@@ -221,7 +215,9 @@ export default abstract class SteamConnection {
             }
         };
 
-        socket.on('error', cb);
+        socket.on('error', (error) => {
+            cb(error);
+        });
 
         socket.on('end', () => {
             cb(new Error('Connection ended.'));

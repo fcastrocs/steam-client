@@ -11,13 +11,15 @@ import { Connection } from './connections/Connection.js';
 import { RememberedMachine } from './all-types.js';
 
 export abstract class Steam extends Connection {
-    readonly service: {
-        auth: Auth;
-        credentials: Credentials;
-        player: Player;
-        econ: Econ;
-        store: Store;
-    };
+    readonly auth: Auth;
+
+    readonly credentials: Credentials;
+
+    readonly player: Player;
+
+    readonly econ: Econ;
+
+    readonly store: Store;
 
     rememberedMachine: RememberedMachine;
 }

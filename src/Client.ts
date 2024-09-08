@@ -142,7 +142,7 @@ export default class Client extends Steam {
         // obtain all SteamAccount properties
         const accountInfo = await allWithTimeout(
             [
-                this.service.player.getOwnedGames(),
+                this.player.getOwnedGames(),
                 getClientAccountInfo,
                 getClientEmailAddrInfo,
                 getClientIsLimitedAccount,
@@ -243,7 +243,7 @@ export default class Client extends Steam {
 
         if (!res.grantedAppids || !res.grantedAppids.length) return [];
 
-        return this.service.player.getOwnedGames({
+        return this.player.getOwnedGames({
             appidsFilter: res.grantedAppids,
             includePlayedFreeGames: true
         });

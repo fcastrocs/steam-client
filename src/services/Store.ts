@@ -28,6 +28,6 @@ export default class Credentials {
 
         res.purchaseReceiptInfo.lineItems.forEach((lineItem) => appId.push(lineItem.appid));
 
-        return this.steam.service.player.getOwnedGames({ appidsFilter: appId });
+        return this.steam.player.getOwnedGames({ appidsFilter: appId });
     }
 }

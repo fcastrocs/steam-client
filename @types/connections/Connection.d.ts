@@ -5,8 +5,7 @@
 
 import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
-import { Root } from 'protobufjs';
-import { SteamConnection, SteamConnectionOptions } from './SteamConnection.js';
+import { CachedProtos, SteamConnection, SteamConnectionOptions } from './SteamConnection.js';
 
 declare const EMsg: typeof import('../../resources/language/enums_clientserver.js').EMsg;
 
@@ -20,7 +19,7 @@ export interface ServiceMethodCall {
 
 export abstract class Connection extends SteamConnection {
     connect(options: SteamConnectionOptions): Promise<void>;
-    loadProtos(protos?: Root): Promise<Root>;
+    getCachedProtos(): Promise<CachedProtos>;
 
     /**
      * Send proto message
