@@ -2,7 +2,7 @@ import Long from 'long';
 import { ValueOf } from 'type-fest';
 import Steam from './Steam.js';
 import Language from './modules/language.js';
-import { PromiseTimeout, SteamClientError, allWithTimeout, isEmpty } from './modules/common.js';
+import { PromiseTimeout, SteamClientError, PromiseAllTimeout, isEmpty } from './modules/common.js';
 import { EOSType } from '../resources/language/enums.steamd.js';
 import type {
     CMsgClientAccountInfo,
@@ -140,7 +140,7 @@ export default class Client extends Steam {
         }
 
         // obtain all SteamAccount properties
-        const accountInfo = await allWithTimeout(
+        const accountInfo = await PromiseAllTimeout(
             [
                 this.player.getOwnedGames(),
                 getClientAccountInfo,

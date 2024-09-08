@@ -21,40 +21,40 @@ export function isEmpty(object: UnknownRecord) {
     return Object.keys(object).length === 0;
 }
 
-export async function PromiseTimeout<T>(p: PromiseLike<T>, options: { ms?: number; timeOutErrMsg: string }): Promise<Awaited<T>> {
-    let timer: NodeJS.Timeout;
-    const ms = options.ms || 15000;
+export async function PromiseTimeout<T>(promise: Promise<T>, options: { ms: number; timeOutErrMsg: string }) {
+    return new Promise<Awaited<T>>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            reject(new Error(options.timeOutErrMsg));
+        }, options.ms);
 
-    const timeOut = new Promise((_, reject) => {
-        timer = setTimeout(() => {
-            reject(new SteamClientError(options.timeOutErrMsg));
-        }, ms);
+        promise
+            .then((result) => {
+                resolve(result as Awaited<T>);
+            })
+            .catch((err) => {
+                reject(err);
+            })
+            .finally(() => {
+                clearTimeout(timeout);
+            });
     });
-
-    try {
-        const results = await Promise.race([p, timeOut]);
-        return results as Awaited<T>;
-    } finally {
-        clearTimeout(timer);
-    }
 }
 
-export async function allWithTimeout<T extends unknown[] | []>(
-    p: T,
-    options: { ms: number; timeOutErrMsg: string }
-): Promise<{ [P in keyof T]: Awaited<T[P]> }> {
-    let timer: NodeJS.Timeout;
-
-    const timeOut = new Promise((_, reject) => {
-        timer = setTimeout(() => {
-            reject(new SteamClientError(options.timeOutErrMsg));
+export async function PromiseAllTimeout<T extends unknown[] | []>(p: T, options: { ms: number; timeOutErrMsg: string }) {
+    return new Promise<{ [P in keyof T]: Awaited<T[P]> }>((resolve, reject) => {
+        const timeOut = setTimeout(() => {
+            reject(new Error(options.timeOutErrMsg));
         }, options.ms);
-    });
 
-    try {
-        const results = await Promise.race([Promise.allSettled(p), timeOut]);
-        return results as { [P in keyof T]: Awaited<T[P]> };
-    } finally {
-        clearTimeout(timer);
-    }
+        Promise.all(p)
+            .then((results) => {
+                resolve(results as { [P in keyof T]: Awaited<T[P]> });
+            })
+            .catch((err) => {
+                reject(err);
+            })
+            .finally(() => {
+                clearTimeout(timeOut);
+            });
+    });
 }
