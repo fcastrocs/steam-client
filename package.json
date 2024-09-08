@@ -33,29 +33,28 @@
     },
     "dependencies": {
         "long": "^5.2.3",
-        "node-fetch": "^3.3.2",
         "node-rsa": "^1.1.1",
-        "protobufjs": "^7.3.0",
-        "qrcode": "^1.5.3",
+        "protobufjs": "^7.4.0",
+        "qrcode": "^1.5.4",
         "smart-buffer": "^4.2.0",
-        "type-fest": "^4.18.2"
+        "type-fest": "^4.26.1"
     },
     "devDependencies": {
-        "@types/node": "^20.12.12",
+        "@types/node": "^22.5.4",
         "@types/node-rsa": "^1.1.4",
         "@types/qrcode": "^1.5.5",
-        "@typescript-eslint/eslint-plugin": "^7.9.0",
-        "@typescript-eslint/parser": "^7.9.0",
-        "eslint": "^8.2.0",
+        "@typescript-eslint/eslint-plugin": "^5.10.0",
+        "@typescript-eslint/parser": "^5.10.0",
+        "eslint": "^8.50.0",
         "eslint-config-airbnb-base": "^15.0.0",
-        "eslint-config-airbnb-typescript": "^18.0.0",
+        "eslint-config-airbnb-typescript": "^17.0.0",
         "eslint-config-prettier": "^9.1.0",
-        "eslint-plugin-import": "^2.25.2",
-        "husky": "^9.0.11",
-        "prettier": "^3.2.5",
-        "tsx": "^4.10.5",
-        "typescript": "^5.4.5",
-        "vitest": "^1.6.0"
+        "eslint-plugin-import": "^2.30.0",
+        "husky": "^9.1.5",
+        "prettier": "^3.3.3",
+        "tsx": "^4.19.0",
+        "typescript": "^5.5.4",
+        "vitest": "^2.0.5"
     },
     "repository": {
         "type": "git",

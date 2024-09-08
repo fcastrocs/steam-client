@@ -3,7 +3,6 @@
  */
 
 import fs from 'fs';
-import fetch from 'node-fetch';
 
 const PROTOS_PATH = 'resources/protos/';
 const PROTOS_URL = 'https://raw.githubusercontent.com/SteamDatabase/Protobufs/master/';
