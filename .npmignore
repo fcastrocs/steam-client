@@ -4,3 +4,5 @@ package-lock.json
 auth.json
 .eslintrc.json
 .gitignore
+performanceTest.js
+tsconfig.json
