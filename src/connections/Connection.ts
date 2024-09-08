@@ -55,7 +55,7 @@ export default abstract class Connection extends SteamConnection {
     }
 
     async connect(options: SteamConnectionOptions) {
-        await this.steamProtos.loadProtos();
+        await this.steamProtos.loadProtos(options.cachedProtos);
         await super.connect(options);
 
         this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
