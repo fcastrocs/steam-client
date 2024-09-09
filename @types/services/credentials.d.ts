@@ -1,11 +1,8 @@
 /* eslint-disable import/prefer-default-export */
-import { CCredentialsGetSteamGuardDetailsResponse } from '../protos/steammessages_credentials.steamclient.js';
-import { Steam } from '../Steam.js';
+
+import { Steam, CCredentialsGetSteamGuardDetailsResponse } from '../all-types';
 
 export class Credentials {
-    private steam;
-
-    private readonly serviceName;
     constructor(steam: Steam);
     getSteamGuardDetails(): Promise<CCredentialsGetSteamGuardDetailsResponse>;
 }

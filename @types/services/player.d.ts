@@ -1,11 +1,7 @@
 /* eslint-disable import/prefer-default-export */
-import { CPlayerGetOwnedGamesResponse } from '../protos/steammessages_player.steamclient.js';
-import { Steam } from '../Steam.js';
+import { Steam, CPlayerGetOwnedGamesResponse } from '../all-types.js';
 
 export class Player {
-    private steam;
-
-    private readonly serviceName;
     constructor(steam: Steam);
     getOwnedGames(options?: {
         appidsFilter?: number[];

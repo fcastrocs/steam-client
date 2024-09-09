@@ -1,12 +1,17 @@
 import { IterableElement, Merge, ValueOf } from 'type-fest';
-import { Steam } from './Steam.js';
-import { CMsgClientEmailAddrInfo, CMsgClientPlayingSessionState } from './protos/steammessages_clientserver_2.js';
-import { CPlayerGetOwnedGamesResponse } from './protos/steammessages_player.steamclient.js';
-import { CMsgClientPersonaState } from './protos/steammessages_clientserver_friends.js';
-import { CMsgClientAccountInfo, CMsgClientLogOnResponse } from './protos/steammessages_clientserver_login.js';
-import { CMsgClientIsLimitedAccount } from './protos/steammessages_clientserver.js';
-// import { Item } from './services/Econ.js';
-import { CMsgClientVACBanStatus } from './all-types.js';
+import {
+    Steam,
+    CMsgClientIsLimitedAccount,
+    CMsgClientAccountInfo,
+    CMsgClientLogOnResponse,
+    CAuthenticationPollAuthSessionStatusResponse,
+    CMsgClientVACBanStatus,
+    QrCode,
+    CMsgClientPersonaState,
+    CPlayerGetOwnedGamesResponse,
+    CMsgClientEmailAddrInfo,
+    CMsgClientPlayingSessionState
+} from './all-types.js';
 
 declare const EPersonaState: typeof import('../resources/language/enums.steamd.js').EPersonaState;
 
@@ -17,6 +22,10 @@ export class Client extends Steam {
     once(event: 'PlayingSessionState', listener: (state: CMsgClientPlayingSessionState) => void): this;
     on(event: 'disconnected', listener: (error: Error) => void): this;
     once(event: 'disconnected', listener: (error: Error) => void): this;
+    on(event: 'authTokens', listener: (authTokens: CAuthenticationPollAuthSessionStatusResponse) => void): this;
+    once(event: 'authTokens', listener: (authTokens: CAuthenticationPollAuthSessionStatusResponse) => void): this;
+    on(event: 'qrCode', listener: (qrCode: QrCode) => void): this;
+    once(event: 'qrCode', listener: (error: QrCode) => void): this;
 
     /**
      * login to steam via credentials or refresh_token
@@ -82,9 +91,6 @@ export interface SteamAccount {
     clientPersonaState: Friend;
     clientPlayingSessionState: CMsgClientPlayingSessionState;
     ownedGamesResponse: CPlayerGetOwnedGamesResponse['games'];
-    // inventory: {
-    //     steam: Item[];
-    // };
 }
 
 export interface JsonWebToken {

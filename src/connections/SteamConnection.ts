@@ -40,12 +40,13 @@ export default abstract class SteamConnection {
         this.timeout = this.options.timeout || 15000;
         this.cleanedUp = false;
 
-        this.proxySocket = new Socket();
-        this.proxySocket.setNoDelay(true);
-
         try {
             await new Promise<void>((resolve, reject) => {
-                this.handleConnectionEvents(this.proxySocket, reject);
+                if (this.options.httpProxy || this.options.socksProxy) {
+                    this.proxySocket = new Socket();
+                    this.proxySocket.setNoDelay(true);
+                    this.handleConnectionEvents(this.proxySocket, reject);
+                }
 
                 if (this.options.httpProxy) {
                     this.connectHttpProxy(resolve, reject);
@@ -73,12 +74,12 @@ export default abstract class SteamConnection {
         if (!this.cleanedUp) {
             if (this.socket) {
                 this.socket.destroy();
-                this.socket = null;
+                this.socket = undefined;
             }
 
             if (this.proxySocket) {
                 this.proxySocket.destroy();
-                this.proxySocket = null;
+                this.proxySocket = undefined;
             }
 
             this.emit('disconnected', error);
@@ -96,7 +97,7 @@ export default abstract class SteamConnection {
 
     private tlsUpgradeOrConnect(resolve: () => void, reject: (error: Error) => void) {
         const options: ConnectionOptions = {
-            socket: this.options.httpProxy || this.options.socksProxy ? this.proxySocket : undefined,
+            socket: this.proxySocket,
             host: this.url.hostname,
             port: Number(this.url.port),
             servername: this.url.hostname,
@@ -244,11 +245,11 @@ export default abstract class SteamConnection {
         ];
     }
 
-    protected emit(event: string, ...args: any[]) {
+    emit(event: string, ...args: any[]) {
         this.emitter.emit(event, ...args);
     }
 
-    protected removeListeners(eventName: string) {
+    removeListeners(eventName: string) {
         this.emitter.removeAllListeners(eventName);
     }
 

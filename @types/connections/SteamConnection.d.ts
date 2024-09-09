@@ -27,5 +27,6 @@ export abstract class SteamConnection {
     send(buffer: Uint8Array): void;
     on(event: string, listener: (...args: any[]) => void): void;
     once(event: string, listener: (...args: any[]) => void): void;
+    emit(event: string, ...args: any[]): void;
     disconnect(): void;
 }
