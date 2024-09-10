@@ -1,4 +1,4 @@
-import SteamClient, { Confirmation, Language, SteamConnectionOptions } from '../';
+import SteamClient, { Language, SteamConnectionOptions } from '../';
 import fs from 'fs';
 import { describe, it, assert, expect, test } from 'vitest';
 import { ValueOf } from 'type-fest';
@@ -7,7 +7,6 @@ import Long from 'long';
 const steamCM = { host: 'cmp2-iad1.steamserver.net', port: 27018 };
 
 type Auth = {
-    accountName: string;
     refreshToken: string;
     accessToken: string;
     machineName: string;
@@ -25,76 +24,74 @@ if (fs.existsSync('auth.json')) {
 describe.sequential('Steam-Client', () => {
     it('connection', async () => await connectToSteam());
 
-    it('QR Code', { timeout: 10000 }, async () => await getAuthTokensViaQR());
+    it('QR Code', { timeout: 60000 }, async () => await getAuthTokensViaQR());
 
-    //it("Get tokens via credentials", getAuthTokensViaCredentials, { timeout: 1 * 60 * 1000 });
+    // it('Get tokens via credentials', async () => await getAuthTokensViaCredentials(), { timeout: 1 * 60 * 1000 });
 
-    it('login', { timeout: 17 * 1000 }, login);
+    it('login', { timeout: 17 * 1000 }, async () => await login());
 
-    // it('get SteamId', () => {
-    //     expect(steam.steamId).not.toBe(Long.fromString('76561197960265728', true));
-    // });
+    it('Verify SteamId', () => {
+        expect(steam.steamId).not.toBe(Long.fromString('76561197960265728', true));
+    });
 
-    // it('setPlayerName', async () => {
-    //     changePlayerName('Makiaveli');
-    //     await ClientPersonaState('Makiaveli');
-    //     changePlayerName('Machiavelli');
-    //     await ClientPersonaState('Machiavelli');
-    // });
+    it('setPlayerName', async () => {
+        changePlayerName('Makiaveli');
+        await ClientPersonaState('Makiaveli');
+        changePlayerName('Machiavelli');
+        await ClientPersonaState('Machiavelli');
+    });
 
-    // it('setPersonaState', async () => {
-    //     await changePersonaState(Language.EPersonaState.Invisible);
-    // });
+    it('setPersonaState', async () => {
+        await changePersonaState(Language.EPersonaState.Invisible);
+    });
 
-    // it.concurrent('gamesPlayed', gamesPlayed);
+    //it.concurrent('gamesPlayed', gamesPlayed);
 
-    // it.concurrent('requestFreeLicense', requestFreeLicense);
+    it.concurrent('requestFreeLicense', async () => await requestFreeLicense());
 });
 
-// describe.sequential('Player Service', () => {
-//     it('getOwnedGames', async () => {
-//         const games = await steam.player.getOwnedGames();
-//         expect(games).toBeDefined();
-//         expect(Array.isArray(games)).toBeTruthy();
-//         expect(games!.length).toBeGreaterThan(0);
-//         expect(games![0]).toHaveProperty('gameid');
-//     });
-// });
+describe.sequential('Player Service', () => {
+    it('getOwnedGames', async () => {
+        const games = await steam.player.getOwnedGames();
+        expect(games).toBeDefined();
+        expect(Array.isArray(games)).toBeTruthy();
+        expect(games!.length).toBeGreaterThan(0);
+        expect(games![0]).toHaveProperty('gameid');
+    });
+});
 
-// describe.sequential('Econ Service', () => {
-//     it('getSteamContextItems', async () => {
-//         const items = await steam.econ.getSteamContextItems();
-//         expect(Array.isArray(items)).toBeTruthy();
-//         // expect(items.length).toBeGreaterThan(0);
-//         // expect(items[0].contextid).toBe("6");
-//     });
-// });
+describe.sequential('Econ Service', () => {
+    it('getSteamContextItems', async () => {
+        const items = await steam.econ.getSteamContextItems();
+        expect(Array.isArray(items)).toBeTruthy();
+    });
+});
 
-// describe.sequential('Credentials Service', () => {
-//     it('getSteamGuardDetails', async () => {
-//         const details = await steam.credentials.getSteamGuardDetails();
-//         expect(details.isSteamguardEnabled).toBeTruthy();
-//     });
-// });
+describe.sequential('Credentials Service', () => {
+    it('getSteamGuardDetails', async () => {
+        const details = await steam.credentials.getSteamGuardDetails();
+        expect(details.isSteamguardEnabled).toBeTruthy();
+    });
+});
 
-// describe.sequential('Auth Service', async () => {
-//     it('accessTokenGenerateForApp', accessTokenGenerateForApp);
-// });
+describe.sequential('Auth Service', async () => {
+    it('accessTokenGenerateForApp', async () => await accessTokenGenerateForApp());
+});
 
-// describe.sequential('Client Class continued', () => {
-//     it.concurrent('disconnect', () => {
-//         steam.disconnect();
-//     });
+describe.sequential('Client disconnect', () => {
+    it.concurrent('disconnect', () => {
+        steam.disconnect();
+    });
 
-//     it.concurrent('disconnected event', () => {
-//         steam.on('disconnected', (err) => {
-//             expect(err).toBe(undefined);
-//         });
-//     });
-//     it('isLoggedIn toBeFalsy', () => {
-//         expect(steam.isLoggedIn).toBeFalsy();
-//     });
-// });
+    it.concurrent('disconnected event', () => {
+        steam.on('disconnected', (err) => {
+            expect(err).toBe(undefined);
+        });
+    });
+    it('isLoggedIn toBeFalsy', () => {
+        expect(steam.isLoggedIn).toBeFalsy();
+    });
+});
 
 const connectToSteam = async () => {
     steam = new SteamClient();
@@ -103,22 +100,22 @@ const connectToSteam = async () => {
 };
 
 const getAuthTokensViaQR = async () => {
-    if (auth.accountName) return;
+    if (auth.refreshToken) return;
 
-    steam.on('waitingForConfirmation', (res: Confirmation) => {
-        expect(res.qrCode?.terminal).toBeDefined();
-        expect(res.qrCode?.image).toBeDefined();
-
-        console.log(res.qrCode?.terminal);
+    steam.on('qrCode', (qrCode) => {
+        expect(qrCode.image).toBeDefined();
+        expect(qrCode.terminal).toBeDefined();
+        console.log(qrCode.terminal);
     });
 
-    steam.auth.getAuthTokensViaQR();
+    const qrCode = await steam.auth.getAuthTokensViaQR();
 
-    return new Promise((resolve, reject) => {
+    console.log(qrCode.terminal);
+
+    return new Promise((resolve) => {
         // catch and save authTokens
         steam.on('authTokens', (authTokens) => {
             auth = {
-                accountName: authTokens.accountName,
                 refreshToken: authTokens.refreshToken,
                 accessToken: authTokens.accessToken,
                 machineName: steam.rememberedMachine.name,
@@ -126,10 +123,14 @@ const getAuthTokensViaQR = async () => {
             } as typeof auth;
             fs.writeFileSync(
                 'auth.json',
-                JSON.stringify({
-                    ...auth,
-                    machineId: auth.machineId.toString('hex')
-                })
+                JSON.stringify(
+                    {
+                        ...auth,
+                        machineId: auth.machineId.toString('hex')
+                    },
+                    null,
+                    2
+                )
             );
             resolve('success');
         });
@@ -207,24 +208,7 @@ const gamesPlayed = async () => {
 };
 
 const getAuthTokensViaCredentials = async () => {
-    // auth was preloaded
-
-    steam.on('waitingForConfirmation', (res: Confirmation) => console.log(res));
-    steam.auth.getAuthTokensViaCredentials('', '');
-
-    return new Promise((resolve, reject) => {
-        steam.on('authTokens', (authTokens) => {
-            auth = {
-                accountName: authTokens.accountName,
-                machineName: steam.rememberedMachine.name,
-                refreshToken: authTokens.refreshToken
-            } as typeof auth;
-            fs.writeFileSync('auth.json', JSON.stringify(auth));
-            resolve('success');
-        });
-
-        steam.on('getAuthTokensTimeout', reject);
-    });
+    await steam.auth.getAuthTokensViaCredentials('testuser', 'testpass');
 };
 
 const requestFreeLicense = async () => {

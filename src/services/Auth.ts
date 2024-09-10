@@ -55,7 +55,11 @@ export default class Auth {
             'BeginAuthSessionViaQR',
             {
                 deviceDetails: {
-                    deviceFriendlyName: this.steam.rememberedMachine.name
+                    deviceFriendlyName: this.steam.rememberedMachine.name,
+                    platformType: EAuthTokenPlatformType.SteamClient,
+                    osType: EOSType.Win11,
+                    gamingDeviceType: 1,
+                    machineId: this.steam.rememberedMachine.id
                 },
                 websiteId: 'Unknown'
             }
