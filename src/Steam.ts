@@ -49,7 +49,7 @@ function createMachineName() {
         chars[(Math.random() * 26) | 0] +
         chars[(Math.random() * 26) | 0] +
         chars[(Math.random() * 26) | 0];
-    return `DESKTOP-${name}-IDLE`;
+    return `DESKTOP-${name}`;
 }
 
 function createMachineId() {
