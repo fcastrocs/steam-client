@@ -1,7 +1,8 @@
 /* eslint-disable no-bitwise */
 /**
- * Handle websocket connection to steam
- * Connection via HTTP, Socks v4 and v5 supported
+ * Handle raw connections to Steam
+ * Catch connection errors/drops/timeouts
+ * Emits 'disconnected' if connection is lost
  */
 
 import { Socket } from 'net';

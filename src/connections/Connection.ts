@@ -1,7 +1,6 @@
 /* eslint-disable no-bitwise */
 /**
- * Handle low-level communication to steam.
- * Emits 'disconnected' if connection is lost
+ * Handle proto communication with Steam
  */
 
 import { SmartBuffer } from 'smart-buffer';

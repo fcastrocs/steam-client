@@ -1,7 +1,7 @@
 /* eslint-disable no-bitwise */
+
 /**
- * Handle websocket connection to steam
- * Connection via HTTP, Socks v4 and v5 supported
+ * Handle WebSocket connection to Steam
  */
 import crypto from 'crypto';
 import tls, { ConnectionOptions } from 'tls';
