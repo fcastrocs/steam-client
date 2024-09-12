@@ -240,7 +240,7 @@ export default abstract class Connection {
             const key = `${EMsgReceivedKey}Response` as keyof typeof EMsg;
             this.jobidTargets.set(EMsg[key], proto.jobidSource);
             // we have this.jobIdTimeout ms to response to this jobId
-            setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.connection.timeout);
+            setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.options.timeout);
         }
 
         // service method

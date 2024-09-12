@@ -5,34 +5,16 @@
  */
 import crypto from 'crypto';
 import tls, { ConnectionOptions } from 'tls';
-import { Socket } from 'net';
 import EventEmitter from 'events';
 import type { SteamConnectionOptions } from '../../@types';
-import { createWsBinaryFrame } from './util';
+import Base from './Base';
 
-export default class SteamWs {
-    private url: URL;
-
+export default class SteamWs extends Base {
     private handshakeKey: string;
 
-    private options: SteamConnectionOptions;
-
-    private cleanedUp: boolean;
-
-    private proxySocket: Socket;
-
-    private payload = {
-        buffer: Buffer.allocUnsafe(0),
-        length: 0
-    };
-
-    socket: Socket;
-
-    connected: boolean;
-
-    timeout: number;
-
-    constructor(private emitter: EventEmitter) {}
+    constructor(protected emitter: EventEmitter) {
+        super(emitter);
+    }
 
     async connect(options: SteamConnectionOptions): Promise<void> {
         if (this.connected) {
@@ -42,25 +24,14 @@ export default class SteamWs {
         this.options = options;
         this.url = new URL(`wss://${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`);
         this.handshakeKey = crypto.randomBytes(16).toString('base64');
-        this.timeout = this.options.timeout || 15000;
+        this.options.timeout = this.options.timeout || 15000;
         this.cleanedUp = false;
 
         try {
-            await new Promise<void>((resolve, reject) => {
-                if (this.options.httpProxy || this.options.socksProxy) {
-                    this.proxySocket = new Socket();
-                    this.proxySocket.setNoDelay(true);
-                    this.handleConnectionEvents(this.proxySocket, reject);
-                }
-
-                if (this.options.httpProxy) {
-                    this.connectHttpProxy(resolve, reject);
-                } else if (this.options.socksProxy) {
-                    this.connectSocksProxy(resolve, reject);
-                } else {
-                    this.tlsUpgradeOrConnect(resolve, reject);
-                }
-            });
+            // connect to proxy if one was specified
+            await this.connectToProxy();
+            // upgrade or connect via tls
+            await this.tlsUpgradeOrConnect();
 
             this.connected = true;
         } catch (error) {
@@ -73,39 +44,14 @@ export default class SteamWs {
         this.cleanUp();
     }
 
-    private cleanUp(error?: Error) {
-        this.connected = false;
-
-        if (!this.cleanedUp) {
-            if (this.socket) {
-                this.socket.destroy();
-                this.socket = undefined;
-            }
-
-            if (this.proxySocket) {
-                this.proxySocket.destroy();
-                this.proxySocket = undefined;
-            }
-
-            this.payload = {
-                buffer: Buffer.allocUnsafe(0),
-                length: 0
-            };
-
-            this.emitter.emit('disconnected', error);
-        }
-
-        this.cleanedUp = true;
-    }
-
     send(buffer: Buffer) {
         if (this.connected) {
-            const frame = createWsBinaryFrame(buffer);
+            const frame = this.createBinaryFrame(buffer);
             this.socket.write(frame);
         }
     }
 
-    private tlsUpgradeOrConnect(resolve: () => void, reject: (error: Error) => void) {
+    private tlsUpgradeOrConnect() {
         const options: ConnectionOptions = {
             socket: this.proxySocket,
             host: this.url.hostname,
@@ -117,129 +63,23 @@ export default class SteamWs {
             rejectUnauthorized: true
         };
 
-        if (!this.cleanedUp) {
-            this.socket = tls.connect(options, () => {
-                this.socket.setNoDelay(true);
-                this.socket.write(this.generateHeaders().join('\r\n'));
-            });
+        return new Promise<void>((resolve, reject) => {
+            if (!this.cleanedUp) {
+                this.socket = tls.connect(options, () => {
+                    this.socket.setNoDelay(true);
+                    this.socket.write(this.generateHeaders().join('\r\n'));
+                });
 
-            this.handleConnectionEvents(this.socket, reject);
+                this.handleConnectionEvents(this.socket, reject);
 
-            this.socket.once('data', (data) => {
-                if (data && data.toString().includes('Sec-WebSocket-Accept')) {
-                    resolve();
-                } else {
-                    reject(new Error(data.toString()));
-                }
-            });
-        }
-    }
-
-    private connectHttpProxy(resolve: () => void, reject: (error: Error) => void) {
-        const { port: proxyPort, host: proxyHost, user, pass } = this.options.httpProxy;
-
-        this.proxySocket.connect({ port: proxyPort, host: proxyHost }, () => {
-            this.proxySocket.write(`CONNECT ${this.url.hostname}:${this.url.port} HTTP/1.1\r\n`);
-            this.proxySocket.write(`Host: ${this.url.hostname}:${this.url.port}\r\n`);
-            if (user && pass) {
-                const credentials = Buffer.from(`${user}:${pass}`).toString('base64');
-                this.proxySocket.write(`Proxy-Authorization: Basic ${credentials}\r\n`);
+                this.socket.once('data', (data) => {
+                    if (data && data.toString().includes('Sec-WebSocket-Accept')) {
+                        resolve();
+                    } else {
+                        reject(new Error(data.toString()));
+                    }
+                });
             }
-            this.proxySocket.write('Connection: Keep-Alive\r\n\r\n');
-        });
-
-        this.proxySocket.once('data', (data) => {
-            const response = data.toString();
-            if (response.includes('200 Connection established')) {
-                this.tlsUpgradeOrConnect(resolve, reject);
-                return;
-            }
-
-            reject(new Error(`HTTP Proxy Error could not establish tunnel to remote host.\n${response}`));
-        });
-    }
-
-    private connectSocksProxy(resolve: () => void, reject: (error: Error) => void) {
-        const { host, port, version } = this.options.socksProxy;
-
-        this.proxySocket.connect(port, host, () => {
-            if (version === 5) {
-                this.socks5HandShake(resolve, reject);
-            }
-        });
-    }
-
-    private socks5HandShake(resolve: () => void, reject: (error: Error) => void) {
-        const { user, pass } = this.options.socksProxy;
-        const hasAuthentication = user && pass;
-
-        const handshake = Buffer.from([
-            0x05, // SOCKS5 version
-            0x01, // Number of authentication methods supported
-            hasAuthentication ? 0x02 : 0x00 // type of authentication
-        ]);
-
-        this.proxySocket.write(handshake);
-
-        this.proxySocket.once('data', (data) => {
-            if (data[0] !== 0x05) {
-                reject(new Error('SOCKS5 error invalid response.'));
-                return;
-            }
-
-            if (data[1] !== 0x00) {
-                reject(new Error('SOCKS5 error authentication failed.'));
-                return;
-            }
-
-            const request = Buffer.from([
-                0x05, // SOCKS5 version
-                0x01, // CONNECT command
-                0x00, // Reserved
-                0x03, // Address type: domain name
-                this.url.hostname.length, // Length of the domain name
-                ...Buffer.from(this.url.hostname), // Domain name
-                (Number(this.url.port) >> 8) & 0xff, // High byte of destination port
-                Number(this.url.port) & 0xff // Low byte of destination port
-            ]);
-
-            this.proxySocket.write(request);
-
-            this.proxySocket.once('data', (response) => {
-                if (response[1] !== 0x00) {
-                    reject(new Error('SOCKS5 error remote host connection failed.'));
-                    return;
-                }
-                this.tlsUpgradeOrConnect(resolve, reject);
-            });
-        });
-    }
-
-    private handleConnectionEvents(socket: Socket, reject: (err: Error) => void) {
-        socket.setTimeout(this.timeout);
-
-        const cb = (error?: Error) => {
-            this.cleanUp(error);
-
-            if (!this.connected) {
-                reject(error);
-            }
-        };
-
-        socket.on('error', (error) => {
-            cb(error);
-        });
-
-        socket.on('end', () => {
-            cb(new Error('Connection ended.'));
-        });
-
-        socket.on('close', () => {
-            cb(new Error('Connection closed.'));
-        });
-
-        socket.on('timeout', () => {
-            cb(new Error('Connection timedout.'));
         });
     }
 
