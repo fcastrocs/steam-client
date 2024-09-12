@@ -9,6 +9,7 @@ import Long from 'long';
 import { UnknownRecord, ValueOf } from 'type-fest';
 import { gunzip } from 'zlib';
 import { promisify } from 'util';
+import EventEmitter from 'events';
 import SteamProtos from '../modules/SteamProtos.js';
 import Language from '../modules/language.js';
 import type {
@@ -18,8 +19,8 @@ import type {
     ServiceMethodCall,
     SteamConnectionOptions
 } from '../../@types/index.js';
-import SteamConnection from './SteamConnection.js';
-import { getPayloadFromWsFrame } from './util.js';
+import SteamWebSocket from './SteamWs.js';
+import SteamTcp from './SteamTcp.js';
 
 const gunzipAsync = promisify(gunzip);
 
@@ -28,7 +29,7 @@ const DEFAULT_STEAMID = Long.fromString('76561197960265728', true);
 const JOB_NONE = Long.fromString('18446744073709551615', true);
 const PROTO_MASK = 0x80000000;
 
-export default abstract class Connection extends SteamConnection {
+export default abstract class Connection {
     private heartBeat: NodeJS.Timeout;
 
     private readonly serviceMethodCalls: Map<string, ServiceMethodCall> = new Map();
@@ -41,34 +42,53 @@ export default abstract class Connection extends SteamConnection {
 
     private timeouts: NodeJS.Timeout[] = [];
 
+    private connection: SteamWebSocket | SteamTcp;
+
+    private readonly emitter = new EventEmitter();
+
     private session = {
         clientId: 0,
         steamId: DEFAULT_STEAMID
     };
 
-    constructor() {
-        super();
+    protected options: SteamConnectionOptions;
 
+    constructor() {
         this.on('disconnected', () => {
             this.resetState();
         });
     }
 
     async connect(options: SteamConnectionOptions) {
+        this.options = options;
         await this.steamProtos.loadProtos(options.cachedProtos);
-        await super.connect(options);
+
+        if (!this.options.protocal || this.options.protocal === 'ws') {
+            this.connection = new SteamWebSocket(this.emitter);
+        } else {
+            this.connection = new SteamTcp(this.emitter);
+        }
+
+        await this.connection.connect(options);
 
         this.sendProto(EMsg.ClientHello, { protocolVersion: 65580 });
 
-        this.socket.on('data', (data) => {
-            const payload = getPayloadFromWsFrame(data);
+        this.connection.socket.on('data', (data) => {
+            const payload = this.connection.getPayloadFromFrame(data);
             if (payload) {
                 this.decodeData(payload);
             }
         });
     }
 
+    disconnect() {
+        if (this.connection) {
+            this.connection.disconnect();
+        }
+    }
+
     private resetState() {
+        this.connection = null;
         this.session.clientId = 0;
         this.session.steamId = DEFAULT_STEAMID;
         clearInterval(this.heartBeat);
@@ -89,7 +109,7 @@ export default abstract class Connection extends SteamConnection {
     public sendProto(eMsg: ValueOf<typeof EMsg>, payload: UnknownRecord) {
         const protoHeader = this.buildProtoHeader(eMsg);
         const body = this.steamProtos.encode(`CMsg${EMsgMap.get(eMsg)}`, payload);
-        this.send(Buffer.concat([protoHeader, body]));
+        this.connection.send(Buffer.concat([protoHeader, body]));
     }
 
     /**
@@ -122,7 +142,7 @@ export default abstract class Connection extends SteamConnection {
             const timeout = setTimeout(() => {
                 this.serviceMethodCalls.delete(jobidSource.toString());
                 reject(new Error('ServiceMethodCall Response timeout.'));
-            }, this.timeout);
+            }, this.options.timeout);
 
             this.timeouts.push(timeout);
 
@@ -144,12 +164,17 @@ export default abstract class Connection extends SteamConnection {
             const protoHeader = this.buildProtoHeader(serviceMethodEMsg, serviceMethodCall);
             const buffer = this.steamProtos.encode(`${newMethod}_Request`, body);
 
-            this.send(Buffer.concat([protoHeader, buffer]));
+            this.connection.send(Buffer.concat([protoHeader, buffer]));
         });
     }
 
     public get isLoggedIn() {
-        return this.connected && this.session.steamId !== DEFAULT_STEAMID && this.session.clientId !== 0;
+        return (
+            this.connection &&
+            this.connection.connected &&
+            this.session.steamId !== DEFAULT_STEAMID &&
+            this.session.clientId !== 0
+        );
     }
 
     public get steamId() {
@@ -215,7 +240,7 @@ export default abstract class Connection extends SteamConnection {
             const key = `${EMsgReceivedKey}Response` as keyof typeof EMsg;
             this.jobidTargets.set(EMsg[key], proto.jobidSource);
             // we have this.jobIdTimeout ms to response to this jobId
-            setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.timeout);
+            setTimeout(() => this.jobidTargets.delete(EMsg[key]), this.connection.timeout);
         }
 
         // service method
@@ -319,5 +344,21 @@ export default abstract class Connection extends SteamConnection {
             this.decodeData(body.subarray(4, 4 + subSize));
             body = body.subarray(4 + subSize);
         }
+    }
+
+    emit(event: string, ...args: any[]) {
+        this.emitter.emit(event, ...args);
+    }
+
+    removeListeners(eventName: string) {
+        this.emitter.removeAllListeners(eventName);
+    }
+
+    on(event: string, listener: (...args: any[]) => void) {
+        this.emitter.on(event, listener);
+    }
+
+    once(event: string, listener: (...args: any[]) => void) {
+        this.emitter.once(event, listener);
     }
 }

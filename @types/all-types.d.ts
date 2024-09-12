@@ -1,6 +1,5 @@
 export * from './Client.js';
 export * from './connections/Connection.js';
-export * from './connections/SteamConnection.js';
 export * from './modules/common.js';
 export * from './modules/language.js';
 export * from './protos/contenthubs.js';

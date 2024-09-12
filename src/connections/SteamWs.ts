@@ -10,26 +10,31 @@ import EventEmitter from 'events';
 import type { SteamConnectionOptions } from '../../@types';
 import { createWsBinaryFrame } from './util';
 
-export default abstract class SteamConnection {
+export default class SteamWs {
     private url: URL;
 
     private handshakeKey: string;
-
-    private readonly emitter = new EventEmitter();
 
     private options: SteamConnectionOptions;
 
     private cleanedUp: boolean;
 
-    protected socket: Socket;
-
     private proxySocket: Socket;
 
-    protected connected: boolean;
+    private payload = {
+        buffer: Buffer.allocUnsafe(0),
+        length: 0
+    };
+
+    socket: Socket;
+
+    connected: boolean;
 
     timeout: number;
 
-    protected async connect(options: SteamConnectionOptions): Promise<void> {
+    constructor(private emitter: EventEmitter) {}
+
+    async connect(options: SteamConnectionOptions): Promise<void> {
         if (this.connected) {
             throw new Error('Already Connected');
         }
@@ -82,7 +87,12 @@ export default abstract class SteamConnection {
                 this.proxySocket = undefined;
             }
 
-            this.emit('disconnected', error);
+            this.payload = {
+                buffer: Buffer.allocUnsafe(0),
+                length: 0
+            };
+
+            this.emitter.emit('disconnected', error);
         }
 
         this.cleanedUp = true;
@@ -245,19 +255,80 @@ export default abstract class SteamConnection {
         ];
     }
 
-    emit(event: string, ...args: any[]) {
-        this.emitter.emit(event, ...args);
+    public createBinaryFrame(data: Buffer): Buffer {
+        if (!this.connected) return null;
+
+        const { length } = data;
+        let payloadBuffer: Buffer;
+        const maskKey = Buffer.allocUnsafe(4);
+        maskKey.writeUInt32BE(Math.floor(Math.random() * 0xffffffff));
+
+        let offset = 0;
+
+        // Determine payload length and allocate buffer accordingly
+        if (length < 126) {
+            payloadBuffer = Buffer.allocUnsafe(6 + length);
+            payloadBuffer[1] = 0x80 | length;
+            offset = 6; // Header (2 bytes) + Mask key (4 bytes)
+        } else if (length < 65536) {
+            payloadBuffer = Buffer.allocUnsafe(8 + length);
+            payloadBuffer[1] = 0x80 | 126;
+            payloadBuffer.writeUInt16BE(length, 2);
+            offset = 8; // Header (2 bytes) + Length (2 bytes) + Mask key (4 bytes)
+        } else {
+            payloadBuffer = Buffer.allocUnsafe(14 + length);
+            payloadBuffer[1] = 0x80 | 127;
+            payloadBuffer.writeBigUInt64BE(BigInt(length), 2);
+            offset = 14; // Header (2 bytes) + Length (8 bytes) + Mask key (4 bytes)
+        }
+
+        // Set FIN and Opcode for binary data, and add mask key
+        payloadBuffer[0] = 0x82;
+        payloadBuffer.set(maskKey, offset - 4);
+
+        // XOR payload data with masking key
+        for (let i = 0; i < length; i += 1) {
+            payloadBuffer[offset + i] = data[i] ^ maskKey[i % 4];
+        }
+
+        return payloadBuffer;
     }
 
-    removeListeners(eventName: string) {
-        this.emitter.removeAllListeners(eventName);
-    }
+    public getPayloadFromFrame(data: Buffer): Buffer {
+        if (!data.length) return null;
 
-    on(event: string, listener: (...args: any[]) => void) {
-        this.emitter.on(event, listener);
-    }
+        // new binary message
+        if (data[0] === 0x82) {
+            this.payload.buffer = Buffer.alloc(0);
+            this.payload.length = 0;
 
-    once(event: string, listener: (...args: any[]) => void) {
-        this.emitter.once(event, listener);
+            this.payload.length = data[1] & 0x7f;
+            let offset = 2;
+
+            if (this.payload.length === 126) {
+                this.payload.length = data.readUInt16BE(2);
+                offset += 2;
+            } else if (this.payload.length === 127) {
+                this.payload.length = Number(data.readBigUInt64BE(2)); // Use BigInt for 64-bit length
+                offset += 8;
+            }
+
+            // Extract the payload
+            this.payload.buffer = data.subarray(offset, offset + this.payload.length);
+        }
+        // this should be a continuation of the binary message, if not it will get discarded by a new message
+        else if (this.payload.buffer.length) {
+            this.payload.buffer = Buffer.concat([
+                this.payload.buffer,
+                data.subarray(0, this.payload.length - this.payload.buffer.length)
+            ]);
+        }
+
+        // done
+        if (this.payload.buffer.length >= this.payload.length) {
+            return this.payload.buffer;
+        }
+
+        return null;
     }
 }

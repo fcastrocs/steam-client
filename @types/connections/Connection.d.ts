@@ -4,10 +4,34 @@
  */
 
 import Long from 'long';
+import { Root } from 'protobufjs';
 import { UnknownRecord, ValueOf } from 'type-fest';
-import { CachedProtos, SteamConnection, SteamConnectionOptions } from './SteamConnection.js';
 
 declare const EMsg: typeof import('../../resources/language/enums_clientserver.js').EMsg;
+
+export interface Server {
+    host: string;
+    port: number;
+}
+
+export interface Authentication {
+    user?: string;
+    pass?: string;
+}
+
+export interface SteamConnectionOptions {
+    steamCM: Server;
+    httpProxy?: Server & Authentication;
+    socksProxy?: Server & Authentication & { version: 4 | 5 };
+    timeout: number;
+    cachedProtos?: CachedProtos;
+    protocal?: 'ws' | 'tcp';
+}
+
+export interface CachedProtos {
+    protosRoot: Root;
+    preloadedTypes: Map<string, Type>;
+}
 
 export interface ServiceMethodCall {
     method: string;
@@ -17,8 +41,9 @@ export interface ServiceMethodCall {
     timeout: NodeJS.Timeout;
 }
 
-export abstract class Connection extends SteamConnection {
+export abstract class Connection {
     connect(options: SteamConnectionOptions): Promise<void>;
+    disconnect(): void;
     getCachedProtos(): Promise<CachedProtos>;
 
     /**
@@ -36,4 +61,8 @@ export abstract class Connection extends SteamConnection {
     get isLoggedIn(): boolean;
     get steamId(): Long;
     setSteamId(steamId: string): void;
+
+    on(event: string, listener: (...args: any[]) => void): void;
+    once(event: string, listener: (...args: any[]) => void): void;
+    emit(event: string, ...args: any[]): void;
 }

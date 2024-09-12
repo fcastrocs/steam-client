@@ -131,7 +131,7 @@ export default class Client extends Steam {
         // send login request to steam
         const loginRes: CMsgClientLogOnResponse = await PromiseTimeout(
             this.sendProtoPromise(EMsg.ClientLogon, logonOptions, EMsg.ClientLogOnResponse),
-            { ms: this.timeout, timeOutErrMsg: 'ClientLogon took too long' }
+            { ms: this.options.timeout, timeOutErrMsg: 'ClientLogon took too long' }
         );
 
         // bad login
@@ -151,7 +151,7 @@ export default class Client extends Steam {
                 getClientPlayingSessionState
             ],
             {
-                ms: this.timeout,
+                ms: this.options.timeout,
                 timeOutErrMsg: 'Steam failed to send all steam account properties before timeout.'
             }
         );
