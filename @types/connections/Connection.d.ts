@@ -25,7 +25,7 @@ export interface SteamConnectionOptions {
     socksProxy?: Server & Authentication & { version: 4 | 5 };
     timeout: number;
     cachedProtos?: CachedProtos;
-    protocal?: 'ws' | 'tcp';
+    protocol?: 'ws' | 'tcp';
 }
 
 export interface CachedProtos {

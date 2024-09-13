@@ -1,6 +1,6 @@
 {
     "name": "@fcastrocs/steamclient",
-    "version": "4.0.1",
+    "version": "4.1.0",
     "main": "./dist/src/index.js",
     "types": "./@types/index.d.ts",
     "scripts": {
@@ -32,6 +32,7 @@
         "node": ">=18.16.0"
     },
     "dependencies": {
+        "@fcastrocs/steam-client-crypto": "^1.0.8",
         "long": "^5.2.3",
         "node-rsa": "^1.1.1",
         "protobufjs": "^7.4.0",

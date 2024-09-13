@@ -12,6 +12,8 @@ import Base from './Base';
 export default class SteamWs extends Base {
     private handshakeKey: string;
 
+    private url: URL;
+
     constructor(protected emitter: EventEmitter) {
         super(emitter);
     }
@@ -21,16 +23,15 @@ export default class SteamWs extends Base {
             throw new Error('Already Connected');
         }
 
-        this.options = options;
+        this.beforeConnect(options);
+
         this.url = new URL(`wss://${this.options.steamCM.host}:${this.options.steamCM.port}/cmsocket/`);
         this.handshakeKey = crypto.randomBytes(16).toString('base64');
-        this.options.timeout = this.options.timeout || 15000;
-        this.cleanedUp = false;
 
         try {
-            // connect to proxy if one was specified
-            await this.connectToProxy();
-            // upgrade or connect via tls
+            // connect via proxy if one was specified
+            await this.connectViaProxy();
+            // upgrade connection or connect directly via tls
             await this.tlsUpgradeOrConnect();
 
             this.connected = true;
@@ -139,9 +140,6 @@ export default class SteamWs extends Base {
 
         // new binary message
         if (data[0] === 0x82) {
-            this.payload.buffer = Buffer.alloc(0);
-            this.payload.length = 0;
-
             this.payload.length = data[1] & 0x7f;
             let offset = 2;
 
@@ -166,7 +164,9 @@ export default class SteamWs extends Base {
 
         // done
         if (this.payload.buffer.length >= this.payload.length) {
-            return this.payload.buffer;
+            const payload = this.payload.buffer;
+            this.resetPayloadState();
+            return payload;
         }
 
         return null;

@@ -62,7 +62,7 @@ export default abstract class Connection {
         this.options = options;
         await this.steamProtos.loadProtos(options.cachedProtos);
 
-        if (!this.options.protocal || this.options.protocal === 'ws') {
+        if (!this.options.protocol || this.options.protocol === 'ws') {
             this.connection = new SteamWebSocket(this.emitter);
         } else {
             this.connection = new SteamTcp(this.emitter);

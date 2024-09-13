@@ -4,7 +4,8 @@ import { describe, it, assert, expect, test } from 'vitest';
 import { ValueOf } from 'type-fest';
 import Long from 'long';
 
-const steamCM = { host: 'cmp2-iad1.steamserver.net', port: 27018 };
+// const steamCM = { host: 'cmp2-iad1.steamserver.net', port: 27018 };
+const steamCM = { host: '162.254.195.71', port: 27017 };
 
 type Auth = {
     refreshToken: string;
@@ -95,7 +96,7 @@ describe.sequential('Client disconnect', () => {
 
 const connectToSteam = async () => {
     steam = new SteamClient();
-    const options: SteamConnectionOptions = { steamCM, timeout: 15000 };
+    const options: SteamConnectionOptions = { steamCM, timeout: 15000, protocol: 'tcp' };
     await steam.connect(options);
 };
 

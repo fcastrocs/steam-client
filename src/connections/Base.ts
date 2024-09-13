@@ -10,8 +10,6 @@ import EventEmitter from 'events';
 import type { SteamConnectionOptions } from '../../@types';
 
 export default abstract class Base {
-    protected url: URL;
-
     protected options: SteamConnectionOptions;
 
     protected cleanedUp: boolean;
@@ -29,11 +27,17 @@ export default abstract class Base {
 
     constructor(protected emitter: EventEmitter) {}
 
+    protected beforeConnect(options: SteamConnectionOptions) {
+        this.options = options;
+        this.options.timeout = this.options.timeout || 15000;
+        this.cleanedUp = false;
+    }
+
     protected disconnect() {
         this.cleanUp();
     }
 
-    protected connectToProxy() {
+    protected connectViaProxy() {
         return new Promise<void>((resolve, reject) => {
             if (this.options.httpProxy || this.options.socksProxy) {
                 this.proxySocket = new Socket();
@@ -106,10 +110,11 @@ export default abstract class Base {
 
     private connectHttpProxy(resolve: () => void, reject: (error: Error) => void) {
         const { port: proxyPort, host: proxyHost, user, pass } = this.options.httpProxy;
+        const { host: steamHost, port: steamPort } = this.options.steamCM;
 
         this.proxySocket.connect({ port: proxyPort, host: proxyHost }, () => {
-            this.proxySocket.write(`CONNECT ${this.url.hostname}:${this.url.port} HTTP/1.1\r\n`);
-            this.proxySocket.write(`Host: ${this.url.hostname}:${this.url.port}\r\n`);
+            this.proxySocket.write(`CONNECT ${steamHost}:${steamPort} HTTP/1.1\r\n`);
+            this.proxySocket.write(`Host: ${steamHost}:${steamPort}\r\n`);
             if (user && pass) {
                 const credentials = Buffer.from(`${user}:${pass}`).toString('base64');
                 this.proxySocket.write(`Proxy-Authorization: Basic ${credentials}\r\n`);
@@ -140,6 +145,7 @@ export default abstract class Base {
 
     private socks5HandShake(resolve: () => void, reject: (error: Error) => void) {
         const { user, pass } = this.options.socksProxy;
+        const { host: steamHost, port: steamPort } = this.options.steamCM;
         const hasAuthentication = user && pass;
 
         const handshake = Buffer.from([
@@ -165,18 +171,18 @@ export default abstract class Base {
             let addressBuffer;
 
             // Check if it's an IP address or domain name
-            if (isIpAddress(this.url.hostname)) {
+            if (isIpAddress(steamHost)) {
                 // IPv4 case
                 addressType = 0x01; // Address type: IPv4
-                addressBuffer = Buffer.from(this.url.hostname.split('.').map(Number)); // Convert IP to byte array
-            } else if (isIpv6Address(this.url.hostname)) {
+                addressBuffer = Buffer.from(steamHost.split('.').map(Number)); // Convert IP to byte array
+            } else if (isIpv6Address(steamHost)) {
                 // IPv6 case
                 addressType = 0x04; // Address type: IPv6
-                addressBuffer = Buffer.from(this.url.hostname.split(':').map((part) => parseInt(part, 16))); // Convert IPv6 to byte array
+                addressBuffer = Buffer.from(steamHost.split(':').map((part) => parseInt(part, 16))); // Convert IPv6 to byte array
             } else {
                 // Domain name case
                 addressType = 0x03; // Address type: domain name
-                addressBuffer = Buffer.from([this.url.hostname.length, ...Buffer.from(this.url.hostname)]); // Domain name with length prefix
+                addressBuffer = Buffer.from([steamHost.length, ...Buffer.from(steamHost)]); // Domain name with length prefix
             }
 
             const request = Buffer.concat([
@@ -188,8 +194,8 @@ export default abstract class Base {
                 ]),
                 addressBuffer,
                 Buffer.from([
-                    (Number(this.url.port) >> 8) & 0xff, // High byte of destination port
-                    Number(this.url.port) & 0xff // Low byte of destination port
+                    (Number(steamPort) >> 8) & 0xff, // High byte of destination port
+                    Number(steamPort) & 0xff // Low byte of destination port
                 ])
             ]);
 
@@ -203,6 +209,11 @@ export default abstract class Base {
                 resolve();
             });
         });
+    }
+
+    protected resetPayloadState(): void {
+        this.payload.buffer = Buffer.alloc(0);
+        this.payload.length = 0;
     }
 }
 
