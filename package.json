@@ -1,6 +1,6 @@
 {
     "name": "@fcastrocs/steamclient",
-    "version": "4.1.0",
+    "version": "4.1.1",
     "main": "./dist/src/index.js",
     "types": "./@types/index.d.ts",
     "scripts": {

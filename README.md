@@ -1,5 +1,18 @@
-A blazing fast Steam Client in Node.js with the smallest overhead possible while keeping the code simple, and readable. No libraries have been imported to make the Steam connection, this was done in pure Node.js.
-If you are looking for a complete Steam Client implementation, this is not it. However, if you are looking for a base to start your own project and value performance, and like TypeScript, then this is it.
+# Steam Client
 
-Connection to Steam is done via Steam CM WebSockets or TCP.
-Connecting via HTTP and Socks v5 proxies are supported.
+A blazing fast Steam Client in Node.js with minimal overhead and clean, readable code.
+
+Avoid using this library if you need a full-featured Steam Client. However, if you’re looking for a high-performance base to kickstart your own project and prefer TypeScript, this is a great choice. It’s designed to be easily extended with any unimplemented Steam protos.
+
+Protocols supported: TCP and WS
+Proxies supported: HTTP and Socks v5
+
+## Installation
+
+```shell
+npm i @fcastrocs/steamclient
+```
+
+## Usage
+
+coming soon
