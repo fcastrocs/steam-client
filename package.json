@@ -7,9 +7,8 @@
         "prepare": "husky",
         "build": "tsc",
         "prepublishOnly": "tsc",
-        "buildResources": "npx tsx ./scripts/index.ts",
-        "gen-types": "npx tsx ./scripts/generate-types.ts",
-        "test": "tsc && vitest",
+        "generate-resources": "npx tsx ./scripts/index.ts",
+        "test-suite": "tsc && vitest",
         "lint": "eslint --ext .ts src",
         "lint:fix": "eslint --fix --ext .ts .",
         "format": "prettier . --write"

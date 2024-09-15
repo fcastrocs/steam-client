@@ -1,12 +1,29 @@
+/**
+ * This Script bundles all .d.ts files into a single all-types.d.ts file that is then exported by index.d.ts
+ */
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Helper to get __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function generateIndex(dir, indexFile) {
+export default function bundleTsTypes() {
+    const typesDir = path.resolve(__dirname, '../@types');
+    const allTypesFile = path.join(typesDir, 'all-types.d.ts');
+
+    // Delete all-types.d.ts
+    if (fs.existsSync(allTypesFile)) {
+        fs.unlinkSync(allTypesFile);
+    }
+
+    // Generate the all-types.d.ts file
+    processTypeFiles(typesDir, allTypesFile);
+    console.log('all-types.d.ts generated successfully.');
+}
+
+function processTypeFiles(dir, indexFile) {
     const files = fs.readdirSync(dir);
 
     files.forEach((file) => {
@@ -15,7 +32,7 @@ function generateIndex(dir, indexFile) {
         const importPath = relativePath.replace('.d.ts', '') + '.js'; // Append .js
 
         if (fs.statSync(fullPath).isDirectory()) {
-            generateIndex(fullPath, indexFile);
+            processTypeFiles(fullPath, indexFile);
         } else if (file.endsWith('.d.ts') && file !== 'index.d.ts') {
             const fileContent = fs.readFileSync(fullPath, 'utf-8');
             let exportStatement = '';
@@ -31,13 +48,3 @@ function generateIndex(dir, indexFile) {
         }
     });
 }
-
-const typesDir = path.resolve(__dirname, '../@types');
-const indexFile = path.join(typesDir, 'all-types.d.ts');
-
-// Clear the existing index.d.ts file
-fs.writeFileSync(indexFile, '');
-
-// Generate the index.d.ts file
-generateIndex(typesDir, indexFile);
-console.log('all-types.d.ts generated successfully.');
