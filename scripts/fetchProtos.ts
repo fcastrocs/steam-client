@@ -37,7 +37,7 @@ export default async function fetchProtos() {
     PROTOS.forEach(async (proto) => {
         let text = await fetch(`${PROTOS_URL}/steam/${proto}`).then((res) => res.text());
 
-        // bug fix, incorrectly named proto
+        // rename incorrectly named proto message
         if (proto === 'steammessages_clientserver_login.proto') {
             text = text.replace('CMsgClientLogonResponse', 'CMsgClientLogOnResponse');
         }
