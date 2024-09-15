@@ -30,9 +30,9 @@ export default async function main() {
  */
 async function extractEnumsAndProtoTypes() {
     const steamProtos = new SteamProtos('../../resources/protos');
-    const root = await steamProtos.loadProtos();
-    if (!root.nested) return;
-    const nested = root.nested;
+    const cachedProtos = await steamProtos.loadProtos();
+    if (!cachedProtos.protosRoot.nested) return;
+    const nested = cachedProtos.protosRoot.nested;
 
     Object.keys(nested).forEach((key) => {
         const item = nested[key];

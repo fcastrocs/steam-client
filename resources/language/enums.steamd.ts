@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Sun Sep 08 2024 19:32:33 GMT-0400 (Eastern Daylight Time)
+ * Sun Sep 15 2024 13:21:57 GMT-0400 (Eastern Daylight Time)
  */
 
 export enum EUniverse {
@@ -136,36 +136,6 @@ export enum EFriendFlags {
 	Suggested = 2048,
 	ChatMember = 4096,
 	FlagAll = 65535,
-}
-
-export enum EPersonaStateFlag {
-	HasRichPresence = 1,
-	InJoinableGame = 2,
-	Golden = 4,
-	RemotePlayTogether = 8,
-	ClientTypeWeb = 256,
-	ClientTypeMobile = 512,
-	ClientTypeTenfoot = 1024,
-	ClientTypeVR = 2048,
-	LaunchTypeGamepad = 4096,
-	LaunchTypeCompatTool = 8192,
-}
-
-export enum EClientPersonaStateFlag {
-	Status = 1,
-	PlayerName = 2,
-	QueryPort = 4,
-	SourceID = 8,
-	Presence = 16,
-	LastSeen = 64,
-	UserClanRank = 128,
-	GameExtraInfo = 256,
-	GameDataBlob = 512,
-	ClanData = 1024,
-	Facebook = 2048,
-	RichPresence = 4096,
-	Broadcast = 8192,
-	Watching = 16384,
 }
 
 export enum EAppUsageEvent {
@@ -1083,44 +1053,6 @@ export enum EUCMFilePrivacyState {
 	FriendsOnly = 4,
 	Public = 8,
 	Unlisted = 16,
-}
-
-export enum EPublishedFileQueryType {
-	RankedByVote = 0,
-	RankedByPublicationDate = 1,
-	AcceptedForGameRankedByAcceptanceDate = 2,
-	RankedByTrend = 3,
-	FavoritedByFriendsRankedByPublicationDate = 4,
-	CreatedByFriendsRankedByPublicationDate = 5,
-	RankedByNumTimesReported = 6,
-	CreatedByFollowedUsersRankedByPublicationDate = 7,
-	NotYetRated = 8,
-	RankedByTotalUniqueSubscriptions = 9,
-	RankedByTotalVotesAsc = 10,
-	RankedByVotesUp = 11,
-	RankedByTextSearch = 12,
-	RankedByPlaytimeTrend = 13,
-	RankedByTotalPlaytime = 14,
-	RankedByAveragePlaytimeTrend = 15,
-	RankedByLifetimeAveragePlaytime = 16,
-	RankedByPlaytimeSessionsTrend = 17,
-	RankedByLifetimePlaytimeSessions = 18,
-	RankedByInappropriateContentRating = 19,
-}
-
-export enum EPublishedFileInappropriateProvider {
-	Invalid = 0,
-	Google = 1,
-	Amazon = 2,
-}
-
-export enum EPublishedFileInappropriateResult {
-	NotScanned = 0,
-	VeryUnlikely = 1,
-	Unlikely = 30,
-	Possible = 50,
-	Likely = 75,
-	VeryLikely = 100,
 }
 
 export enum EDisplayStatus {
