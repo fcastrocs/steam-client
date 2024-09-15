@@ -41,7 +41,6 @@ export default abstract class Base {
         return new Promise<void>((resolve, reject) => {
             if (this.options.httpProxy || this.options.socksProxy) {
                 this.proxySocket = new Socket();
-                this.proxySocket.setNoDelay(true);
                 this.handleConnectionEvents(this.proxySocket, reject);
             }
 
@@ -82,6 +81,7 @@ export default abstract class Base {
 
     protected handleConnectionEvents(socket: Socket, reject: (err: Error) => void) {
         socket.setTimeout(this.options.timeout);
+        socket.setNoDelay(true);
 
         const cb = (error?: Error) => {
             this.cleanUp(error);

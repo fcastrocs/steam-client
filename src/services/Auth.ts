@@ -1,6 +1,6 @@
-import NodeRSA from 'node-rsa';
 import QRCode from 'qrcode';
 import { UnknownRecord, ValueOf } from 'type-fest';
+import SteamCrypto from '@fcastrocs/steam-client-crypto';
 import Steam from '../Steam.js';
 import Language from '../modules/language.js';
 import { SteamClientError } from '../modules/common.js';
@@ -99,7 +99,7 @@ export default class Auth {
             'BeginAuthSessionViaCredentials',
             {
                 accountName,
-                encryptedPassword: encryptPass(password, rsa.publickeyMod, rsa.publickeyExp),
+                encryptedPassword: SteamCrypto.rsaEncrypt(password, rsa.publickeyMod, rsa.publickeyExp),
                 encryptionTimestamp: rsa.timestamp,
                 rememberLogin: true,
                 persistence: ESessionPersistence.Persistent,
@@ -237,26 +237,4 @@ function checkResult(res: UnknownRecord) {
     if (res.EResult !== EResult.OK) {
         throw new SteamClientError(EResultMap.get(res.EResult as ValueOf<typeof EResult>));
     }
-}
-
-function encryptPass(password: string, publickeyMod: string, publickeyExp: string) {
-    const key = new NodeRSA();
-
-    key.setOptions({
-        encryptionScheme: 'pkcs1',
-        signingScheme: 'pkcs1-sha256'
-    });
-
-    const mod2 = Buffer.from(publickeyMod, 'hex');
-    const exp2 = Buffer.from(publickeyExp, 'hex');
-
-    key.importKey(
-        {
-            n: mod2,
-            e: exp2
-        },
-        'components-public'
-    );
-
-    return key.encrypt(password, 'base64');
 }

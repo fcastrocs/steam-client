@@ -67,7 +67,6 @@ export default class SteamWs extends Base {
         return new Promise<void>((resolve, reject) => {
             if (!this.cleanedUp) {
                 this.socket = tls.connect(options, () => {
-                    this.socket.setNoDelay(true);
                     this.socket.write(this.generateHeaders().join('\r\n'));
                 });
 

@@ -32,9 +32,8 @@
         "node": ">=18.16.0"
     },
     "dependencies": {
-        "@fcastrocs/steam-client-crypto": "^1.0.8",
+        "@fcastrocs/steam-client-crypto": "^1.0.10",
         "long": "^5.2.3",
-        "node-rsa": "^1.1.1",
         "protobufjs": "^7.4.0",
         "qrcode": "^1.5.4",
         "smart-buffer": "^4.2.0",
@@ -42,7 +41,6 @@
     },
     "devDependencies": {
         "@types/node": "^22.5.4",
-        "@types/node-rsa": "^1.1.4",
         "@types/qrcode": "^1.5.5",
         "@typescript-eslint/eslint-plugin": "^5.10.0",
         "@typescript-eslint/parser": "^5.10.0",
