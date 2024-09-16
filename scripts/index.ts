@@ -4,11 +4,11 @@
  */
 
 import fetchProtos from './fetchProtos';
-import buildEnums from './buildEnumsAndProtoTypings';
+import genSteamLanguage from './genSteamLanguage';
 import bundleTsTypes from './bundleTsTypes';
 
 (async () => {
     await fetchProtos();
-    await buildEnums();
+    await genSteamLanguage();
     bundleTsTypes();
 })();

@@ -1,6 +1,6 @@
 /**
- * Build steam enums
- * Build proto typings
+ * Generate steam enums from protos
+ * Generate proto TypeScript types from protos
  */
 
 import { ReflectionObject } from 'protobufjs';
@@ -20,7 +20,7 @@ const HEADER = `/**
  */`;
 
 export default async function main() {
-    await extractEnumsAndProtoTypes();
+    await extractEnumsAndProtoTsTypesTypes();
     await fetchEnumsSteamd();
     await fetchEResult();
 }
@@ -28,7 +28,7 @@ export default async function main() {
 /**
  * Extract enums and build proto types from proto files
  */
-async function extractEnumsAndProtoTypes() {
+async function extractEnumsAndProtoTsTypesTypes() {
     const steamProtos = new SteamProtos('../../resources/protos');
     const cachedProtos = await steamProtos.loadProtos();
     if (!cachedProtos.protosRoot.nested) return;
