@@ -21,11 +21,10 @@ export interface Authentication {
 
 export interface SteamConnectionOptions {
     steamCM: Server;
-    httpProxy?: Server & Authentication;
-    socksProxy?: Server & Authentication & { version: 4 | 5 };
+    protocol?: 'ws' | 'tcp';
+    proxy?: Server & Authentication & { protocol: 'http' | 'socks'; socksVersion?: 4 | 5 };
     timeout: number;
     cachedProtos?: CachedProtos;
-    protocol?: 'ws' | 'tcp';
 }
 
 export interface CachedProtos {

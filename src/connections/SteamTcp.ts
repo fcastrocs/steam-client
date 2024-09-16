@@ -31,7 +31,7 @@ export default class SteamTcp extends Base {
         this.beforeConnect(options);
 
         try {
-            if (this.options.httpProxy || this.options.socksProxy) {
+            if (this.options.proxy) {
                 await this.connectViaProxy();
                 this.socket = this.proxySocket;
             } else {

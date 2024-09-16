@@ -31,6 +31,10 @@ export default abstract class Base {
         this.options = options;
         this.options.timeout = this.options.timeout || 15000;
         this.cleanedUp = false;
+
+        if (options.proxy && options.proxy.protocol === 'socks' && !options.proxy.socksVersion) {
+            throw new Error("Property 'socksVersion' is needed when using socks proxy.");
+        }
     }
 
     protected disconnect() {
@@ -39,15 +43,15 @@ export default abstract class Base {
 
     protected connectViaProxy() {
         return new Promise<void>((resolve, reject) => {
-            if (this.options.httpProxy || this.options.socksProxy) {
+            if (this.options.proxy) {
                 this.proxySocket = new Socket();
                 this.handleConnectionEvents(this.proxySocket, reject);
-            }
 
-            if (this.options.httpProxy) {
-                this.connectHttpProxy(resolve, reject);
-            } else if (this.options.socksProxy) {
-                this.connectSocksProxy(resolve, reject);
+                if (this.options.proxy.protocol === 'http') {
+                    this.connectHttpProxy(resolve, reject);
+                } else {
+                    this.connectSocksProxy(resolve, reject);
+                }
             } else {
                 resolve();
             }
@@ -110,7 +114,7 @@ export default abstract class Base {
     }
 
     private connectHttpProxy(resolve: () => void, reject: (error: Error) => void) {
-        const { port: proxyPort, host: proxyHost, user, pass } = this.options.httpProxy;
+        const { port: proxyPort, host: proxyHost, user, pass } = this.options.proxy;
         const { host: steamHost, port: steamPort } = this.options.steamCM;
 
         this.proxySocket.connect({ port: proxyPort, host: proxyHost }, () => {
@@ -135,17 +139,17 @@ export default abstract class Base {
     }
 
     private connectSocksProxy(resolve: () => void, reject: (error: Error) => void) {
-        const { host, port, version } = this.options.socksProxy;
+        const { host, port, socksVersion } = this.options.proxy;
 
         this.proxySocket.connect(port, host, () => {
-            if (version === 5) {
+            if (socksVersion === 5) {
                 this.socks5HandShake(resolve, reject);
             }
         });
     }
 
     private socks5HandShake(resolve: () => void, reject: (error: Error) => void) {
-        const { user, pass } = this.options.socksProxy;
+        const { user, pass } = this.options.proxy;
         const { host: steamHost, port: steamPort } = this.options.steamCM;
         const hasAuthentication = user && pass;
 
