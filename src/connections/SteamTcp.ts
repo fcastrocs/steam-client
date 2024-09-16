@@ -49,7 +49,11 @@ export default class SteamTcp extends Base {
     }
 
     private async encryptionHandShake() {
+        this.socket.removeAllListeners();
+
         return new Promise<void>((resolve, reject) => {
+            this.handleConnectionEvents(this.socket, reject);
+
             this.socket.on('data', (data) => {
                 if (!this.connectionEncrypted) {
                     const payload = this.getPayloadFromFrame(data);

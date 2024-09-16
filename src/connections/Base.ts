@@ -55,8 +55,6 @@ export default abstract class Base {
     }
 
     protected cleanUp(error?: Error) {
-        this.connected = false;
-
         if (!this.cleanedUp) {
             if (this.socket) {
                 this.socket.destroy();
@@ -73,9 +71,12 @@ export default abstract class Base {
                 length: 0
             };
 
-            this.emitter.emit('disconnected', error);
+            if (this.connected) {
+                this.emitter.emit('disconnected', error);
+            }
         }
 
+        this.connected = false;
         this.cleanedUp = true;
     }
 
