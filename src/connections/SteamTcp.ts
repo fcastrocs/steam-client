@@ -102,15 +102,6 @@ export default class SteamTcp extends Base {
      * header: 8 bytes [payloadLen(UInt32), magic(4 bytes string)]
      */
     getPayloadFromFrame(data: Buffer): Buffer {
-        if (this.connectionEncrypted) {
-            //     try {
-            //         const decryptedFrame = SteamCrypto.decrypt(frame, this.encryptionKey.plain);
-            //         this.getPayloadFromFrame(decryptedFrame);
-            //     } catch (error) {
-            //         this.destroyConnection(new Error('Data Encryption failed.'));
-            //     }
-        }
-
         // new packet
         if (!this.payload.buffer.length) {
             // read header [payload length, magic]
@@ -118,7 +109,7 @@ export default class SteamTcp extends Base {
             const magic = data.subarray(4, 8); // 4 bytes
 
             if (Buffer.compare(magic, MAGIC) !== 0) {
-                throw new Error('Steam sent bad data');
+                return null;
             }
 
             this.payload.buffer = data.subarray(8, 8 + this.payload.length);
