@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -29,6 +29,10 @@ export type CMsgClientRichPresenceInfo = {
 	richPresence?: {
 		steamidUser?: Long
 		richPresenceKv?: Buffer
+		richPresense?: {
+			key?: string
+			value?: string
+		}[]
 	}[]
 }
 
@@ -47,66 +51,6 @@ export type CMsgClientCheckFileSignatureResponse = {
 	filesize?: number
 	getlasterror?: number
 	evalvesignaturecheckdetail?: number
-}
-
-export type CMsgClientReadMachineAuth = {
-	filename?: string
-	offset?: number
-	cubtoread?: number
-}
-
-export type CMsgClientReadMachineAuthResponse = {
-	filename?: string
-	eresult?: number
-	filesize?: number
-	shaFile?: Buffer
-	getlasterror?: number
-	offset?: number
-	cubread?: number
-	bytesRead?: Buffer
-	filenameSentry?: string
-}
-
-export type CMsgClientUpdateMachineAuth = {
-	filename?: string
-	offset?: number
-	cubtowrite?: number
-	bytes?: Buffer
-	otpType?: number
-	otpIdentifier?: string
-	otpSharedsecret?: Buffer
-	otpTimedrift?: number
-}
-
-export type CMsgClientUpdateMachineAuthResponse = {
-	filename?: string
-	eresult?: number
-	filesize?: number
-	shaFile?: Buffer
-	getlasterror?: number
-	offset?: number
-	cubwrote?: number
-	otpType?: number
-	otpValue?: number
-	otpIdentifier?: string
-}
-
-export type CMsgClientRequestMachineAuth = {
-	filename?: string
-	eresultSentryfile?: number
-	filesize?: number
-	shaSentryfile?: Buffer
-	lockAccountAction?: number
-	otpType?: number
-	otpIdentifier?: string
-	otpSharedsecret?: Buffer
-	otpValue?: number
-	machineName?: string
-	machineNameUserchosen?: string
-}
-
-export type CMsgClientRequestMachineAuthResponse = {
-	eresult?: number
 }
 
 export type CMsgClientRegisterKey = {
@@ -167,12 +111,6 @@ export type CMsgTradingStartSession = {
 	otherSteamid?: Long
 }
 
-export type CMsgClientGetCDNAuthToken = {
-	depotId?: number
-	hostName?: string
-	appId?: number
-}
-
 export type CMsgClientGetDepotDecryptionKey = {
 	depotId?: number
 	appId?: number
@@ -197,43 +135,6 @@ export type CMsgClientCheckAppBetaPasswordResponse = {
 		betapassword?: string
 		betadescription?: string
 	}[]
-}
-
-export type CMsgClientGetCDNAuthTokenResponse = {
-	eresult?: number
-	token?: string
-	expirationTime?: number
-}
-
-export type CMsgDownloadRateStatistics = {
-	cellId?: number
-	stats?: {
-		sourceType?: number
-		sourceId?: number
-		seconds?: number
-		bytes?: Long
-		hostName?: string
-		microseconds?: Long
-		usedIpv6?: boolean
-		proxied?: boolean
-	}[]
-	throttlingKbps?: number
-	steamRealm?: number
-}
-
-export type CMsgClientRequestAccountData = {
-	accountOrEmail?: string
-	action?: number
-}
-
-export type CMsgClientRequestAccountDataResponse = {
-	action?: number
-	eresult?: number
-	accountName?: string
-	ctMatches?: number
-	accountNameSuggestion1?: string
-	accountNameSuggestion2?: string
-	accountNameSuggestion3?: string
 }
 
 export type CMsgClientUGSGetGlobalStats = {

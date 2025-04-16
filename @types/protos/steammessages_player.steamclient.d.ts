@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -205,6 +205,7 @@ export type ProfileItem = {
 		styleName?: string
 		color?: string
 	}[]
+	tiled?: boolean
 }
 
 export type CPlayerGetProfileBackgroundResponse = {
@@ -227,6 +228,7 @@ export type CPlayerGetProfileBackgroundResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 }
 
@@ -262,6 +264,7 @@ export type CPlayerGetMiniProfileBackgroundResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 }
 
@@ -297,6 +300,7 @@ export type CPlayerGetAvatarFrameResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 }
 
@@ -332,6 +336,7 @@ export type CPlayerGetAnimatedAvatarResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 }
 
@@ -367,6 +372,7 @@ export type CPlayerGetSteamDeckKeyboardSkinResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 }
 
@@ -402,6 +408,7 @@ export type CPlayerGetProfileItemsOwnedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}[]
 	miniProfileBackgrounds?: {
 		communityitemid?: Long
@@ -422,6 +429,7 @@ export type CPlayerGetProfileItemsOwnedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}[]
 	avatarFrames?: {
 		communityitemid?: Long
@@ -442,6 +450,7 @@ export type CPlayerGetProfileItemsOwnedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}[]
 	animatedAvatars?: {
 		communityitemid?: Long
@@ -462,6 +471,7 @@ export type CPlayerGetProfileItemsOwnedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}[]
 	profileModifiers?: {
 		communityitemid?: Long
@@ -482,6 +492,7 @@ export type CPlayerGetProfileItemsOwnedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}[]
 	steamDeckKeyboardSkins?: {
 		communityitemid?: Long
@@ -502,6 +513,7 @@ export type CPlayerGetProfileItemsOwnedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}[]
 	steamDeckStartupMovies?: {
 		communityitemid?: Long
@@ -522,6 +534,7 @@ export type CPlayerGetProfileItemsOwnedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}[]
 }
 
@@ -550,6 +563,7 @@ export type CPlayerGetProfileItemsEquippedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 	miniProfileBackground?: {
 		communityitemid?: Long
@@ -570,6 +584,7 @@ export type CPlayerGetProfileItemsEquippedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 	avatarFrame?: {
 		communityitemid?: Long
@@ -590,6 +605,7 @@ export type CPlayerGetProfileItemsEquippedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 	animatedAvatar?: {
 		communityitemid?: Long
@@ -610,6 +626,7 @@ export type CPlayerGetProfileItemsEquippedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 	profileModifier?: {
 		communityitemid?: Long
@@ -630,6 +647,7 @@ export type CPlayerGetProfileItemsEquippedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 	steamDeckKeyboardSkin?: {
 		communityitemid?: Long
@@ -650,6 +668,7 @@ export type CPlayerGetProfileItemsEquippedResponse = {
 			styleName?: string
 			color?: string
 		}[]
+		tiled?: boolean
 	}
 }
 

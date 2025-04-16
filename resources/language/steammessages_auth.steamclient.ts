@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 export enum EAuthTokenPlatformType {
@@ -9,6 +9,12 @@ export enum EAuthTokenPlatformType {
 	SteamClient = 1,
 	WebBrowser = 2,
 	MobileApp = 3,
+}
+
+export enum EAuthTokenAppType {
+	Unknown = 0,
+	SteamApp = 1,
+	ChatApp = 2,
 }
 
 export enum EAuthSessionGuardType {

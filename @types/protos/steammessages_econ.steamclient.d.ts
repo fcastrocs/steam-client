@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -42,6 +42,7 @@ export type CEconItemDescriptionLine = {
 	value?: string
 	color?: string
 	label?: string
+	name?: string
 }
 
 export type CEconItemAction = {
@@ -62,6 +63,7 @@ export type CEconItemDescription = {
 		value?: string
 		color?: string
 		label?: string
+		name?: string
 	}[]
 	tradable?: boolean
 	actions?: {
@@ -73,6 +75,7 @@ export type CEconItemDescription = {
 		value?: string
 		color?: string
 		label?: string
+		name?: string
 	}[]
 	ownerActions?: {
 		link?: string
@@ -105,6 +108,7 @@ export type CEconItemDescription = {
 	itemExpiration?: string
 	marketBuyCountryRestriction?: string
 	marketSellCountryRestriction?: string
+	sealed?: boolean
 }
 
 export type CEconItemTag = {
@@ -141,6 +145,7 @@ export type CEconGetInventoryItemsWithDescriptionsResponse = {
 			value?: string
 			color?: string
 			label?: string
+			name?: string
 		}[]
 		tradable?: boolean
 		actions?: {
@@ -152,6 +157,7 @@ export type CEconGetInventoryItemsWithDescriptionsResponse = {
 			value?: string
 			color?: string
 			label?: string
+			name?: string
 		}[]
 		ownerActions?: {
 			link?: string
@@ -184,6 +190,7 @@ export type CEconGetInventoryItemsWithDescriptionsResponse = {
 		itemExpiration?: string
 		marketBuyCountryRestriction?: string
 		marketSellCountryRestriction?: string
+		sealed?: boolean
 	}[]
 	missingAssets?: {
 		appid?: number
@@ -241,6 +248,7 @@ export type CEconGetAssetClassInfoResponse = {
 			value?: string
 			color?: string
 			label?: string
+			name?: string
 		}[]
 		tradable?: boolean
 		actions?: {
@@ -252,6 +260,7 @@ export type CEconGetAssetClassInfoResponse = {
 			value?: string
 			color?: string
 			label?: string
+			name?: string
 		}[]
 		ownerActions?: {
 			link?: string
@@ -284,6 +293,7 @@ export type CEconGetAssetClassInfoResponse = {
 		itemExpiration?: string
 		marketBuyCountryRestriction?: string
 		marketSellCountryRestriction?: string
+		sealed?: boolean
 	}[]
 }
 

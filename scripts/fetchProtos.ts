@@ -15,6 +15,8 @@ const PROTOS = [
     'steammessages_base.proto',
     'enums_clientserver.proto',
     'enums.proto',
+    'enums_productinfo.proto',
+    'steammessages_storebrowse.steamclient.proto',
     'steammessages_store.steamclient.proto',
     'steammessages_player.steamclient.proto',
     'steammessages_market.steamclient.proto',

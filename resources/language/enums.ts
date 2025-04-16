@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 export enum ESessionPersistence {
@@ -68,6 +68,8 @@ export enum EContentCheckProvider {
 	Amazon = 2,
 	Local = 3,
 	GoogleVertexAI = 4,
+	GoogleGemini = 5,
+	SteamLearn = 6,
 }
 
 export enum EProfileCustomizationType {
@@ -138,8 +140,9 @@ export enum ESystemFanControlMode {
 
 export enum EStartupMovieVariant {
 	Invalid = 0,
-	Default = 1,
-	Orange = 2,
+	Generic = 1,
+	DeckBlue = 2,
+	DeckOrange = 3,
 }
 
 export enum EColorGamutLabelSet {
@@ -225,21 +228,11 @@ export enum EGPUPerformanceLevel {
 	Profiling = 5,
 }
 
-export enum EScalingFilter {
-	Invalid = 0,
-	FSR = 1,
-	Nearest = 2,
-	Integer = 3,
-	Linear = 4,
-	NIS = 5,
-}
-
 export enum ESplitScalingFilter {
 	Invalid = 0,
 	Linear = 1,
 	Nearest = 2,
-	FSR = 3,
-	NIS = 4,
+	Sharp = 3,
 }
 
 export enum ESplitScalingScaler {
@@ -387,6 +380,59 @@ export enum EOSBranch {
 	Staging = 8,
 }
 
+export enum EBrowserGPUStatus {
+	Invalid = 0,
+	Enabled = 1,
+	DisabledUnknown = 2,
+	DisabledCrashCount = 4,
+	DisabledBlocklist = 5,
+	DisabledJSRequest = 6,
+	DisabledCommandLine = 7,
+	DisabledRuntimeDetect = 8,
+	DisabledChildCommandLine = 9,
+	DisabledCompositingCommandLine = 10,
+}
+
+export enum EBrowserFeatureStatus {
+	Invalid = 0,
+	NotFound = 1,
+	Unknown = 2,
+	DisabledSoftware = 3,
+	DisabledOff = 4,
+	DisabledOffOk = 5,
+	UnavailableSoftware = 6,
+	UnavailableOff = 7,
+	UnavailableOffOk = 8,
+	EnabledReadback = 9,
+	EnabledForce = 10,
+	Enabled = 11,
+	EnabledOn = 12,
+	EnabledForceOn = 13,
+}
+
+export enum EGpuDriverId {
+	Invalid = 0,
+	Unknown = 1,
+	AmdProprietary = 2,
+	AmdOpenSource = 3,
+	MesaRadv = 4,
+	NvidiaProprietary = 5,
+	IntelPropietary = 6,
+	MesaIntel = 7,
+	QualcommProprietary = 8,
+	ArmProprietary = 9,
+	GoogleSwiftshader = 10,
+	BroadcomProprietary = 11,
+	MesaLLVMPipe = 12,
+	MoltenVK = 13,
+	MesaTurnip = 14,
+	MesaPanVK = 15,
+	MesaVenus = 16,
+	MesaDozen = 17,
+	MesaNVK = 18,
+	MesaHoneyKrisp = 19,
+}
+
 export enum ECommunityItemClass {
 	Invalid = 0,
 	Badge = 1,
@@ -502,6 +548,9 @@ export enum ECompromiseDetectionType {
 	TradeEvent = 1,
 	ApiCallRate = 2,
 	Manual = 3,
+	TicketAction = 4,
+	MaliciousRefund = 5,
+	Move2FA = 6,
 }
 
 export enum EAsyncGameSessionUserState {
@@ -525,6 +574,12 @@ export enum EGameRecordingType {
 	Clip = 4,
 }
 
+export enum EExportCodec {
+	Default = 0,
+	H264 = 1,
+	H265 = 2,
+}
+
 export enum EProtoAppType {
 	EAppTypeInvalid = 0,
 	EAppTypeGame = 1,
@@ -546,6 +601,21 @@ export enum EProtoAppType {
 	EAppTypeBeta = 65536,
 	EAppTypeShortcut = 1073741824,
 	EAppTypeDepotOnly = -2147483648,
+}
+
+export enum EChildProcessQueryCommand {
+	Invalid = 0,
+	GpuTopology = 1,
+	Max = 2,
+}
+
+export enum EChildProcessQueryExitCode {
+	Success = 0,
+	ErrorCommandline = -1,
+	ErrorOther = -2,
+	ErrorUnimplemented = -3,
+	ErrorFileSave = -4,
+	ErrorNotSupportedByPlatform = -5,
 }
 
 export enum EWindowsUpdateInstallationImpact {

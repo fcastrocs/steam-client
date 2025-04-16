@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -26,6 +26,7 @@ export type CAuthenticationDeviceDetails = {
 	gamingDeviceType?: number
 	clientCount?: number
 	machineId?: Buffer
+	appType?: typeof enums.EAuthTokenAppType[keyof typeof enums.EAuthTokenAppType]
 }
 
 export type CAuthenticationBeginAuthSessionViaQRRequest = {
@@ -38,6 +39,7 @@ export type CAuthenticationBeginAuthSessionViaQRRequest = {
 		gamingDeviceType?: number
 		clientCount?: number
 		machineId?: Buffer
+		appType?: typeof enums.EAuthTokenAppType[keyof typeof enums.EAuthTokenAppType]
 	}
 	websiteId?: string
 }
@@ -75,6 +77,7 @@ export type CAuthenticationBeginAuthSessionViaCredentialsRequest = {
 		gamingDeviceType?: number
 		clientCount?: number
 		machineId?: Buffer
+		appType?: typeof enums.EAuthTokenAppType[keyof typeof enums.EAuthTokenAppType]
 	}
 	guardData?: string
 	language?: number
@@ -129,6 +132,31 @@ export type CAuthenticationGetAuthSessionInfoResponse = {
 	requestorLocationMismatch?: boolean
 	highUsageLogin?: boolean
 	requestedPersistence?: typeof enums.ESessionPersistence[keyof typeof enums.ESessionPersistence]
+	deviceTrust?: number
+	appType?: typeof enums.EAuthTokenAppType[keyof typeof enums.EAuthTokenAppType]
+}
+
+export type CAuthenticationGetAuthSessionRiskInfoRequest = {
+	clientId?: Long
+	language?: number
+}
+
+export type CAuthenticationGetAuthSessionRiskInfoResponse = {
+	locationConfirmer?: string
+	locationRequestor?: string
+	locationOther?: string
+	platformType?: typeof enums.EAuthTokenPlatformType[keyof typeof enums.EAuthTokenPlatformType]
+}
+
+export type CAuthenticationNotifyRiskQuizResultsNotification = {
+	clientId?: Long
+	results?: {
+		platform?: boolean
+		location?: boolean
+		action?: boolean
+	}
+	selectedAction?: string
+	didConfirmLogin?: boolean
 }
 
 export type CAuthenticationUpdateAuthSessionWithMobileConfirmationRequest = {
@@ -387,6 +415,14 @@ export type CAuthenticationSupportGetTokenHistoryResponse = {
 		}
 		actor?: Long
 	}[]
+}
+
+export type CAuthenticationSupportMarkTokenCompromisedRequest = {
+	steamid?: Long
+	tokenId?: Long
+}
+
+export type CAuthenticationSupportMarkTokenCompromisedResponse = {
 }
 
 export type CCloudGamingCreateNonceRequest = {

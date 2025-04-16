@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 export enum EStoreDiscoveryQueueType {
@@ -27,6 +27,7 @@ export enum EPlaytestStatus {
 	ETesterStatusPending = 1,
 	ETesterStatusInvited = 2,
 	ETesterStatusGranted = 3,
+	ETesterStatusExpired = 4,
 }
 
 export enum EAppReportType {

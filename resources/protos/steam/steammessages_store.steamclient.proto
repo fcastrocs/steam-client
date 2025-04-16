@@ -1,6 +1,7 @@
 import "steammessages_base.proto";
 import "steammessages_unified_base.steamclient.proto";
 import "contenthubs.proto";
+import "steammessages_storebrowse.steamclient.proto";
 import "enums.proto";
 
 option cc_generic_services = true;
@@ -28,6 +29,7 @@ enum EPlaytestStatus {
 	k_ETesterStatusPending = 1;
 	k_ETesterStatusInvited = 2;
 	k_ETesterStatusGranted = 3;
+	k_ETesterStatusExpired = 4;
 }
 
 enum EAppReportType {
@@ -97,6 +99,22 @@ message CStore_PurchaseReceiptInfo {
 message CStore_RegisterCDKey_Response {
 	optional int32 purchase_result_details = 1;
 	optional .CStore_PurchaseReceiptInfo purchase_receipt_info = 2;
+}
+
+message CStore_GetRecommendedTagsForUser_Request {
+	optional string language = 2;
+	optional string country_code = 3;
+	optional bool favor_rarer_tags = 4;
+}
+
+message CStore_GetRecommendedTagsForUser_Response {
+	message Tag {
+		optional uint32 tagid = 1;
+		optional string name = 2;
+		optional float weight = 3;
+	}
+
+	repeated .CStore_GetRecommendedTagsForUser_Response.Tag tags = 1;
 }
 
 message CStore_GetMostPopularTags_Request {
@@ -171,6 +189,8 @@ message CStore_GetDiscoveryQueue_Request {
 	optional uint32 experimental_cohort = 10;
 	optional bool debug_get_solr_query = 11;
 	optional .CStorePageFilter store_page_filter = 12;
+	optional .StoreBrowseContext context = 13;
+	optional .StoreBrowseItemDataRequest data_request = 14;
 }
 
 message CStore_GetDiscoveryQueue_Response {
@@ -181,6 +201,7 @@ message CStore_GetDiscoveryQueue_Response {
 	optional bool exhausted = 5;
 	optional uint32 experimental_cohort = 6;
 	optional string debug_solr_query = 7;
+	repeated .StoreItem store_items = 8;
 }
 
 message CStore_GetDiscoveryQueueSettings_Request {
@@ -317,6 +338,7 @@ message CStore_UpdatePackageReservations_Response {
 message CStore_GetWishlistDemoEmailStatus_Request {
 	optional uint32 appid = 1;
 	optional uint32 demo_appid = 2;
+	optional bool allow_late_firing = 3;
 }
 
 message CStore_GetWishlistDemoEmailStatus_Response {
@@ -328,6 +350,7 @@ message CStore_GetWishlistDemoEmailStatus_Response {
 message CStore_QueueWishlistDemoEmailToFire_Request {
 	optional uint32 appid = 1;
 	optional uint32 demo_appid = 2;
+	optional bool allow_late_firing = 3;
 }
 
 message CStore_QueueWishlistDemoEmailToFire_Response {
@@ -395,6 +418,7 @@ message CStore_StorePreferencesChanged_Notification {
 
 service Store {
 	rpc RegisterCDKey (.CStore_RegisterCDKey_Request) returns (.CStore_RegisterCDKey_Response);
+	rpc GetRecommendedTagsForUser (.CStore_GetRecommendedTagsForUser_Request) returns (.CStore_GetRecommendedTagsForUser_Response);
 	rpc GetMostPopularTags (.CStore_GetMostPopularTags_Request) returns (.CStore_GetMostPopularTags_Response);
 	rpc GetLocalizedNameForTags (.CStore_GetLocalizedNameForTags_Request) returns (.CStore_GetLocalizedNameForTags_Response);
 	rpc GetTagList (.CStore_GetTagList_Request) returns (.CStore_GetTagList_Response);

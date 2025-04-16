@@ -86,7 +86,6 @@ enum EMsg {
 	k_EMsgGMQueueForFBS = 326;
 	k_EMsgGMSchemaConversionResults = 327;
 	k_EMsgGMWriteShellFailureToSQL = 329;
-	k_EMsgGMWriteStatsToSOS = 330;
 	k_EMsgGMGetServiceMethodRouting = 331;
 	k_EMsgGMGetServiceMethodRoutingResponse = 332;
 	k_EMsgGMTestNextBuildSchemaConversion = 334;
@@ -98,7 +97,6 @@ enum EMsg {
 	k_EMsgGMGetModifiedConVarsResponse = 340;
 	k_EMsgBaseAIS = 400;
 	k_EMsgAISRequestContentDescription = 402;
-	k_EMsgAISUpdateAppInfo = 403;
 	k_EMsgAISGetPackageChangeNumber = 405;
 	k_EMsgAISGetPackageChangeNumberResponse = 406;
 	k_EMsgAIGetAppGCFlags = 423;
@@ -265,7 +263,6 @@ enum EMsg {
 	k_EMsgClientGameConnectTokens = 779;
 	k_EMsgClientLicenseList = 780;
 	k_EMsgClientVACBanStatus = 782;
-	k_EMsgClientCMList = 783;
 	k_EMsgClientEncryptPct = 784;
 	k_EMsgClientGetLegacyGameKeyResponse = 785;
 	k_EMsgClientAddFriend = 791;
@@ -937,7 +934,7 @@ enum EMsg {
 	k_EMsgClientIsLimitedAccount = 5430;
 	k_EMsgClientRequestAuthList = 5431;
 	k_EMsgClientAuthList = 5432;
-	k_EMsgClientStat = 5433;
+	k_EMsgClientStat_Deprecated = 5433;
 	k_EMsgClientP2PConnectionInfo = 5434;
 	k_EMsgClientP2PConnectionFailInfo = 5435;
 	k_EMsgClientGetDepotDecryptionKey = 5438;
@@ -946,8 +943,6 @@ enum EMsg {
 	k_EMsgClientEnableTestLicenseResponse = 5444;
 	k_EMsgClientDisableTestLicense = 5445;
 	k_EMsgClientDisableTestLicenseResponse = 5446;
-	k_EMsgClientRequestValidationMail = 5448;
-	k_EMsgClientRequestValidationMailResponse = 5449;
 	k_EMsgClientCheckAppBetaPassword = 5450;
 	k_EMsgClientCheckAppBetaPasswordResponse = 5451;
 	k_EMsgClientToGC = 5452;
@@ -963,11 +958,9 @@ enum EMsg {
 	k_EMsgClientLogOnWithHash_Deprecated = 5465;
 	k_EMsgClientStoreUserStats2 = 5466;
 	k_EMsgClientStatsUpdated = 5467;
-	k_EMsgClientRequestedClientStats = 5480;
-	k_EMsgClientStat2Int32 = 5481;
-	k_EMsgClientStat2 = 5482;
-	k_EMsgClientVerifyPassword = 5483;
-	k_EMsgClientVerifyPasswordResponse = 5484;
+	k_EMsgClientRequestedClientStats_Deprecated = 5480;
+	k_EMsgClientStat2Int32_Deprecated = 5481;
+	k_EMsgClientStat2_Deprecated = 5482;
 	k_EMsgClientDRMDownloadRequest = 5485;
 	k_EMsgClientDRMDownloadResponse = 5486;
 	k_EMsgClientDRMFinalResult = 5487;
@@ -1014,18 +1007,9 @@ enum EMsg {
 	k_EMsgClientAMGetClanOfficersResponse = 5532;
 	k_EMsgClientFriendProfileInfo = 5535;
 	k_EMsgClientFriendProfileInfoResponse = 5536;
-	k_EMsgClientUpdateMachineAuth = 5537;
-	k_EMsgClientUpdateMachineAuthResponse = 5538;
-	k_EMsgClientReadMachineAuth = 5539;
-	k_EMsgClientReadMachineAuthResponse = 5540;
-	k_EMsgClientRequestMachineAuth = 5541;
-	k_EMsgClientRequestMachineAuthResponse = 5542;
 	k_EMsgClientScreenshotsChanged = 5543;
 	k_EMsgClientLaunchClientApp = 5544;
 	k_EMsgClientLaunchClientAppResponse = 5545;
-	k_EMsgClientGetCDNAuthToken = 5546;
-	k_EMsgClientGetCDNAuthTokenResponse = 5547;
-	k_EMsgClientDownloadRateStatistics = 5548;
 	k_EMsgClientRequestAccountData = 5549;
 	k_EMsgClientRequestAccountDataResponse = 5550;
 	k_EMsgClientResetForgottenPassword4 = 5551;
@@ -1173,7 +1157,6 @@ enum EMsg {
 	k_EMsgNonStdMsgTests = 6808;
 	k_EMsgNonStdMsgUMQpipeAAPL = 6809;
 	k_EMSgNonStdMsgSyslog = 6810;
-	k_EMsgNonStdMsgLogsink = 6811;
 	k_EMsgNonStdMsgSteam2Emulator = 6812;
 	k_EMsgNonStdMsgRTMPServer = 6813;
 	k_EMsgNonStdMsgWebSocket = 6814;
@@ -1323,8 +1306,6 @@ enum EMsg {
 	k_EMsgBoxMonitorBase = 8700;
 	k_EMsgBoxMonitorReportRequest = 8700;
 	k_EMsgBoxMonitorReportResponse = 8701;
-	k_EMsgLogsinkBase = 8800;
-	k_EMsgLogsinkWriteReport = 8800;
 	k_EMsgPICSBase = 8900;
 	k_EMsgClientPICSChangesSinceRequest = 8901;
 	k_EMsgClientPICSChangesSinceResponse = 8902;
@@ -1371,6 +1352,8 @@ enum EMsg {
 	k_EMsgDRMWorkerProcessUnpackBlobResponse = 9131;
 	k_EMsgDRMWorkerProcessInstallAllRequest = 9132;
 	k_EMsgDRMWorkerProcessInstallAllResponse = 9133;
+	k_EMsgDRMWorkerProcessSignFile = 9134;
+	k_EMsgDRMWorkerProcessSignFileResponse = 9135;
 	k_EMsgTestWorkerProcess = 9200;
 	k_EMsgTestWorkerProcessLoadUnloadModuleRequest = 9200;
 	k_EMsgTestWorkerProcessLoadUnloadModuleResponse = 9201;

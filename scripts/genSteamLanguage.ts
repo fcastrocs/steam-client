@@ -94,8 +94,9 @@ function processProtoType({ proto, indents = 0 }: { proto: ReflectionObject; ind
     let protoType = '{\n';
 
     Object.keys(protoJson.fields).forEach((item) => {
-        // fix infinity loop "contained_item" in CEconItem_Description
-        if (item === 'options' || item === 'containedItem') return;
+        // fix infinite loops
+        if (item === 'options' || item === 'containedItem' || item === 'includedItemDataRequest'
+            || item === 'includedApps' || item === 'includedPackages') return;
 
         let dataType = convertDataType(protoJson.fields[item].type);
         const isArray = protoJson.fields[item].rule ? '[]' : '';

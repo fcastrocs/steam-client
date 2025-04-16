@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -148,6 +148,13 @@ export type CMsgClientPersonaState = {
 		playerNamePendingReview?: boolean
 		avatarPendingReview?: boolean
 		onSteamDeck?: boolean
+		otherGameData?: {
+			gameid?: Long
+			richPresence?: {
+				key?: string
+				value?: string
+			}[]
+		}[]
 	}[]
 }
 

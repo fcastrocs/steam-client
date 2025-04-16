@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -63,8 +63,22 @@ export type CMsgProtoBufHeader = {
 	wgToken?: string
 	webuiAuthKey?: string
 	excludeClientSessionids?: number[]
+	adminRequestSpoofingSteamid?: Long
+	isValveds?: boolean
 	ip?: number
 	ipV6?: Buffer
+}
+
+export type CMsgKubeRPCPacket = {
+	hdr?: {
+		jobidSource?: Long
+		jobidTarget?: Long
+		eresult?: number
+		targetJobName?: string
+		errorMessage?: string
+		replyAddress?: string
+	}
+	payload?: Buffer
 }
 
 export type CMsgMulti = {
@@ -248,6 +262,7 @@ export type CClanEventData = {
 	referencedAppids?: number[]
 	buildId?: number
 	buildBranch?: string
+	unlisted?: boolean
 }
 
 export type CBillingAddress = {

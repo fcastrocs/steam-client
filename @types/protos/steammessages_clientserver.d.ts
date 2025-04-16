@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Auto-generated file
- * Sun Sep 15 2024 13:45:14 GMT-0400 (Eastern Daylight Time)
+ * Tue Apr 15 2025 22:37:08 GMT-0400 (Eastern Daylight Time)
  */
 
 import Long from "long";
@@ -23,13 +23,6 @@ export type CMsgClientTicketAuthComplete = {
 	ticketCrc?: number
 	ticketSequence?: number
 	ownerSteamId?: Long
-}
-
-export type CMsgClientCMList = {
-	cmAddresses?: number[]
-	cmPorts?: number[]
-	cmWebsocketAddresses?: string[]
-	percentDefaultToWebsocket?: number
 }
 
 export type CMsgClientP2PConnectionInfo = {
