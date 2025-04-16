@@ -17,7 +17,7 @@ export default abstract class Base {
     protected proxySocket: Socket;
 
     protected payload = {
-        buffer: Buffer.alloc(0),
+        buffer: Buffer.alloc(0) as Buffer<ArrayBufferLike>,
         length: 0
     };
 
@@ -25,7 +25,7 @@ export default abstract class Base {
 
     connected: boolean;
 
-    constructor(protected emitter: EventEmitter) {}
+    constructor(protected emitter: EventEmitter) { }
 
     protected beforeConnect(options: SteamConnectionOptions) {
         this.options = options;

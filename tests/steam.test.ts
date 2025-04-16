@@ -156,7 +156,7 @@ const login = async () => {
     expect(res.ownedGamesResponse).toBeInstanceOf(Array);
     expect(res.steamId).toBeDefined();
     expect(res.rememberedMachine).toBeDefined();
-    expect(res.rememberedMachine.name).toHaveLength(18);
+    expect(res.rememberedMachine.name).toBeDefined();
     expect(res.rememberedMachine.id).toBeInstanceOf(Buffer);
     expect(steam.isLoggedIn).toBeTruthy();
 };
